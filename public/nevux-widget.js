@@ -12485,129 +12485,110 @@ function renderVideoFlotante(w) {
     var btnWidth = buttonFormat === "vertical" ? Math.round(buttonSize * 0.75) : buttonSize;
 
     var posStyles = "";
-    if (position === "bottom-left") {
-      posStyles = "bottom: 20px !important; left: 20px !important;";
-    } else if (position === "bottom-right") {
-      posStyles = "bottom: 20px !important; right: 20px !important;";
-    } else if (position === "top-left") {
-      posStyles = "top: 20px !important; left: 20px !important;";
-    } else if (position === "top-right") {
-      posStyles = "top: 20px !important; right: 20px !important;";
-    } else if (position === "middle-left") {
-      posStyles = "top: 50% !important; left: 20px !important; transform: translateY(-50%) !important;";
-    } else if (position === "middle-right") {
-      posStyles = "top: 50% !important; right: 20px !important; transform: translateY(-50%) !important;";
-    }
+    if (position === "bottom-left") posStyles = "bottom:20px!important;left:20px!important;";
+    else if (position === "bottom-right") posStyles = "bottom:20px!important;right:20px!important;";
+    else if (position === "top-left") posStyles = "top:20px!important;left:20px!important;";
+    else if (position === "top-right") posStyles = "top:20px!important;right:20px!important;";
+    else if (position === "middle-left") posStyles = "top:50%!important;left:20px!important;transform:translateY(-50%)!important;";
+    else if (position === "middle-right") posStyles = "top:50%!important;right:20px!important;transform:translateY(-50%)!important;";
 
     var animClass = "";
-    var animCssId = "nvx-video-flotante-anim-css";
+    var animCssId = "nvx-vf-anim-css";
     if (!document.getElementById(animCssId)) {
-      var styleEl = document.createElement("style");
-      styleEl.id = animCssId;
-      styleEl.innerHTML =
-        "@keyframes nvxVFPulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); } 70% { box-shadow: 0 0 0 15px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }" +
-        "@keyframes nvxVFBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }" +
-        ".nvx-vf-anim-pulse { animation: nvxVFPulse 2s infinite !important; }" +
-        ".nvx-vf-anim-bounce { animation: nvxVFBounce 2s infinite !important; }";
-      document.head.appendChild(styleEl);
+      var st = document.createElement("style");
+      st.id = animCssId;
+      st.innerHTML = "@keyframes nvxVFPulse{0%{box-shadow:0 0 0 0 rgba(16,185,129,0.6)}70%{box-shadow:0 0 0 15px rgba(16,185,129,0)}100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}}.nvx-vf-pulse{animation:nvxVFPulse 2s infinite!important}@keyframes nvxVFBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}.nvx-vf-bounce{animation:nvxVFBounce 2s infinite!important}";
+      document.head.appendChild(st);
     }
-
-    if (animation === "pulse") {
-      animClass = "nvx-vf-anim-pulse";
-    } else if (animation === "bounce") {
-      animClass = "nvx-vf-anim-bounce";
-    }
+    if (animation === "pulse") animClass = "nvx-vf-pulse";
+    else if (animation === "bounce") animClass = "nvx-vf-bounce";
 
     var container = document.createElement("div");
     container.id = uniqueId;
     container.setAttribute("data-nevux-widget", "video-flotante");
-    container.style.cssText = "position: fixed !important; z-index: 999990 !important; " + posStyles;
+    container.style.cssText = "position:fixed!important;z-index:999990!important;" + posStyles;
 
-    var firstVid = videos[0];
-    var videoPreviewSrc = firstVid ? (firstVid.url || "") : "";
+    var firstVid = videos[0] || {};
+    var previewSrc = firstVid.url || "";
 
-    var html = '<div id="' + uniqueId + '-btn" class="' + animClass + '" style="position: relative !important; width: ' + btnWidth + 'px !important; height: ' + buttonSize + 'px !important; border-radius: ' + buttonRadius + 'px !important; background-color: #111827 !important; cursor: pointer !important; overflow: hidden !important; box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important; display: flex !important; align-items: center !important; justify-content: center !important;">';
-
-    if (videoPreviewSrc) {
-      html += '<video src="' + videoPreviewSrc + '" style="width: 100% !important; height: 100% !important; object-fit: cover !important;" autoplay loop muted playsinline></video>';
+    // BOTÓN FLOTANTE
+    var html = '<div id="' + uniqueId + '-btn" class="' + animClass + '" style="position:relative!important;width:' + btnWidth + 'px!important;height:' + buttonSize + 'px!important;border-radius:' + buttonRadius + 'px!important;background:#111827!important;cursor:pointer!important;overflow:hidden!important;box-shadow:0 10px 25px rgba(0,0,0,0.35)!important;display:flex!important;align-items:center!important;justify-content:center!important;">';
+    if (previewSrc) {
+      html += '<video src="' + previewSrc + '" style="width:100%!important;height:100%!important;object-fit:cover!important;" autoplay loop muted playsinline></video>';
     } else {
-      html += '<div style="font-size: 28px !important;">🎬</div>';
+      html += '<div style="font-size:28px!important;">🎬</div>';
     }
-
     if (showPlayIcon) {
-      html += '<div style="position: absolute !important; width: 36px !important; height: 36px !important; border-radius: 50% !important; background-color: rgba(255,255,255,0.9) !important; display: flex !important; align-items: center !important; justify-content: center !important; color: #111827 !important; font-size: 14px !important; font-weight: 800 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important; pointer-events: none !important;">▶</div>';
+      html += '<div style="position:absolute!important;width:36px!important;height:36px!important;border-radius:50%!important;background:rgba(255,255,255,0.92)!important;display:flex!important;align-items:center!important;justify-content:center!important;color:#111!important;font-size:14px!important;font-weight:800!important;pointer-events:none!important;box-shadow:0 2px 8px rgba(0,0,0,0.3)!important;">▶</div>';
     }
-
     if (showCloseIcon) {
-      var closeSize = Math.round(closeIconSize * 1.8);
-      html += '<div id="' + uniqueId + '-close" style="position: absolute !important; top: 4px !important; left: 4px !important; width: ' + closeSize + 'px !important; height: ' + closeSize + 'px !important; border-radius: 50% !important; background-color: ' + closeIconColor + ' !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: ' + closeIconSize + 'px !important; font-weight: 800 !important; cursor: pointer !important; z-index: 10 !important;">✕</div>';
+      var cs = Math.round(closeIconSize * 1.8);
+      html += '<div id="' + uniqueId + '-close" style="position:absolute!important;top:4px!important;left:4px!important;width:' + cs + 'px!important;height:' + cs + 'px!important;border-radius:50%!important;background:' + closeIconColor + '!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:' + closeIconSize + 'px!important;font-weight:800!important;cursor:pointer!important;z-index:10!important;">✕</div>';
     }
-
     html += '</div>';
 
-    // MODAL CENTRADO ULTRA-CENTRAL
+    // ═══════════════════════════════════════
+    // MODAL 100% CENTRADO EN EL MEDIO
+    // ═══════════════════════════════════════
     var modalId = uniqueId + "-modal";
-    var modalHtml = '<div id="' + modalId + '" style="display: none !important; position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.85) !important; z-index: 999999 !important; align-items: center !important; justify-content: center !important; padding: 12px !important; box-sizing: border-box !important;">';
-    modalHtml += '<div style="position: relative !important; width: 90% !important; max-width: 340px !important; height: 75vh !important; max-height: 560px !important; margin: auto !important; background-color: #000000 !important; border-radius: 16px !important; overflow: hidden !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.15) !important;">';
+    html += '<div id="' + modalId + '" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:999999;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">';
+    html += '<div style="position:relative;width:min(340px,92vw);height:min(600px,78vh);background:#000;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.7);flex-shrink:0;">';
 
-    modalHtml += '<div id="' + modalId + '-close-btn" style="position: absolute !important; top: 10px !important; right: 10px !important; width: 32px !important; height: 32px !important; border-radius: 50% !important; background-color: rgba(0,0,0,0.7) !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 16px !important; font-weight: bold !important; cursor: pointer !important; z-index: 25 !important; border: 1px solid rgba(255,255,255,0.3) !important;">✕</div>';
+    // Botón X del modal
+    html += '<div id="' + modalId + '-x" style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.7);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;cursor:pointer;z-index:30;border:1px solid rgba(255,255,255,0.25);">✕</div>';
 
-    modalHtml += '<video id="' + modalId + '-player" src="' + (firstVid ? firstVid.url : "") + '" style="width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important;" controls autoplay playsinline></video>';
+    // Video
+    html += '<video id="' + modalId + '-player" src="' + (firstVid.url || "") + '" style="width:100%;height:100%;object-fit:cover;display:block;" controls autoplay playsinline></video>';
 
-    modalHtml += '<div style="position: absolute !important; bottom: 0 !important; left: 0 !important; right: 0 !important; padding: 12px 14px 14px 14px !important; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 70%, transparent 100%) !important; display: flex !important; flex-direction: column !important; gap: 8px !important; z-index: 10 !important; border-radius: 0 0 16px 16px !important;">';
+    // Barra inferior CTA
+    html += '<div style="position:absolute;bottom:0;left:0;right:0;padding:14px 16px 16px;background:linear-gradient(to top,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.5) 80%,transparent 100%);display:flex;flex-direction:column;gap:8px;z-index:20;">';
+    html += '<div id="' + modalId + '-title" style="color:#fff;font-size:14px;font-weight:700;text-shadow:0 1px 3px #000;line-height:1.25;">' + (firstVid.title || "") + '</div>';
+    html += '<button id="' + modalId + '-cta" type="button" style="background:' + ctaBgColor + ';color:' + ctaTextColor + ';border-radius:' + ctaRadius + 'px;padding:13px;text-align:center;font-size:15px;font-weight:800;border:none;cursor:pointer;width:100%;box-shadow:0 4px 14px rgba(0,0,0,0.4);font-family:inherit;">' + (firstVid.buttonText || "Comprar ahora") + '</button>';
+    html += '</div>';
 
-    var initialTitle = firstVid && firstVid.title ? firstVid.title : "";
-    var initialCtaText = firstVid && firstVid.buttonText ? firstVid.buttonText : "Comprar ahora";
-
-    modalHtml += '<div id="' + modalId + '-title" style="color: #ffffff !important; font-size: 14px !important; font-weight: 700 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important; line-height: 1.2 !important;">' + initialTitle + '</div>';
-
-    modalHtml += '<button id="' + modalId + '-cta" type="button" style="background-color: ' + ctaBgColor + ' !important; color: ' + ctaTextColor + ' !important; border-radius: ' + ctaRadius + 'px !important; padding: 12px !important; text-align: center !important; font-size: 14px !important; font-weight: 800 !important; border: none !important; cursor: pointer !important; width: 100% !important; box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important; font-family: inherit !important;">' + initialCtaText + '</button>';
-
-    modalHtml += '</div>';
-
+    // Flechas si hay varios videos
     if (videos.length > 1) {
-      modalHtml += '<div style="position: absolute !important; top: 50% !important; left: 8px !important; transform: translateY(-50%) !important; z-index: 15 !important;">';
-      modalHtml += '<div id="' + modalId + '-prev" style="width: 34px !important; height: 34px !important; border-radius: 50% !important; background-color: rgba(0,0,0,0.65) !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; font-size: 18px !important; font-weight: 800 !important; border: 1px solid rgba(255,255,255,0.2) !important;">‹</div>';
-      modalHtml += '</div>';
-      modalHtml += '<div style="position: absolute !important; top: 50% !important; right: 8px !important; transform: translateY(-50%) !important; z-index: 15 !important;">';
-      modalHtml += '<div id="' + modalId + '-next" style="width: 34px !important; height: 34px !important; border-radius: 50% !important; background-color: rgba(0,0,0,0.65) !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; font-size: 18px !important; font-weight: 800 !important; border: 1px solid rgba(255,255,255,0.2) !important;">›</div>';
-      modalHtml += '</div>';
+      html += '<div id="' + modalId + '-prev" style="position:absolute;top:50%;left:8px;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.65);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:800;z-index:25;border:1px solid rgba(255,255,255,0.2);">‹</div>';
+      html += '<div id="' + modalId + '-next" style="position:absolute;top:50%;right:8px;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.65);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:800;z-index:25;border:1px solid rgba(255,255,255,0.2);">›</div>';
     }
 
-    modalHtml += '</div></div>';
+    html += '</div></div>';
 
-    container.innerHTML = html + modalHtml;
+    container.innerHTML = html;
     document.body.appendChild(container);
 
+    // ─── Referencias DOM ───
     var btnEl = document.getElementById(uniqueId + "-btn");
     var closeEl = document.getElementById(uniqueId + "-close");
     var modalEl = document.getElementById(modalId);
-    var modalCloseEl = document.getElementById(modalId + "-close-btn");
+    var xEl = document.getElementById(modalId + "-x");
     var playerEl = document.getElementById(modalId + "-player");
     var titleEl = document.getElementById(modalId + "-title");
     var ctaEl = document.getElementById(modalId + "-cta");
     var prevEl = document.getElementById(modalId + "-prev");
     var nextEl = document.getElementById(modalId + "-next");
-
     var currentIdx = 0;
 
+    var openModal = function () {
+      if (!modalEl) return;
+      modalEl.style.display = "flex";
+      if (playerEl) { try { playerEl.play(); } catch (e) {} }
+    };
+
     var closeModal = function () {
-      if (modalEl) {
-        modalEl.style.setProperty("display", "none", "important");
-      }
-      if (playerEl) {
-        try { playerEl.pause(); } catch (e) {}
-      }
+      if (!modalEl) return;
+      modalEl.style.display = "none";
+      if (playerEl) { try { playerEl.pause(); } catch (e) {} }
     };
 
     var loadVideo = function (idx) {
       if (idx < 0) idx = videos.length - 1;
       if (idx >= videos.length) idx = 0;
       currentIdx = idx;
-      var v = videos[idx];
+      var v = videos[idx] || {};
       if (playerEl && v.url) {
         playerEl.src = v.url;
-        try { playerEl.play(); } catch (e1) {}
+        try { playerEl.play(); } catch (e) {}
       }
       if (titleEl) titleEl.innerHTML = v.title || "";
       if (ctaEl) {
@@ -12616,55 +12597,31 @@ function renderVideoFlotante(w) {
       }
     };
 
+    // Eventos botón flotante
     if (closeEl) {
       closeEl.addEventListener("click", function (e) {
         e.stopPropagation();
         container.style.display = "none";
       });
     }
-
     if (btnEl) {
       btnEl.addEventListener("click", function (e) {
-        if (closeEl && e.target === closeEl) return;
-        if (modalEl) {
-          modalEl.style.setProperty("display", "flex", "important");
-          if (playerEl) {
-            try { playerEl.play(); } catch (e2) {}
-          }
-        }
+        if (closeEl && (e.target === closeEl || closeEl.contains(e.target))) return;
+        openModal();
       });
     }
 
-    if (modalCloseEl) {
-      modalCloseEl.addEventListener("click", function (e) {
-        e.stopPropagation();
-        closeModal();
-      });
-    }
-
+    // Eventos modal
+    if (xEl) xEl.addEventListener("click", function (e) { e.stopPropagation(); closeModal(); });
     if (modalEl) {
       modalEl.addEventListener("click", function (e) {
-        if (e.target === modalEl) {
-          closeModal();
-        }
+        if (e.target === modalEl) closeModal();
       });
     }
+    if (prevEl) prevEl.addEventListener("click", function (e) { e.stopPropagation(); loadVideo(currentIdx - 1); });
+    if (nextEl) nextEl.addEventListener("click", function (e) { e.stopPropagation(); loadVideo(currentIdx + 1); });
 
-    if (prevEl) {
-      prevEl.addEventListener("click", function (e) {
-        e.stopPropagation();
-        loadVideo(currentIdx - 1);
-      });
-    }
-
-    if (nextEl) {
-      nextEl.addEventListener("click", function (e) {
-        e.stopPropagation();
-        loadVideo(currentIdx + 1);
-      });
-    }
-
-    // CTA: Cerrar modal -> Agregar al carrito -> Abrir mini-carrito
+    // ─── CTA COMPRAR AHORA ───
     if (ctaEl) {
       ctaEl.addEventListener("click", function (e) {
         e.preventDefault();
@@ -12673,78 +12630,56 @@ function renderVideoFlotante(w) {
         var currentVid = videos[currentIdx] || {};
         var customUrl = (currentVid.buttonUrl || "").trim();
 
-        // 1. Cerrar el modal
+        // 1. Cerrar modal YA
         closeModal();
 
-        // Link personalizado
+        // Link externo
         if (customUrl && customUrl !== "#" && customUrl.indexOf("http") === 0) {
           window.location.href = customUrl;
           return;
         }
 
-        // Detectar variante / producto
+        // Detectar producto/variante
         var prod = (window.LS && window.LS.product) ? window.LS.product : null;
         var varInput = document.querySelector("form[action*='/cart/add'] input[name='variant_id'], form[action*='/cart/add'] select[name='variant_id'], [name='variant_id']");
-        var activeVarId = null;
-        if (varInput && varInput.value) {
-          activeVarId = varInput.value;
-        } else if (prod && prod.variants && prod.variants.length > 0) {
-          activeVarId = prod.variants[0].id;
-        }
-
+        var activeVarId = (varInput && varInput.value) ? varInput.value : (prod && prod.variants && prod.variants[0] ? prod.variants[0].id : null);
         var activeProdId = prod ? prod.id : null;
         var qty = 1;
         var qtyInput = document.querySelector("form[action*='/cart/add'] input[name='quantity'], [name='quantity']");
-        if (qtyInput && qtyInput.value) {
-          qty = parseInt(qtyInput.value, 10) || 1;
-        }
-
+        if (qtyInput && qtyInput.value) qty = parseInt(qtyInput.value, 10) || 1;
         var itemId = activeVarId || activeProdId;
+
         if (!itemId) {
-          var nativeBtn = document.querySelector("form[action*='/cart/add'] [type='submit'], .js-addtocart, .js-product-form .btn, button[name='add']");
-          if (nativeBtn) {
-            nativeBtn.click();
-          }
+          var nativeBtn = document.querySelector("form[action*='/cart/add'] [type='submit'], .js-addtocart, button[name='add']");
+          if (nativeBtn) nativeBtn.click();
           return;
         }
 
         // NubeSDK
         if (window.nube && typeof window.nube.send === "function") {
           try {
-            window.nube.send("cart:add", {
-              id: Number(itemId) || itemId,
-              quantity: qty
-            });
+            window.nube.send("cart:add", { id: Number(itemId) || itemId, quantity: qty });
             setTimeout(function () {
-              try {
-                window.nube.send("cart:open");
-              } catch (e3) {}
-            }, 150);
+              try { window.nube.send("cart:open"); } catch (e2) {}
+            }, 180);
             return;
-          } catch (e4) {}
+          } catch (e3) {}
         }
 
         // Fallback POST
-        var formData = new FormData();
-        formData.append("add_to_cart", activeProdId || itemId);
-        if (activeVarId) formData.append("variant_id", activeVarId);
-        formData.append("quantity", qty);
-
-        fetch("/comprar/", {
-          method: "POST",
-          body: formData,
-          credentials: "include"
-        })
+        var fd = new FormData();
+        fd.append("add_to_cart", activeProdId || itemId);
+        if (activeVarId) fd.append("variant_id", activeVarId);
+        fd.append("quantity", qty);
+        fetch("/comprar/", { method: "POST", body: fd, credentials: "include" })
           .then(function () {
-            if (window.nube && typeof window.nube.send === "function") {
-              try { window.nube.send("cart:open"); } catch (e5) {}
+            if (window.nube && window.nube.send) {
+              try { window.nube.send("cart:open"); } catch (e4) {}
             } else {
               window.location.reload();
             }
           })
-          .catch(function () {
-            window.location.reload();
-          });
+          .catch(function () { window.location.reload(); });
       });
     }
   } catch (err) {
