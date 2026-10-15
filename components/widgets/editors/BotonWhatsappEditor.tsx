@@ -28,6 +28,45 @@ const CAMPAIGN_THEMES: Record<string, { bg: string; text: string; border: string
   'liquidacion': { bg: '#7F1D1D', text: '#ffffff', border: '#991b1b', accent: '#FBBF24', btn: '#FBBF24', btnText: '#7F1D1D' }
 };
 
+function compressImage(file: File, maxWidth: number, quality: number): Promise<string> {
+  return new Promise(function (resolve, reject) {
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      var img = new Image();
+      img.onload = function () {
+        var canvas = document.createElement('canvas');
+        var w = img.width;
+        var h = img.height;
+        if (w > maxWidth) {
+          h = Math.round((h * maxWidth) / w);
+          w = maxWidth;
+        }
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas no disponible'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = function () {
+        reject(new Error('No se pudo leer la imagen'));
+      };
+      if (ev.target && typeof ev.target.result === 'string') {
+        img.src = ev.target.result;
+      } else {
+        reject(new Error('Error al leer archivo'));
+      }
+    };
+    reader.onerror = function () {
+      reject(new Error('Error al leer archivo'));
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function BotonWhatsappEditor({
   widgetDefinition,
   existingWidget,
@@ -50,15 +89,15 @@ export default function BotonWhatsappEditor({
   const [agentRole, setAgentRole] = useState(cfg.agentRole || 'Atención al cliente');
   const [message, setMessage] = useState(cfg.message || 'Hola, ¿Cómo podemos ayudarte?');
   const [avatarUrl, setAvatarUrl] = useState(cfg.avatarUrl || '');
-  const [hideAvatar, setHideAvatar] = useState<boolean>(cfg.hideAvatar ?? false);
-  const [showPopupAuto, setShowPopupAuto] = useState<boolean>(cfg.showPopupAuto ?? true);
-  const [popupDelay, setPopupDelay] = useState<number>(cfg.popupDelay ?? 5);
+  const [hideAvatar, setHideAvatar] = useState(!!cfg.hideAvatar);
+  const [showPopupAuto, setShowPopupAuto] = useState(cfg.showPopupAuto !== false);
+  const [popupDelay, setPopupDelay] = useState(typeof cfg.popupDelay === 'number' ? cfg.popupDelay : 5);
   const [popupFrequency, setPopupFrequency] = useState(cfg.popupFrequency || 'once');
   const [buttonText, setButtonText] = useState(cfg.buttonText || 'Empezar chat');
   const [whatsappNumber, setWhatsappNumber] = useState(cfg.whatsappNumber || '541100000000');
   const [initialMessage, setInitialMessage] = useState(cfg.initialMessage || 'Hola, quiero más información');
-  const [allowCustomMessage, setAllowCustomMessage] = useState<boolean>(cfg.allowCustomMessage ?? false);
-  const [showNotificationDot, setShowNotificationDot] = useState<boolean>(cfg.showNotificationDot ?? true);
+  const [allowCustomMessage, setAllowCustomMessage] = useState(!!cfg.allowCustomMessage);
+  const [showNotificationDot, setShowNotificationDot] = useState(cfg.showNotificationDot !== false);
 
   // Estados de Ubicación y Estilos
   const [position, setPosition] = useState(cfg.position || 'bottom-right');
@@ -67,11 +106,11 @@ export default function BotonWhatsappEditor({
   const [ctaColor, setCtaColor] = useState(cfg.ctaColor || '#25D366');
   const [dotColor, setDotColor] = useState(cfg.dotColor || '#E53E3E');
   const [animation, setAnimation] = useState(cfg.animation || 'pulse');
-  const [btnRounded, setBtnRounded] = useState<boolean>(cfg.btnRounded ?? true);
-  const [btnSize, setBtnSize] = useState<number>(cfg.btnSize ?? 68);
-  const [iconSize, setIconSize] = useState<number>(cfg.iconSize ?? 32);
+  const [btnRounded, setBtnRounded] = useState(cfg.btnRounded !== false);
+  const [btnSize, setBtnSize] = useState(typeof cfg.btnSize === 'number' ? cfg.btnSize : 68);
+  const [iconSize, setIconSize] = useState(typeof cfg.iconSize === 'number' ? cfg.iconSize : 32);
 
-  // Subida de imagen
+  // Subida de imagen en cliente
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
 
@@ -83,86 +122,78 @@ export default function BotonWhatsappEditor({
   const isForAll = effectiveTargetType === 'all';
   const scopeLabel = isForAll ? 'Todos los productos' : isCategory ? 'Categoría' : 'Producto específico';
 
-  // CARGA LIBRE DE CUALQUIER IMAGEN DE LA GALERÍA
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // PROCESAMIENTO DIRECTO EN NAVEGADOR
+  const handleAvatarUpload = async function (e: React.ChangeEvent<HTMLInputElement>) {
+    var files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    var file = files[0];
+    if (!file.type || file.type.indexOf('image/') !== 0) {
+      setUploadError('Por favor seleccioná una foto de imagen válida.');
+      e.target.value = '';
+      return;
+    }
 
     setIsUploading(true);
     setUploadError('');
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const activeWidgetId = widgetId || existingWidget?.id;
-      if (activeWidgetId) formData.append('widget_id', String(activeWidgetId));
-
-      const res = await fetch('/api/upload-video', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Error al subir la imagen');
-      }
-
-      setAvatarUrl(data.url);
+      var dataUrl = await compressImage(file, 400, 0.85);
+      setAvatarUrl(dataUrl);
     } catch (err: any) {
-      setUploadError(err.message || 'Ocurrió un error al subir la foto de la galería.');
+      setUploadError(err.message || 'Ocurrió un error al procesar la foto de la galería.');
     } finally {
       setIsUploading(false);
       e.target.value = '';
     }
   };
 
-  const applyPresetTheme = (themeKey: string) => {
+  const applyPresetTheme = function (themeKey: string) {
     setCampaignTheme(themeKey);
     if (themeKey !== 'none' && CAMPAIGN_THEMES[themeKey]) {
-      const th = CAMPAIGN_THEMES[themeKey];
+      var th = CAMPAIGN_THEMES[themeKey];
       setButtonColor(th.btn);
       setHeaderColor(th.btn);
       setCtaColor(th.btn);
     }
   };
 
-  const handleColorChange = (setter: (val: string) => void, value: string) => {
+  const handleColorChange = function (setter: (val: string) => void, value: string) {
     setter(value);
     setCampaignTheme('none');
   };
 
-  const handleSave = async () => {
-    const configData = {
-      agentName,
-      agentRole,
-      message,
-      avatarUrl,
-      hideAvatar,
-      showPopupAuto,
-      popupDelay,
-      popupFrequency,
-      buttonText,
-      whatsappNumber,
-      initialMessage,
-      allowCustomMessage,
-      showNotificationDot,
-      position,
-      buttonColor,
-      headerColor,
-      ctaColor,
-      dotColor,
-      animation,
-      btnRounded,
-      btnSize,
-      iconSize,
-      campaignTheme,
+  const handleSave = async function () {
+    var configData = {
+      agentName: agentName,
+      agentRole: agentRole,
+      message: message,
+      avatarUrl: avatarUrl,
+      hideAvatar: hideAvatar,
+      showPopupAuto: showPopupAuto,
+      popupDelay: popupDelay,
+      popupFrequency: popupFrequency,
+      buttonText: buttonText,
+      whatsappNumber: whatsappNumber,
+      initialMessage: initialMessage,
+      allowCustomMessage: allowCustomMessage,
+      showNotificationDot: showNotificationDot,
+      position: position,
+      buttonColor: buttonColor,
+      headerColor: headerColor,
+      ctaColor: ctaColor,
+      dotColor: dotColor,
+      animation: animation,
+      btnRounded: btnRounded,
+      btnSize: btnSize,
+      iconSize: iconSize,
+      campaignTheme: campaignTheme,
       ...(categoryId ? { category_id: String(categoryId) } : {}),
     };
 
-    const finalTargetType = effectiveTargetType;
-    const finalProductId = productId || targetProductId || existingWidget?.target_product_id || null;
-    const finalCategoryId = categoryId || existingWidget?.target_category_id || null;
+    var finalTargetType = effectiveTargetType;
+    var finalProductId = productId || targetProductId || existingWidget?.target_product_id || null;
+    var finalCategoryId = categoryId || existingWidget?.target_category_id || null;
 
     if (onSave) {
       await onSave({
@@ -177,7 +208,7 @@ export default function BotonWhatsappEditor({
 
     setIsSavingInternal(true);
     try {
-      const res = await fetch('/api/widgets', {
+      var res = await fetch('/api/widgets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -193,7 +224,7 @@ export default function BotonWhatsappEditor({
       });
 
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
+        var errData = await res.json().catch(function () { return {}; });
         throw new Error(errData.error || 'Error al guardar el widget');
       }
 
@@ -318,21 +349,21 @@ export default function BotonWhatsappEditor({
 
       {/* TABS */}
       <div style={{ display: 'flex', borderBottom: '2px solid #E5E7EB', marginBottom: '20px', gap: '4px' }}>
-        <button type="button" onClick={() => setActiveTab('general')} style={{
+        <button type="button" onClick={function () { setActiveTab('general'); }} style={{
           padding: '10px 16px', fontSize: '14px', fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer',
           borderBottom: activeTab === 'general' ? '3px solid #10B981' : 'none',
           color: activeTab === 'general' ? '#10B981' : '#6B7280'
         }}>
           👤 Asesor & Mensaje
         </button>
-        <button type="button" onClick={() => setActiveTab('ubicacion')} style={{
+        <button type="button" onClick={function () { setActiveTab('ubicacion'); }} style={{
           padding: '10px 16px', fontSize: '14px', fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer',
           borderBottom: activeTab === 'ubicacion' ? '3px solid #10B981' : 'none',
           color: activeTab === 'ubicacion' ? '#10B981' : '#6B7280'
         }}>
           📍 Ubicación & Comportamiento
         </button>
-        <button type="button" onClick={() => setActiveTab('estilos')} style={{
+        <button type="button" onClick={function () { setActiveTab('estilos'); }} style={{
           padding: '10px 16px', fontSize: '14px', fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer',
           borderBottom: activeTab === 'estilos' ? '3px solid #10B981' : 'none',
           color: activeTab === 'estilos' ? '#10B981' : '#6B7280'
@@ -341,7 +372,7 @@ export default function BotonWhatsappEditor({
         </button>
       </div>
 
-      {/* TAB GENERAL: CARGA DE CUALQUIER IMAGEN */}
+      {/* TAB GENERAL */}
       {activeTab === 'general' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           
@@ -353,7 +384,7 @@ export default function BotonWhatsappEditor({
               <input
                 type="text"
                 value={agentName}
-                onChange={(e) => setAgentName(e.target.value)}
+                onChange={function (e) { setAgentName(e.target.value); }}
                 placeholder="Luana"
                 style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' }}
               />
@@ -365,7 +396,7 @@ export default function BotonWhatsappEditor({
               <input
                 type="text"
                 value={agentRole}
-                onChange={(e) => setAgentRole(e.target.value)}
+                onChange={function (e) { setAgentRole(e.target.value); }}
                 placeholder="Atención al cliente"
                 style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' }}
               />
@@ -378,14 +409,14 @@ export default function BotonWhatsappEditor({
             </label>
             <textarea
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={function (e) { setMessage(e.target.value); }}
               rows={3}
               placeholder="Hola, ¿Cómo podemos ayudarte?"
               style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' }}
             />
           </div>
 
-          {/* SUBIDA LIBRE DE CUALQUIER FOTO DE GALERÍA */}
+          {/* CARGA LOCAL EN COMPRESIÓN CLIENT-SIDE (CUALQUIER IMAGEN) */}
           <div>
             <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
               Avatar / Foto de Perfil
@@ -397,7 +428,7 @@ export default function BotonWhatsappEditor({
                   <img src={avatarUrl} alt="Avatar" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #10B981' }} />
                   <button
                     type="button"
-                    onClick={() => setAvatarUrl('')}
+                    onClick={function () { setAvatarUrl(''); }}
                     style={{ backgroundColor: '#FEE2E2', color: '#EF4444', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '11px', fontWeight: 700, cursor: 'pointer' }}
                   >
                     🗑️ Cambiar / Eliminar foto
@@ -410,7 +441,7 @@ export default function BotonWhatsappEditor({
                     Elegí cualquier foto de tu galería
                   </div>
                   <div style={{ fontSize: '11px', color: '#6B7280', marginBottom: '14px' }}>
-                    Soporta todos los formatos de imagen sin restricciones
+                    Se comprime y procesa al instante desde tu dispositivo
                   </div>
 
                   <label style={{
@@ -424,7 +455,7 @@ export default function BotonWhatsappEditor({
                     display: 'inline-block',
                     boxShadow: '0 2px 8px rgba(16,185,129,0.3)'
                   }}>
-                    {isUploading ? 'Subiendo foto...' : '📱 Seleccionar foto de la galería'}
+                    {isUploading ? 'Procesando foto...' : '📱 Seleccionar foto de la galería'}
                     <input
                       type="file"
                       accept="image/*"
@@ -436,11 +467,11 @@ export default function BotonWhatsappEditor({
                 </div>
               )}
 
-              {uploadError && (
+              {uploadError ? (
                 <div style={{ color: '#EF4444', fontSize: '12px', marginTop: '10px', fontWeight: 600 }}>
                   ⚠️ {uploadError}
                 </div>
-              )}
+              ) : null}
             </div>
 
             <div style={{ marginTop: '10px' }}>
@@ -448,7 +479,7 @@ export default function BotonWhatsappEditor({
                 <input
                   type="checkbox"
                   checked={hideAvatar}
-                  onChange={(e) => setHideAvatar(e.target.checked)}
+                  onChange={function (e) { setHideAvatar(e.target.checked); }}
                   style={{ accentColor: '#10B981', width: '16px', height: '16px' }}
                 />
                 Ocultar avatar de la persona
@@ -466,7 +497,7 @@ export default function BotonWhatsappEditor({
               <input
                 type="text"
                 value={whatsappNumber}
-                onChange={(e) => setWhatsappNumber(e.target.value)}
+                onChange={function (e) { setWhatsappNumber(e.target.value); }}
                 placeholder="541100000000"
                 style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' }}
               />
@@ -478,7 +509,7 @@ export default function BotonWhatsappEditor({
               <input
                 type="text"
                 value={buttonText}
-                onChange={(e) => setButtonText(e.target.value)}
+                onChange={function (e) { setButtonText(e.target.value); }}
                 placeholder="Empezar chat"
                 style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' }}
               />
@@ -492,7 +523,7 @@ export default function BotonWhatsappEditor({
             <input
               type="text"
               value={initialMessage}
-              onChange={(e) => setInitialMessage(e.target.value)}
+              onChange={function (e) { setInitialMessage(e.target.value); }}
               placeholder="Hola, quiero más información"
               style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' }}
             />
@@ -512,25 +543,27 @@ export default function BotonWhatsappEditor({
                 { id: 'bottom-left', label: 'Abajo a la izquierda', desc: 'Esquina inferior izquierda' },
                 { id: 'top-right', label: 'Arriba a la derecha', desc: 'Esquina superior derecha' },
                 { id: 'top-left', label: 'Arriba a la izquierda', desc: 'Esquina superior izquierda' }
-              ].map((pos) => (
-                <label
-                  key={pos.id}
-                  onClick={() => setPosition(pos.id)}
-                  style={{
-                    padding: '12px',
-                    borderRadius: '10px',
-                    border: position === pos.id ? '2px solid #10B981' : '1px solid #E5E7EB',
-                    backgroundColor: position === pos.id ? '#ECFDF5' : '#ffffff',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '2px'
-                  }}
-                >
-                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#111827' }}>{pos.label}</span>
-                  <span style={{ fontSize: '11px', color: '#6B7280' }}>{pos.desc}</span>
-                </label>
-              ))}
+              ].map(function (pos) {
+                return (
+                  <label
+                    key={pos.id}
+                    onClick={function () { setPosition(pos.id); }}
+                    style={{
+                      padding: '12px',
+                      borderRadius: '10px',
+                      border: position === pos.id ? '2px solid #10B981' : '1px solid #E5E7EB',
+                      backgroundColor: position === pos.id ? '#ECFDF5' : '#ffffff',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '2px'
+                    }}
+                  >
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#111827' }}>{pos.label}</span>
+                    <span style={{ fontSize: '11px', color: '#6B7280' }}>{pos.desc}</span>
+                  </label>
+                );
+              })}
             </div>
           </div>
 
@@ -541,13 +574,13 @@ export default function BotonWhatsappEditor({
               <input
                 type="checkbox"
                 checked={showPopupAuto}
-                onChange={(e) => setShowPopupAuto(e.target.checked)}
+                onChange={function (e) { setShowPopupAuto(e.target.checked); }}
                 style={{ accentColor: '#10B981', width: '16px', height: '16px' }}
               />
               💬 Mostrar popup automático de chat
             </label>
 
-            {showPopupAuto && (
+            {showPopupAuto ? (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', paddingTop: '8px' }}>
                 <div>
                   <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
@@ -558,7 +591,7 @@ export default function BotonWhatsappEditor({
                     min="1"
                     max="30"
                     value={popupDelay}
-                    onChange={(e) => setPopupDelay(Number(e.target.value))}
+                    onChange={function (e) { setPopupDelay(Number(e.target.value)); }}
                     style={{ width: '100%', accentColor: '#10B981' }}
                   />
                 </div>
@@ -568,7 +601,7 @@ export default function BotonWhatsappEditor({
                   </label>
                   <select
                     value={popupFrequency}
-                    onChange={(e) => setPopupFrequency(e.target.value)}
+                    onChange={function (e) { setPopupFrequency(e.target.value); }}
                     style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px' }}
                   >
                     <option value="once">Una vez por visita</option>
@@ -576,7 +609,7 @@ export default function BotonWhatsappEditor({
                   </select>
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
 
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
@@ -584,7 +617,7 @@ export default function BotonWhatsappEditor({
               <input
                 type="checkbox"
                 checked={showNotificationDot}
-                onChange={(e) => setShowNotificationDot(e.target.checked)}
+                onChange={function (e) { setShowNotificationDot(e.target.checked); }}
                 style={{ accentColor: '#10B981', width: '16px', height: '16px' }}
               />
               🔴 Mostrar punto rojo de notificación sobre el botón
@@ -598,26 +631,26 @@ export default function BotonWhatsappEditor({
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
             <div>
               <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>Color del botón flotante</label>
-              <input type="color" value={buttonColor} onChange={(e) => handleColorChange(setButtonColor, e.target.value)} style={{ width: '100%', height: '38px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} />
+              <input type="color" value={buttonColor} onChange={function (e) { handleColorChange(setButtonColor, e.target.value); }} style={{ width: '100%', height: '38px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} />
             </div>
             <div>
               <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>Color del header del chat</label>
-              <input type="color" value={headerColor} onChange={(e) => handleColorChange(setHeaderColor, e.target.value)} style={{ width: '100%', height: '38px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} />
+              <input type="color" value={headerColor} onChange={function (e) { handleColorChange(setHeaderColor, e.target.value); }} style={{ width: '100%', height: '38px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} />
             </div>
             <div>
               <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>Color del botón "Empezar chat"</label>
-              <input type="color" value={ctaColor} onChange={(e) => handleColorChange(setCtaColor, e.target.value)} style={{ width: '100%', height: '38px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} />
+              <input type="color" value={ctaColor} onChange={function (e) { handleColorChange(setCtaColor, e.target.value); }} style={{ width: '100%', height: '38px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} />
             </div>
             <div>
               <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>Color de la notificación</label>
-              <input type="color" value={dotColor} onChange={(e) => setDotColor(e.target.value)} style={{ width: '100%', height: '38px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} />
+              <input type="color" value={dotColor} onChange={function (e) { setDotColor(e.target.value); }} style={{ width: '100%', height: '38px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} />
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>Efecto del botón flotante</label>
-              <select value={animation} onChange={(e) => setAnimation(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px' }}>
+              <select value={animation} onChange={function (e) { setAnimation(e.target.value); }} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px' }}>
                 <option value="pulse">Aureola pulsante</option>
                 <option value="bounce">Rebote suave</option>
                 <option value="none">Sin efecto</option>
@@ -626,10 +659,10 @@ export default function BotonWhatsappEditor({
             <div>
               <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>Bordes del botón chat</label>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button type="button" onClick={() => setBtnRounded(true)} style={{ flex: 1, padding: '8px', borderRadius: '6px', border: btnRounded ? '2px solid #10B981' : '1px solid #D1D5DB', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                <button type="button" onClick={function () { setBtnRounded(true); }} style={{ flex: 1, padding: '8px', borderRadius: '6px', border: btnRounded ? '2px solid #10B981' : '1px solid #D1D5DB', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
                   Redondeado
                 </button>
-                <button type="button" onClick={() => setBtnRounded(false)} style={{ flex: 1, padding: '8px', borderRadius: '6px', border: !btnRounded ? '2px solid #10B981' : '1px solid #D1D5DB', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                <button type="button" onClick={function () { setBtnRounded(false); }} style={{ flex: 1, padding: '8px', borderRadius: '6px', border: !btnRounded ? '2px solid #10B981' : '1px solid #D1D5DB', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
                   Sin redondear
                 </button>
               </div>
@@ -641,13 +674,13 @@ export default function BotonWhatsappEditor({
               <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
                 Tamaño del botón ({btnSize}px)
               </label>
-              <input type="range" min="50" max="90" value={btnSize} onChange={(e) => setBtnSize(Number(e.target.value))} style={{ width: '100%', accentColor: '#10B981' }} />
+              <input type="range" min="50" max="90" value={btnSize} onChange={function (e) { setBtnSize(Number(e.target.value)); }} style={{ width: '100%', accentColor: '#10B981' }} />
             </div>
             <div>
               <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
                 Tamaño del ícono ({iconSize}px)
               </label>
-              <input type="range" min="20" max="48" value={iconSize} onChange={(e) => setIconSize(Number(e.target.value))} style={{ width: '100%', accentColor: '#10B981' }} />
+              <input type="range" min="20" max="48" value={iconSize} onChange={function (e) { setIconSize(Number(e.target.value)); }} style={{ width: '100%', accentColor: '#10B981' }} />
             </div>
           </div>
 
@@ -656,24 +689,26 @@ export default function BotonWhatsappEditor({
               🔥 Fechas Especiales (Presets de Campaña)
             </label>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {Object.keys(CAMPAIGN_THEMES).map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => applyPresetTheme(key)}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '999px',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    border: campaignTheme === key ? '2px solid #10B981' : '1px solid #D1D5DB',
-                    backgroundColor: campaignTheme === key ? '#ECFDF5' : '#ffffff',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {key.replace('-', ' ').toUpperCase()}
-                </button>
-              ))}
+              {Object.keys(CAMPAIGN_THEMES).map(function (key) {
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={function () { applyPresetTheme(key); }}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: '999px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      border: campaignTheme === key ? '2px solid #10B981' : '1px solid #D1D5DB',
+                      backgroundColor: campaignTheme === key ? '#ECFDF5' : '#ffffff',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {key.replace('-', ' ').toUpperCase()}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -705,4 +740,4 @@ export default function BotonWhatsappEditor({
       </div>
     </div>
   );
-                                                                            }
+                                                 }
