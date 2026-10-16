@@ -8,6 +8,38 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function AlertaInventarioPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🔥 ALERTA DE INVENTARIO</span>
+        <span style={{ background: "#fef2f2", color: "#ef4444", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #fca5a5" }}>
+          STOCK
+        </span>
+      </div>
+
+      <div style={{ background: "#fff5f5", border: "1px solid #fecaca", borderRadius: "6px", padding: "6px 8px", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
+        <span style={{ fontSize: "10px" }}>🔥</span>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#ef4444" }}>
+          Apurate, quedan <strong style={{ fontWeight: 900 }}>3</strong> disponibles
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function NotificacionesFlotantesPreview() {
   return (
     <div
@@ -779,7 +811,7 @@ function ProductosComplementariosPreview() {
           <div style={{ width: "18px", height: "18px", borderRadius: "4px", background: "#111827", color: "#ffffff", fontSize: "10px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>🔌</div>
           <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
             <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Cargador Rápido 20W</span>
-            <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>$ 18.500</span>
+            <span style={{ fontSize: "6.5px", fontWeight 900, color: "#10B981" }}>$ 18.500</span>
           </div>
         </div>
         <div style={{ background: "#111827", color: "#ffffff", borderRadius: "4px", padding: "2px 5px", fontSize: "6px", fontWeight: 800, flexShrink: 0 }}>+ Agregar</div>
@@ -1024,6 +1056,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "alerta-inventario":
+      return <AlertaInventarioPreview />;
     case "notificaciones-flotantes":
       return <NotificacionesFlotantesPreview />;
     case "popup-promocional":
@@ -1137,4 +1171,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-                     }
+        }
