@@ -1,964 +1,772 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase-browser";
-import {
-  Sparkles,
-  HelpCircle,
-  Upload,
-  Trash2,
-  Eye,
-  Paintbrush,
-  Mail,
-  Settings,
-  Tag,
-  Check,
-  AlertCircle
-} from "lucide-react";
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'react-router-dom'
+import { 
+  ArrowLeft, Save, Eye, Sparkles, Palette, Mail, Clock, 
+  Upload, Image as ImageIcon, Check, MousePointer, ShieldAlert, Layers
+} from 'lucide-react'
+import { createBrowserClient } from '@supabase/ssr'
 
-interface PopupPromocionalEditorProps {
-  widgetDefinition: any;
-  existingWidget?: any;
-  targetType?: "all" | "product" | "category";
-  productId?: number | null;
-  categoryId?: string | null;
-  storeId?: number;
+interface Props {
+  widgetDefinition: any
+  existingWidget?: any
+  targetType?: string
+  productId?: string
+  categoryId?: string
+  storeId: string
 }
 
-const FECHAS_ESPECIALES = [
-  {
-    id: "default",
-    label: "Predeterminado (Nevux)",
-    bgColor: "#111827",
-    bgGradient: false,
-    titleColor: "#10B981",
-    textColor: "#FFFFFF",
-    bodyTextColor: "#9CA3AF",
-    btnBg: "#10B981",
-    btnTextColor: "#FFFFFF"
-  },
-  {
-    id: "hot-sale",
-    label: "🔥 Hot Sale / Cyber Monday",
-    bgColor: "#0F172A",
-    bgGradient: true,
-    titleColor: "#EF4444",
-    textColor: "#FFFFFF",
-    bodyTextColor: "#94A3B8",
-    btnBg: "#EF4444",
-    btnTextColor: "#FFFFFF"
-  },
-  {
-    id: "black-friday",
-    label: "⚡ Black Friday",
-    bgColor: "#000000",
-    bgGradient: false,
-    titleColor: "#F59E0B",
-    textColor: "#FFFFFF",
-    bodyTextColor: "#A1A1AA",
-    btnBg: "#F59E0B",
-    btnTextColor: "#000000"
-  },
-  {
-    id: "navidad",
-    label: "🎄 Navidad",
-    bgColor: "#064E3B",
-    bgGradient: true,
-    titleColor: "#F87171",
-    textColor: "#FFFFFF",
-    bodyTextColor: "#A7F3D0",
-    btnBg: "#DC2626",
-    btnTextColor: "#FFFFFF"
-  },
-  {
-    id: "dia-madre-padre",
-    label: "🎁 Día de la Madre / Padre",
-    bgColor: "#831843",
-    bgGradient: true,
-    titleColor: "#F472B6",
-    textColor: "#FFFFFF",
-    bodyTextColor: "#FBCFE8",
-    btnBg: "#EC4899",
-    btnTextColor: "#FFFFFF"
-  },
-  {
-    id: "san-valentin",
-    label: "❤️ San Valentín",
-    bgColor: "#4C0519",
-    bgGradient: true,
-    titleColor: "#FB7185",
-    textColor: "#FFFFFF",
-    bodyTextColor: "#FECDD3",
-    btnBg: "#E11D48",
-    btnTextColor: "#FFFFFF"
-  },
-  {
-    id: "dia-nino",
-    label: "🎈 Día del Niño",
-    bgColor: "#1E1B4B",
-    bgGradient: true,
-    titleColor: "#818CF8",
-    textColor: "#FFFFFF",
-    bodyTextColor: "#C7D2FE",
-    btnBg: "#6366F1",
-    btnTextColor: "#FFFFFF"
-  }
-];
-
-const compressImage = (file: File, maxWidth = 800, maxHeight = 800, quality = 0.8): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target?.result as string;
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-        if (width > height) {
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-        }
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx?.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL("image/jpeg", quality));
-      };
-      img.onerror = (err) => reject(err);
-    };
-    reader.onerror = (err) => reject(err);
-  });
-};
+const CAMPAIGN_PRESETS = [
+  { id: 'black-friday', name: 'Black Friday', bg: '#0F172A', text: '#FFFFFF', btnBg: '#F59E0B', btnText: '#000000' },
+  { id: 'hot-sale', name: 'Hot Sale', bg: '#FFFFFF', text: '#0F172A', btnBg: '#EF4444', btnText: '#FFFFFF' },
+  { id: 'cyber-monday', name: 'Cyber Monday', bg: '#090D16', text: '#FFFFFF', btnBg: '#3B82F6', btnText: '#FFFFFF' },
+  { id: 'navidad', name: 'Navidad', bg: '#064E3B', text: '#FFFFFF', btnBg: '#EF4444', btnText: '#FFFFFF' },
+  { id: 'san-valentin', name: 'San Valentín', bg: '#FFF1F2', text: '#831843', btnBg: '#F43F5E', btnText: '#FFFFFF' },
+  { id: 'dia-padre-madre', name: 'Día Especial', bg: '#F0FDF4', text: '#166534', btnBg: '#10B981', btnText: '#FFFFFF' },
+  { id: 'liquidacion', name: 'Liquidación', bg: '#FEF2F2', text: '#991B1B', btnBg: '#DC2626', btnText: '#FFFFFF' },
+]
 
 export default function PopupPromocionalEditor({
   widgetDefinition,
   existingWidget,
-  targetType: initialTargetType = "all",
-  productId = null,
-  categoryId = null,
+  targetType: initialTargetType = 'all',
+  productId: initialProductId = '',
+  categoryId: initialCategoryId = '',
   storeId,
-}: PopupPromocionalEditorProps) {
-  const router = useRouter();
-  const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<"general" | "emails" | "estilos">("general");
+}: Props) {
+  const router = useRouter()
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 
-  const initialConfig = existingWidget?.config || {};
-  const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
-  const [currentTargetType, setCurrentTargetType] = useState<"all" | "product" | "category">(
-    existingWidget?.target_type || initialTargetType
-  );
+  const [saving, setSaving] = useState(false)
+  const [activeTab, setActiveTab] = useState<'general' | 'contenido' | 'estilos' | 'disparo'>('general')
 
-  const [title, setTitle] = useState(initialConfig.title ?? "¡Oferta especial!");
-  const [subtitle, setSubtitle] = useState(initialConfig.subtitle ?? "Aprovechá esta promoción exclusiva");
-  const [bodyText, setBodyText] = useState(initialConfig.bodyText ?? "");
-  const [legalText, setLegalText] = useState(initialConfig.legalText ?? "Válido por tiempo limitado. No acumulable con otras promociones.");
-  const [headerImg, setHeaderImg] = useState(initialConfig.headerImg ?? "");
-  const [trigger, setTrigger] = useState(initialConfig.trigger ?? "enter");
-  const [frequency, setFrequency] = useState(initialConfig.frequency ?? "once-visit");
+  // Config State
+  const initialConfig = existingWidget?.config || {}
+  const [isActive, setIsActive] = useState(existingWidget ? existingWidget.is_active : true)
+  const [targetType, setTargetType] = useState(existingWidget?.target_type || initialTargetType)
+  
+  // Text Content
+  const [title, setTitle] = useState(initialConfig.title || '¡Oferta especial!')
+  const [subtitle, setSubtitle] = useState(initialConfig.subtitle || 'Aprovechá esta promoción exclusiva')
+  const [bodyText, setBodyText] = useState(initialConfig.body_text || 'Descuentos imperdibles en toda la tienda por tiempo limitado.')
+  const [legalText, setLegalText] = useState(initialConfig.legal_text || 'Válido por tiempo limitado. No acumulable con otras promociones.')
+  const [headerImage, setHeaderImage] = useState(initialConfig.header_image || '')
 
-  const [showCountdown, setShowCountdown] = useState(initialConfig.showCountdown ?? true);
-  const [countdownHours, setCountdownHours] = useState(initialConfig.countdownHours ?? 24);
+  // Countdown & Email
+  const [showCountdown, setShowCountdown] = useState(initialConfig.show_countdown ?? true)
+  const [countdownDate, setCountdownDate] = useState(initialConfig.countdown_date || new Date(Date.now() + 86400000 * 2).toISOString().slice(0, 16))
+  const [collectEmail, setCollectEmail] = useState(initialConfig.collect_email ?? true)
 
-  const [showExternalBtn, setShowExternalBtn] = useState(initialConfig.showExternalBtn ?? true);
-  const [btnText, setBtnText] = useState(initialConfig.btnText ?? "¡Quiero aprovechar!");
-  const [btnUrl, setBtnUrl] = useState(initialConfig.btnUrl ?? "");
+  // CTA Button
+  const [btnText, setBtnText] = useState(initialConfig.btn_text || '¡Quiero aprovechar!')
+  const [btnActionType, setBtnActionType] = useState<'close' | 'link'>(initialConfig.btn_action_type || 'close')
+  const [btnLink, setBtnLink] = useState(initialConfig.btn_link || '')
+  const [showReopenBtn, setShowReopenBtn] = useState(initialConfig.show_reopen_btn ?? true)
 
-  const [showFloatingBtn, setShowFloatingBtn] = useState(initialConfig.showFloatingBtn ?? true);
-  const [collectEmail, setCollectEmail] = useState(initialConfig.collectEmail ?? false);
+  // Trigger & Frequency
+  const [trigger, setTrigger] = useState(initialConfig.trigger || 'enter')
+  const [frequency, setFrequency] = useState(initialConfig.frequency || 'once-visit')
 
-  const [bgColor, setBgColor] = useState(initialConfig.bgColor ?? "#111827");
-  const [bgGradient, setBgGradient] = useState(initialConfig.bgGradient ?? false);
-  const [titleColor, setTitleColor] = useState(initialConfig.titleColor ?? "#10B981");
-  const [textColor, setTextColor] = useState(initialConfig.textColor ?? "#FFFFFF");
-  const [bodyTextColor, setBodyTextColor] = useState(initialConfig.bodyTextColor ?? "#9CA3AF");
-  const [btnBg, setBtnBg] = useState(initialConfig.btnBg ?? "#10B981");
-  const [btnTextColor, setBtnTextColor] = useState(initialConfig.btnTextColor ?? "#FFFFFF");
+  // Appearance
+  const [bgColor, setBgColor] = useState(initialConfig.bg_color || '#ffffff')
+  const [textColor, setTextColor] = useState(initialConfig.text_color || '#111827')
+  const [btnBgColor, setBtnBgColor] = useState(initialConfig.btn_bg_color || '#10B981')
+  const [btnTextColor, setBtnTextColor] = useState(initialConfig.btn_text_color || '#ffffff')
+  const [titleSize, setTitleSize] = useState(initialConfig.title_size || '22')
+  const [borderRadius, setBorderRadius] = useState(initialConfig.border_radius || '16')
+  const [campaignTheme, setCampaignTheme] = useState(initialConfig.campaignTheme || 'none')
 
-  const [titleSize, setTitleSize] = useState(initialConfig.titleSize ?? "28px");
-  const [subtitleSize, setSubtitleSize] = useState(initialConfig.subtitleSize ?? "18px");
-  const [bodySize, setBodySize] = useState(initialConfig.bodySize ?? "15px");
+  // Canvas Image Compression
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
 
-  const [campaignTheme, setCampaignTheme] = useState(initialConfig.campaignTheme ?? "default");
-  const [uploadingImg, setUploadingImg] = useState(false);
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const MAX_WIDTH = 800
+        const scale = MAX_WIDTH / img.width
+        canvas.width = MAX_WIDTH
+        canvas.height = img.height * scale
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      setUploadingImg(true);
-      const base64 = await compressImage(file, 800, 800, 0.85);
-      setHeaderImg(base64);
-    } catch (err) {
-      alert("Error al procesar la imagen.");
-    } finally {
-      setUploadingImg(false);
+        const ctx = canvas.getContext('2d')
+        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height)
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8)
+        setHeaderImage(compressedBase64)
+      }
+      img.src = event.target?.result as string
     }
-  };
+    reader.readAsDataURL(file)
+  }
 
-  const applyPreset = (preset: typeof FECHAS_ESPECIALES[0]) => {
-    setCampaignTheme(preset.id);
-    setBgColor(preset.bgColor);
-    setBgGradient(preset.bgGradient);
-    setTitleColor(preset.titleColor);
-    setTextColor(preset.textColor);
-    setBodyTextColor(preset.bodyTextColor);
-    setBtnBg(preset.btnBg);
-    setBtnTextColor(preset.btnTextColor);
-  };
+  const applyPreset = (preset: typeof CAMPAIGN_PRESETS[0]) => {
+    setCampaignTheme(preset.id)
+    setBgColor(preset.bg)
+    setTextColor(preset.text)
+    setBtnBgColor(preset.btnBg)
+    setBtnTextColor(preset.btnText)
+  }
 
   const handleSave = async () => {
+    setSaving(true)
     try {
-      setSaving(true);
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        alert("Sesión no válida");
-        return;
-      }
-
-      const payloadConfig = {
-        title,
-        subtitle,
-        bodyText,
-        legalText,
-        headerImg,
-        trigger,
-        frequency,
-        showCountdown,
-        countdownHours: Number(countdownHours) || 24,
-        showExternalBtn,
-        btnText,
-        btnUrl,
-        showFloatingBtn,
-        collectEmail,
-        bgColor,
-        bgGradient,
-        titleColor,
-        textColor,
-        bodyTextColor,
-        btnBg,
-        btnTextColor,
-        titleSize,
-        subtitleSize,
-        bodySize,
-        campaignTheme,
-      };
-
-      const widgetData = {
-        user_id: user.id,
-        store_id: storeId || existingWidget?.store_id,
-        widget_slug: "popup-promocional",
-        config: payloadConfig,
+      const payload = {
+        store_id: storeId,
+        widget_slug: 'popup-promocional',
+        name: 'Pop-up Promocional',
         is_active: isActive,
-        target_type: currentTargetType,
-        target_product_id: currentTargetType === "product" ? productId : null,
-        target_category_id: currentTargetType === "category" ? categoryId : null,
-        updated_at: new Date().toISOString(),
-      };
-
-      let res;
-      if (existingWidget?.id) {
-        res = await supabase
-          .from("widgets")
-          .update(widgetData)
-          .eq("id", existingWidget.id);
-      } else {
-        res = await supabase
-          .from("widgets")
-          .insert([widgetData]);
+        target_type: targetType,
+        product_id: targetType === 'product' ? initialProductId : null,
+        category_id: targetType === 'category' ? initialCategoryId : null,
+        config: {
+          title,
+          subtitle,
+          body_text: bodyText,
+          legal_text: legalText,
+          header_image: headerImage,
+          show_countdown: showCountdown,
+          countdown_date: countdownDate,
+          collect_email: collectEmail,
+          btn_text: btnText,
+          btn_action_type: btnActionType,
+          btn_link: btnLink,
+          show_reopen_btn: showReopenBtn,
+          trigger,
+          frequency,
+          bg_color: bgColor,
+          text_color: textColor,
+          btn_bg_color: btnBgColor,
+          btn_text_color: btnTextColor,
+          title_size: titleSize,
+          border_radius: borderRadius,
+          campaignTheme,
+        },
       }
 
-      if (res.error) throw res.error;
+      if (existingWidget?.id) {
+        await supabase.from('widgets').update(payload).eq('id', existingWidget.id)
+      } else {
+        await supabase.from('widgets').insert([payload])
+      }
 
-      alert("¡Widget guardado con éxito!");
-      router.refresh();
-    } catch (err: any) {
-      console.error("Error al guardar:", err);
-      alert("Error al guardar: " + (err.message || "Intente nuevamente"));
+      router.push('/widgets')
+      router.refresh()
+    } catch (err) {
+      console.error('Error al guardar:', err)
+      alert('Ocurrió un error al guardar el widget.')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans pb-16">
-      {/* Header Sticky */}
-      <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between shadow-lg">
-        <div className="flex items-center space-x-3">
-          <div className="bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20">
-            <Sparkles className="w-5 h-5 text-emerald-400" />
-          </div>
-          <div>
-            <h1 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-              Pop-up Promocional
-              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                Nevux
-              </span>
-            </h1>
-            <p className="text-xs text-slate-400">Captá la atención de tus clientes con ofertas y cuenta regresiva</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 cursor-pointer bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              className="w-4 h-4 accent-emerald-500 rounded"
-            />
-            <span className="text-xs text-slate-300 font-medium">Widget activo</span>
-          </label>
-
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-slate-950 font-semibold px-5 py-2 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-500/20"
-          >
-            {saving ? "Guardando..." : "Guardar cambios"}
-          </button>
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="max-w-4xl mx-auto w-full px-4 pt-6 space-y-6">
-        {/* Nav Tabs */}
-        <div className="flex bg-slate-900 p-1 rounded-2xl border border-slate-800 shadow-inner">
-          <button
-            type="button"
-            onClick={() => setActiveTab("general")}
-            className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
-              activeTab === "general"
-                ? "bg-emerald-500 text-slate-950 shadow-md"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/50"
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            General
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("emails")}
-            className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
-              activeTab === "emails"
-                ? "bg-emerald-500 text-slate-950 shadow-md"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/50"
-            }`}
-          >
-            <Mail className="w-4 h-4" />
-            Emails
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("estilos")}
-            className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
-              activeTab === "estilos"
-                ? "bg-emerald-500 text-slate-950 shadow-md"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/50"
-            }`}
-          >
-            <Paintbrush className="w-4 h-4" />
-            Estilos
-          </button>
-        </div>
-
-        {/* Live Preview Box */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
-          <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Eye className="w-4 h-4 text-emerald-400" /> Previsualización en tiempo real
-            </span>
-            <span className="text-[11px] text-slate-500">Vista previa interactiva</span>
-          </div>
-
-          <div className="bg-slate-950/80 rounded-2xl p-6 flex items-center justify-center min-h-[320px]">
-            <div
-              className="w-full max-w-sm rounded-2xl p-6 shadow-2xl text-center relative border border-white/10 transition-all duration-300"
-              style={{
-                background: bgGradient
-                  ? `linear-gradient(135deg, ${bgColor} 0%, #000000 100%)`
-                  : bgColor
-              }}
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20">
+      {/* Header Bar */}
+      <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.back()}
+              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
             >
-              {headerImg && (
-                <div className="mb-4 overflow-hidden rounded-xl max-h-40 flex items-center justify-center">
-                  <img src={headerImg} alt="Header" className="w-full object-cover" />
-                </div>
-              )}
-
-              <h2
-                className="font-black mb-2 tracking-tight leading-tight"
-                style={{ color: titleColor, fontSize: titleSize }}
-              >
-                {title || "¡Oferta especial!"}
-              </h2>
-
-              <p
-                className="font-medium mb-3 leading-snug"
-                style={{ color: textColor, fontSize: subtitleSize }}
-              >
-                {subtitle || "Aprovechá esta promoción exclusiva"}
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                Pop-up Promocional
+                <span className="text-xs bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 font-semibold px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800">
+                  Nevux
+                </span>
+              </h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Captá la atención de tus visitantes con ofertas y cuenta regresiva
               </p>
-
-              {bodyText && (
-                <p
-                  className="mb-4 whitespace-pre-line leading-relaxed"
-                  style={{ color: bodyTextColor, fontSize: bodySize }}
-                >
-                  {bodyText}
-                </p>
-              )}
-
-              {showCountdown && (
-                <div className="my-4 flex justify-center gap-2">
-                  <div className="bg-slate-950/60 border border-white/10 rounded-xl px-3 py-2 text-center min-w-[54px]">
-                    <span className="block font-black text-lg text-white">06</span>
-                    <span className="text-[10px] text-slate-400 uppercase">hs</span>
-                  </div>
-                  <div className="bg-slate-950/60 border border-white/10 rounded-xl px-3 py-2 text-center min-w-[54px]">
-                    <span className="block font-black text-lg text-white">30</span>
-                    <span className="text-[10px] text-slate-400 uppercase">min</span>
-                  </div>
-                  <div className="bg-slate-950/60 border border-white/10 rounded-xl px-3 py-2 text-center min-w-[54px]">
-                    <span className="block font-black text-lg text-white">12</span>
-                    <span className="text-[10px] text-slate-400 uppercase">seg</span>
-                  </div>
-                </div>
-              )}
-
-              {collectEmail && (
-                <div className="my-3">
-                  <input
-                    type="email"
-                    disabled
-                    placeholder="Ingresá tu email..."
-                    className="w-full bg-slate-950/80 border border-slate-700/60 text-slate-300 text-xs px-3.5 py-2.5 rounded-xl text-center focus:outline-none"
-                  />
-                </div>
-              )}
-
-              <button
-                type="button"
-                style={{ backgroundColor: btnBg, color: btnTextColor }}
-                className="w-full font-bold py-3 rounded-xl text-xs shadow-lg transition-transform active:scale-95 my-2"
-              >
-                {btnText || "¡Quiero aprovechar!"}
-              </button>
-
-              <button
-                type="button"
-                className="text-[11px] underline opacity-60 hover:opacity-100 block mx-auto mt-2"
-                style={{ color: textColor }}
-              >
-                Cerrar
-              </button>
-
-              {legalText && (
-                <p className="text-[10px] opacity-50 mt-3" style={{ color: textColor }}>
-                  {legalText}
-                </p>
-              )}
             </div>
           </div>
+
+          <div className="flex items-center gap-3">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isActive}
+                onChange={(e) => setIsActive(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:after:border-slate-600 peer-checked:bg-emerald-600"></div>
+              <span className="ml-2 text-xs font-medium text-slate-700 dark:text-slate-300 hidden sm:inline">
+                {isActive ? 'Activo' : 'Inactivo'}
+              </span>
+            </label>
+
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition shadow-sm disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" />
+              {saving ? 'Guardando...' : 'Guardar'}
+            </button>
+          </div>
         </div>
+      </div>
 
-        {/* TAB 1: GENERAL */}
-        {activeTab === "general" && (
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Título</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                placeholder="¡Oferta especial!"
-              />
-            </div>
+      <div className="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Form Controls */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Navigation Tabs */}
+          <div className="flex bg-slate-200/60 dark:bg-slate-800/60 p-1 rounded-xl gap-1">
+            <button
+              onClick={() => setActiveTab('general')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition ${
+                activeTab === 'general'
+                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              General
+            </button>
+            <button
+              onClick={() => setActiveTab('contenido')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition ${
+                activeTab === 'contenido'
+                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+              }`}
+            >
+              <Mail className="w-3.5 h-3.5" />
+              Contenido
+            </button>
+            <button
+              onClick={() => setActiveTab('estilos')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition ${
+                activeTab === 'estilos'
+                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+              }`}
+            >
+              <Palette className="w-3.5 h-3.5" />
+              Estilos
+            </button>
+            <button
+              onClick={() => setActiveTab('disparo')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition ${
+                activeTab === 'disparo'
+                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+              }`}
+            >
+              <MousePointer className="w-3.5 h-3.5" />
+              Disparo
+            </button>
+          </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Subtítulo</label>
-              <input
-                type="text"
-                value={subtitle}
-                onChange={(e) => setSubtitle(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                placeholder="Aprovechá esta promoción exclusiva"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Texto del cuerpo (opcional)
-              </label>
-              <textarea
-                value={bodyText}
-                onChange={(e) => setBodyText(e.target.value)}
-                rows={3}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                placeholder="Se muestra debajo del subtítulo. Dejá vacío para no mostrar nada."
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Texto legal / aclaración (opcional)
-              </label>
-              <textarea
-                value={legalText}
-                onChange={(e) => setLegalText(e.target.value)}
-                rows={2}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                placeholder="Ej: Válido por tiempo limitado. No acumulable con otras promociones."
-              />
-            </div>
-
-            {/* Imagen de encabezado */}
-            <div className="border border-slate-800 rounded-2xl p-4 bg-slate-950/40">
-              <label className="block text-xs font-semibold text-slate-300 mb-2">
-                Imagen de encabezado (opcional)
-              </label>
-              {headerImg ? (
-                <div className="flex items-center gap-4">
-                  <img src={headerImg} alt="Header" className="w-20 h-20 object-cover rounded-xl border border-slate-700" />
+          {/* TAB: GENERAL */}
+          {activeTab === 'general' && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-500" />
+                Fechas Especiales (Presets)
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {CAMPAIGN_PRESETS.map((preset) => (
                   <button
-                    type="button"
-                    onClick={() => setHeaderImg("")}
-                    className="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1 bg-rose-500/10 px-3 py-1.5 rounded-lg border border-rose-500/20"
+                    key={preset.id}
+                    onClick={() => applyPreset(preset)}
+                    className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                      campaignTheme === preset.id
+                        ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/30 dark:bg-emerald-950/20'
+                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                    }`}
                   >
-                    <Trash2 className="w-4 h-4" /> Eliminar imagen
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{preset.name}</span>
+                    <div className="flex gap-1 mt-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: preset.bg }} />
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: preset.btnBg }} />
+                    </div>
                   </button>
+                ))}
+              </div>
+
+              <hr className="border-slate-100 dark:border-slate-800" />
+
+              <div className="space-y-3">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Ubicación / Target de Segmentación
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'all', label: 'Toda la tienda' },
+                    { id: 'product', label: 'Ficha producto' },
+                    { id: 'category', label: 'Categoría' },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setTargetType(item.id)}
+                      className={`py-2 px-3 text-xs font-semibold rounded-xl border transition ${
+                        targetType === item.id
+                          ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'
+                          : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
                 </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-800 hover:border-emerald-500/50 rounded-2xl p-6 cursor-pointer bg-slate-950/60 transition-all">
-                  <Upload className="w-8 h-8 text-slate-500 mb-2" />
-                  <span className="text-xs font-medium text-slate-300">
-                    {uploadingImg ? "Comprimiendo imagen..." : "Arrastrá o hacé clic para subir una imagen"}
-                  </span>
-                  <span className="text-[10px] text-slate-500 mt-1">Aparecerá arriba del título (JPG, PNG, WEBP max 512KB)</span>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: CONTENIDO */}
+          {activeTab === 'contenido' && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Título principal
+                  </label>
                   <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={uploadingImg}
-                    className="hidden"
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
-                </label>
-              )}
-            </div>
+                </div>
 
-            {/* Triggers y Frecuencias */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  ¿Cuándo aparece el popup?
-                </label>
-                <select
-                  value={trigger}
-                  onChange={(e) => setTrigger(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                >
-                  <option value="enter">Al entrar a la página</option>
-                  <option value="delay-5">Luego de 5 segundos</option>
-                  <option value="delay-10">Luego de 10 segundos</option>
-                  <option value="scroll-50">Al desplazar el 50% de la página</option>
-                  <option value="exit-intent">Al intentar salir (Exit-Intent)</option>
-                </select>
-              </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Subtítulo
+                  </label>
+                  <input
+                    type="text"
+                    value={subtitle}
+                    onChange={(e) => setSubtitle(e.target.value)}
+                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  ¿Cuántas veces se muestra?
-                </label>
-                <select
-                  value={frequency}
-                  onChange={(e) => setFrequency(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                >
-                  <option value="once-visit">1 vez por visita (recomendado)</option>
-                  <option value="once-day">1 vez al día</option>
-                  <option value="always">Siempre</option>
-                </select>
-              </div>
-            </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Texto del cuerpo (opcional)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={bodyText}
+                    onChange={(e) => setBodyText(e.target.value)}
+                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
 
-            {/* Opciones activables */}
-            <div className="space-y-3 pt-2">
-              <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
-                <label className="flex items-center gap-3 cursor-pointer">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Imagen de cabecera
+                  </label>
+                  <div className="flex items-center gap-3">
+                    {headerImage ? (
+                      <div className="relative w-16 h-12 rounded-lg overflow-hidden border">
+                        <img src={headerImage} alt="Header" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setHeaderImage('')}
+                          className="absolute top-0 right-0 bg-red-600 text-white text-[10px] w-4 h-4 flex items-center justify-center"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-16 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                        <ImageIcon className="w-5 h-5" />
+                      </div>
+                    )}
+                    <label className="cursor-pointer bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+                      <Upload className="w-3.5 h-3.5" />
+                      Subir imagen
+                      <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                    </label>
+                  </div>
+                </div>
+
+                <hr className="border-slate-100 dark:border-slate-800" />
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block">Captar Email</span>
+                    <span className="text-[11px] text-slate-400">Agrega un campo para recolectar correos</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={collectEmail}
+                    onChange={(e) => setCollectEmail(e.target.checked)}
+                    className="w-4 h-4 accent-emerald-600"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block">Cuenta Regresiva</span>
+                    <span className="text-[11px] text-slate-400">Muestra timer de urgencia</span>
+                  </div>
                   <input
                     type="checkbox"
                     checked={showCountdown}
                     onChange={(e) => setShowCountdown(e.target.checked)}
-                    className="w-4 h-4 accent-emerald-500 rounded"
+                    className="w-4 h-4 accent-emerald-600"
                   />
-                  <div>
-                    <span className="text-xs font-semibold text-white block">Mostrar cuenta regresiva</span>
-                    <span className="text-[11px] text-slate-400">
-                      Muestra un temporizador dentro del popup para crear urgencia.
-                    </span>
-                  </div>
-                </label>
+                </div>
+
                 {showCountdown && (
-                  <div className="pl-7 pt-1">
-                    <label className="block text-[11px] font-medium text-slate-400 mb-1">
-                      Duración de la cuenta regresiva (en horas)
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Fecha límite de la oferta
                     </label>
                     <input
-                      type="number"
-                      min={1}
-                      max={168}
-                      value={countdownHours}
-                      onChange={(e) => setCountdownHours(Number(e.target.value))}
-                      className="w-32 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white"
+                      type="datetime-local"
+                      value={countdownDate}
+                      onChange={(e) => setCountdownDate(e.target.value)}
+                      className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     />
                   </div>
                 )}
-              </div>
 
-              <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
-                <label className="flex items-center gap-3 cursor-pointer">
+                <hr className="border-slate-100 dark:border-slate-800" />
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Texto del botón de acción
+                  </label>
                   <input
-                    type="checkbox"
-                    checked={showExternalBtn}
-                    onChange={(e) => setShowExternalBtn(e.target.checked)}
-                    className="w-4 h-4 accent-emerald-500 rounded"
+                    type="text"
+                    value={btnText}
+                    onChange={(e) => setBtnText(e.target.value)}
+                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
-                  <div>
-                    <span className="text-xs font-semibold text-white block">Botón con enlace externo</span>
-                    <span className="text-[11px] text-slate-400">
-                      Muestra un botón que lleva al visitante a una URL externa al hacer clic.
-                    </span>
-                  </div>
-                </label>
+                </div>
 
-                {showExternalBtn && (
-                  <div className="pl-7 space-y-3 pt-1">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Acción del botón
+                    </label>
+                    <select
+                      value={btnActionType}
+                      onChange={(e: any) => setBtnActionType(e.target.value)}
+                      className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="close">Cerrar Pop-up</option>
+                      <option value="link">Abrir Link Externo</option>
+                    </select>
+                  </div>
+                  {btnActionType === 'link' && (
                     <div>
-                      <label className="block text-[11px] font-medium text-slate-400 mb-1">
-                        Texto del botón
-                      </label>
-                      <input
-                        type="text"
-                        value={btnText}
-                        onChange={(e) => setBtnText(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
-                        placeholder="¡Quiero aprovechar!"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-medium text-slate-400 mb-1">
-                        URL de destino (opcional)
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        URL destino
                       </label>
                       <input
                         type="url"
-                        value={btnUrl}
-                        onChange={(e) => setBtnUrl(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
-                        placeholder="https://tutienda.com/oferta"
+                        placeholder="https://..."
+                        value={btnLink}
+                        onChange={(e) => setBtnLink(e.target.value)}
+                        className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={showFloatingBtn}
-                    onChange={(e) => setShowFloatingBtn(e.target.checked)}
-                    className="w-4 h-4 accent-emerald-500 rounded"
-                  />
-                  <div>
-                    <span className="text-xs font-semibold text-white block">
-                      Botón flotante para abrir el popup
-                    </span>
-                    <span className="text-[11px] text-slate-400">
-                      Muestra un botón fijo en el costado de la pantalla para reabrir el popup en cualquier momento.
-                    </span>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {/* Segmentación de Páginas */}
-            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-4">
-              <h3 className="text-xs font-bold text-white flex items-center gap-2">
-                <Tag className="w-4 h-4 text-emerald-400" /> Segmentación de visualización
-              </h3>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                  ¿Dónde mostrar este widget?
-                </label>
-                <select
-                  value={currentTargetType}
-                  onChange={(e) => setCurrentTargetType(e.target.value as any)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                >
-                  <option value="all">Todas las páginas (Por defecto)</option>
-                  <option value="product">En productos específicos</option>
-                  <option value="category">En categorías específicas</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 2: EMAILS */}
-        {activeTab === "emails" && (
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
-            <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={collectEmail}
-                  onChange={(e) => setCollectEmail(e.target.checked)}
-                  className="w-4 h-4 accent-emerald-500 rounded"
-                />
-                <div>
-                  <span className="text-xs font-semibold text-white block">Mostrar casilla de email</span>
-                  <span className="text-[11px] text-slate-400">
-                    Muestra un campo de email en el popup para que el visitante lo ingrese antes de hacer clic en el botón.
-                  </span>
+                  )}
                 </div>
-              </label>
-            </div>
 
-            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-              <div className="text-xs text-slate-300 space-y-1">
-                <span className="font-semibold text-emerald-400 block">Captura de contactos directa</span>
-                <p>
-                  Cuando un cliente ingresa su correo en el popup, los datos quedan registrados y se envía una notificación al email de tu tienda de Tiendanube.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: ESTILOS */}
-        {activeTab === "estilos" && (
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">
-                Plantillas de Fechas Especiales
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                {FECHAS_ESPECIALES.map((preset) => (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    onClick={() => applyPreset(preset)}
-                    className={`px-3 py-2 rounded-xl text-[11px] font-medium border text-left transition-all flex items-center justify-between ${
-                      campaignTheme === preset.id
-                        ? "bg-emerald-500/10 border-emerald-500 text-emerald-400 shadow-sm"
-                        : "bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700"
-                    }`}
-                  >
-                    <span className="truncate">{preset.label}</span>
-                    {campaignTheme === preset.id && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="border-t border-slate-800 pt-5 space-y-4">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider">Colores principales</h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Color de fondo</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Texto legal / aclaración
+                  </label>
+                  <input
+                    type="text"
+                    value={legalText}
+                    onChange={(e) => setLegalText(e.target.value)}
+                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: ESTILOS */}
+          {activeTab === 'estilos' && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Fondo del modal
+                  </label>
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
                       value={bgColor}
                       onChange={(e) => setBgColor(e.target.value)}
-                      className="w-10 h-10 rounded-xl border-0 cursor-pointer bg-transparent"
+                      className="w-9 h-9 rounded-lg cursor-pointer border-0"
                     />
                     <input
                       type="text"
                       value={bgColor}
                       onChange={(e) => setBgColor(e.target.value)}
-                      className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
+                      className="w-full text-xs p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Color del título</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={titleColor}
-                      onChange={(e) => setTitleColor(e.target.value)}
-                      className="w-10 h-10 rounded-xl border-0 cursor-pointer bg-transparent"
-                    />
-                    <input
-                      type="text"
-                      value={titleColor}
-                      onChange={(e) => setTitleColor(e.target.value)}
-                      className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Color del subtítulo / textos</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Color de texto
+                  </label>
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
                       value={textColor}
                       onChange={(e) => setTextColor(e.target.value)}
-                      className="w-10 h-10 rounded-xl border-0 cursor-pointer bg-transparent"
+                      className="w-9 h-9 rounded-lg cursor-pointer border-0"
                     />
                     <input
                       type="text"
                       value={textColor}
                       onChange={(e) => setTextColor(e.target.value)}
-                      className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
+                      className="w-full text-xs p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Color texto del cuerpo</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Fondo del botón
+                  </label>
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
-                      value={bodyTextColor}
-                      onChange={(e) => setBodyTextColor(e.target.value)}
-                      className="w-10 h-10 rounded-xl border-0 cursor-pointer bg-transparent"
+                      value={btnBgColor}
+                      onChange={(e) => setBtnBgColor(e.target.value)}
+                      className="w-9 h-9 rounded-lg cursor-pointer border-0"
                     />
                     <input
                       type="text"
-                      value={bodyTextColor}
-                      onChange={(e) => setBodyTextColor(e.target.value)}
-                      className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
+                      value={btnBgColor}
+                      onChange={(e) => setBtnBgColor(e.target.value)}
+                      className="w-full text-xs p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Color del botón</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={btnBg}
-                      onChange={(e) => setBtnBg(e.target.value)}
-                      className="w-10 h-10 rounded-xl border-0 cursor-pointer bg-transparent"
-                    />
-                    <input
-                      type="text"
-                      value={btnBg}
-                      onChange={(e) => setBtnBg(e.target.value)}
-                      className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Color de texto del botón</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Texto del botón
+                  </label>
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
                       value={btnTextColor}
                       onChange={(e) => setBtnTextColor(e.target.value)}
-                      className="w-10 h-10 rounded-xl border-0 cursor-pointer bg-transparent"
+                      className="w-9 h-9 rounded-lg cursor-pointer border-0"
                     />
                     <input
                       type="text"
                       value={btnTextColor}
                       onChange={(e) => setBtnTextColor(e.target.value)}
-                      className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
+                      className="w-full text-xs p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="pt-2">
-                <label className="flex items-center gap-3 cursor-pointer">
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Tamaño de título (px)
+                  </label>
                   <input
-                    type="checkbox"
-                    checked={bgGradient}
-                    onChange={(e) => setBgGradient(e.target.checked)}
-                    className="w-4 h-4 accent-emerald-500 rounded"
-                  />
-                  <span className="text-xs font-medium text-slate-300">Fondo en degradado elegante</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Tipografías */}
-            <div className="border-t border-slate-800 pt-5 space-y-4">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider">Tipografías</h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Tamaño fuente del título</label>
-                  <select
+                    type="number"
                     value={titleSize}
                     onChange={(e) => setTitleSize(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
-                  >
-                    <option value="20px">20px</option>
-                    <option value="24px">24px</option>
-                    <option value="28px">28px</option>
-                    <option value="32px">32px</option>
-                    <option value="36px">36px</option>
-                  </select>
+                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
+                  />
                 </div>
-
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Tamaño fuente del subtítulo</label>
-                  <select
-                    value={subtitleSize}
-                    onChange={(e) => setSubtitleSize(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
-                  >
-                    <option value="14px">14px</option>
-                    <option value="16px">16px</option>
-                    <option value="18px">18px</option>
-                    <option value="20px">20px</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Tamaño fuente del texto</label>
-                  <select
-                    value={bodySize}
-                    onChange={(e) => setBodySize(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
-                  >
-                    <option value="12px">12px</option>
-                    <option value="14px">14px</option>
-                    <option value="15px">15px</option>
-                    <option value="16px">16px</option>
-                  </select>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Bordes redondeados (px)
+                  </label>
+                  <input
+                    type="number"
+                    value={borderRadius}
+                    onChange={(e) => setBorderRadius(e.target.value)}
+                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
+                  />
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Footer info */}
-        <div className="pt-6 border-t border-slate-800 flex items-center justify-center gap-2 text-slate-500 text-xs">
-          <HelpCircle className="w-4 h-4" />
-          <span>Centro de ayuda - Soporte activo 24/7</span>
+          {/* TAB: DISPARO & FRECUENCIA */}
+          {activeTab === 'disparo' && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  ¿Cuándo debe aparecer el Pop-up? (Trigger)
+                </label>
+                <select
+                  value={trigger}
+                  onChange={(e) => setTrigger(e.target.value)}
+                  className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white"
+                >
+                  <option value="enter">Al ingresar a la tienda (Inmediato)</option>
+                  <option value="delay-5">Esperar 5 segundos</option>
+                  <option value="delay-10">Esperar 10 segundos</option>
+                  <option value="scroll-50">Al scrollear 50% de la página</option>
+                  <option value="exit-intent">Intención de salida (Exit Intent)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Frecuencia de despliegue
+                </label>
+                <select
+                  value={frequency}
+                  onChange={(e) => setFrequency(e.target.value)}
+                  className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white"
+                >
+                  <option value="once-visit">Una sola vez por sesión / visita</option>
+                  <option value="once-day">Una vez al día</option>
+                  <option value="always">Siempre que navegue</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <div>
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block">
+                    Botón flotante de reapertura
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    Muestra un widget en la esquina para volver a abrir el pop-up
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={showReopenBtn}
+                  onChange={(e) => setShowReopenBtn(e.target.checked)}
+                  className="w-4 h-4 accent-emerald-600"
+                />
+              </div>
+            </div>
+          )}
         </div>
-      </main>
+
+        {/* Right Live Preview Box */}
+        <div className="lg:col-span-5">
+          <div className="sticky top-20 bg-slate-900 rounded-3xl p-4 shadow-xl border border-slate-800 overflow-hidden">
+            <div className="flex items-center justify-between mb-3 px-2">
+              <span className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
+                <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                Previsualización en tiempo real
+              </span>
+              <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700">
+                Interactive
+              </span>
+            </div>
+
+            {/* Simulated Popup Canvas */}
+            <div className="relative bg-black/60 backdrop-blur-sm rounded-2xl p-4 min-h-[380px] flex items-center justify-center">
+              <div
+                className="w-full max-w-[340px] shadow-2xl overflow-hidden transition-all duration-300 relative"
+                style={{
+                  backgroundColor: bgColor,
+                  color: textColor,
+                  borderRadius: `${borderRadius}px`,
+                }}
+              >
+                {/* Close Button */}
+                <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/30 text-white flex items-center justify-center text-xs font-bold z-10">
+                  ✕
+                </div>
+
+                {headerImage && (
+                  <img src={headerImage} alt="Header" className="w-full h-32 object-cover block" />
+                )}
+
+                <div className="p-5 text-center space-y-3">
+                  {title && (
+                    <div
+                      className="font-bold leading-tight"
+                      style={{ fontSize: `${Math.min(Number(titleSize), 22)}px` }}
+                    >
+                      {title}
+                    </div>
+                  )}
+
+                  {subtitle && (
+                    <div className="text-xs opacity-80 leading-snug">{subtitle}</div>
+                  )}
+
+                  {bodyText && (
+                    <div className="text-[11px] opacity-75 leading-relaxed">{bodyText}</div>
+                  )}
+
+                  {showCountdown && (
+                    <div className="flex justify-center gap-1.5 py-1">
+                      <div className="bg-black/5 dark:bg-white/10 px-2 py-1 rounded text-center">
+                        <span className="block text-xs font-extrabold" style={{ color: btnBgColor }}>02</span>
+                        <span className="text-[8px] uppercase opacity-60">Días</span>
+                      </div>
+                      <div className="bg-black/5 dark:bg-white/10 px-2 py-1 rounded text-center">
+                        <span className="block text-xs font-extrabold" style={{ color: btnBgColor }}>14</span>
+                        <span className="text-[8px] uppercase opacity-60">Hs</span>
+                      </div>
+                      <div className="bg-black/5 dark:bg-white/10 px-2 py-1 rounded text-center">
+                        <span className="block text-xs font-extrabold" style={{ color: btnBgColor }}>35</span>
+                        <span className="text-[8px] uppercase opacity-60">Min</span>
+                      </div>
+                      <div className="bg-black/5 dark:bg-white/10 px-2 py-1 rounded text-center">
+                        <span className="block text-xs font-extrabold" style={{ color: btnBgColor }}>50</span>
+                        <span className="text-[8px] uppercase opacity-60">Seg</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {collectEmail && (
+                    <input
+                      type="email"
+                      placeholder="Tu email aquí..."
+                      disabled
+                      className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white"
+                    />
+                  )}
+
+                  <button
+                    className="w-full py-2.5 px-4 rounded-lg text-xs font-bold transition shadow-sm"
+                    style={{ backgroundColor: btnBgColor, color: btnTextColor }}
+                  >
+                    {btnText}
+                  </button>
+
+                  {legalText && (
+                    <div className="text-[9px] opacity-50 leading-tight">{legalText}</div>
+                  )}
+                </div>
+              </div>
+
+              {showReopenBtn && (
+                <div
+                  className="absolute bottom-3 left-3 text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg border border-white/20 flex items-center gap-1"
+                  style={{ backgroundColor: btnBgColor, color: btnTextColor }}
+                >
+                  🎁 Oferta
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  );
-        }
+  )
+                                         }
