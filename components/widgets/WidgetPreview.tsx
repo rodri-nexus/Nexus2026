@@ -811,7 +811,7 @@ function ProductosComplementariosPreview() {
           <div style={{ width: "18px", height: "18px", borderRadius: "4px", background: "#111827", color: "#ffffff", fontSize: "10px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>🔌</div>
           <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
             <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Cargador Rápido 20W</span>
-            <span style={{ fontSize: "6.5px", fontWeight 900, color: "#10B981" }}>$ 18.500</span>
+            <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>$ 18.500</span>
           </div>
         </div>
         <div style={{ background: "#111827", color: "#ffffff", borderRadius: "4px", padding: "2px 5px", fontSize: "6px", fontWeight: 800, flexShrink: 0 }}>+ Agregar</div>
