@@ -85,6 +85,9 @@ export interface Cfg {
   borderWidth: number;
   speed: number;
   ctaBorderRadius: number;
+
+  // Fechas especiales
+  campaignTheme: string;
 }
 
 /* ═══════════════════════════════════════════
@@ -148,6 +151,8 @@ const DEF: Cfg = {
   borderWidth: 1,
   speed: 50,
   ctaBorderRadius: 50,
+
+  campaignTheme: 'none',
 };
 
 /* ═══════════════════════════════════════════
@@ -370,7 +375,7 @@ function SliderInput({
   value: number; onChange: (v: number) => void; min: number; max: number; step?: number; unit?: string;
 }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', boxSizing: 'border-box' }}>
       <input
         type="range"
         min={min}
@@ -378,9 +383,9 @@ function SliderInput({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={{ flex: 1, accentColor: '#10B981', cursor: 'pointer' }}
+        style={{ flex: 1, minWidth: 0, accentColor: '#10B981', cursor: 'pointer' }}
       />
-      <span style={{ fontSize: 13, fontWeight: 700, minWidth: 55, textAlign: 'right', color: '#000000' }}>
+      <span style={{ fontSize: 13, fontWeight: 700, minWidth: 48, textAlign: 'right', color: '#000000', flexShrink: 0 }}>
         {value}{unit}
       </span>
     </div>
@@ -423,6 +428,8 @@ function parseCfg(raw: Record<string, unknown> | undefined): Cfg {
     borderWidth: typeof raw.borderWidth === 'number' ? raw.borderWidth : DEF.borderWidth,
     speed: typeof raw.speed === 'number' ? raw.speed : DEF.speed,
     ctaBorderRadius: typeof raw.ctaBorderRadius === 'number' ? raw.ctaBorderRadius : DEF.ctaBorderRadius,
+
+    campaignTheme: (raw.campaignTheme as string) || 'none',
   };
 }
 
@@ -440,7 +447,7 @@ export default function CarruselResenasEditor({
   const router = useRouter();
 
   const [cfg, setCfg] = useState<Cfg>(() => parseCfg(ew?.config));
-  const [tab, setTab] = useState<'gen' | 'location' | 'style'>('gen');
+  const [tab, setTab] = useState<'gen' | 'location' | 'style' | 'dates'>('gen');
   const [saving, setSaving] = useState(false);
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState('');
@@ -459,6 +466,27 @@ export default function CarruselResenasEditor({
 
   const set = <K extends keyof Cfg>(k: K, v: Cfg[K]) =>
     setCfg((p) => ({ ...p, [k]: v }));
+
+  const setCustomColor = (
+    key:
+      | 'bgColor'
+      | 'titleColor'
+      | 'subtitleColor'
+      | 'textColor'
+      | 'starColor'
+      | 'headerStarColor'
+      | 'cardBgColor'
+      | 'borderColor'
+      | 'ctaBgColor'
+      | 'ctaTextColor',
+    val: string,
+  ) => {
+    setCfg((prev) => ({
+      ...prev,
+      [key]: val,
+      campaignTheme: 'none',
+    }));
+  };
 
   const updateReview = (index: number, field: keyof ReviewItem, value: any) => {
     setCfg((prev) => {
@@ -516,6 +544,51 @@ export default function CarruselResenasEditor({
     updateReview(index, 'photo', '');
   };
 
+  const applyCampaignPreset = (slug: string) => {
+    const CAMPAIGN_DATA: Record<string, { bg: string; tx: string; sub: string; card: string; border: string; accent: string; ctaBg: string; ctaTx: string }> = {
+      'black-friday': { bg: '#111827', tx: '#ffffff', sub: '#d1d5db', card: '#1f2937', border: '#374151', accent: '#F59E0B', ctaBg: '#F59E0B', ctaTx: '#111827' },
+      'hot-sale': { bg: '#0F172A', tx: '#ffffff', sub: '#cbd5e1', card: '#1e293b', border: '#334155', accent: '#EF4444', ctaBg: '#EF4444', ctaTx: '#ffffff' },
+      'cyber-monday': { bg: '#090D16', tx: '#ffffff', sub: '#94a3b8', card: '#111827', border: '#1e293b', accent: '#3B82F6', ctaBg: '#3B82F6', ctaTx: '#ffffff' },
+      'navidad': { bg: '#064E3B', tx: '#ffffff', sub: '#a7f3d0', card: '#047857', border: '#059669', accent: '#EF4444', ctaBg: '#EF4444', ctaTx: '#ffffff' },
+      'san-valentin': { bg: '#831843', tx: '#ffffff', sub: '#fbcfe8', card: '#9d174d', border: '#be185d', accent: '#F43F5E', ctaBg: '#F43F5E', ctaTx: '#ffffff' },
+      'dia-padre-madre': { bg: '#312E81', tx: '#ffffff', sub: '#c7d2fe', card: '#3730a3', border: '#4338ca', accent: '#10B981', ctaBg: '#10B981', ctaTx: '#ffffff' },
+      'liquidacion': { bg: '#7F1D1D', tx: '#ffffff', sub: '#fecaca', card: '#991b1b', border: '#b91c1c', accent: '#FBBF24', ctaBg: '#FBBF24', ctaTx: '#7F1D1D' },
+    };
+
+    if (slug === 'none') {
+      setCfg((prev) => ({
+        ...prev,
+        campaignTheme: slug,
+        bgColor: DEF.bgColor,
+        titleColor: DEF.titleColor,
+        subtitleColor: DEF.subtitleColor,
+        textColor: DEF.textColor,
+        starColor: DEF.starColor,
+        headerStarColor: DEF.headerStarColor,
+        cardBgColor: DEF.cardBgColor,
+        borderColor: DEF.borderColor,
+        ctaBgColor: DEF.ctaBgColor,
+        ctaTextColor: DEF.ctaTextColor,
+      }));
+    } else if (CAMPAIGN_DATA[slug]) {
+      const p = CAMPAIGN_DATA[slug];
+      setCfg((prev) => ({
+        ...prev,
+        campaignTheme: slug,
+        bgColor: p.bg,
+        titleColor: p.tx,
+        subtitleColor: p.sub,
+        textColor: p.sub,
+        starColor: p.accent,
+        headerStarColor: p.accent,
+        cardBgColor: p.card,
+        borderColor: p.border,
+        ctaBgColor: p.ctaBg,
+        ctaTextColor: p.ctaTx,
+      }));
+    }
+  };
+
   const save = async () => {
     setSaving(true);
     setOk(false);
@@ -548,6 +621,17 @@ export default function CarruselResenasEditor({
       setSaving(false);
     }
   };
+
+  const CAMPAIGN_PRESETS = [
+    { id: 'none', label: 'Diseño Limpio / Personalizado', emoji: '🎨', desc: 'Mantiene tus colores configurados.' },
+    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Negro mate con resaltado dorado.' },
+    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Azul nocturno con acentos rojos.' },
+    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Cian cibernético de alta tecnología.' },
+    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino con detalles festivos.' },
+    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa romántico intenso.' },
+    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con verde esmeralda.' },
+    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí con amarillo sale.' },
+  ];
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
@@ -621,6 +705,8 @@ export default function CarruselResenasEditor({
           background: '#ffffff', border: '1px solid #e5e7eb',
           borderRadius: 16, padding: 20, marginBottom: 20,
           boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          boxSizing: 'border-box',
+          overflow: 'hidden',
         }}>
 
           {/* PREVIEW EN VIVO */}
@@ -643,14 +729,12 @@ export default function CarruselResenasEditor({
               width: '100%',
               overflow: 'hidden',
             }}>
-              {/* Estrellas de Encabezado */}
               {cfg.showHeaderStars && (
                 <div style={{ fontSize: cfg.headerStarFontSize, color: cfg.headerStarColor, marginBottom: 6, lineHeight: 1 }}>
                   ★★★★★
                 </div>
               )}
 
-              {/* Título y Subtítulo */}
               {cfg.title && (
                 <h3 style={{ fontSize: cfg.titleFontSize, fontWeight: 800, color: cfg.titleColor, margin: '0 0 4px 0', lineHeight: 1.3 }}>
                   {cfg.title}
@@ -662,7 +746,6 @@ export default function CarruselResenasEditor({
                 </p>
               )}
 
-              {/* Carrusel Deslizable Preview */}
               <div style={{
                 display: 'flex',
                 gap: 12,
@@ -722,7 +805,6 @@ export default function CarruselResenasEditor({
                 ))}
               </div>
 
-              {/* Botón CTA Final */}
               {cfg.showCtaButton && (
                 <div style={{ marginTop: 18 }}>
                   <a
@@ -768,7 +850,8 @@ export default function CarruselResenasEditor({
               [
                 ['gen', '📝 General & Reseñas'],
                 ['location', '📍 Ubicación'],
-                ['style', '🎨 Estilos & Velocidad'],
+                ['style', '🎨 Estilos'],
+                ['dates', '🔥 Fechas Especiales'],
               ] as const
             ).map(([k, l]) => {
               const act = tab === k;
@@ -797,7 +880,6 @@ export default function CarruselResenasEditor({
           {tab === 'gen' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-              {/* ENCABEZADO Y CTA CONFIG */}
               <div style={{ background: '#f9fafb', padding: 16, borderRadius: 12, border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={{ fontSize: 14, fontWeight: 800, color: '#000000' }}>
                   📌 ENCABEZADO Y BOTÓN CTA
@@ -855,7 +937,6 @@ export default function CarruselResenasEditor({
                 )}
               </div>
 
-              {/* LISTA DE RESEÑAS */}
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                   <FieldLabel>Lista de Reseñas ({cfg.reviews.length}/25)</FieldLabel>
@@ -935,7 +1016,6 @@ export default function CarruselResenasEditor({
                         />
                       </div>
 
-                      {/* SELECCIÓN DE ICONO */}
                       <div>
                         <FieldLabel>Icono / Sello de origen</FieldLabel>
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -969,7 +1049,6 @@ export default function CarruselResenasEditor({
                         </div>
                       </div>
 
-                      {/* SUBIDA DE FOTO */}
                       <div style={{
                         background: '#f9fafb', border: '1.5px dashed #d1d5db', borderRadius: 10,
                         padding: 12, display: 'flex', alignItems: 'center', gap: 12,
@@ -1112,7 +1191,6 @@ export default function CarruselResenasEditor({
           {tab === 'style' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-              {/* COLORES */}
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: '#000000', marginBottom: 14 }}>
                   🎨 COLORES
@@ -1120,48 +1198,47 @@ export default function CarruselResenasEditor({
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16 }}>
                   <div>
                     <FieldLabel>Fondo General</FieldLabel>
-                    <ColorPickerField value={cfg.bgColor} onChange={(v) => set('bgColor', v)} />
+                    <ColorPickerField value={cfg.bgColor} onChange={(v) => setCustomColor('bgColor', v)} />
                   </div>
                   <div>
                     <FieldLabel>Color Título</FieldLabel>
-                    <ColorPickerField value={cfg.titleColor} onChange={(v) => set('titleColor', v)} />
+                    <ColorPickerField value={cfg.titleColor} onChange={(v) => setCustomColor('titleColor', v)} />
                   </div>
                   <div>
                     <FieldLabel>Color Subtítulo</FieldLabel>
-                    <ColorPickerField value={cfg.subtitleColor} onChange={(v) => set('subtitleColor', v)} />
+                    <ColorPickerField value={cfg.subtitleColor} onChange={(v) => setCustomColor('subtitleColor', v)} />
                   </div>
                   <div>
                     <FieldLabel>Color Texto</FieldLabel>
-                    <ColorPickerField value={cfg.textColor} onChange={(v) => set('textColor', v)} />
+                    <ColorPickerField value={cfg.textColor} onChange={(v) => setCustomColor('textColor', v)} />
                   </div>
                   <div>
                     <FieldLabel>Estrellas Reseñas</FieldLabel>
-                    <ColorPickerField value={cfg.starColor} onChange={(v) => set('starColor', v)} />
+                    <ColorPickerField value={cfg.starColor} onChange={(v) => setCustomColor('starColor', v)} />
                   </div>
                   <div>
                     <FieldLabel>Estrellas Encabezado</FieldLabel>
-                    <ColorPickerField value={cfg.headerStarColor} onChange={(v) => set('headerStarColor', v)} />
+                    <ColorPickerField value={cfg.headerStarColor} onChange={(v) => setCustomColor('headerStarColor', v)} />
                   </div>
                   <div>
                     <FieldLabel>Fondo de Tarjeta</FieldLabel>
-                    <ColorPickerField value={cfg.cardBgColor} onChange={(v) => set('cardBgColor', v)} />
+                    <ColorPickerField value={cfg.cardBgColor} onChange={(v) => setCustomColor('cardBgColor', v)} />
                   </div>
                   <div>
                     <FieldLabel>Color de Borde</FieldLabel>
-                    <ColorPickerField value={cfg.borderColor} onChange={(v) => set('borderColor', v)} />
+                    <ColorPickerField value={cfg.borderColor} onChange={(v) => setCustomColor('borderColor', v)} />
                   </div>
                   <div>
                     <FieldLabel>Fondo Botón CTA</FieldLabel>
-                    <ColorPickerField value={cfg.ctaBgColor} onChange={(v) => set('ctaBgColor', v)} />
+                    <ColorPickerField value={cfg.ctaBgColor} onChange={(v) => setCustomColor('ctaBgColor', v)} />
                   </div>
                   <div>
                     <FieldLabel>Texto Botón CTA</FieldLabel>
-                    <ColorPickerField value={cfg.ctaTextColor} onChange={(v) => set('ctaTextColor', v)} />
+                    <ColorPickerField value={cfg.ctaTextColor} onChange={(v) => setCustomColor('ctaTextColor', v)} />
                   </div>
                 </div>
               </div>
 
-              {/* TIPOGRAFÍAS */}
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: '#000000', marginBottom: 14 }}>
                   🔤 TAMAÑOS DE TIPOGRAFÍA (PX)
@@ -1194,35 +1271,127 @@ export default function CarruselResenasEditor({
                 </div>
               </div>
 
-              {/* DISEÑO Y COMPORTAMIENTO */}
+              {/* DISEÑO Y VELOCIDAD — layout corregido */}
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: '#000000', marginBottom: 14 }}>
                   ⚙️ DISEÑO Y VELOCIDAD
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                  <div>
+
+                {/* Fila 1: Radio + Borde */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Radio de Tarjeta ({cfg.cardRadius}px)</FieldLabel>
                     <SliderInput min={0} max={30} value={cfg.cardRadius} onChange={(v) => set('cardRadius', v)} />
                   </div>
-                  <div>
-                    <FieldLabel>Padding Interno ({cfg.cardPadding}px)</FieldLabel>
-                    <SliderInput min={8} max={40} value={cfg.cardPadding} onChange={(v) => set('cardPadding', v)} />
-                  </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Grosor de Borde ({cfg.borderWidth}px)</FieldLabel>
                     <SliderInput min={0} max={4} value={cfg.borderWidth} onChange={(v) => set('borderWidth', v)} />
                   </div>
-                  <div>
+                </div>
+
+                {/* Fila 2 centrada: Padding Interno + Velocidad */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 16,
+                  marginBottom: 16,
+                  maxWidth: '100%',
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                }}>
+                  <div style={{
+                    minWidth: 0,
+                    background: '#f9fafb',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 12,
+                    padding: 14,
+                    boxSizing: 'border-box',
+                  }}>
+                    <FieldLabel>Padding Interno ({cfg.cardPadding}px)</FieldLabel>
+                    <SliderInput min={8} max={40} value={cfg.cardPadding} onChange={(v) => set('cardPadding', v)} />
+                  </div>
+                  <div style={{
+                    minWidth: 0,
+                    background: '#f9fafb',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 12,
+                    padding: 14,
+                    boxSizing: 'border-box',
+                  }}>
                     <FieldLabel>Velocidad Carrusel ({cfg.speed}s)</FieldLabel>
                     <SliderInput min={2} max={250} value={cfg.speed} onChange={(v) => set('speed', v)} unit="s" />
                   </div>
-                  <div>
-                    <FieldLabel>Radio Botón CTA ({cfg.ctaBorderRadius}px)</FieldLabel>
-                    <SliderInput min={0} max={50} value={cfg.ctaBorderRadius} onChange={(v) => set('ctaBorderRadius', v)} />
-                  </div>
+                </div>
+
+                {/* Fila 3: Radio CTA a ancho completo */}
+                <div style={{
+                  background: '#f9fafb',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 12,
+                  padding: 14,
+                  boxSizing: 'border-box',
+                  maxWidth: 420,
+                  margin: '0 auto',
+                  width: '100%',
+                }}>
+                  <FieldLabel>Radio Botón CTA ({cfg.ctaBorderRadius}px)</FieldLabel>
+                  <SliderInput min={0} max={50} value={cfg.ctaBorderRadius} onChange={(v) => set('ctaBorderRadius', v)} />
                 </div>
               </div>
 
+            </div>
+          )}
+
+          {/* TAB FECHAS ESPECIALES */}
+          {tab === 'dates' && (
+            <div>
+              <div style={{ marginBottom: 20 }}>
+                <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
+                <FieldHelper>
+                  Elegí una campaña activa para vestir el carrusel de reseñas con colores festivos de alto impacto. Se refleja en la tienda al guardar.
+                </FieldHelper>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {CAMPAIGN_PRESETS.map((preset) => {
+                  const isSelected = cfg.campaignTheme === preset.id;
+                  return (
+                    <div
+                      key={preset.id}
+                      onClick={() => applyCampaignPreset(preset.id)}
+                      style={{
+                        background: '#ffffff',
+                        border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                        borderRadius: 12,
+                        padding: '16px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 16,
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          {preset.label}
+                          {isSelected && (
+                            <span style={{
+                              background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
+                              padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
+                            }}>
+                              ACTIVO
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
+                          {preset.desc}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
@@ -1275,4 +1444,4 @@ export default function CarruselResenasEditor({
       </div>
     </div>
   );
-}
+   }
