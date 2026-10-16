@@ -43,6 +43,7 @@ import RaspaGanaEditor from '@/components/widgets/editors/RaspaGanaEditor';
 import PopupPromocionalEditor from '@/components/widgets/editors/PopupPromocionalEditor';
 import NotificacionesFlotantesEditor from '@/components/widgets/editors/NotificacionesFlotantesEditor';
 import AlertaInventarioEditor from '@/components/widgets/editors/AlertaInventarioEditor';
+import ConjuntoProductosEditor from '@/components/widgets/editors/ConjuntoProductosEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -149,6 +150,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: CONJUNTO DE PRODUCTOS (LOOKS)
+  if (params.widgetSlug === 'conjunto-productos') {
+    return <ConjuntoProductosEditor {...editorProps} />;
+  }
 
   // WIDGET: ALERTA DE INVENTARIO
   if (params.widgetSlug === 'alerta-inventario') {
@@ -378,4 +384,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-  }
+}
