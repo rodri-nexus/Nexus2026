@@ -8,6 +8,40 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function NotificacionesFlotantesPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🔔 NOTIFICACIONES FLOTANTES</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          TOAST
+        </span>
+      </div>
+
+      <div style={{ background: "#111827", borderRadius: "8px", padding: "6px 8px", display: "flex", alignItems: "flex-start", gap: "6px", color: "#ffffff" }}>
+        <div style={{ width: "16px", height: "16px", borderRadius: "4px", background: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "8px", flexShrink: 0 }}>🎉</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1px", flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981", lineHeight: 1.1 }}>¡Oferta especial!</div>
+          <div style={{ fontSize: "5px", color: "#d1d5db", lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Comprá hoy y obtené 20% OFF</div>
+        </div>
+        <span style={{ fontSize: "6px", opacity: 0.5 }}>✕</span>
+      </div>
+    </div>
+  );
+}
+
 function PopupPromocionalPreview() {
   return (
     <div
@@ -990,6 +1024,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "notificaciones-flotantes":
+      return <NotificacionesFlotantesPreview />;
     case "popup-promocional":
       return <PopupPromocionalPreview />;
     case "raspa-gana":
@@ -1101,4 +1137,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-          }
+                     }
