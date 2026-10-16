@@ -13583,7 +13583,7 @@ function renderPopupPromocional(w) {
   }
           }
 /* ═══════════════════════════════════════════
-   NOTIFICACIONES FLOTANTES ROTATIVAS (v2 BLINDADO)
+   NOTIFICACIONES FLOTANTES ROTATIVAS (v3 ULTRA BLINDADO)
 ═══════════════════════════════════════════ */
 function renderNotificacionesFlotantes(w) {
   var nsPrefix = typeof NS !== "undefined" ? NS : "nvx";
@@ -13595,33 +13595,24 @@ function renderNotificacionesFlotantes(w) {
     existingContainer.parentNode.removeChild(existingContainer);
   }
 
-  // 2. Filtros estrictos de validación
+  // 2. Filtros de desactivación
   if (!w) return;
   if (w.is_active === false || w.is_active === "false" || w.is_active === 0) return;
   if (w.user_disabled === true || w.user_disabled === "true") return;
 
+  // Safe JSON parse de config
   var cfg = w.config || w;
-  if (cfg.user_disabled === true || cfg.user_disabled === "true" || cfg.is_active === false || cfg.is_active === "false") return;
-
-  // 3. Validación de Target Scope (all / product / category)
-  var targetType = w.target_type || cfg.target_type || "all";
-  if (targetType === "product") {
-    var isProductPage = typeof window !== "undefined" && window.LS && window.LS.product;
-    if (!isProductPage) return;
-    if (w.target_product_id) {
-      var currentProdId = String(window.LS.product.id || "");
-      if (currentProdId !== String(w.target_product_id)) return;
-    }
-  } else if (targetType === "category") {
-    var isCategoryPage = typeof window !== "undefined" && window.LS && (window.LS.category || (window.LS.template && String(window.LS.template).indexOf("category") !== -1));
-    if (!isCategoryPage) return;
-    if (w.category_id) {
-      var currentCatId = String((window.LS.category && window.LS.category.id) || "");
-      if (currentCatId !== String(w.category_id)) return;
+  if (typeof cfg === "string") {
+    try {
+      cfg = JSON.parse(cfg);
+    } catch (eCfg) {
+      cfg = {};
     }
   }
 
-  // 4. Frecuencia de visualización
+  if (cfg.user_disabled === true || cfg.user_disabled === "true" || cfg.is_active === false || cfg.is_active === "false") return;
+
+  // 3. Frecuencia de visualización
   var freq = cfg.frequency || "always";
   var storageKey = "nvx_notif_flotantes_shown_" + (w.id || "def");
   if (freq === "once-visit") {
@@ -13636,19 +13627,37 @@ function renderNotificacionesFlotantes(w) {
     } catch (eFreq2) {}
   }
 
-  // 5. Filtrar ítems activos
+  // 4. Filtrar ítems activos (con fallback automático si viene vacío)
   var rawItems = cfg.items || [];
+  if (typeof rawItems === "string") {
+    try { rawItems = JSON.parse(rawItems); } catch(eItems) { rawItems = []; }
+  }
+
   var items = [];
-  for (var i = 0; i < rawItems.length; i++) {
-    var item = rawItems[i];
-    if (item && item.is_active !== false && item.is_active !== "false") {
-      items.push(item);
+  if (rawItems && rawItems.length > 0) {
+    for (var i = 0; i < rawItems.length; i++) {
+      var item = rawItems[i];
+      if (item && item.is_active !== false && item.is_active !== "false") {
+        items.push(item);
+      }
     }
   }
 
-  if (items.length === 0) return;
+  // Fallback por defecto si no hay ítems configurados
+  if (items.length === 0) {
+    items = [
+      {
+        title: "¡Ofertas Semanales!",
+        subtitle: "Envío gratis en compras seleccionadas",
+        text: "Aprovecha hasta un 30% OFF en productos destacados de la semana.",
+        button_text: "Ver ofertas",
+        button_url: "/productos",
+        is_active: true
+      }
+    ];
+  }
 
-  // 6. Crear contenedor flotante
+  // 5. Crear contenedor flotante
   var container = document.createElement("div");
   container.id = rootId;
   container.className = nsPrefix + "-root";
@@ -13689,7 +13698,7 @@ function renderNotificacionesFlotantes(w) {
       .replace(/'/g, "&#039;");
   };
 
-  var firstDelayMs = (parseInt(cfg.first_delay, 10) || 3) * 1000;
+  var firstDelayMs = (parseInt(cfg.first_delay, 10) || 1) * 1000;
   var intervalDelayMs = (parseInt(cfg.interval_delay, 10) || 6) * 1000;
   var autoCloseMs = (parseInt(cfg.auto_close_timer, 10) || 5) * 1000;
 
@@ -13798,5 +13807,5 @@ function renderNotificacionesFlotantes(w) {
   };
 
   setTimeout(showNextNotification, firstDelayMs);
-}
+      }
 })(); 
