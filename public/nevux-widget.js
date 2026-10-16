@@ -1838,6 +1838,7 @@
             if (w.widget_slug === "raspa-gana") renderRaspaGana(w);
             if (w.widget_slug === "popup-promocional") renderPopupPromocional(w);
             if (w.widget_slug === "notificaciones-flotantes") renderNotificacionesFlotantes(w);
+            if (w.widget_slug === "alerta-inventario") renderAlertaInventario(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -13741,4 +13742,251 @@ var renderNotificacionesFlotantes = function(w) {
     showOne();
   }
 };
+      /* ═══════════════════════════════════════════
+   WIDGET: ALERTA DE INVENTARIO
+   ═══════════════════════════════════════════ */
+function renderAlertaInventario(w) {
+  var elementId = "nvx-alerta-inventario-" + w.id;
+  if (document.getElementById(elementId)) return;
+
+  var cfg = w.config || {};
+
+  // Solo se muestra en la Ficha de Producto
+  var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
+  if (currentPage !== "product") {
+    return;
+  }
+
+  var threshold = parseInt(cfg.threshold, 10);
+  if (isNaN(threshold) || threshold <= 0) threshold = 10;
+
+  var messageText = cfg.messageText || "🔥 ¡Apurate! Quedan solo **{cantidad}** unidades disponibles";
+  var enableLastUnitMsg = cfg.enableLastUnitMsg === true;
+  var lastUnitText = cfg.lastUnitText || "🚨 ¡Última unidad disponible! No te la pierdas";
+
+  var position = cfg.position || "above-cart";
+  var iconType = cfg.iconType || "emoji";
+  var customEmoji = cfg.customEmoji || "🔥";
+  var iconImageUrl = cfg.iconImageUrl || "";
+
+  var bgColor = cfg.bgColor || "#FFF5F5";
+  var textColor = cfg.textColor || "#991B1B";
+  var borderColor = cfg.borderColor || "#FECACA";
+  var borderWidth = typeof cfg.borderWidth === "number" ? cfg.borderWidth : 1;
+  var borderStyle = cfg.borderStyle || "solid";
+  var borderRadius = typeof cfg.borderRadius === "number" ? cfg.borderRadius : 8;
+
+  var paddingVertical = typeof cfg.paddingVertical === "number" ? cfg.paddingVertical : 8;
+  var paddingHorizontal = typeof cfg.paddingHorizontal === "number" ? cfg.paddingHorizontal : 12;
+  var marginTop = typeof cfg.marginTop === "number" ? cfg.marginTop : 8;
+  var marginBottom = typeof cfg.marginBottom === "number" ? cfg.marginBottom : 8;
+
+  var fontSize = typeof cfg.fontSize === "number" ? cfg.fontSize : 13;
+  var fontWeight = cfg.fontWeight || "normal";
+  var animationEffect = cfg.animationEffect || "none";
+  var animationTarget = cfg.animationTarget || "icon";
+
+  // Presets de campaña
+  var THEMES = {
+    "black-friday": { bg: "#111827", text: "#F59E0B", border: "#F59E0B" },
+    "hot-sale": { bg: "#0F172A", text: "#ffffff", border: "#EF4444" },
+    "cyber-monday": { bg: "#090D16", text: "#ffffff", border: "#3B82F6" },
+    "navidad": { bg: "#064E3B", text: "#ffffff", border: "#EF4444" },
+    "san-valentin": { bg: "#831843", text: "#ffffff", border: "#F43F5E" },
+    "dia-padre-madre": { bg: "#312E81", text: "#ffffff", border: "#10B981" },
+    "liquidacion": { bg: "#7F1D1D", text: "#FBBF24", border: "#FBBF24" }
+  };
+
+  if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
+    var t = THEMES[cfg.campaignTheme];
+    bgColor = t.bg;
+    textColor = t.text;
+    borderColor = t.border;
+  }
+
+  // Obtener stock real del producto en Tiendanube
+  var currentStock = null;
+  try {
+    if (window.LS && window.LS.product) {
+      var p = window.LS.product;
+      if (p.variants && p.variants.length > 0) {
+        for (var v = 0; v < p.variants.length; v++) {
+          if (p.variants[v].stock !== undefined && p.variants[v].stock !== null) {
+            currentStock = parseInt(p.variants[v].stock, 10);
+            break;
+          }
+        }
+      }
+      if (currentStock === null && p.stock !== undefined && p.stock !== null) {
+        currentStock = parseInt(p.stock, 10);
+      }
+    }
+  } catch(e) {}
+
+  // Fallback de demostración si el stock no es expuesto por el tema
+  if (currentStock === null || isNaN(currentStock)) {
+    currentStock = 3;
+  }
+
+  // Si el stock supera el umbral configurado, no mostrar el widget
+  if (currentStock > threshold) {
+    return;
+  }
+
+  // Seleccionar mensaje (Última unidad o mensaje general)
+  var rawText = (enableLastUnitMsg && currentStock === 1) ? lastUnitText : messageText;
+  var finalText = rawText.replace(/\{cantidad\}/g, currentStock.toString());
+
+  // Escapar HTML y parsear formato Markdown **negrita**
+  var safeText = typeof escapeHtml === "function" ? escapeHtml(finalText) : finalText;
+  var formattedHtml = safeText.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: 800;">$1</strong>');
+
+  // Inyección de CSS y Animaciones
+  var styleId = "style-" + elementId;
+  if (!document.getElementById(styleId)) {
+    var borderCss = (borderColor && borderColor !== "transparent" && borderWidth > 0)
+      ? borderWidth + "px " + borderStyle + " " + borderColor
+      : "none";
+
+    var keyframes = "";
+    if (animationEffect === "aureola") {
+      keyframes =
+        "@keyframes nvxAureolaPulse { " +
+          "0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } " +
+          "70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); } " +
+          "100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } " +
+        "} ";
+    } else if (animationEffect === "zoom") {
+      keyframes =
+        "@keyframes nvxZoomPulse { " +
+          "0% { transform: scale(1); } " +
+          "50% { transform: scale(1.08); } " +
+          "100% { transform: scale(1); } " +
+        "} ";
+    }
+
+    var animClassWidget = "";
+    var animClassIcon = "";
+
+    if (animationEffect === "aureola") {
+      if (animationTarget === "widget") animClassWidget = "animation: nvxAureolaPulse 2s infinite !important; ";
+      else animClassIcon = "animation: nvxAureolaPulse 2s infinite !important; border-radius: 50% !important; ";
+    } else if (animationEffect === "zoom") {
+      if (animationTarget === "widget") animClassWidget = "animation: nvxZoomPulse 1.8s infinite ease-in-out !important; ";
+      else animClassIcon = "animation: nvxZoomPulse 1.8s infinite ease-in-out !important; ";
+    }
+
+    var styleEl = document.createElement("style");
+    styleEl.id = styleId;
+    styleEl.type = "text/css";
+    var css = keyframes +
+      "#" + elementId + " { " +
+        "background: " + bgColor + " !important; " +
+        "border: " + borderCss + " !important; " +
+        "border-radius: " + borderRadius + "px !important; " +
+        "padding: " + paddingVertical + "px " + paddingHorizontal + "px !important; " +
+        "margin-top: " + marginTop + "px !important; " +
+        "margin-bottom: " + marginBottom + "px !important; " +
+        "color: " + textColor + " !important; " +
+        "font-size: " + fontSize + "px !important; " +
+        "font-weight: " + (fontWeight === "bold" ? "700" : "400") + " !important; " +
+        "box-sizing: border-box !important; " +
+        "display: flex !important; " +
+        "align-items: center !important; " +
+        "justify-content: center !important; " +
+        "gap: 8px !important; " +
+        "width: 100% !important; " +
+        "max-width: 100% !important; " +
+        "clear: both !important; " +
+        "text-align: center !important; " +
+        "font-family: system-ui, -apple-system, sans-serif !important; " +
+        animClassWidget +
+      "} " +
+      "#" + elementId + " .nvx-icon-target { " +
+        "display: inline-flex !important; " +
+        "align-items: center !important; " +
+        "justify-content: center !important; " +
+        animClassIcon +
+      "}";
+
+    styleEl.appendChild(document.createTextNode(css));
+    document.head.appendChild(styleEl);
+  }
+
+  // Construcción del HTML del Ícono
+  var iconHtml = "";
+  if (iconType === "circle") {
+    iconHtml = '<span class="nvx-icon-target" style="width:10px;height:10px;border-radius:50%;background:#EF4444;flex-shrink:0;"></span>';
+  } else if (iconType === "heart") {
+    iconHtml = '<span class="nvx-icon-target" style="font-size:16px;flex-shrink:0;">❤️</span>';
+  } else if (iconType === "alert") {
+    iconHtml = '<span class="nvx-icon-target" style="font-size:16px;flex-shrink:0;">⚠️</span>';
+  } else if (iconType === "emoji") {
+    var safeEmoji = typeof escapeHtml === "function" ? escapeHtml(customEmoji) : customEmoji;
+    iconHtml = '<span class="nvx-icon-target" style="font-size:16px;flex-shrink:0;">' + safeEmoji + '</span>';
+  } else if (iconType === "image" && iconImageUrl) {
+    var safeImg = typeof escapeHtml === "function" ? escapeHtml(iconImageUrl) : iconImageUrl;
+    iconHtml = '<span class="nvx-icon-target"><img src="' + safeImg + '" alt="Icon" style="width:18px;height:18px;object-fit:contain;display:block;" /></span>';
+  }
+
+  var container = document.createElement("div");
+  container.id = elementId;
+  container.className = "nvx-widget nvx-alerta-inventario-wrapper";
+  container.innerHTML = iconHtml + '<span>' + formattedHtml + '</span>';
+
+  // Posicionamiento DOM
+  var targetEl = null;
+
+  if (position === "before-desc") {
+    // Arriba de la Descripción
+    var descSelectors = [
+      ".js-product-description",
+      "#description",
+      ".product-description",
+      ".product-detail-description",
+      ".user-content"
+    ];
+    for (var dIdx = 0; dIdx < descSelectors.length; dIdx++) {
+      var dEl = document.querySelector(descSelectors[dIdx]);
+      if (dEl) {
+        targetEl = dEl;
+        break;
+      }
+    }
+    if (targetEl && targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(container, targetEl);
+    }
+  }
+
+  // Fallback o posición "above-cart" (Arriba del botón de comprar)
+  if (!container.parentNode) {
+    var buySelectors = [
+      "form[action*='/cart/add']",
+      "form.js-product-form",
+      ".js-product-buy-container",
+      ".product-buy-container",
+      "form.js-product-buyform",
+      ".js-add-to-cart-btn",
+      "#product_form"
+    ];
+    for (var bIdx = 0; bIdx < buySelectors.length; bIdx++) {
+      var bEl = document.querySelector(buySelectors[bIdx]);
+      if (bEl) {
+        targetEl = bEl;
+        break;
+      }
+    }
+    if (targetEl && targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(container, targetEl);
+    } else {
+      var main = document.querySelector("main, #content, .main-content, .js-product-container");
+      if (main) main.insertBefore(container, main.firstChild);
+    }
+  }
+
+  // Telemetría Nevux
+  if (typeof nvxTrack === "function") {
+    nvxTrack(w.id, "impression");
+  }
+      }
 })(); 
