@@ -1836,6 +1836,7 @@
             if (w.widget_slug === "video-flotante") renderVideoFlotante(w);
             if (w.widget_slug === "boton-whatsapp") renderBotonWhatsapp(w);
             if (w.widget_slug === "raspa-gana") renderRaspaGana(w);
+            if (w.widget_slug === "popup-promocional") renderPopupPromocional(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -13282,4 +13283,302 @@ function renderRaspaGana(w) {
     }
   }
        }
+    /* ═══════════════════════════════════════════
+   WIDGET: POP-UP PROMOCIONAL (v377)
+   ═══════════════════════════════════════════ */
+function renderPopupPromocional(w) {
+  var elementId = "nvx-popup-" + w.id;
+  if (document.getElementById(elementId + "-overlay")) return;
+
+  var cfg = w.config || {};
+  var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
+
+  // 1. Segmentación (Targeting)
+  var targetType = w.target_type || cfg.target_type || "all";
+  if (targetType === "product" && currentPage !== "product") return;
+  if (targetType === "category" && currentPage !== "category") return;
+
+  if (targetType === "product" && w.product_id) {
+    if (typeof LS !== "undefined" && LS.product && String(LS.product.id) !== String(w.product_id)) return;
+  }
+  if (targetType === "category" && w.category_id) {
+    if (typeof LS !== "undefined" && LS.category && String(LS.category.id) !== String(w.category_id)) return;
+  }
+
+  // 2. Control de Frecuencia
+  var storageKey = "nvx_popup_seen_" + w.id;
+  var now = new Date().getTime();
+  var freq = cfg.frequency || "once-visit";
+
+  if (freq === "once-visit") {
+    try { if (sessionStorage.getItem(storageKey)) return; } catch (e) {}
+  } else if (freq === "once-day") {
+    try {
+      var lastSeen = localStorage.getItem(storageKey);
+      if (lastSeen && (now - parseInt(lastSeen, 10)) < 86400000) return;
+    } catch (e) {}
+  }
+
+  // 3. Fechas Especiales y Temas Visuales
+  var bgColor = cfg.bg_color || "#ffffff";
+  var textColor = cfg.text_color || "#111827";
+  var btnBgColor = cfg.btn_bg_color || "#10B981";
+  var btnTextColor = cfg.btn_text_color || "#ffffff";
+  var accentColor = cfg.btn_bg_color || "#10B981";
+
+  var THEMES = {
+    "black-friday": { bg: "#0F172A", text: "#FFFFFF", btnBg: "#F59E0B", btnText: "#000000", accent: "#F59E0B" },
+    "hot-sale": { bg: "#FFFFFF", text: "#0F172A", btnBg: "#EF4444", btnText: "#FFFFFF", accent: "#EF4444" },
+    "cyber-monday": { bg: "#090D16", text: "#FFFFFF", btnBg: "#3B82F6", btnText: "#FFFFFF", accent: "#3B82F6" },
+    "navidad": { bg: "#064E3B", text: "#FFFFFF", btnBg: "#EF4444", btnText: "#FFFFFF", accent: "#F59E0B" },
+    "san-valentin": { bg: "#FFF1F2", text: "#831843", btnBg: "#F43F5E", btnText: "#FFFFFF", accent: "#F43F5E" },
+    "dia-padre-madre": { bg: "#F0FDF4", text: "#166534", btnBg: "#10B981", btnText: "#FFFFFF", accent: "#10B981" },
+    "liquidacion": { bg: "#FEF2F2", text: "#991B1B", btnBg: "#DC2626", btnText: "#FFFFFF", accent: "#F59E0B" }
+  };
+
+  var themeKey = cfg.campaignTheme || cfg.fechas_especiales;
+  if (themeKey && themeKey !== "none" && THEMES[themeKey]) {
+    var t = THEMES[themeKey];
+    bgColor = t.bg;
+    textColor = t.text;
+    btnBgColor = t.btnBg;
+    btnTextColor = t.btnText;
+    accentColor = t.accent;
+  }
+
+  // 4. Inyección de Estilos
+  var styleId = "style-" + elementId;
+  if (!document.getElementById(styleId)) {
+    var styleEl = document.createElement("style");
+    styleEl.id = styleId;
+    styleEl.type = "text/css";
+    var cssText =
+      "#" + elementId + "-overlay { " +
+        "position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; " +
+        "background: rgba(0,0,0,0.65) !important; backdrop-filter: blur(4px) !important; display: flex !important; " +
+        "align-items: center !important; justify-content: center !important; z-index: 999999 !important; " +
+        "opacity: 0 !important; visibility: hidden !important; transition: opacity 0.3s ease, visibility 0.3s ease !important; " +
+        "padding: 16px !important; box-sizing: border-box !important; " +
+      "} " +
+      "#" + elementId + "-overlay.nvx-active { " +
+        "opacity: 1 !important; visibility: visible !important; " +
+      "} " +
+      "#" + elementId + "-modal { " +
+        "background: " + bgColor + " !important; color: " + textColor + " !important; " +
+        "width: 100% !important; max-width: 480px !important; border-radius: " + (cfg.border_radius || "16") + "px !important; " +
+        "overflow: hidden !important; position: relative !important; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35) !important; " +
+        "transform: scale(0.9) translateY(10px) !important; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important; " +
+        "font-family: system-ui, -apple-system, sans-serif !important; " +
+      "} " +
+      "#" + elementId + "-overlay.nvx-active #" + elementId + "-modal { " +
+        "transform: scale(1) translateY(0) !important; " +
+      "} " +
+      "#" + elementId + "-close { " +
+        "position: absolute !important; top: 12px !important; right: 12px !important; width: 32px !important; height: 32px !important; " +
+        "border-radius: 50% !important; background: rgba(0,0,0,0.25) !important; color: #ffffff !important; " +
+        "border: none !important; cursor: pointer !important; display: flex !important; align-items: center !important; " +
+        "justify-content: center !important; font-size: 16px !important; font-weight: bold !important; z-index: 10 !important; " +
+        "line-height: 1 !important; transition: background 0.2s !important; " +
+      "} " +
+      "#" + elementId + "-close:hover { background: rgba(0,0,0,0.45) !important; } " +
+      "#" + elementId + "-reopen { " +
+        "position: fixed !important; bottom: 20px !important; left: 20px !important; " +
+        "background: " + btnBgColor + " !important; color: " + btnTextColor + " !important; " +
+        "padding: 10px 18px !important; border-radius: 999px !important; cursor: pointer !important; " +
+        "z-index: 999998 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important; " +
+        "font-weight: 800 !important; font-size: 13px !important; display: none !important; align-items: center !important; gap: 8px !important; " +
+        "font-family: system-ui, -apple-system, sans-serif !important; border: 2px solid #ffffff !important; " +
+      "}";
+
+    styleEl.appendChild(document.createTextNode(cssText));
+    document.head.appendChild(styleEl);
+  }
+
+  // 5. Estructura HTML del Pop-up
+  var safeTitle = typeof escapeHtml === "function" ? escapeHtml(cfg.title || "¡Oferta especial!") : (cfg.title || "¡Oferta especial!");
+  var safeSubtitle = typeof escapeHtml === "function" ? escapeHtml(cfg.subtitle || "") : (cfg.subtitle || "");
+  var safeBody = typeof escapeHtml === "function" ? escapeHtml(cfg.body_text || "") : (cfg.body_text || "");
+  var safeLegal = typeof escapeHtml === "function" ? escapeHtml(cfg.legal_text || "") : (cfg.legal_text || "");
+  var safeBtnText = typeof escapeHtml === "function" ? escapeHtml(cfg.btn_text || "¡Quiero aprovechar!") : (cfg.btn_text || "¡Quiero aprovechar!");
+
+  var overlay = document.createElement("div");
+  overlay.id = elementId + "-overlay";
+
+  var html = '<div id="' + elementId + '-modal">';
+  html += '<button id="' + elementId + '-close">✕</button>';
+
+  if (cfg.header_image) {
+    html += '<img src="' + cfg.header_image + '" style="width:100% !important;height:180px !important;object-fit:cover !important;display:block !important;" />';
+  }
+
+  html += '<div style="padding:24px !important;text-align:center !important;">';
+
+  if (safeTitle) {
+    html += '<div style="font-size:' + (cfg.title_size || "22") + 'px !important;font-weight:800 !important;margin-bottom:6px !important;line-height:1.2 !important;color:' + textColor + ' !important;">' + safeTitle + '</div>';
+  }
+
+  if (safeSubtitle) {
+    html += '<div style="font-size:14px !important;opacity:0.85 !important;margin-bottom:16px !important;color:' + textColor + ' !important;">' + safeSubtitle + '</div>';
+  }
+
+  if (safeBody) {
+    html += '<div style="font-size:13px !important;line-height:1.5 !important;margin-bottom:18px !important;opacity:0.9 !important;color:' + textColor + ' !important;">' + safeBody + '</div>';
+  }
+
+  if (cfg.show_countdown && cfg.countdown_date) {
+    html += '<div id="' + elementId + '-cd" style="display:flex !important;justify-content:center !important;gap:8px !important;margin-bottom:20px !important;">' +
+      '<div style="background:rgba(0,0,0,0.06) !important;padding:6px 10px !important;border-radius:8px !important;min-width:44px !important;"><span id="' + elementId + '-d" style="font-size:16px !important;font-weight:900 !important;display:block !important;color:' + accentColor + ' !important;">00</span><span style="font-size:9px !important;text-transform:uppercase !important;opacity:0.7 !important;font-weight:700 !important;">Días</span></div>' +
+      '<div style="background:rgba(0,0,0,0.06) !important;padding:6px 10px !important;border-radius:8px !important;min-width:44px !important;"><span id="' + elementId + '-h" style="font-size:16px !important;font-weight:900 !important;display:block !important;color:' + accentColor + ' !important;">00</span><span style="font-size:9px !important;text-transform:uppercase !important;opacity:0.7 !important;font-weight:700 !important;">Hs</span></div>' +
+      '<div style="background:rgba(0,0,0,0.06) !important;padding:6px 10px !important;border-radius:8px !important;min-width:44px !important;"><span id="' + elementId + '-m" style="font-size:16px !important;font-weight:900 !important;display:block !important;color:' + accentColor + ' !important;">00</span><span style="font-size:9px !important;text-transform:uppercase !important;opacity:0.7 !important;font-weight:700 !important;">Min</span></div>' +
+      '<div style="background:rgba(0,0,0,0.06) !important;padding:6px 10px !important;border-radius:8px !important;min-width:44px !important;"><span id="' + elementId + '-s" style="font-size:16px !important;font-weight:900 !important;display:block !important;color:' + accentColor + ' !important;">00</span><span style="font-size:9px !important;text-transform:uppercase !important;opacity:0.7 !important;font-weight:700 !important;">Seg</span></div>' +
+    '</div>';
+  }
+
+  if (cfg.collect_email) {
+    html += '<input type="email" id="' + elementId + '-email" placeholder="Ingresá tu email aquí..." style="width:100% !important;padding:12px 14px !important;border:1px solid rgba(0,0,0,0.15) !important;border-radius:8px !important;margin-bottom:12px !important;box-sizing:border-box !important;font-size:14px !important;outline:none !important;" />';
+  }
+
+  html += '<button id="' + elementId + '-btn" style="width:100% !important;padding:14px !important;border:none !important;border-radius:8px !important;background:' + btnBgColor + ' !important;color:' + btnTextColor + ' !important;font-size:15px !important;font-weight:800 !important;cursor:pointer !important;box-shadow:0 4px 12px rgba(0,0,0,0.12) !important;">' + safeBtnText + '</button>';
+
+  if (safeLegal) {
+    html += '<div style="font-size:10px !important;opacity:0.6 !important;margin-top:12px !important;">' + safeLegal + '</div>';
+  }
+
+  html += '</div></div>';
+  overlay.innerHTML = html;
+  document.body.appendChild(overlay);
+
+  // 6. Botón Flotante Reapertura
+  var reopenBtn = null;
+  if (cfg.show_reopen_btn) {
+    reopenBtn = document.createElement("div");
+    reopenBtn.id = elementId + "-reopen";
+    reopenBtn.innerHTML = '🎁 <span style="font-weight:800 !important;">Oferta Especial</span>';
+    document.body.appendChild(reopenBtn);
+  }
+
+  // 7. Lógica Visibilidad
+  function markAsSeen() {
+    try {
+      if (freq === "once-visit") {
+        sessionStorage.setItem(storageKey, "1");
+      } else if (freq === "once-day") {
+        localStorage.setItem(storageKey, new Date().getTime().toString());
+      }
+    } catch (e) {}
+  }
+
+  function triggerShow() {
+    overlay.classList.add("nvx-active");
+    if (reopenBtn) reopenBtn.style.display = "none";
+    markAsSeen();
+
+    if (typeof nvxTrack === "function") {
+      nvxTrack(w.id, "impression");
+    }
+  }
+
+  function triggerClose() {
+    overlay.classList.remove("nvx-active");
+    if (cfg.show_reopen_btn && reopenBtn) {
+      reopenBtn.style.display = "flex";
+    }
+  }
+
+  document.getElementById(elementId + "-close").addEventListener("click", triggerClose);
+  overlay.addEventListener("click", function(e) {
+    if (e.target === overlay) triggerClose();
+  });
+
+  if (reopenBtn) {
+    reopenBtn.addEventListener("click", triggerShow);
+  }
+
+  document.getElementById(elementId + "-btn").addEventListener("click", function() {
+    var btnEl = this;
+    var emailInput = document.getElementById(elementId + "-email");
+    var emailVal = emailInput ? emailInput.value.trim() : "";
+
+    if (cfg.collect_email && emailInput) {
+      if (!emailVal || emailVal.indexOf("@") === -1) {
+        emailInput.style.borderColor = "#EF4444";
+        return;
+      }
+    }
+
+    if (typeof nvxTrack === "function") {
+      nvxTrack(w.id, cfg.collect_email ? "lead" : "click");
+    }
+
+    if (cfg.btn_action_type === "link" && cfg.btn_link) {
+      window.open(cfg.btn_link, "_blank");
+    }
+
+    if (cfg.collect_email) {
+      btnEl.innerText = "¡Gracias!";
+      btnEl.style.opacity = "0.8";
+      setTimeout(triggerClose, 1200);
+    } else {
+      triggerClose();
+    }
+  });
+
+  // 8. Timer Regresivo
+  if (cfg.show_countdown && cfg.countdown_date) {
+    var targetTime = new Date(cfg.countdown_date).getTime();
+
+    function updateCd() {
+      var diff = targetTime - new Date().getTime();
+      if (diff <= 0) diff = 0;
+
+      var d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      var h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      var s = Math.floor((diff % (1000 * 60)) / 1000);
+
+      var dEl = document.getElementById(elementId + "-d");
+      var hEl = document.getElementById(elementId + "-h");
+      var mEl = document.getElementById(elementId + "-m");
+      var sEl = document.getElementById(elementId + "-s");
+
+      if (dEl) dEl.innerText = (d < 10 ? "0" : "") + d;
+      if (hEl) hEl.innerText = (h < 10 ? "0" : "") + h;
+      if (mEl) mEl.innerText = (m < 10 ? "0" : "") + m;
+      if (sEl) sEl.innerText = (s < 10 ? "0" : "") + s;
+    }
+
+    updateCd();
+    setInterval(updateCd, 1000);
+  }
+
+  // 9. Modos de Disparo (Triggers)
+  var trigger = cfg.trigger || "enter";
+
+  if (trigger === "enter") {
+    setTimeout(triggerShow, 600);
+  } else if (trigger === "delay-5") {
+    setTimeout(triggerShow, 5000);
+  } else if (trigger === "delay-10") {
+    setTimeout(triggerShow, 10000);
+  } else if (trigger === "scroll-50") {
+    var onScroll = function() {
+      var st = document.documentElement.scrollTop || document.body.scrollTop;
+      var sh = document.documentElement.scrollHeight || document.body.scrollHeight;
+      var ch = document.documentElement.clientHeight;
+      if ((st / (sh - ch)) >= 0.5) {
+        triggerShow();
+        window.removeEventListener("scroll", onScroll);
+      }
+    };
+    window.addEventListener("scroll", onScroll);
+  } else if (trigger === "exit-intent") {
+    var onExit = function(e) {
+      if (e.clientY <= 0) {
+        triggerShow();
+        document.removeEventListener("mouseleave", onExit);
+      }
+    };
+    document.addEventListener("mouseleave", onExit);
+  }
+          }
 })(); 
