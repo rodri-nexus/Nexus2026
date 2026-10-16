@@ -14472,6 +14472,7 @@ function renderCarruselResenas(w) {
         "border-radius: 16px !important; " +
         "margin: 20px 0 !important; " +
         "width: 100% !important; " +
+        "max-width: 100% !important; " +
         "box-sizing: border-box !important; " +
         "overflow: hidden !important; " +
         "font-family: system-ui, -apple-system, sans-serif !important; " +
@@ -14482,12 +14483,13 @@ function renderCarruselResenas(w) {
         "display: flex !important; " +
         "flex-direction: column !important; " +
         "align-items: center !important; " +
+        "padding: 0 8px !important; " +
       "} " +
       "#" + elementId + " .nvx-carrusel-header-stars { " +
         "color: " + headerStarColor + " !important; " +
         "font-size: " + headerStarFontSize + "px !important; " +
         "line-height: 1 !important; " +
-        "margin-bottom: 6px !important; " +
+        "margin-bottom: 8px !important; " +
         "letter-spacing: 2px !important; " +
       "} " +
       "#" + elementId + " .nvx-carrusel-title { " +
@@ -14507,14 +14509,13 @@ function renderCarruselResenas(w) {
         "width: 100% !important; " +
         "overflow: hidden !important; " +
         "position: relative !important; " +
-        "mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent) !important; " +
-        "-webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent) !important; " +
       "} " +
       "#" + elementId + " .nvx-marquee-track { " +
         "display: flex !important; " +
         "gap: 16px !important; " +
         "width: max-content !important; " +
         "animation: nvxMarqueeAnim_" + elementId + " " + speed + "s linear infinite !important; " +
+        "padding: 4px 0 !important; " +
       "} " +
       "#" + elementId + " .nvx-marquee-track:hover { " +
         "animation-play-state: paused !important; " +
@@ -14525,12 +14526,48 @@ function renderCarruselResenas(w) {
         "border-radius: " + cardRadius + "px !important; " +
         "padding: " + cardPadding + "px !important; " +
         "width: 280px !important; " +
+        "max-width: 280px !important; " +
         "flex-shrink: 0 !important; " +
         "text-align: left !important; " +
         "display: flex !important; " +
         "flex-direction: column !important; " +
-        "gap: 8px !important; " +
+        "gap: 10px !important; " +
         "box-sizing: border-box !important; " +
+      "} " +
+      "#" + elementId + " .nvx-card-top { " +
+        "display: flex !important; " +
+        "align-items: center !important; " +
+        "justify-content: space-between !important; " +
+        "gap: 8px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-card-name { " +
+        "font-size: " + nameFontSize + "px !important; " +
+        "font-weight: 800 !important; " +
+        "color: " + titleColor + " !important; " +
+        "overflow: hidden !important; " +
+        "text-overflow: ellipsis !important; " +
+        "white-space: nowrap !important; " +
+      "} " +
+      "#" + elementId + " .nvx-card-stars { " +
+        "font-size: " + starFontSize + "px !important; " +
+        "color: " + starColor + " !important; " +
+        "line-height: 1 !important; " +
+        "letter-spacing: 1px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-card-photo { " +
+        "width: 100% !important; " +
+        "height: 140px !important; " +
+        "object-fit: cover !important; " +
+        "border-radius: " + Math.max(4, cardRadius - 6) + "px !important; " +
+        "display: block !important; " +
+      "} " +
+      "#" + elementId + " .nvx-card-text { " +
+        "font-size: " + textFontSize + "px !important; " +
+        "color: " + textColor + " !important; " +
+        "margin: 0 !important; " +
+        "line-height: 1.5 !important; " +
+        "word-break: break-word !important; " +
+        "overflow-wrap: break-word !important; " +
       "} " +
       "#" + elementId + " .nvx-carrusel-cta { " +
         "margin-top: 20px !important; " +
@@ -14540,11 +14577,17 @@ function renderCarruselResenas(w) {
         "background: " + ctaBgColor + " !important; " +
         "color: " + ctaTextColor + " !important; " +
         "border-radius: " + ctaBorderRadius + "px !important; " +
-        "padding: 10px 24px !important; " +
+        "padding: 12px 28px !important; " +
         "font-size: 14px !important; " +
         "font-weight: 700 !important; " +
         "text-decoration: none !important; " +
         "transition: opacity 0.2s !important; " +
+      "} " +
+      "@media (max-width: 600px) { " +
+        "#" + elementId + " .nvx-carrusel-card { " +
+          "width: 260px !important; " +
+          "max-width: 260px !important; " +
+        "} " +
       "} " +
       "@keyframes nvxMarqueeAnim_" + elementId + " { " +
         "0% { transform: translateX(0); } " +
@@ -14572,9 +14615,9 @@ function renderCarruselResenas(w) {
   headerHtml += '</div>';
 
   // SVGs para iconos de insignias
-  var googleSvg = '<svg width="16" height="16" viewBox="0 0 24 24" style="display:inline-block;vertical-align:middle;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>';
-  var mlSvg = '<span style="display:inline-flex;align-items:center;justify-content:center;background:#FFE600;color:#2D3277;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:900;line-height:1;">ml</span>';
-  var verifiedSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="#10B981" style="display:inline-block;vertical-align:middle;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
+  var googleSvg = '<svg width="18" height="18" viewBox="0 0 24 24" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>';
+  var mlSvg = '<span style="display:inline-flex;align-items:center;justify-content:center;background:#FFE600;color:#2D3277;border-radius:50%;width:20px;height:20px;font-size:10px;font-weight:900;line-height:1;flex-shrink:0;">ml</span>';
+  var verifiedSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="#10B981" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
 
   // Render de tarjetas de reseña
   function renderSingleCard(r) {
@@ -14589,17 +14632,17 @@ function renderCarruselResenas(w) {
     else if (r.icon === "mercadolibre") badgeIconHtml = mlSvg;
     else if (r.icon === "verified") badgeIconHtml = verifiedSvg;
 
-    var photoHtml = r.photo ? '<img src="' + r.photo + '" alt="Foto reseña" style="width:100% !important;max-height:140px !important;object-fit:cover !important;border-radius:' + Math.max(4, cardRadius - 4) + 'px !important;margin:4px 0 !important;display:block !important;" />' : '';
+    var photoHtml = r.photo ? '<img src="' + r.photo + '" alt="Foto reseña" class="nvx-card-photo" />' : '';
 
     return (
       '<div class="nvx-carrusel-card">' +
-        '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;">' +
-          '<span style="font-size:' + nameFontSize + 'px !important;font-weight:800 !important;color:' + titleColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(r.name) : r.name) + '</span>' +
+        '<div class="nvx-card-top">' +
+          '<span class="nvx-card-name">' + (typeof escapeHtml === "function" ? escapeHtml(r.name) : r.name) + '</span>' +
           badgeIconHtml +
         '</div>' +
-        '<div style="font-size:' + starFontSize + 'px !important;color:' + starColor + ' !important;line-height:1 !important;">' + stars + '</div>' +
+        '<div class="nvx-card-stars">' + stars + '</div>' +
         photoHtml +
-        '<p style="font-size:' + textFontSize + 'px !important;color:' + textColor + ' !important;margin:0 !important;line-height:1.4 !important;word-break:break-word !important;">' + (typeof escapeHtml === "function" ? escapeHtml(r.text) : r.text) + '</p>' +
+        '<p class="nvx-card-text">' + (typeof escapeHtml === "function" ? escapeHtml(r.text) : r.text) + '</p>' +
       '</div>'
     );
   }
@@ -14672,5 +14715,5 @@ function renderCarruselResenas(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      }
+    }
 })(); 
