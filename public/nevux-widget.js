@@ -1837,6 +1837,7 @@
             if (w.widget_slug === "boton-whatsapp") renderBotonWhatsapp(w);
             if (w.widget_slug === "raspa-gana") renderRaspaGana(w);
             if (w.widget_slug === "popup-promocional") renderPopupPromocional(w);
+            if (w.widget_slug === "notificaciones-flotantes") renderNotificacionesFlotantes(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -13581,4 +13582,203 @@ function renderPopupPromocional(w) {
     document.addEventListener("mouseleave", onExit);
   }
           }
+          /* ═══════════════════════════════════════════
+   NOTIFICACIONES FLOTANTES ROTATIVAS (ES5 ESTRICTO)
+═══════════════════════════════════════════ */
+function renderNotificacionesFlotantes(w) {
+  var nsPrefix = typeof NS !== "undefined" ? NS : "nvx";
+  var rootId = nsPrefix + "-notif-flotantes-root";
+
+  // 1. Limpieza de contenedores previos si el widget se desactiva
+  var existingContainer = document.getElementById(rootId);
+  if (existingContainer && existingContainer.parentNode) {
+    existingContainer.parentNode.removeChild(existingContainer);
+  }
+
+  // 2. Filtros estrictos de validación
+  if (!w) return;
+  if (w.is_active === false || w.is_active === "false" || !w.is_active) return;
+  if (w.user_disabled === true || w.user_disabled === "true") return;
+
+  var cfg = w.config || w;
+  if (cfg.user_disabled === true || cfg.user_disabled === "true" || cfg.is_active === false || cfg.is_active === "false") return;
+
+  // 3. Frecuencia de visualización
+  var freq = cfg.frequency || "always";
+  var storageKey = "nvx_notif_flotantes_shown_" + (w.id || "def");
+  if (freq === "once-visit") {
+    try {
+      if (sessionStorage.getItem(storageKey)) return;
+      sessionStorage.setItem(storageKey, "1");
+    } catch (eFreq1) {}
+  } else if (freq === "once-device") {
+    try {
+      if (localStorage.getItem(storageKey)) return;
+      localStorage.setItem(storageKey, "1");
+    } catch (eFreq2) {}
+  }
+
+  // 4. Filtrar ítems activos
+  var rawItems = cfg.items || [];
+  var items = [];
+  for (var i = 0; i < rawItems.length; i++) {
+    if (rawItems[i] && rawItems[i].is_active !== false && rawItems[i].is_active !== "false") {
+      items.push(rawItems[i]);
+    }
+  }
+
+  if (items.length === 0) return;
+
+  // 5. Crear contenedor flotante
+  var container = document.createElement("div");
+  container.id = rootId;
+  container.className = nsPrefix + "-root";
+
+  var pos = cfg.position || "bottom-right";
+  var posStyles = "position:fixed !important;z-index:999995 !important;max-width:340px !important;width:calc(100% - 32px) !important;pointer-events:none !important;display:block !important;box-sizing:border-box !important;";
+
+  if (pos === "top-right") {
+    posStyles += "top:16px !important;right:16px !important;";
+  } else if (pos === "top-left") {
+    posStyles += "top:16px !important;left:16px !important;";
+  } else if (pos === "bottom-left") {
+    posStyles += "bottom:16px !important;left:16px !important;";
+  } else if (pos === "center-left") {
+    posStyles += "top:50% !important;left:16px !important;transform:translateY(-50%) !important;";
+  } else if (pos === "center-right") {
+    posStyles += "top:50% !important;right:16px !important;transform:translateY(-50%) !important;";
+  } else {
+    // bottom-right por defecto
+    posStyles += "bottom:16px !important;right:16px !important;";
+  }
+
+  container.style.cssText = posStyles;
+
+  if (document.body) {
+    document.body.appendChild(container);
+  } else {
+    return;
+  }
+
+  // Helper de escape seguro
+  var safeEscape = function(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  };
+
+  var firstDelayMs = (parseInt(cfg.first_delay, 10) || 3) * 1000;
+  var intervalDelayMs = (parseInt(cfg.interval_delay, 10) || 6) * 1000;
+  var autoCloseMs = (parseInt(cfg.auto_close_timer, 10) || 5) * 1000;
+
+  var currentIdx = 0;
+  var hideTimeout = null;
+
+  var showNextNotification = function() {
+    if (!items || items.length === 0) return;
+
+    var item = items[currentIdx];
+    currentIdx = (currentIdx + 1) % items.length;
+
+    var cardId = nsPrefix + "-nf-card";
+    var closeId = nsPrefix + "-nf-close";
+
+    var bgColor = cfg.bg_color || "#ffffff";
+    var titleColor = cfg.title_color || "#111827";
+    var subColor = cfg.subtitle_color || "#6b7280";
+    var textColor = cfg.text_color || "#374151";
+    var useBorderLeft = cfg.use_border_left !== false && cfg.use_border_left !== "false";
+    var borderLeftColor = cfg.border_left_color || "#6366f1";
+    var borderRadius = (cfg.border_radius !== undefined ? cfg.border_radius : 12) + "px";
+    var padding = (cfg.padding !== undefined ? cfg.padding : 12) + "px";
+
+    var borderLeftStyle = useBorderLeft ? ("border-left:4px solid " + borderLeftColor + " !important;") : "";
+
+    var imgHtml = "";
+    if (item.image) {
+      imgHtml = '<img src="' + safeEscape(item.image) + '" style="width:48px !important;height:48px !important;object-fit:cover !important;border-radius:8px !important;flex-shrink:0 !important;display:block !important;" />';
+    }
+
+    var subtitleHtml = "";
+    if (item.subtitle) {
+      subtitleHtml = '<div style="font-size:' + (cfg.subtitle_font_size || 11) + 'px !important;color:' + subColor + ' !important;line-height:1.25 !important;margin-top:2px !important;">' + safeEscape(item.subtitle) + '</div>';
+    }
+
+    var btnHtml = "";
+    if (item.button_text) {
+      var btnBg = cfg.button_bg || "#6366f1";
+      var btnTextColor = cfg.button_text_color || "#ffffff";
+      var btnFontSize = (cfg.button_font_size || 12) + "px";
+      btnHtml = '<a href="' + safeEscape(item.button_url || "#") + '" target="_blank" style="display:inline-block !important;margin-top:8px !important;padding:6px 14px !important;background:' + btnBg + ' !important;color:' + btnTextColor + ' !important;font-size:' + btnFontSize + ' !important;font-weight:600 !important;border-radius:6px !important;text-decoration:none !important;box-shadow:0 2px 6px rgba(0,0,0,0.12) !important;">' + safeEscape(item.button_text) + '</a>';
+    }
+
+    var cardHtml = '<div id="' + cardId + '" style="' +
+      'background:' + bgColor + ' !important;' +
+      'border-radius:' + borderRadius + ' !important;' +
+      'padding:' + padding + ' !important;' +
+      borderLeftStyle +
+      'display:flex !important;' +
+      'align-items:flex-start !important;' +
+      'gap:12px !important;' +
+      'box-shadow:0 10px 25px rgba(0,0,0,0.16) !important;' +
+      'pointer-events:auto !important;' +
+      'transition:all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;' +
+      'transform:translateY(15px) !important;' +
+      'opacity:0 !important;' +
+      'box-sizing:border-box !important;' +
+      'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif !important;' +
+      'margin:0 !important;' +
+      'width:100% !important;' +
+      '">' +
+      imgHtml +
+      '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
+        '<div style="font-size:' + (cfg.title_font_size || 14) + 'px !important;font-weight:700 !important;line-height:1.25 !important;color:' + titleColor + ' !important;margin:0 !important;">' + safeEscape(item.title) + '</div>' +
+        subtitleHtml +
+        '<div style="font-size:' + (cfg.text_font_size || 12) + 'px !important;color:' + textColor + ' !important;line-height:1.35 !important;margin-top:4px !important;">' + safeEscape(item.text) + '</div>' +
+        btnHtml +
+      '</div>' +
+      '<button type="button" id="' + closeId + '" style="background:transparent !important;border:none !important;color:' + subColor + ' !important;cursor:pointer !important;padding:2px !important;font-size:14px !important;line-height:1 !important;margin-left:2px !important;flex-shrink:0 !important;outline:none !important;">✕</button>' +
+    '</div>';
+
+    container.innerHTML = cardHtml;
+
+    var cardEl = document.getElementById(cardId);
+    var closeBtn = document.getElementById(closeId);
+
+    var hideCard = function() {
+      if (cardEl) {
+        cardEl.style.setProperty("opacity", "0", "important");
+        cardEl.style.setProperty("transform", "translateY(15px)", "important");
+      }
+    };
+
+    if (closeBtn) {
+      closeBtn.onclick = function(e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        if (hideTimeout) clearTimeout(hideTimeout);
+        hideCard();
+      };
+    }
+
+    setTimeout(function() {
+      if (cardEl) {
+        cardEl.style.setProperty("opacity", "1", "important");
+        cardEl.style.setProperty("transform", "translateY(0px)", "important");
+      }
+    }, 50);
+
+    if (autoCloseMs > 0) {
+      hideTimeout = setTimeout(function() {
+        hideCard();
+        setTimeout(showNextNotification, intervalDelayMs);
+      }, autoCloseMs);
+    }
+  };
+
+  setTimeout(showNextNotification, firstDelayMs);
+        }
 })(); 
