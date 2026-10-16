@@ -8,6 +8,9 @@ interface ProductItem {
   id: string;
   name: string;
   price: number;
+  image?: string;
+  product_id?: string | number;
+  variant_id?: string | number;
 }
 
 interface LookItem {
@@ -19,6 +22,14 @@ interface LookItem {
   discountType: "none" | "percentage";
   discountValue: number;
   products: ProductItem[];
+}
+
+interface InventoryProduct {
+  id: string | number;
+  name: string;
+  image: string | null;
+  price: number | null;
+  variants: any[];
 }
 
 interface ConjuntoProductosEditorProps {
@@ -34,6 +45,109 @@ interface ConjuntoProductosEditorProps {
   onSave?: (config: any) => Promise<void>;
   isSaving?: boolean;
 }
+
+// 7 PRESETS DE FECHAS ESPECIALES (Regla #76, colores vibrantes v32 Regla #57)
+const CAMPAIGN_PRESETS: Record<string, any> = {
+  "none": { label: "Sin campaña", icon: "⚪" },
+  "black-friday": {
+    label: "Black Friday",
+    icon: "🖤",
+    sectionBgColor: "#F59E0B",
+    sectionTitleColor: "#111827",
+    borderColor: "#D97706",
+    btnBgColor: "#111827",
+    btnTextColor: "#F59E0B",
+    btnBorderColor: "#F59E0B",
+    totalColor: "#111827",
+    lookTitleColor: "#111827",
+    badgeBgColor: "#111827",
+    badgeTextColor: "#F59E0B",
+  },
+  "hot-sale": {
+    label: "Hot Sale",
+    icon: "🔥",
+    sectionBgColor: "#EF4444",
+    sectionTitleColor: "#ffffff",
+    borderColor: "#B91C1C",
+    btnBgColor: "#ffffff",
+    btnTextColor: "#EF4444",
+    btnBorderColor: "#ffffff",
+    totalColor: "#ffffff",
+    lookTitleColor: "#ffffff",
+    badgeBgColor: "#ffffff",
+    badgeTextColor: "#EF4444",
+  },
+  "cyber-monday": {
+    label: "Cyber Monday",
+    icon: "💻",
+    sectionBgColor: "#3B82F6",
+    sectionTitleColor: "#ffffff",
+    borderColor: "#1D4ED8",
+    btnBgColor: "#ffffff",
+    btnTextColor: "#3B82F6",
+    btnBorderColor: "#ffffff",
+    totalColor: "#ffffff",
+    lookTitleColor: "#ffffff",
+    badgeBgColor: "#ffffff",
+    badgeTextColor: "#3B82F6",
+  },
+  "navidad": {
+    label: "Navidad & Reyes",
+    icon: "🎄",
+    sectionBgColor: "#064E3B",
+    sectionTitleColor: "#ffffff",
+    borderColor: "#047857",
+    btnBgColor: "#DC2626",
+    btnTextColor: "#ffffff",
+    btnBorderColor: "#DC2626",
+    totalColor: "#ffffff",
+    lookTitleColor: "#ffffff",
+    badgeBgColor: "#DC2626",
+    badgeTextColor: "#ffffff",
+  },
+  "san-valentin": {
+    label: "San Valentín",
+    icon: "💝",
+    sectionBgColor: "#831843",
+    sectionTitleColor: "#ffffff",
+    borderColor: "#9d174d",
+    btnBgColor: "#ffffff",
+    btnTextColor: "#831843",
+    btnBorderColor: "#ffffff",
+    totalColor: "#ffffff",
+    lookTitleColor: "#ffffff",
+    badgeBgColor: "#ffffff",
+    badgeTextColor: "#831843",
+  },
+  "dia-padre-madre": {
+    label: "Día de Madre/Padre",
+    icon: "💐",
+    sectionBgColor: "#312E81",
+    sectionTitleColor: "#ffffff",
+    borderColor: "#4338ca",
+    btnBgColor: "#ffffff",
+    btnTextColor: "#312E81",
+    btnBorderColor: "#ffffff",
+    totalColor: "#ffffff",
+    lookTitleColor: "#ffffff",
+    badgeBgColor: "#ffffff",
+    badgeTextColor: "#312E81",
+  },
+  "liquidacion": {
+    label: "Liquidación/Sale",
+    icon: "🏷️",
+    sectionBgColor: "#7F1D1D",
+    sectionTitleColor: "#ffffff",
+    borderColor: "#991b1b",
+    btnBgColor: "#FBBF24",
+    btnTextColor: "#7F1D1D",
+    btnBorderColor: "#FBBF24",
+    totalColor: "#ffffff",
+    lookTitleColor: "#ffffff",
+    badgeBgColor: "#FBBF24",
+    badgeTextColor: "#7F1D1D",
+  },
+};
 
 async function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.8): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -88,12 +202,18 @@ export default function ConjuntoProductosEditor({
   onSave,
   isSaving = false,
 }: ConjuntoProductosEditorProps) {
-  const [activeTab, setActiveTab] = useState<"general" | "ubicacion" | "estilos">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "ubicacion" | "estilos" | "campanas">("general");
   const [isSavingInternal, setIsSavingInternal] = useState(false);
+
+  // Modal selector de productos
+  const [showProductSelector, setShowProductSelector] = useState(false);
+  const [selectorLookIndex, setSelectorLookIndex] = useState<number | null>(null);
+  const [inventory, setInventory] = useState<InventoryProduct[]>([]);
+  const [loadingInventory, setLoadingInventory] = useState(false);
+  const [inventorySearch, setInventorySearch] = useState("");
 
   const cfg = initialConfig || existingWidget?.config || {};
 
-  // Configuración general
   const [sectionTitle, setSectionTitle] = useState(cfg.sectionTitle !== undefined ? cfg.sectionTitle : "Nuestros looks");
   const [looks, setLooks] = useState<LookItem[]>(
     Array.isArray(cfg.looks) && cfg.looks.length > 0
@@ -107,16 +227,15 @@ export default function ConjuntoProductosEditor({
             buttonText: "Comprar look",
             discountType: "none",
             discountValue: 0,
-            products: [
-              { id: "p1", name: "Producto 1", price: 1500 },
-              { id: "p2", name: "Producto 2", price: 2000 },
-            ],
+            products: [],
           },
         ]
   );
 
-  // Ubicación
   const [position, setPosition] = useState<"before-desc" | "after-desc">(cfg.position || "before-desc");
+
+  // Campaña activa (preset)
+  const [campaignTheme, setCampaignTheme] = useState<string>(cfg.campaignTheme || "none");
 
   // Estilos - Colores
   const [sectionBgColor, setSectionBgColor] = useState(cfg.sectionBgColor || "transparent");
@@ -142,7 +261,7 @@ export default function ConjuntoProductosEditor({
   const [totalPriceSize, setTotalPriceSize] = useState(cfg.totalPriceSize || "16px");
   const [lookTitleSize, setLookTitleSize] = useState(cfg.lookTitleSize || "20px");
 
-  // Estilos - Diseño y bordes
+  // Diseño y bordes
   const [borderRadius, setBorderRadius] = useState(typeof cfg.borderRadius === "number" ? cfg.borderRadius : 12);
   const [paddingInternal, setPaddingInternal] = useState(typeof cfg.paddingInternal === "number" ? cfg.paddingInternal : 16);
   const [btnBorderRadius, setBtnBorderRadius] = useState(typeof cfg.btnBorderRadius === "number" ? cfg.btnBorderRadius : 25);
@@ -154,7 +273,6 @@ export default function ConjuntoProductosEditor({
   const isForAll = effectiveTargetType === "all";
   const scopeLabel = isForAll ? "Todos los productos" : isCategory ? "Categoría" : "Producto específico";
 
-  // Cargar configuración existente si cambia
   useEffect(() => {
     const nextCfg = initialConfig || (existingWidget ? existingWidget.config : null);
     if (!nextCfg) return;
@@ -162,6 +280,7 @@ export default function ConjuntoProductosEditor({
     if (nextCfg.sectionTitle !== undefined) setSectionTitle(nextCfg.sectionTitle);
     if (Array.isArray(nextCfg.looks) && nextCfg.looks.length > 0) setLooks(nextCfg.looks);
     if (nextCfg.position) setPosition(nextCfg.position);
+    if (nextCfg.campaignTheme) setCampaignTheme(nextCfg.campaignTheme);
 
     if (nextCfg.sectionBgColor) setSectionBgColor(nextCfg.sectionBgColor);
     if (nextCfg.sectionTitleColor) setSectionTitleColor(nextCfg.sectionTitleColor);
@@ -192,6 +311,64 @@ export default function ConjuntoProductosEditor({
     if (typeof nextCfg.is_active === "boolean") setIsActive(nextCfg.is_active);
   }, [initialConfig, existingWidget]);
 
+  // Cargar inventario cuando se abre el modal
+  const openProductSelector = async (lookIndex: number) => {
+    setSelectorLookIndex(lookIndex);
+    setShowProductSelector(true);
+    setInventorySearch("");
+    if (inventory.length === 0) {
+      setLoadingInventory(true);
+      try {
+        const url = storeId ? `/api/products?store_id=${storeId}` : "/api/products";
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          setInventory(Array.isArray(data) ? data : []);
+        } else {
+          alert("Error cargando productos. Verificá tu conexión con Tiendanube.");
+        }
+      } catch (e) {
+        console.error(e);
+        alert("Error cargando el inventario.");
+      }
+      setLoadingInventory(false);
+    }
+  };
+
+  const addProductFromInventory = (invProd: InventoryProduct) => {
+    if (selectorLookIndex === null) return;
+    const firstVariant = invProd.variants && invProd.variants.length > 0 ? invProd.variants[0] : null;
+    const newProd: ProductItem = {
+      id: "p_" + invProd.id + "_" + Date.now(),
+      name: invProd.name,
+      price: Number(invProd.price) || 0,
+      image: invProd.image || "",
+      product_id: invProd.id,
+      variant_id: firstVariant ? firstVariant.id : undefined,
+    };
+    setLooks((prev) => {
+      const next = [...prev];
+      const products = [...next[selectorLookIndex].products, newProd];
+      next[selectorLookIndex] = { ...next[selectorLookIndex], products };
+      return next;
+    });
+  };
+
+  const isProductSelected = (invProdId: string | number): boolean => {
+    if (selectorLookIndex === null) return false;
+    return looks[selectorLookIndex].products.some((p) => String(p.product_id) === String(invProdId));
+  };
+
+  const removeProductFromInventory = (invProdId: string | number) => {
+    if (selectorLookIndex === null) return;
+    setLooks((prev) => {
+      const next = [...prev];
+      const products = next[selectorLookIndex].products.filter((p) => String(p.product_id) !== String(invProdId));
+      next[selectorLookIndex] = { ...next[selectorLookIndex], products };
+      return next;
+    });
+  };
+
   const handleImageUpload = async (index: number, file: File) => {
     try {
       const compressed = await compressImage(file);
@@ -216,10 +393,7 @@ export default function ConjuntoProductosEditor({
       buttonText: "Comprar look",
       discountType: "none",
       discountValue: 0,
-      products: [
-        { id: "p1", name: "Producto A", price: 2000 },
-        { id: "p2", name: "Producto B", price: 3000 },
-      ],
+      products: [],
     };
     setLooks([...looks, newLook]);
   };
@@ -229,39 +403,10 @@ export default function ConjuntoProductosEditor({
     setLooks(looks.filter((_, i) => i !== index));
   };
 
-  const addProductToLook = (lookIndex: number) => {
-    setLooks((prev) => {
-      const next = [...prev];
-      const products = [...next[lookIndex].products];
-      const pCount = products.length + 1;
-      products.push({
-        id: "p" + Date.now(),
-        name: `Producto ${pCount}`,
-        price: 1000 * pCount,
-      });
-      next[lookIndex] = { ...next[lookIndex], products };
-      return next;
-    });
-  };
-
   const removeProductFromLook = (lookIndex: number, prodIndex: number) => {
     setLooks((prev) => {
       const next = [...prev];
-      if (next[lookIndex].products.length <= 1) return prev;
       const products = next[lookIndex].products.filter((_, i) => i !== prodIndex);
-      next[lookIndex] = { ...next[lookIndex], products };
-      return next;
-    });
-  };
-
-  const updateProductInLook = (lookIndex: number, prodIndex: number, field: "name" | "price", value: any) => {
-    setLooks((prev) => {
-      const next = [...prev];
-      const products = [...next[lookIndex].products];
-      const prod = { ...products[prodIndex] };
-      if (field === "name") prod.name = value;
-      if (field === "price") prod.price = parseFloat(value) || 0;
-      products[prodIndex] = prod;
       next[lookIndex] = { ...next[lookIndex], products };
       return next;
     });
@@ -275,6 +420,30 @@ export default function ConjuntoProductosEditor({
     });
   };
 
+  // Aplicar preset de campaña
+  const applyCampaignPreset = (presetKey: string) => {
+    setCampaignTheme(presetKey);
+    if (presetKey === "none") return;
+    const preset = CAMPAIGN_PRESETS[presetKey];
+    if (!preset) return;
+    if (preset.sectionBgColor) setSectionBgColor(preset.sectionBgColor);
+    if (preset.sectionTitleColor) setSectionTitleColor(preset.sectionTitleColor);
+    if (preset.borderColor) setBorderColor(preset.borderColor);
+    if (preset.btnBgColor) setBtnBgColor(preset.btnBgColor);
+    if (preset.btnTextColor) setBtnTextColor(preset.btnTextColor);
+    if (preset.btnBorderColor) setBtnBorderColor(preset.btnBorderColor);
+    if (preset.totalColor) setTotalColor(preset.totalColor);
+    if (preset.lookTitleColor) setLookTitleColor(preset.lookTitleColor);
+    if (preset.badgeBgColor) setBadgeBgColor(preset.badgeBgColor);
+    if (preset.badgeTextColor) setBadgeTextColor(preset.badgeTextColor);
+  };
+
+  // Si cambia manualmente cualquier color, desactivar preset
+  const handleColorChange = (setter: (val: string) => void, val: string) => {
+    setter(val);
+    if (campaignTheme !== "none") setCampaignTheme("none");
+  };
+
   const handleSave = async () => {
     if (!looks.length) {
       alert("Agregá al menos un look.");
@@ -283,7 +452,7 @@ export default function ConjuntoProductosEditor({
 
     for (let i = 0; i < looks.length; i++) {
       if (!looks[i].products || looks[i].products.length < 1) {
-        alert("El look #" + (i + 1) + " necesita al menos un producto.");
+        alert("El look #" + (i + 1) + " necesita al menos un producto seleccionado del inventario.");
         return;
       }
     }
@@ -292,6 +461,7 @@ export default function ConjuntoProductosEditor({
       sectionTitle,
       looks,
       position,
+      campaignTheme,
       sectionBgColor,
       sectionTitleColor,
       borderColor,
@@ -370,6 +540,10 @@ export default function ConjuntoProductosEditor({
     return subtotal;
   };
 
+  const filteredInventory = inventory.filter((p) =>
+    p.name.toLowerCase().includes(inventorySearch.toLowerCase())
+  );
+
   return (
     <div style={{ maxWidth: "900px", margin: "0 auto", padding: "16px", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       {/* HEADER STICKY */}
@@ -444,7 +618,7 @@ export default function ConjuntoProductosEditor({
       >
         <span style={{ fontSize: "18px" }}>👗</span>
         <div>
-          <strong>Conjunto de productos:</strong> Armá looks combinando una imagen del conjunto con los productos que lo integran y un botón para comprar el look completo.
+          <strong>Conjunto de productos:</strong> Armá looks combinando una imagen del conjunto con productos reales de tu inventario. Al tocar "Comprar look" se agregan todos al carrito automáticamente con sus precios reales.
         </div>
       </div>
 
@@ -515,24 +689,35 @@ export default function ConjuntoProductosEditor({
                   <div style={{ fontSize: lookTitleSize, fontWeight: 800, color: lookTitleColor }}>{look.title}</div>
                 ) : null}
                 <div style={{ backgroundColor: productsBgColor, display: "flex", flexDirection: "column", gap: "6px" }}>
-                  {look.products.map((p) => (
-                    <div
-                      key={p.id}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        backgroundColor: productItemBgColor,
-                        padding: "6px 8px",
-                        borderRadius: "6px",
-                        fontSize: productNameSize,
-                      }}
-                    >
-                      <span style={{ color: productNameColor, fontWeight: 600 }}>{p.name}</span>
-                      <span style={{ color: productPriceColor, fontWeight: 700, fontSize: productPriceSize }}>
-                        ${Number(p.price || 0).toLocaleString("es-AR")}
-                      </span>
+                  {look.products.length === 0 ? (
+                    <div style={{ fontSize: "12px", color: "#9CA3AF", fontStyle: "italic", padding: "8px" }}>
+                      Sin productos. Agregá desde el inventario ↓
                     </div>
-                  ))}
+                  ) : (
+                    look.products.map((p) => (
+                      <div
+                        key={p.id}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          backgroundColor: productItemBgColor,
+                          padding: "6px 8px",
+                          borderRadius: "6px",
+                          fontSize: productNameSize,
+                          gap: "8px",
+                        }}
+                      >
+                        {p.image ? (
+                          <img src={p.image} alt="" style={{ width: "24px", height: "24px", objectFit: "cover", borderRadius: "4px" }} />
+                        ) : null}
+                        <span style={{ color: productNameColor, fontWeight: 600, flex: 1 }}>{p.name}</span>
+                        <span style={{ color: productPriceColor, fontWeight: 700, fontSize: productPriceSize }}>
+                          ${Number(p.price || 0).toLocaleString("es-AR")}
+                        </span>
+                      </div>
+                    ))
+                  )}
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px" }}>
                   <span style={{ fontSize: totalPriceSize, fontWeight: 800, color: totalColor }}>
@@ -582,6 +767,7 @@ export default function ConjuntoProductosEditor({
           { id: "general", label: "⚙️ General" },
           { id: "ubicacion", label: "📍 Ubicación" },
           { id: "estilos", label: "🎨 Estilos" },
+          { id: "campanas", label: "🔥 Fechas Especiales" },
         ].map((tab) => {
           const active = activeTab === tab.id;
           return (
@@ -758,58 +944,84 @@ export default function ConjuntoProductosEditor({
                 />
               </div>
 
-              {/* PRODUCTOS */}
+              {/* PRODUCTOS SELECCIONADOS */}
               <div style={{ marginBottom: "14px" }}>
                 <label style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "#374151", marginBottom: "6px" }}>
-                  Productos del look * (mín. 1)
+                  Productos del look (desde tu inventario) *
                 </label>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  {look.products.map((prod, pIdx) => (
-                    <div key={prod.id} style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                      <input
-                        type="text"
-                        value={prod.name}
-                        onChange={(e) => updateProductInLook(index, pIdx, "name", e.target.value)}
-                        placeholder="Nombre del producto"
-                        style={{ flex: 2, padding: "6px 8px", borderRadius: "4px", border: "1px solid #D1D5DB", fontSize: "12px" }}
-                      />
-                      <input
-                        type="number"
-                        value={prod.price}
-                        onChange={(e) => updateProductInLook(index, pIdx, "price", e.target.value)}
-                        placeholder="Precio ($)"
-                        style={{ flex: 1, padding: "6px 8px", borderRadius: "4px", border: "1px solid #D1D5DB", fontSize: "12px" }}
-                      />
-                      {look.products.length > 1 && (
+
+                {look.products.length === 0 ? (
+                  <div
+                    style={{
+                      padding: "16px",
+                      background: "#FEF3C7",
+                      border: "1px dashed #F59E0B",
+                      borderRadius: "8px",
+                      textAlign: "center",
+                      fontSize: "12px",
+                      color: "#92400E",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    No hay productos seleccionados. Tocá el botón de abajo para elegirlos.
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "8px" }}>
+                    {look.products.map((prod, pIdx) => (
+                      <div
+                        key={prod.id}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          padding: "8px",
+                          background: "#F9FAFB",
+                          border: "1px solid #E5E7EB",
+                          borderRadius: "6px",
+                        }}
+                      >
+                        {prod.image ? (
+                          <img src={prod.image} alt="" style={{ width: "36px", height: "36px", objectFit: "cover", borderRadius: "4px" }} />
+                        ) : (
+                          <div style={{ width: "36px", height: "36px", background: "#E5E7EB", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px" }}>📦</div>
+                        )}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {prod.name}
+                          </div>
+                          <div style={{ fontSize: "12px", color: "#059669", fontWeight: 700 }}>
+                            ${Number(prod.price).toLocaleString("es-AR")}
+                          </div>
+                        </div>
                         <button
                           type="button"
                           onClick={() => removeProductFromLook(index, pIdx)}
-                          style={{ background: "none", border: "none", color: "#EF4444", cursor: "pointer", fontSize: "14px", fontWeight: 700 }}
+                          style={{ background: "none", border: "none", color: "#EF4444", cursor: "pointer", fontSize: "18px", fontWeight: 700, padding: "4px 8px" }}
                         >
                           ✕
                         </button>
-                      )}
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => addProductToLook(index)}
-                    style={{
-                      alignSelf: "flex-start",
-                      background: "#F3F4F6",
-                      border: "1px solid #D1D5DB",
-                      borderRadius: "4px",
-                      padding: "4px 8px",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      color: "#374151",
-                      cursor: "pointer",
-                      marginTop: "4px",
-                    }}
-                  >
-                    + Agregar producto
-                  </button>
-                </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => openProductSelector(index)}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    background: "#10B981",
+                    color: "#ffffff",
+                    border: "none",
+                    borderRadius: "8px",
+                    fontSize: "13px",
+                    fontWeight: 800,
+                    cursor: "pointer",
+                  }}
+                >
+                  ➕ Seleccionar productos del inventario
+                </button>
               </div>
 
               {/* DESCUENTO */}
@@ -920,7 +1132,7 @@ export default function ConjuntoProductosEditor({
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <div style={{ border: "1px solid #E5E7EB", borderRadius: "12px", padding: "16px", background: "#ffffff" }}>
             <h4 style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 800, color: "#111827" }}>🎨 Colores principales</h4>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "14px" }}>
               {[
                 { label: "Fondo sección", value: sectionBgColor, setter: setSectionBgColor, allowTransparent: true },
                 { label: "Título sección", value: sectionTitleColor, setter: setSectionTitleColor },
@@ -937,23 +1149,23 @@ export default function ConjuntoProductosEditor({
                 { label: "Badge fondo", value: badgeBgColor, setter: setBadgeBgColor },
                 { label: "Badge texto", value: badgeTextColor, setter: setBadgeTextColor },
               ].map((c) => (
-                <div key={c.label}>
-                  <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "4px" }}>
+                <div key={c.label} style={{ minWidth: 0 }}>
+                  <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>
                     {c.label}
                   </label>
-                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                  <div style={{ display: "flex", gap: "6px", alignItems: "center", width: "100%" }}>
                     <input
                       type="color"
                       value={c.value === "transparent" ? "#ffffff" : c.value}
-                      onChange={(e) => c.setter(e.target.value)}
-                      style={{ width: "40px", height: "36px", border: "none", borderRadius: "6px", cursor: "pointer", padding: 0 }}
+                      onChange={(e) => handleColorChange(c.setter, e.target.value)}
+                      style={{ width: "40px", height: "36px", border: "1px solid #D1D5DB", borderRadius: "6px", cursor: "pointer", padding: 0, flexShrink: 0 }}
                     />
                     <input
                       type="text"
                       value={c.value}
-                      onChange={(e) => c.setter(e.target.value)}
+                      onChange={(e) => handleColorChange(c.setter, e.target.value)}
                       placeholder={c.allowTransparent ? "transparent" : "#000000"}
-                      style={{ flex: 1, padding: "8px", borderRadius: "6px", border: "1px solid #D1D5DB", fontSize: "12px" }}
+                      style={{ flex: 1, minWidth: 0, padding: "8px", borderRadius: "6px", border: "1px solid #D1D5DB", fontSize: "12px", boxSizing: "border-box" }}
                     />
                   </div>
                 </div>
@@ -963,7 +1175,7 @@ export default function ConjuntoProductosEditor({
 
           <div style={{ border: "1px solid #E5E7EB", borderRadius: "12px", padding: "16px", background: "#ffffff" }}>
             <h4 style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 800, color: "#111827" }}>✍️ Tipografías</h4>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px" }}>
               <div>
                 <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "4px" }}>
                   Tamaño título sección
@@ -1108,6 +1320,176 @@ export default function ConjuntoProductosEditor({
         </div>
       )}
 
+      {/* PESTAÑA: CAMPAÑAS / FECHAS ESPECIALES */}
+      {activeTab === "campanas" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ backgroundColor: "#FEF3C7", border: "1px solid #F59E0B", borderRadius: "10px", padding: "12px 16px", fontSize: "13px", color: "#92400E" }}>
+            <strong>🔥 Fechas Especiales:</strong> Activá un tema de campaña y los colores del widget se adaptarán automáticamente. Podés desactivarlo cuando quieras.
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "10px" }}>
+            {Object.keys(CAMPAIGN_PRESETS).map((key) => {
+              const preset = CAMPAIGN_PRESETS[key];
+              const selected = campaignTheme === key;
+              const bgPreview = preset.sectionBgColor || "#ffffff";
+              const textPreview = preset.sectionTitleColor || "#111827";
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => applyCampaignPreset(key)}
+                  style={{
+                    padding: "16px 12px",
+                    borderRadius: "10px",
+                    border: selected ? "3px solid #2563eb" : "2px solid #E5E7EB",
+                    background: key === "none" ? "#ffffff" : bgPreview,
+                    color: key === "none" ? "#111827" : textPreview,
+                    cursor: "pointer",
+                    fontWeight: 800,
+                    fontSize: "13px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "6px",
+                    boxShadow: selected ? "0 4px 12px rgba(37,99,235,0.3)" : "none",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  <span style={{ fontSize: "24px" }}>{preset.icon}</span>
+                  <span>{preset.label}</span>
+                  {selected && <span style={{ fontSize: "10px", opacity: 0.9 }}>✓ ACTIVO</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL SELECTOR DE PRODUCTOS */}
+      {showProductSelector && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.6)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "16px",
+          }}
+          onClick={() => setShowProductSelector(false)}
+        >
+          <div
+            style={{
+              background: "#ffffff",
+              borderRadius: "12px",
+              width: "100%",
+              maxWidth: "600px",
+              maxHeight: "85vh",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ padding: "16px", borderBottom: "1px solid #E5E7EB", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 800, color: "#111827" }}>
+                Seleccionar productos del inventario
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowProductSelector(false)}
+                style={{ background: "none", border: "none", fontSize: "24px", cursor: "pointer", color: "#6B7280", padding: 0, lineHeight: 1 }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ padding: "12px 16px", borderBottom: "1px solid #E5E7EB" }}>
+              <input
+                type="text"
+                value={inventorySearch}
+                onChange={(e) => setInventorySearch(e.target.value)}
+                placeholder="🔍 Buscar producto por nombre..."
+                style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "14px", boxSizing: "border-box" }}
+              />
+            </div>
+
+            <div style={{ flex: 1, overflowY: "auto", padding: "12px" }}>
+              {loadingInventory ? (
+                <div style={{ padding: "40px", textAlign: "center", color: "#6B7280" }}>
+                  Cargando inventario...
+                </div>
+              ) : filteredInventory.length === 0 ? (
+                <div style={{ padding: "40px", textAlign: "center", color: "#6B7280" }}>
+                  {inventory.length === 0 ? "No se encontraron productos." : "No hay coincidencias."}
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  {filteredInventory.map((p) => {
+                    const selected = isProductSelected(p.id);
+                    return (
+                      <div
+                        key={p.id}
+                        onClick={() => selected ? removeProductFromInventory(p.id) : addProductFromInventory(p)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                          padding: "10px",
+                          background: selected ? "#ECFDF5" : "#F9FAFB",
+                          border: selected ? "2px solid #10B981" : "1px solid #E5E7EB",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selected}
+                          onChange={() => {}}
+                          style={{ width: "18px", height: "18px", accentColor: "#10B981", cursor: "pointer" }}
+                        />
+                        {p.image ? (
+                          <img src={p.image} alt="" style={{ width: "48px", height: "48px", objectFit: "cover", borderRadius: "6px" }} />
+                        ) : (
+                          <div style={{ width: "48px", height: "48px", background: "#E5E7EB", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>📦</div>
+                        )}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {p.name}
+                          </div>
+                          <div style={{ fontSize: "13px", color: "#059669", fontWeight: 800, marginTop: "2px" }}>
+                            {p.price ? "$" + Number(p.price).toLocaleString("es-AR") : "Sin precio"}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div style={{ padding: "12px 16px", borderTop: "1px solid #E5E7EB", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "12px", color: "#6B7280" }}>
+                {selectorLookIndex !== null ? looks[selectorLookIndex].products.length : 0} seleccionados
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowProductSelector(false)}
+                style={{ background: "#10B981", color: "#ffffff", border: "none", borderRadius: "8px", padding: "10px 20px", fontSize: "14px", fontWeight: 800, cursor: "pointer" }}
+              >
+                ✓ Listo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* GUARDAR */}
       <div style={{ marginTop: "28px", borderTop: "1px solid #E5E7EB", paddingTop: "20px" }}>
         <label
@@ -1158,4 +1540,4 @@ export default function ConjuntoProductosEditor({
       </div>
     </div>
   );
-         }
+        }
