@@ -13582,14 +13582,14 @@ function renderPopupPromocional(w) {
     document.addEventListener("mouseleave", onExit);
   }
           }
-          /* ═══════════════════════════════════════════
-   NOTIFICACIONES FLOTANTES ROTATIVAS (ES5 ESTRICTO)
+/* ═══════════════════════════════════════════
+   NOTIFICACIONES FLOTANTES ROTATIVAS (v2 BLINDADO)
 ═══════════════════════════════════════════ */
 function renderNotificacionesFlotantes(w) {
   var nsPrefix = typeof NS !== "undefined" ? NS : "nvx";
   var rootId = nsPrefix + "-notif-flotantes-root";
 
-  // 1. Limpieza de contenedores previos si el widget se desactiva
+  // 1. Limpieza de contenedores previos
   var existingContainer = document.getElementById(rootId);
   if (existingContainer && existingContainer.parentNode) {
     existingContainer.parentNode.removeChild(existingContainer);
@@ -13597,13 +13597,31 @@ function renderNotificacionesFlotantes(w) {
 
   // 2. Filtros estrictos de validación
   if (!w) return;
-  if (w.is_active === false || w.is_active === "false" || !w.is_active) return;
+  if (w.is_active === false || w.is_active === "false" || w.is_active === 0) return;
   if (w.user_disabled === true || w.user_disabled === "true") return;
 
   var cfg = w.config || w;
   if (cfg.user_disabled === true || cfg.user_disabled === "true" || cfg.is_active === false || cfg.is_active === "false") return;
 
-  // 3. Frecuencia de visualización
+  // 3. Validación de Target Scope (all / product / category)
+  var targetType = w.target_type || cfg.target_type || "all";
+  if (targetType === "product") {
+    var isProductPage = typeof window !== "undefined" && window.LS && window.LS.product;
+    if (!isProductPage) return;
+    if (w.target_product_id) {
+      var currentProdId = String(window.LS.product.id || "");
+      if (currentProdId !== String(w.target_product_id)) return;
+    }
+  } else if (targetType === "category") {
+    var isCategoryPage = typeof window !== "undefined" && window.LS && (window.LS.category || (window.LS.template && String(window.LS.template).indexOf("category") !== -1));
+    if (!isCategoryPage) return;
+    if (w.category_id) {
+      var currentCatId = String((window.LS.category && window.LS.category.id) || "");
+      if (currentCatId !== String(w.category_id)) return;
+    }
+  }
+
+  // 4. Frecuencia de visualización
   var freq = cfg.frequency || "always";
   var storageKey = "nvx_notif_flotantes_shown_" + (w.id || "def");
   if (freq === "once-visit") {
@@ -13618,18 +13636,19 @@ function renderNotificacionesFlotantes(w) {
     } catch (eFreq2) {}
   }
 
-  // 4. Filtrar ítems activos
+  // 5. Filtrar ítems activos
   var rawItems = cfg.items || [];
   var items = [];
   for (var i = 0; i < rawItems.length; i++) {
-    if (rawItems[i] && rawItems[i].is_active !== false && rawItems[i].is_active !== "false") {
-      items.push(rawItems[i]);
+    var item = rawItems[i];
+    if (item && item.is_active !== false && item.is_active !== "false") {
+      items.push(item);
     }
   }
 
   if (items.length === 0) return;
 
-  // 5. Crear contenedor flotante
+  // 6. Crear contenedor flotante
   var container = document.createElement("div");
   container.id = rootId;
   container.className = nsPrefix + "-root";
@@ -13648,7 +13667,6 @@ function renderNotificacionesFlotantes(w) {
   } else if (pos === "center-right") {
     posStyles += "top:50% !important;right:16px !important;transform:translateY(-50%) !important;";
   } else {
-    // bottom-right por defecto
     posStyles += "bottom:16px !important;right:16px !important;";
   }
 
@@ -13780,5 +13798,5 @@ function renderNotificacionesFlotantes(w) {
   };
 
   setTimeout(showNextNotification, firstDelayMs);
-        }
+}
 })(); 
