@@ -40,6 +40,7 @@ import ComparadorMarcaEditor from '@/components/widgets/editors/ComparadorMarcaE
 import VideoFlotanteEditor from '@/components/widgets/editors/VideoFlotanteEditor';
 import BotonWhatsappEditor from '@/components/widgets/editors/BotonWhatsappEditor';
 import RaspaGanaEditor from '@/components/widgets/editors/RaspaGanaEditor';
+import PopupPromocionalEditor from '@/components/widgets/editors/PopupPromocionalEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -146,6 +147,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: POPUP PROMOCIONAL
+  if (params.widgetSlug === 'popup-promocional') {
+    return <PopupPromocionalEditor {...editorProps} />;
+  }
 
   // WIDGET: RASPÁ Y GANÁ
   if (params.widgetSlug === 'raspa-gana') {
@@ -348,7 +354,7 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', padding: 40 }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', padding: 40 }}>
       <div style={{ background: '#fff', borderRadius: 16, padding: 40, textAlign: 'center', maxWidth: 500, border: '1px solid #e5e7eb' }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>🚧</div>
         <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
@@ -360,4 +366,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-  }
+        }
