@@ -1,771 +1,546 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { 
-  ArrowLeft, Save, Eye, Sparkles, Palette, Mail, 
-  Upload, Image as ImageIcon, MousePointer
-} from 'lucide-react'
-import { createBrowserClient } from '@supabase/ssr'
+import React, { useState } from "react";
+import NevuxLogo from "@/app/components/landing/NevuxLogo";
+import CentroAyuda from "@/app/dashboard/components/CentroAyuda";
 
-interface Props {
-  widgetDefinition: any
-  existingWidget?: any
-  targetType?: any
-  productId?: any
-  categoryId?: any
-  storeId: any
+interface PopupPromocionalEditorProps {
+  widgetDefinition?: any;
+  existingWidget?: any;
+  storeId?: string | number;
+  initialConfig?: any;
+  widgetId?: string;
+  targetType?: "product" | "all" | "category" | string;
+  targetProductId?: string | number | null;
+  productId?: string | number | null;
+  categoryId?: string | number | null;
+  onSave?: (config: any) => Promise<void>;
+  isSaving?: boolean;
 }
 
-const CAMPAIGN_PRESETS = [
-  { id: 'black-friday', name: 'Black Friday', bg: '#0F172A', text: '#FFFFFF', btnBg: '#F59E0B', btnText: '#000000' },
-  { id: 'hot-sale', name: 'Hot Sale', bg: '#FFFFFF', text: '#0F172A', btnBg: '#EF4444', btnText: '#FFFFFF' },
-  { id: 'cyber-monday', name: 'Cyber Monday', bg: '#090D16', text: '#FFFFFF', btnBg: '#3B82F6', btnText: '#FFFFFF' },
-  { id: 'navidad', name: 'Navidad', bg: '#064E3B', text: '#FFFFFF', btnBg: '#EF4444', btnText: '#FFFFFF' },
-  { id: 'san-valentin', name: 'San Valentín', bg: '#FFF1F2', text: '#831843', btnBg: '#F43F5E', btnText: '#FFFFFF' },
-  { id: 'dia-padre-madre', name: 'Día Especial', bg: '#F0FDF4', text: '#166534', btnBg: '#10B981', btnText: '#FFFFFF' },
-  { id: 'liquidacion', name: 'Liquidación', bg: '#FEF2F2', text: '#991B1B', btnBg: '#DC2626', btnText: '#FFFFFF' },
-]
+const CAMPAIGN_THEMES: Record<string, { bg: string; text: string; border: string; accent: string }> = {
+  "black-friday": { bg: "#0F172A", text: "#ffffff", border: "#334155", accent: "#F59E0B" },
+  "hot-sale": { bg: "#ffffff", text: "#0F172A", border: "#EF4444", accent: "#EF4444" },
+  "cyber-monday": { bg: "#090D16", text: "#ffffff", border: "#1E293B", accent: "#3B82F6" },
+  "navidad": { bg: "#064E3B", text: "#ffffff", border: "#047857", accent: "#EF4444" },
+  "san-valentin": { bg: "#FFF1F2", text: "#831843", border: "#FDA4AF", accent: "#F43F5E" },
+  "dia-padre-madre": { bg: "#F0FDF4", text: "#166534", border: "#86EFAC", accent: "#10B981" },
+  "liquidacion": { bg: "#FEF2F2", text: "#991B1B", border: "#FCA5A5", accent: "#DC2626" },
+};
+
+const PRESET_LABELS: Record<string, string> = {
+  "black-friday": "Black Friday",
+  "hot-sale": "Hot Sale",
+  "cyber-monday": "Cyber Monday",
+  "navidad": "Navidad & Reyes",
+  "san-valentin": "San Valentín",
+  "dia-padre-madre": "Día Madre/Padre",
+  "liquidacion": "Liquidación",
+};
+
+const compressImage = function (file: File, maxWidth: number, quality: number): Promise<string> {
+  return new Promise(function (resolve, reject) {
+    var reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function (event) {
+      var img = new Image();
+      img.src = typeof event.target?.result === "string" ? event.target.result : "";
+      img.onload = function () {
+        var canvas = document.createElement("canvas");
+        var width = img.width;
+        var height = img.height;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        var ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = function (err) {
+        reject(err);
+      };
+    };
+    reader.onerror = function (err) {
+      reject(err);
+    };
+  });
+};
 
 export default function PopupPromocionalEditor({
   widgetDefinition,
   existingWidget,
-  targetType: initialTargetType = 'all',
-  productId: initialProductId = null,
-  categoryId: initialCategoryId = null,
   storeId,
-}: Props) {
-  const router = useRouter()
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  initialConfig,
+  widgetId,
+  targetType = "all",
+  targetProductId,
+  productId,
+  categoryId,
+  onSave,
+  isSaving = false,
+}: PopupPromocionalEditorProps) {
+  const [activeTab, setActiveTab] = useState("general");
 
-  const [saving, setSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState<'general' | 'contenido' | 'estilos' | 'disparo'>('general')
+  const cfg = initialConfig || existingWidget?.config || {};
 
-  // Config State
-  const initialConfig = existingWidget?.config || {}
-  const [isActive, setIsActive] = useState(existingWidget ? existingWidget.is_active : true)
-  const [targetType, setTargetType] = useState(existingWidget?.target_type || initialTargetType)
-  
-  // Text Content
-  const [title, setTitle] = useState(initialConfig.title || '¡Oferta especial!')
-  const [subtitle, setSubtitle] = useState(initialConfig.subtitle || 'Aprovechá esta promoción exclusiva')
-  const [bodyText, setBodyText] = useState(initialConfig.body_text || 'Descuentos imperdibles en toda la tienda por tiempo limitado.')
-  const [legalText, setLegalText] = useState(initialConfig.legal_text || 'Válido por tiempo limitado. No acumulable con otras promociones.')
-  const [headerImage, setHeaderImage] = useState(initialConfig.header_image || '')
+  // TEXTOS
+  const [title, setTitle] = useState(cfg.title || "¡Oferta especial!");
+  const [subtitle, setSubtitle] = useState(cfg.subtitle || "Aprovechá esta promoción exclusiva");
+  const [bodyText, setBodyText] = useState(cfg.body_text || "Descuentos imperdibles en toda la tienda por tiempo limitado.");
+  const [legalText, setLegalText] = useState(cfg.legal_text || "Válido por tiempo limitado. No acumulable.");
+  const [headerImg, setHeaderImg] = useState(cfg.header_image || cfg.headerImg || "");
+  const [btnText, setBtnText] = useState(cfg.btn_text || cfg.btnText || "¡Quiero aprovechar!");
+  const [btnActionType, setBtnActionType] = useState(cfg.btn_action_type || "close");
+  const [btnLink, setBtnLink] = useState(cfg.btn_link || "");
 
-  // Countdown & Email
-  const [showCountdown, setShowCountdown] = useState(initialConfig.show_countdown ?? true)
-  const [countdownDate, setCountdownDate] = useState(initialConfig.countdown_date || new Date(Date.now() + 86400000 * 2).toISOString().slice(0, 16))
-  const [collectEmail, setCollectEmail] = useState(initialConfig.collect_email ?? true)
+  // CONFIGURACIÓN (Timer, Trigger & Email)
+  const [showCountdown, setShowCountdown] = useState(cfg.show_countdown !== false);
+  const [countdownDate, setCountdownDate] = useState(
+    cfg.countdown_date || new Date(Date.now() + 86400000 * 2).toISOString().slice(0, 16)
+  );
+  const [collectEmail, setCollectEmail] = useState(cfg.collect_email !== false);
+  const [trigger, setTrigger] = useState(cfg.trigger || "enter"); // enter, delay-5, delay-10, scroll-50, exit-intent
+  const [frequency, setFrequency] = useState(cfg.frequency || "once-visit"); // once-visit, once-day, always
+  const [showFloatingBtn, setShowFloatingBtn] = useState(cfg.show_reopen_btn !== false && cfg.showFloatingBtn !== false);
 
-  // CTA Button
-  const [btnText, setBtnText] = useState(initialConfig.btn_text || '¡Quiero aprovechar!')
-  const [btnActionType, setBtnActionType] = useState<'close' | 'link'>(initialConfig.btn_action_type || 'close')
-  const [btnLink, setBtnLink] = useState(initialConfig.btn_link || '')
-  const [showReopenBtn, setShowReopenBtn] = useState(initialConfig.show_reopen_btn ?? true)
+  // ESTILOS
+  const [bgColor, setBgColor] = useState(cfg.bg_color || cfg.bgColor || "#ffffff");
+  const [titleColor, setTitleColor] = useState(cfg.title_color || cfg.titleColor || "#111827");
+  const [textColor, setTextColor] = useState(cfg.text_color || cfg.textColor || "#374151");
+  const [btnBg, setBtnBg] = useState(cfg.btn_bg_color || cfg.btnBg || "#10B981");
+  const [btnTextCol, setBtnTextCol] = useState(cfg.btn_text_color || cfg.btnTextCol || "#ffffff");
 
-  // Trigger & Frequency
-  const [trigger, setTrigger] = useState(initialConfig.trigger || 'enter')
-  const [frequency, setFrequency] = useState(initialConfig.frequency || 'once-visit')
+  const [titleSize, setTitleSize] = useState(typeof cfg.title_size === "number" ? cfg.title_size : typeof cfg.titleSize === "number" ? cfg.titleSize : 22);
+  const [subtitleSize, setSubtitleSize] = useState(typeof cfg.subtitle_size === "number" ? cfg.subtitle_size : typeof cfg.subtitleSize === "number" ? cfg.subtitleSize : 14);
 
-  // Appearance
-  const [bgColor, setBgColor] = useState(initialConfig.bg_color || '#ffffff')
-  const [textColor, setTextColor] = useState(initialConfig.text_color || '#111827')
-  const [btnBgColor, setBtnBgColor] = useState(initialConfig.btn_bg_color || '#10B981')
-  const [btnTextColor, setBtnTextColor] = useState(initialConfig.btn_text_color || '#ffffff')
-  const [titleSize, setTitleSize] = useState(initialConfig.title_size || '22')
-  const [borderRadius, setBorderRadius] = useState(initialConfig.border_radius || '16')
-  const [campaignTheme, setCampaignTheme] = useState(initialConfig.campaignTheme || 'none')
+  const [campaignTheme, setCampaignTheme] = useState(cfg.campaignTheme || "none");
+  const [isActive, setIsActive] = useState(cfg.is_active !== false && existingWidget?.is_active !== false);
+  const [isSavingInternal, setIsSavingInternal] = useState(false);
 
-  // Canvas Image Compression
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const effectiveTargetType = targetType || existingWidget?.target_type || (categoryId ? "category" : productId ? "product" : "all");
+  const isCategory = effectiveTargetType === "category" || !!categoryId;
+  const isForAll = effectiveTargetType === "all";
+  const scopeLabel = isForAll ? "Todos los productos" : isCategory ? "Categoría" : "Producto específico";
 
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const img = new Image()
-      img.onload = () => {
-        const canvas = document.createElement('canvas')
-        const MAX_WIDTH = 800
-        const scale = MAX_WIDTH / img.width
-        canvas.width = MAX_WIDTH
-        canvas.height = img.height * scale
-
-        const ctx = canvas.getContext('2d')
-        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height)
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8)
-        setHeaderImage(compressedBase64)
-      }
-      img.src = event.target?.result as string
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const applyPreset = (preset: typeof CAMPAIGN_PRESETS[0]) => {
-    setCampaignTheme(preset.id)
-    setBgColor(preset.bg)
-    setTextColor(preset.text)
-    setBtnBgColor(preset.btnBg)
-    setBtnTextColor(preset.btnText)
-  }
-
-  const handleSave = async () => {
-    setSaving(true)
+  const handleImageUpload = async function (e: React.ChangeEvent<HTMLInputElement>) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
     try {
-      const payload = {
-        store_id: storeId,
-        widget_slug: 'popup-promocional',
-        name: 'Pop-up Promocional',
-        is_active: isActive,
-        target_type: targetType,
-        product_id: targetType === 'product' ? initialProductId : null,
-        category_id: targetType === 'category' ? initialCategoryId : null,
-        config: {
-          title,
-          subtitle,
-          body_text: bodyText,
-          legal_text: legalText,
-          header_image: headerImage,
-          show_countdown: showCountdown,
-          countdown_date: countdownDate,
-          collect_email: collectEmail,
-          btn_text: btnText,
-          btn_action_type: btnActionType,
-          btn_link: btnLink,
-          show_reopen_btn: showReopenBtn,
-          trigger,
-          frequency,
-          bg_color: bgColor,
-          text_color: textColor,
-          btn_bg_color: btnBgColor,
-          btn_text_color: btnTextColor,
-          title_size: titleSize,
-          border_radius: borderRadius,
-          campaignTheme,
-        },
-      }
-
-      if (existingWidget?.id) {
-        await supabase.from('widgets').update(payload).eq('id', existingWidget.id)
-      } else {
-        await supabase.from('widgets').insert([payload])
-      }
-
-      router.push('/widgets')
-      router.refresh()
-    } catch (err) {
-      console.error('Error al guardar:', err)
-      alert('Ocurrió un error al guardar el widget.')
-    } finally {
-      setSaving(false)
+      var base64 = await compressImage(file, 600, 0.85);
+      setHeaderImg(base64);
+    } catch (error) {
+      alert("Error al procesar la imagen. Intentá con otra.");
     }
-  }
+  };
+
+  const applyPresetTheme = function (themeKey: string) {
+    setCampaignTheme(themeKey);
+    if (themeKey !== "none" && CAMPAIGN_THEMES[themeKey]) {
+      var th = CAMPAIGN_THEMES[themeKey];
+      setBgColor(th.bg);
+      setTitleColor(th.text);
+      setTextColor(th.text);
+      setBtnBg(th.accent);
+      setBtnTextCol(th.bg === "#ffffff" ? "#ffffff" : th.bg);
+    }
+  };
+
+  const handleColorChange = function (setter: (val: string) => void, value: string) {
+    setter(value);
+    setCampaignTheme("none");
+  };
+
+  const handleSave = async function () {
+    var configData = {
+      title,
+      subtitle,
+      body_text: bodyText,
+      legal_text: legalText,
+      header_image: headerImg,
+      btn_text: btnText,
+      btn_action_type: btnActionType,
+      btn_link: btnLink,
+      show_countdown: showCountdown,
+      countdown_date: countdownDate,
+      collect_email: collectEmail,
+      trigger,
+      frequency,
+      show_reopen_btn: showFloatingBtn,
+      bg_color: bgColor,
+      title_color: titleColor,
+      text_color: textColor,
+      btn_bg_color: btnBg,
+      btn_text_color: btnTextCol,
+      title_size: titleSize,
+      subtitle_size: subtitleSize,
+      campaignTheme,
+      ...(categoryId ? { category_id: String(categoryId) } : {}),
+    };
+
+    var finalTargetType = effectiveTargetType;
+    var finalProductId = productId || targetProductId || existingWidget?.target_product_id || null;
+    var finalCategoryId = categoryId || existingWidget?.target_category_id || null;
+
+    if (onSave) {
+      await onSave({
+        config: configData,
+        target_type: finalTargetType,
+        target_product_id: finalProductId,
+        target_category_id: finalCategoryId,
+        is_active: isActive,
+      });
+      window.location.href = "/widgets";
+      return;
+    }
+
+    setIsSavingInternal(true);
+    try {
+      var res = await fetch("/api/widgets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: existingWidget?.id || undefined,
+          store_id: storeId ? String(storeId) : undefined,
+          widget_slug: "popup-promocional",
+          config: configData,
+          is_active: isActive,
+          target_type: finalTargetType,
+          target_product_id: finalProductId ? String(finalProductId) : null,
+          target_category_id: finalCategoryId ? String(finalCategoryId) : null,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Error al guardar el widget");
+      window.location.href = "/widgets";
+    } catch (err: any) {
+      alert("Error al guardar: " + (err.message || "Error desconocido"));
+      setIsSavingInternal(false);
+    }
+  };
+
+  const saving = isSaving || isSavingInternal;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20">
-      {/* Header Bar */}
-      <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.back()}
-              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                Pop-up Promocional
-                <span className="text-xs bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 font-semibold px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800">
-                  Nevux
-                </span>
-              </h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Captá la atención de tus visitantes con ofertas y cuenta regresiva
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:after:border-slate-600 peer-checked:bg-emerald-600"></div>
-              <span className="ml-2 text-xs font-medium text-slate-700 dark:text-slate-300 hidden sm:inline">
-                {isActive ? 'Activo' : 'Inactivo'}
-              </span>
-            </label>
-
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition shadow-sm disabled:opacity-50"
-            >
-              <Save className="w-4 h-4" />
-              {saving ? 'Guardando...' : 'Guardar'}
-            </button>
-          </div>
+    <div style={{ maxWidth: "900px", margin: "0 auto", padding: "16px", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      {/* HEADER STICKY */}
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+          backgroundColor: "#ffffff",
+          borderBottom: "1px solid #E5E7EB",
+          padding: "12px 16px",
+          marginBottom: "16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <NevuxLogo size="medium" />
+        <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#111827", display: "flex", alignItems: "center", justifyCenter: "center", color: "#ffffff", fontSize: "13px", fontWeight: 800, textAlign: "center", lineHeight: "36px" }}>
+          RL
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Form Controls */}
-        <div className="lg:col-span-7 space-y-6">
-          {/* Navigation Tabs */}
-          <div className="flex bg-slate-200/60 dark:bg-slate-800/60 p-1 rounded-xl gap-1">
-            <button
-              onClick={() => setActiveTab('general')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition ${
-                activeTab === 'general'
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              General
-            </button>
-            <button
-              onClick={() => setActiveTab('contenido')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition ${
-                activeTab === 'contenido'
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-              }`}
-            >
-              <Mail className="w-3.5 h-3.5" />
-              Contenido
-            </button>
-            <button
-              onClick={() => setActiveTab('estilos')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition ${
-                activeTab === 'estilos'
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-              }`}
-            >
-              <Palette className="w-3.5 h-3.5" />
-              Estilos
-            </button>
-            <button
-              onClick={() => setActiveTab('disparo')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition ${
-                activeTab === 'disparo'
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-              }`}
-            >
-              <MousePointer className="w-3.5 h-3.5" />
-              Disparo
-            </button>
-          </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+        <span style={{ fontSize: "12px", fontWeight: 700, padding: "4px 10px", borderRadius: "999px", backgroundColor: isCategory ? "#FEF3C7" : isForAll ? "#D1FAE5" : "#E0E7FF", color: isCategory ? "#D97706" : isForAll ? "#059669" : "#3730A3", border: "1px solid " + (isCategory ? "#FCD34D" : isForAll ? "#6EE7B7" : "#A5B4FC") }}>
+          {isCategory ? "🏷️" : isForAll ? "🏪" : "📦"} {scopeLabel}
+        </span>
+      </div>
 
-          {/* TAB: GENERAL */}
-          {activeTab === 'general' && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-500" />
-                Fechas Especiales (Presets)
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {CAMPAIGN_PRESETS.map((preset) => (
-                  <button
-                    key={preset.id}
-                    onClick={() => applyPreset(preset)}
-                    className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
-                      campaignTheme === preset.id
-                        ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/30 dark:bg-emerald-950/20'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
-                    }`}
-                  >
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{preset.name}</span>
-                    <div className="flex gap-1 mt-2">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: preset.bg }} />
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: preset.btnBg }} />
-                    </div>
-                  </button>
-                ))}
+      <h1 style={{ fontSize: "22px", fontWeight: 800, color: "#111827", marginBottom: "16px" }}>
+        Nuevo widget: Pop-up Promocional ({isForAll ? "General" : isCategory ? "Categoría" : "Producto"})
+      </h1>
+
+      <div style={{ backgroundColor: "#ECFDF5", border: "1px solid #10B981", borderRadius: "10px", padding: "12px 16px", marginBottom: "20px", fontSize: "13px", color: "#065F46", display: "flex", gap: "10px", alignItems: "flex-start" }}>
+        <span style={{ fontSize: "18px" }}>🎁</span>
+        <div><strong>Conversión en tiempo real:</strong> Mostrá un popup personalizable con reloj en vivo, captura de email y promociones atractivas.</div>
+      </div>
+
+      {/* PREVIEW EN VIVO */}
+      <div style={{ backgroundColor: "#F3F4F6", border: "2px dashed #E5E7EB", borderRadius: "16px", padding: "30px 20px", marginBottom: "24px", display: "flex", justifyContent: "center" }}>
+        <div style={{ width: "100%", maxWidth: "380px", backgroundColor: bgColor, borderRadius: "16px", padding: "24px", boxShadow: "0 10px 25px rgba(0,0,0,0.15)", textAlign: "center", position: "relative", border: "1px solid rgba(0,0,0,0.08)" }}>
+          
+          <div style={{ position: "absolute", top: "12px", right: "12px", color: textColor, opacity: 0.6, cursor: "pointer", fontSize: "16px", fontWeight: 800, lineHeight: 1 }}>✕</div>
+
+          {headerImg && (
+            <img src={headerImg} alt="Header" style={{ width: "100%", maxHeight: "140px", objectFit: "cover", marginBottom: "16px", borderRadius: "8px" }} />
+          )}
+
+          <div style={{ fontSize: titleSize + "px", fontWeight: 900, color: titleColor, marginBottom: "8px", lineHeight: 1.2 }}>{title}</div>
+          <div style={{ fontSize: subtitleSize + "px", color: textColor, marginBottom: "12px", opacity: 0.9 }}>{subtitle}</div>
+
+          {bodyText && (
+            <div style={{ fontSize: "12px", color: textColor, marginBottom: "16px", opacity: 0.8, lineHeight: 1.4 }}>{bodyText}</div>
+          )}
+
+          {/* TIMER REGRESIVO MOCKUP */}
+          {showCountdown && (
+            <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginBottom: "16px" }}>
+              <div style={{ backgroundColor: "rgba(0,0,0,0.05)", padding: "6px 8px", borderRadius: "6px", minWidth: "40px" }}>
+                <span style={{ fontSize: "14px", fontWeight: 900, display: "block", color: btnBg }}>02</span>
+                <span style={{ fontSize: "8px", textTransform: "uppercase", opacity: 0.6, fontWeight: 700, color: textColor }}>Días</span>
               </div>
-
-              <hr className="border-slate-100 dark:border-slate-800" />
-
-              <div className="space-y-3">
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Ubicación / Target de Segmentación
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: 'all', label: 'Toda la tienda' },
-                    { id: 'product', label: 'Ficha producto' },
-                    { id: 'category', label: 'Categoría' },
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => setTargetType(item.id)}
-                      className={`py-2 px-3 text-xs font-semibold rounded-xl border transition ${
-                        targetType === item.id
-                          ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'
-                          : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50'
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
+              <div style={{ backgroundColor: "rgba(0,0,0,0.05)", padding: "6px 8px", borderRadius: "6px", minWidth: "40px" }}>
+                <span style={{ fontSize: "14px", fontWeight 900, display: "block", color: btnBg }}>14</span>
+                <span style={{ fontSize: "8px", textTransform: "uppercase", opacity: 0.6, fontWeight: 700, color: textColor }}>Hs</span>
+              </div>
+              <div style={{ backgroundColor: "rgba(0,0,0,0.05)", padding: "6px 8px", borderRadius: "6px", minWidth: "40px" }}>
+                <span style={{ fontSize: "14px", fontWeight: 900, display: "block", color: btnBg }}>35</span>
+                <span style={{ fontSize: "8px", textTransform: "uppercase", opacity: 0.6, fontWeight: 700, color: textColor }}>Min</span>
+              </div>
+              <div style={{ backgroundColor: "rgba(0,0,0,0.05)", padding: "6px 8px", borderRadius: "6px", minWidth: "40px" }}>
+                <span style={{ fontSize: "14px", fontWeight: 900, display: "block", color: btnBg }}>50</span>
+                <span style={{ fontSize: "8px", textTransform: "uppercase", opacity: 0.6, fontWeight: 700, color: textColor }}>Seg</span>
               </div>
             </div>
           )}
 
-          {/* TAB: CONTENIDO */}
-          {activeTab === 'contenido' && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Título principal
-                  </label>
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Subtítulo
-                  </label>
-                  <input
-                    type="text"
-                    value={subtitle}
-                    onChange={(e) => setSubtitle(e.target.value)}
-                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Texto del cuerpo (opcional)
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={bodyText}
-                    onChange={(e) => setBodyText(e.target.value)}
-                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Imagen de cabecera
-                  </label>
-                  <div className="flex items-center gap-3">
-                    {headerImage ? (
-                      <div className="relative w-16 h-12 rounded-lg overflow-hidden border">
-                        <img src={headerImage} alt="Header" className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => setHeaderImage('')}
-                          className="absolute top-0 right-0 bg-red-600 text-white text-[10px] w-4 h-4 flex items-center justify-center"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="w-16 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-                        <ImageIcon className="w-5 h-5" />
-                      </div>
-                    )}
-                    <label className="cursor-pointer bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
-                      <Upload className="w-3.5 h-3.5" />
-                      Subir imagen
-                      <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                    </label>
-                  </div>
-                </div>
-
-                <hr className="border-slate-100 dark:border-slate-800" />
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block">Captar Email</span>
-                    <span className="text-[11px] text-slate-400">Agrega un campo para recolectar correos</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={collectEmail}
-                    onChange={(e) => setCollectEmail(e.target.checked)}
-                    className="w-4 h-4 accent-emerald-600"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block">Cuenta Regresiva</span>
-                    <span className="text-[11px] text-slate-400">Muestra timer de urgencia</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={showCountdown}
-                    onChange={(e) => setShowCountdown(e.target.checked)}
-                    className="w-4 h-4 accent-emerald-600"
-                  />
-                </div>
-
-                {showCountdown && (
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                      Fecha límite de la oferta
-                    </label>
-                    <input
-                      type="datetime-local"
-                      value={countdownDate}
-                      onChange={(e) => setCountdownDate(e.target.value)}
-                      className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
-                )}
-
-                <hr className="border-slate-100 dark:border-slate-800" />
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Texto del botón de acción
-                  </label>
-                  <input
-                    type="text"
-                    value={btnText}
-                    onChange={(e) => setBtnText(e.target.value)}
-                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                      Acción del botón
-                    </label>
-                    <select
-                      value={btnActionType}
-                      onChange={(e: any) => setBtnActionType(e.target.value)}
-                      className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="close">Cerrar Pop-up</option>
-                      <option value="link">Abrir Link Externo</option>
-                    </select>
-                  </div>
-                  {btnActionType === 'link' && (
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                        URL destino
-                      </label>
-                      <input
-                        type="url"
-                        placeholder="https://..."
-                        value={btnLink}
-                        onChange={(e) => setBtnLink(e.target.value)}
-                        className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Texto legal / aclaración
-                  </label>
-                  <input
-                    type="text"
-                    value={legalText}
-                    onChange={(e) => setLegalText(e.target.value)}
-                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-              </div>
-            </div>
+          {/* INPUT EMAIL MOCKUP */}
+          {collectEmail && (
+            <input type="email" placeholder="Tu email aquí..." disabled style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "12px", marginBottom: "12px", boxSizing: "border-box", backgroundColor: "#ffffff" }} />
           )}
 
-          {/* TAB: ESTILOS */}
-          {activeTab === 'estilos' && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Fondo del modal
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={bgColor}
-                      onChange={(e) => setBgColor(e.target.value)}
-                      className="w-9 h-9 rounded-lg cursor-pointer border-0"
-                    />
-                    <input
-                      type="text"
-                      value={bgColor}
-                      onChange={(e) => setBgColor(e.target.value)}
-                      className="w-full text-xs p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
-                    />
-                  </div>
-                </div>
+          <button style={{ width: "100%", padding: "12px", backgroundColor: btnBg, color: btnTextCol, borderRadius: "10px", fontWeight: 800, fontSize: "14px", border: "none", cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+            {btnText}
+          </button>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Color de texto
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={textColor}
-                      onChange={(e) => setTextColor(e.target.value)}
-                      className="w-9 h-9 rounded-lg cursor-pointer border-0"
-                    />
-                    <input
-                      type="text"
-                      value={textColor}
-                      onChange={(e) => setTextColor(e.target.value)}
-                      className="w-full text-xs p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Fondo del botón
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={btnBgColor}
-                      onChange={(e) => setBtnBgColor(e.target.value)}
-                      className="w-9 h-9 rounded-lg cursor-pointer border-0"
-                    />
-                    <input
-                      type="text"
-                      value={btnBgColor}
-                      onChange={(e) => setBtnBgColor(e.target.value)}
-                      className="w-full text-xs p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Texto del botón
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={btnTextColor}
-                      onChange={(e) => setBtnTextColor(e.target.value)}
-                      className="w-9 h-9 rounded-lg cursor-pointer border-0"
-                    />
-                    <input
-                      type="text"
-                      value={btnTextColor}
-                      onChange={(e) => setBtnTextColor(e.target.value)}
-                      className="w-full text-xs p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 pt-2">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Tamaño de título (px)
-                  </label>
-                  <input
-                    type="number"
-                    value={titleSize}
-                    onChange={(e) => setTitleSize(e.target.value)}
-                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Bordes redondeados (px)
-                  </label>
-                  <input
-                    type="number"
-                    value={borderRadius}
-                    onChange={(e) => setBorderRadius(e.target.value)}
-                    className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB: DISPARO & FRECUENCIA */}
-          {activeTab === 'disparo' && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  ¿Cuándo debe aparecer el Pop-up? (Trigger)
-                </label>
-                <select
-                  value={trigger}
-                  onChange={(e) => setTrigger(e.target.value)}
-                  className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white"
-                >
-                  <option value="enter">Al ingresar a la tienda (Inmediato)</option>
-                  <option value="delay-5">Esperar 5 segundos</option>
-                  <option value="delay-10">Esperar 10 segundos</option>
-                  <option value="scroll-50">Al scrollear 50% de la página</option>
-                  <option value="exit-intent">Intención de salida (Exit Intent)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Frecuencia de despliegue
-                </label>
-                <select
-                  value={frequency}
-                  onChange={(e) => setFrequency(e.target.value)}
-                  className="w-full text-sm p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white"
-                >
-                  <option value="once-visit">Una sola vez por sesión / visita</option>
-                  <option value="once-day">Una vez al día</option>
-                  <option value="always">Siempre que navegue</option>
-                </select>
-              </div>
-
-              <div className="flex items-center justify-between pt-2">
-                <div>
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block">
-                    Botón flotante de reapertura
-                  </span>
-                  <span className="text-[11px] text-slate-400">
-                    Muestra un widget en la esquina para volver a abrir el pop-up
-                  </span>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={showReopenBtn}
-                  onChange={(e) => setShowReopenBtn(e.target.checked)}
-                  className="w-4 h-4 accent-emerald-600"
-                />
-              </div>
-            </div>
+          {legalText && (
+            <div style={{ fontSize: "10px", color: textColor, opacity: 0.6, marginTop: "12px" }}>{legalText}</div>
           )}
         </div>
+      </div>
 
-        {/* Right Live Preview Box */}
-        <div className="lg:col-span-5">
-          <div className="sticky top-20 bg-slate-900 rounded-3xl p-4 shadow-xl border border-slate-800 overflow-hidden">
-            <div className="flex items-center justify-between mb-3 px-2">
-              <span className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-                <Eye className="w-3.5 h-3.5 text-emerald-400" />
-                Previsualización en tiempo real
-              </span>
-              <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700">
-                Interactive
-              </span>
+      {/* TABS */}
+      <div style={{ display: "flex", borderBottom: "2px solid #E5E7EB", marginBottom: "20px", gap: "2px", overflowX: "auto" }}>
+        {[
+          { id: "general", label: "✍️ Textos" },
+          { id: "reglas", label: "⚙️ Reglas & Email" },
+          { id: "estilos", label: "🎨 Estilos" },
+          { id: "fechas", label: "🔥 Campañas" },
+        ].map(function (tab) {
+          var active = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={function () { setActiveTab(tab.id); }}
+              style={{ padding: "10px 14px", fontSize: "13px", fontWeight: 700, border: "none", background: "none", cursor: "pointer", whiteSpace: "nowrap", borderBottom: active ? "3px solid #10B981" : "3px solid transparent", color: active ? "#10B981" : "#6B7280" }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* TAB GENERAL (TEXTOS) */}
+      {activeTab === "general" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ backgroundColor: "#ffffff", border: "1px solid #E5E7EB", borderRadius: "12px", padding: "16px" }}>
+            <div style={{ marginBottom: "12px" }}>
+              <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>Título principal</label>
+              <input type="text" value={title} onChange={function (e) { setTitle(e.target.value); }} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px", boxSizing: "border-box" }} />
             </div>
 
-            {/* Simulated Popup Canvas */}
-            <div className="relative bg-black/60 backdrop-blur-sm rounded-2xl p-4 min-h-[380px] flex items-center justify-center">
-              <div
-                className="w-full max-w-[340px] shadow-2xl overflow-hidden transition-all duration-300 relative"
-                style={{
-                  backgroundColor: bgColor,
-                  color: textColor,
-                  borderRadius: `${borderRadius}px`,
-                }}
-              >
-                {/* Close Button */}
-                <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/30 text-white flex items-center justify-center text-xs font-bold z-10">
-                  ✕
-                </div>
+            <div style={{ marginBottom: "12px" }}>
+              <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>Subtítulo</label>
+              <input type="text" value={subtitle} onChange={function (e) { setSubtitle(e.target.value); }} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px", boxSizing: "border-box" }} />
+            </div>
 
-                {headerImage && (
-                  <img src={headerImage} alt="Header" className="w-full h-32 object-cover block" />
-                )}
+            <div style={{ marginBottom: "12px" }}>
+              <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>Texto del cuerpo (Opcional)</label>
+              <textarea value={bodyText} onChange={function (e) { setBodyText(e.target.value); }} rows={3} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px", boxSizing: "border-box" }} />
+            </div>
 
-                <div className="p-5 text-center space-y-3">
-                  {title && (
-                    <div
-                      className="font-bold leading-tight"
-                      style={{ fontSize: `${Math.min(Number(titleSize), 22)}px` }}
-                    >
-                      {title}
-                    </div>
-                  )}
+            <div style={{ marginBottom: "12px" }}>
+              <label style={{ fontSize: "12px", fontWeight 700, color: "#374151", display: "block", marginBottom: "6px" }}>Texto del botón CTA</label>
+              <input type="text" value={btnText} onChange={function (e) { setBtnText(e.target.value); }} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px", boxSizing: "border-box" }} />
+            </div>
 
-                  {subtitle && (
-                    <div className="text-xs opacity-80 leading-snug">{subtitle}</div>
-                  )}
-
-                  {bodyText && (
-                    <div className="text-[11px] opacity-75 leading-relaxed">{bodyText}</div>
-                  )}
-
-                  {showCountdown && (
-                    <div className="flex justify-center gap-1.5 py-1">
-                      <div className="bg-black/5 dark:bg-white/10 px-2 py-1 rounded text-center">
-                        <span className="block text-xs font-extrabold" style={{ color: btnBgColor }}>02</span>
-                        <span className="text-[8px] uppercase opacity-60">Días</span>
-                      </div>
-                      <div className="bg-black/5 dark:bg-white/10 px-2 py-1 rounded text-center">
-                        <span className="block text-xs font-extrabold" style={{ color: btnBgColor }}>14</span>
-                        <span className="text-[8px] uppercase opacity-60">Hs</span>
-                      </div>
-                      <div className="bg-black/5 dark:bg-white/10 px-2 py-1 rounded text-center">
-                        <span className="block text-xs font-extrabold" style={{ color: btnBgColor }}>35</span>
-                        <span className="text-[8px] uppercase opacity-60">Min</span>
-                      </div>
-                      <div className="bg-black/5 dark:bg-white/10 px-2 py-1 rounded text-center">
-                        <span className="block text-xs font-extrabold" style={{ color: btnBgColor }}>50</span>
-                        <span className="text-[8px] uppercase opacity-60">Seg</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {collectEmail && (
-                    <input
-                      type="email"
-                      placeholder="Tu email aquí..."
-                      disabled
-                      className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white"
-                    />
-                  )}
-
-                  <button
-                    className="w-full py-2.5 px-4 rounded-lg text-xs font-bold transition shadow-sm"
-                    style={{ backgroundColor: btnBgColor, color: btnTextColor }}
-                  >
-                    {btnText}
-                  </button>
-
-                  {legalText && (
-                    <div className="text-[9px] opacity-50 leading-tight">{legalText}</div>
-                  )}
-                </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>Acción del botón</label>
+                <select value={btnActionType} onChange={function (e) { setBtnActionType(e.target.value); }} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px" }}>
+                  <option value="close">Cerrar Pop-up</option>
+                  <option value="link">Abrir Link Externo</option>
+                </select>
               </div>
 
-              {showReopenBtn && (
-                <div
-                  className="absolute bottom-3 left-3 text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg border border-white/20 flex items-center gap-1"
-                  style={{ backgroundColor: btnBgColor, color: btnTextColor }}
-                >
-                  🎁 Oferta
+              {btnActionType === "link" && (
+                <div>
+                  <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>URL de Destino</label>
+                  <input type="url" value={btnLink} onChange={function (e) { setBtnLink(e.target.value); }} placeholder="https://..." style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px", boxSizing: "border-box" }} />
                 </div>
               )}
             </div>
+
+            <div style={{ marginBottom: "12px" }}>
+              <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>Texto legal / Aclaración (Opcional)</label>
+              <input type="text" value={legalText} onChange={function (e) { setLegalText(e.target.value); }} placeholder="Ej: Válido solo por tiempo limitado..." style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px", boxSizing: "border-box" }} />
+            </div>
+
+            <div>
+              <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>Imagen de encabezado (Opcional)</label>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                {headerImg ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <img src={headerImg} alt="Header" style={{ height: "40px", objectFit: "contain", border: "1px solid #D1D5DB", borderRadius: "6px" }} />
+                    <button type="button" onClick={function () { setHeaderImg(""); }} style={{ fontSize: "12px", color: "#DC2626", background: "none", border: "none", cursor: "pointer", fontWeight: 700 }}>Quitar</button>
+                  </div>
+                ) : null}
+                <input type="file" accept="image/*" onChange={handleImageUpload} style={{ fontSize: "12px", flex: 1 }} />
+              </div>
+            </div>
           </div>
         </div>
+      )}
+
+      {/* TAB REGLAS & EMAIL */}
+      {activeTab === "reglas" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          
+          <div style={{ backgroundColor: "#ffffff", border: "1px solid #E5E7EB", borderRadius: "12px", padding: "16px" }}>
+            <div style={{ fontSize: "14px", fontWeight: 800, color: "#111827", marginBottom: "12px" }}>Recolección de Emails</div>
+            <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "13px", fontWeight: 700, color: "#374151" }}>
+              <input type="checkbox" checked={collectEmail} onChange={function (e) { setCollectEmail(e.target.checked); }} style={{ width: "18px", height: "18px", accentColor: "#10B981" }} />
+              Pedir email en el pop-up
+            </label>
+            <div style={{ fontSize: "12px", color: "#6B7280", marginTop: "8px", marginLeft: "28px" }}>Capturá contactos directamente para tus campañas de remarketing.</div>
+          </div>
+
+          <div style={{ backgroundColor: "#ffffff", border: "1px solid #E5E7EB", borderRadius: "12px", padding: "16px" }}>
+            <div style={{ fontSize: "14px", fontWeight: 800, color: "#111827", marginBottom: "12px" }}>Cuenta Regresiva (Timer)</div>
+            <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "13px", fontWeight: 700, color: "#374151", marginBottom: "12px" }}>
+              <input type="checkbox" checked={showCountdown} onChange={function (e) { setShowCountdown(e.target.checked); }} style={{ width: "18px", height: "18px", accentColor: "#10B981" }} />
+              Mostrar contador regresivo
+            </label>
+
+            {showCountdown && (
+              <div style={{ marginLeft: "28px" }}>
+                <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>Fecha y hora de finalización</label>
+                <input type="datetime-local" value={countdownDate} onChange={function (e) { setCountdownDate(e.target.value); }} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px" }} />
+              </div>
+            )}
+          </div>
+
+          <div style={{ backgroundColor: "#ffffff", border: "1px solid #E5E7EB", borderRadius: "12px", padding: "16px" }}>
+            <div style={{ fontSize: "14px", fontWeight: 800, color: "#111827", marginBottom: "12px" }}>Comportamiento del Pop-up</div>
+            
+            <div style={{ marginBottom: "12px" }}>
+              <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>¿Cuándo aparece? (Trigger)</label>
+              <select value={trigger} onChange={function (e) { setTrigger(e.target.value); }} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px" }}>
+                <option value="enter">Al entrar a la página (Inmediato)</option>
+                <option value="delay-5">Después de 5 segundos</option>
+                <option value="delay-10">Después de 10 segundos</option>
+                <option value="scroll-50">Al bajar por la mitad de la página (Scroll 50%)</option>
+                <option value="exit-intent">Al intentar salir de la tienda (Exit-Intent)</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: "12px" }}>
+              <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>¿Cuántas veces se muestra?</label>
+              <select value={frequency} onChange={function (e) { setFrequency(e.target.value); }} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px" }}>
+                <option value="once-visit">1 vez por visita (Recomendado)</option>
+                <option value="once-day">1 vez por día por usuario</option>
+                <option value="always">Mostrar siempre cada vez que navega</option>
+              </select>
+            </div>
+
+            <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "13px", fontWeight: 700, color: "#374151", marginTop: "16px" }}>
+              <input type="checkbox" checked={showFloatingBtn} onChange={function (e) { setShowFloatingBtn(e.target.checked); }} style={{ width: "18px", height: "18px", accentColor: "#10B981" }} />
+              Mostrar botón flotante de reapertura
+            </label>
+            <div style={{ fontSize: "12px", color: "#6B7280", marginTop: "4px", marginLeft: "28px" }}>Permite al usuario reabrir la oferta si cerró el pop-up.</div>
+          </div>
+
+        </div>
+      )}
+
+      {/* TAB ESTILOS */}
+      {activeTab === "estilos" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ backgroundColor: "#ffffff", border: "1px solid #E5E7EB", borderRadius: "12px", padding: "16px" }}>
+            <div style={{ fontSize: "14px", fontWeight: 800, color: "#111827", marginBottom: "14px" }}>Colores</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
+              {[
+                { label: "Fondo del pop-up", value: bgColor, setter: setBgColor },
+                { label: "Color del título", value: titleColor, setter: setTitleColor },
+                { label: "Textos secundarios", value: textColor, setter: setTextColor },
+                { label: "Fondo del botón", value: btnBg, setter: setBtnBg },
+                { label: "Texto del botón", value: btnTextCol, setter: setBtnTextCol },
+              ].map(function (item) {
+                return (
+                  <div key={item.label}>
+                    <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>{item.label}</label>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <input type="color" value={item.value.startsWith("#") ? item.value : "#ffffff"} onChange={function (e) { handleColorChange(item.setter, e.target.value); }} style={{ width: "40px", height: "38px", border: "none", borderRadius: "6px", cursor: "pointer", padding: 0 }} />
+                      <input type="text" value={item.value} onChange={function (e) { handleColorChange(item.setter, e.target.value); }} style={{ flex: 1, minWidth: 0, padding: "9px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px" }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div style={{ backgroundColor: "#ffffff", border: "1px solid #E5E7EB", borderRadius: "12px", padding: "16px" }}>
+            <div style={{ fontSize: "14px", fontWeight: 800, color: "#111827", marginBottom: "14px" }}>Tamaños de letra</div>
+            {[
+              { label: "Tamaño del título", value: titleSize, setter: setTitleSize, min: 18, max: 32 },
+              { label: "Tamaño del subtítulo", value: subtitleSize, setter: setSubtitleSize, min: 12, max: 18 },
+            ].map(function (item) {
+              return (
+                <div key={item.label} style={{ marginBottom: "14px" }}>
+                  <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>{item.label}: {item.value}px</label>
+                  <input type="range" min={item.min} max={item.max} step={1} value={item.value} onChange={function (e) { item.setter(parseInt(e.target.value, 10)); }} style={{ width: "100%", accentColor: "#10B981" }} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* TAB FECHAS ESPECIALES */}
+      {activeTab === "fechas" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ backgroundColor: "#FFFBEB", border: "1px solid #FCD34D", borderRadius: "12px", padding: "14px 16px", fontSize: "13px", color: "#92400E" }}>
+            🔥 Elegí un preset de campaña para adaptar automáticamente la paleta de colores del pop-up.
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <button type="button" onClick={function () { applyPresetTheme("none"); }} style={{ padding: "12px 14px", borderRadius: "10px", border: campaignTheme === "none" ? "2px solid #10B981" : "1px solid #E5E7EB", backgroundColor: campaignTheme === "none" ? "#ECFDF5" : "#ffffff", fontWeight: 700, fontSize: "13px", cursor: "pointer", textAlign: "left" }}>
+              ✨ Sin campaña (colores libres)
+            </button>
+            {Object.keys(CAMPAIGN_THEMES).map(function (key) {
+              var th = CAMPAIGN_THEMES[key];
+              var active = campaignTheme === key;
+              return (
+                <button key={key} type="button" onClick={function () { applyPresetTheme(key); }} style={{ padding: "12px 14px", borderRadius: "10px", border: active ? "2px solid #10B981" : "1px solid #E5E7EB", backgroundColor: th.bg, color: th.text, fontWeight: 800, fontSize: "13px", cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span>{PRESET_LABELS[key] || key}</span>
+                  <span style={{ width: "14px", height: "14px", borderRadius: "50%", backgroundColor: th.accent, border: "2px solid rgba(255,255,255,0.5)" }} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* GUARDAR */}
+      <div style={{ marginTop: "28px", borderTop: "1px solid #E5E7EB", paddingTop: "20px" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "14px", fontWeight: 700, color: "#111827", marginBottom: "16px" }}>
+          <input type="checkbox" checked={isActive} onChange={function (e) { setIsActive(e.target.checked); }} style={{ width: "18px", height: "18px", accentColor: "#10B981" }} />
+          Widget activo
+        </label>
+
+        <button type="button" onClick={handleSave} disabled={saving} style={{ width: "100%", backgroundColor: "#10B981", color: "#ffffff", padding: "16px", borderRadius: "12px", fontSize: "16px", fontWeight: 800, border: "none", cursor: saving ? "not-allowed" : "pointer", boxShadow: "0 4px 12px rgba(16,185,129,0.3)", opacity: saving ? 0.7 : 1 }}>
+          {saving ? "Guardando..." : "💾 Guardar Pop-up Promocional"}
+        </button>
+        <p style={{ fontSize: "12px", color: "#6B7280", textAlign: "center", marginTop: "10px" }}>Al guardar vas a volver a <strong>Mis Widgets</strong></p>
       </div>
+
+      <div style={{ marginTop: "28px" }}><CentroAyuda /></div>
     </div>
-  )
+  );
   }
