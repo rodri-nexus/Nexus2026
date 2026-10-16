@@ -14404,6 +14404,17 @@ function renderCarruselResenas(w) {
   var ctaButtonLink = cfg.ctaButtonLink || "#";
   var location = cfg.location || "product_after";
 
+  // Soporte Fechas Especiales (THEMES)
+  var THEMES = {
+    "black-friday": { bg: "#000000", title: "#ffffff", subtitle: "#9ca3af", text: "#d1d5db", star: "#f5b301", headerStar: "#f5a623", cardBg: "#111827", border: "#1f2937", ctaBg: "#ffffff", ctaText: "#000000" },
+    "hot-sale": { bg: "#fb4c06", title: "#ffffff", subtitle: "#ffe0d6", text: "#ffffff", star: "#ffffff", headerStar: "#ffffff", cardBg: "#e04105", border: "#ff7a4a", ctaBg: "#ffffff", ctaText: "#fb4c06" },
+    "cyber-monday": { bg: "#0057ff", title: "#ffffff", subtitle: "#d1e0ff", text: "#ffffff", star: "#ffffff", headerStar: "#ffffff", cardBg: "#004ed6", border: "#3d85ff", ctaBg: "#ffffff", ctaText: "#0057ff" },
+    "navidad": { bg: "#d6001c", title: "#ffffff", subtitle: "#ffd6d6", text: "#ffffff", star: "#ffcc00", headerStar: "#ffcc00", cardBg: "#b80018", border: "#ff4d4d", ctaBg: "#ffffff", ctaText: "#d6001c" },
+    "san-valentin": { bg: "#ff4d6d", title: "#ffffff", subtitle: "#ffe0e6", text: "#ffffff", star: "#ffffff", headerStar: "#ffffff", cardBg: "#ff758f", border: "#ffb3c1", ctaBg: "#ffffff", ctaText: "#ff4d6d" },
+    "dia-padre-madre": { bg: "#4a4a4a", title: "#ffffff", subtitle: "#cccccc", text: "#eeeeee", star: "#ffcc00", headerStar: "#ffcc00", cardBg: "#333333", border: "#666666", ctaBg: "#ffffff", ctaText: "#4a4a4a" },
+    "liquidacion": { bg: "#ffdd00", title: "#000000", subtitle: "#333333", text: "#000000", star: "#000000", headerStar: "#000000", cardBg: "#ffffff", border: "#000000", ctaBg: "#000000", ctaText: "#ffffff" }
+  };
+
   var bgColor = cfg.bgColor || "#ffffff";
   var titleColor = cfg.titleColor || "#1a1a1a";
   var subtitleColor = cfg.subtitleColor || "#4b5563";
@@ -14414,6 +14425,20 @@ function renderCarruselResenas(w) {
   var borderColor = cfg.borderColor || "#e5e7eb";
   var ctaBgColor = cfg.ctaBgColor || "#1a1a1a";
   var ctaTextColor = cfg.ctaTextColor || "#ffffff";
+
+  if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
+    var t = THEMES[cfg.campaignTheme];
+    bgColor = t.bg;
+    titleColor = t.title;
+    subtitleColor = t.subtitle;
+    textColor = t.text;
+    starColor = t.star;
+    headerStarColor = t.headerStar;
+    cardBgColor = t.cardBg;
+    borderColor = t.border;
+    ctaBgColor = t.ctaBg;
+    ctaTextColor = t.ctaText;
+  }
 
   var titleFontSize = cfg.titleFontSize || 22;
   var subtitleFontSize = cfg.subtitleFontSize || 16;
