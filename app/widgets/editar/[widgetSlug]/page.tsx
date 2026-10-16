@@ -42,6 +42,7 @@ import BotonWhatsappEditor from '@/components/widgets/editors/BotonWhatsappEdito
 import RaspaGanaEditor from '@/components/widgets/editors/RaspaGanaEditor';
 import PopupPromocionalEditor from '@/components/widgets/editors/PopupPromocionalEditor';
 import NotificacionesFlotantesEditor from '@/components/widgets/editors/NotificacionesFlotantesEditor';
+import AlertaInventarioEditor from '@/components/widgets/editors/AlertaInventarioEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -148,6 +149,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: ALERTA DE INVENTARIO
+  if (params.widgetSlug === 'alerta-inventario') {
+    return <AlertaInventarioEditor {...editorProps} />;
+  }
 
   // WIDGET: NOTIFICACIONES FLOTANTES
   if (params.widgetSlug === 'notificaciones-flotantes') {
@@ -372,4 +378,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+  }
