@@ -2,20 +2,19 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'react-router-dom'
 import { 
-  ArrowLeft, Save, Eye, Sparkles, Palette, Mail, Clock, 
-  Upload, Image as ImageIcon, Check, MousePointer, ShieldAlert, Layers
+  ArrowLeft, Save, Eye, Sparkles, Palette, Mail, 
+  Upload, Image as ImageIcon, MousePointer
 } from 'lucide-react'
 import { createBrowserClient } from '@supabase/ssr'
 
 interface Props {
   widgetDefinition: any
   existingWidget?: any
-  targetType?: string
-  productId?: string
-  categoryId?: string
-  storeId: string
+  targetType?: any
+  productId?: any
+  categoryId?: any
+  storeId: any
 }
 
 const CAMPAIGN_PRESETS = [
@@ -32,8 +31,8 @@ export default function PopupPromocionalEditor({
   widgetDefinition,
   existingWidget,
   targetType: initialTargetType = 'all',
-  productId: initialProductId = '',
-  categoryId: initialCategoryId = '',
+  productId: initialProductId = null,
+  categoryId: initialCategoryId = null,
   storeId,
 }: Props) {
   const router = useRouter()
@@ -769,4 +768,4 @@ export default function PopupPromocionalEditor({
       </div>
     </div>
   )
-                                         }
+  }
