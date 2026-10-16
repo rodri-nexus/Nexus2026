@@ -8,6 +8,53 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function ConjuntoProductosPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>👗 CONJUNTO DE PRODUCTOS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          LOOK
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: "6px", alignItems: "stretch", background: "#f9fafb", padding: "5px", borderRadius: "6px", border: "1px solid #e5e7eb" }}>
+        <div style={{ width: "38px", borderRadius: "4px", background: "#111827", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", flexShrink: 0 }}>
+          👗
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827" }}>Look verano</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "5.5px", color: "#374151", background: "#ffffff", padding: "1px 3px", borderRadius: "2px" }}>
+              <span>Remera B&W</span>
+              <span style={{ fontWeight: 700 }}>$1.500</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "5.5px", color: "#374151", background: "#ffffff", padding: "1px 3px", borderRadius: "2px" }}>
+              <span>Pantalón Jean</span>
+              <span style={{ fontWeight: 700 }}>$2.000</span>
+            </div>
+          </div>
+          <div style={{ background: "#111827", color: "#ffffff", borderRadius: "4px", padding: "2px", fontSize: "5.5px", fontWeight: 800, textAlign: "center", marginTop: "1px" }}>
+            Comprar look · $3.500
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AlertaInventarioPreview() {
   return (
     <div
@@ -659,7 +706,7 @@ function PreguntasFrecuentesPreview() {
         </div>
         <div style={{ fontSize: "5.5px", color: "#6b7280", lineHeight: 1.1 }}>Despachamos dentro de las 24 a 48 hs...</div>
       </div>
-      <div style={{ background: "#f9fafb", border: "1px solid #f3f4f6", borderRadius: "6px", padding: "4px 6px", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "6.5px", fontWeight: 700, color: "#374151" }}>
+      <div style={{ background: "#f9fafb", border: "1px solid #f3f4f6", borderRadius: "6px", padding: "4px 6px", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "6.5px", fontWeight 700, color: "#374151" }}>
         <span>💳 ¿Qué medios de pago aceptan?</span>
         <span style={{ fontSize: "7px", opacity: 0.6 }}>▼</span>
       </div>
@@ -1056,6 +1103,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "conjunto-productos":
+      return <ConjuntoProductosPreview />;
     case "alerta-inventario":
       return <AlertaInventarioPreview />;
     case "notificaciones-flotantes":
