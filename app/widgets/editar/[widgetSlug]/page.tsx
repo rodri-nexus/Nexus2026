@@ -44,6 +44,7 @@ import PopupPromocionalEditor from '@/components/widgets/editors/PopupPromociona
 import NotificacionesFlotantesEditor from '@/components/widgets/editors/NotificacionesFlotantesEditor';
 import AlertaInventarioEditor from '@/components/widgets/editors/AlertaInventarioEditor';
 import ConjuntoProductosEditor from '@/components/widgets/editors/ConjuntoProductosEditor';
+import CarruselResenasEditor from '@/components/widgets/editors/CarruselResenasEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -150,6 +151,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: CARRUSEL DE RESEÑAS
+  if (params.widgetSlug === 'carrusel-resenas') {
+    return <CarruselResenasEditor {...editorProps} />;
+  }
 
   // WIDGET: CONJUNTO DE PRODUCTOS (LOOKS)
   if (params.widgetSlug === 'conjunto-productos') {
