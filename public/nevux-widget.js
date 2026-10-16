@@ -13583,229 +13583,162 @@ function renderPopupPromocional(w) {
   }
           }
 /* ═══════════════════════════════════════════
-   NOTIFICACIONES FLOTANTES ROTATIVAS (v3 ULTRA BLINDADO)
+   NOTIFICACIONES FLOTANTES ROTATIVAS (v4 FIX KEYS)
 ═══════════════════════════════════════════ */
-function renderNotificacionesFlotantes(w) {
-  var nsPrefix = typeof NS !== "undefined" ? NS : "nvx";
-  var rootId = nsPrefix + "-notif-flotantes-root";
-
-  // 1. Limpieza de contenedores previos
-  var existingContainer = document.getElementById(rootId);
-  if (existingContainer && existingContainer.parentNode) {
-    existingContainer.parentNode.removeChild(existingContainer);
-  }
-
-  // 2. Filtros de desactivación
+var renderNotificacionesFlotantes = function(w) {
   if (!w) return;
   if (w.is_active === false || w.is_active === "false" || w.is_active === 0) return;
   if (w.user_disabled === true || w.user_disabled === "true") return;
 
-  // Safe JSON parse de config
-  var cfg = w.config || w;
+  var cfg = w.config || {};
   if (typeof cfg === "string") {
-    try {
-      cfg = JSON.parse(cfg);
-    } catch (eCfg) {
-      cfg = {};
-    }
+    try { cfg = JSON.parse(cfg); } catch(e) { cfg = {}; }
   }
+  if (cfg.user_disabled === true || cfg.user_disabled === "true") return;
 
-  if (cfg.user_disabled === true || cfg.user_disabled === "true" || cfg.is_active === false || cfg.is_active === "false") return;
+  var notifs = cfg.notifications || [];
+  if (typeof notifs === "string") {
+    try { notifs = JSON.parse(notifs); } catch(e2) { notifs = []; }
+  }
+  if (!Array.isArray(notifs) || notifs.length === 0) return;
 
-  // 3. Frecuencia de visualización
-  var freq = cfg.frequency || "always";
-  var storageKey = "nvx_notif_flotantes_shown_" + (w.id || "def");
+  var freq = cfg.frequency || "once-visit";
+  var storageKey = "nvx_nf_" + (w.id || "def");
   if (freq === "once-visit") {
-    try {
-      if (sessionStorage.getItem(storageKey)) return;
-      sessionStorage.setItem(storageKey, "1");
-    } catch (eFreq1) {}
+    try { if (sessionStorage.getItem(storageKey)) return; sessionStorage.setItem(storageKey, "1"); } catch(e3) {}
   } else if (freq === "once-device") {
-    try {
-      if (localStorage.getItem(storageKey)) return;
-      localStorage.setItem(storageKey, "1");
-    } catch (eFreq2) {}
+    try { if (localStorage.getItem(storageKey)) return; localStorage.setItem(storageKey, "1"); } catch(e4) {}
   }
 
-  // 4. Filtrar ítems activos (con fallback automático si viene vacío)
-  var rawItems = cfg.items || [];
-  if (typeof rawItems === "string") {
-    try { rawItems = JSON.parse(rawItems); } catch(eItems) { rawItems = []; }
-  }
+  if (typeof nvxTrack === "function") nvxTrack(w.id, "impression");
 
-  var items = [];
-  if (rawItems && rawItems.length > 0) {
-    for (var i = 0; i < rawItems.length; i++) {
-      var item = rawItems[i];
-      if (item && item.is_active !== false && item.is_active !== "false") {
-        items.push(item);
-      }
-    }
-  }
+  var position = cfg.position || "bottom-right";
+  var bgColor = cfg.bgColor || "#ffffff";
+  var titleColor = cfg.titleColor || "#111111";
+  var subtitleColor = cfg.subtitleColor || "#666666";
+  var textColor = cfg.textColor || "#444444";
+  var btnBg = cfg.btnBg || "#333333";
+  var btnTextColor = cfg.btnTextColor || "#ffffff";
+  var borderLeftColor = cfg.borderLeftColor || "";
+  var titleSize = cfg.titleSize || 14;
+  var subtitleSize = cfg.subtitleSize || 12;
+  var textSize = cfg.textSize || 13;
+  var btnSize = cfg.btnSize || 12;
+  var btnBorderRadius = (typeof cfg.btnBorderRadius === "number") ? cfg.btnBorderRadius : 6;
+  var delayFirst = (typeof cfg.delayFirst === "number") ? cfg.delayFirst : 0;
+  var intervalSec = (typeof cfg.intervalSec === "number") ? cfg.intervalSec : 5;
+  var autoClose = (typeof cfg.autoClose === "number") ? cfg.autoClose : 5;
+  var borderRadius = (typeof cfg.borderRadius === "number") ? cfg.borderRadius : 12;
+  var padding = (typeof cfg.padding === "number") ? cfg.padding : 16;
 
-  // Fallback por defecto si no hay ítems configurados
-  if (items.length === 0) {
-    items = [
-      {
-        title: "¡Ofertas Semanales!",
-        subtitle: "Envío gratis en compras seleccionadas",
-        text: "Aprovecha hasta un 30% OFF en productos destacados de la semana.",
-        button_text: "Ver ofertas",
-        button_url: "/productos",
-        is_active: true
-      }
-    ];
-  }
+  var cId = "nvx-nf-" + (w.id || "root");
+  if (document.getElementById(cId)) return;
 
-  // 5. Crear contenedor flotante
   var container = document.createElement("div");
-  container.id = rootId;
-  container.className = nsPrefix + "-root";
+  container.id = cId;
 
-  var pos = cfg.position || "bottom-right";
-  var posStyles = "position:fixed !important;z-index:999995 !important;max-width:340px !important;width:calc(100% - 32px) !important;pointer-events:none !important;display:block !important;box-sizing:border-box !important;";
+  var posCSS = "position:fixed!important;z-index:999999!important;max-width:360px!important;width:90vw!important;pointer-events:none!important;box-sizing:border-box!important;";
+  if (position === "top-right") posCSS += "top:20px!important;right:20px!important;";
+  else if (position === "top-left") posCSS += "top:20px!important;left:20px!important;";
+  else if (position === "bottom-left") posCSS += "bottom:20px!important;left:20px!important;";
+  else if (position === "center-left") posCSS += "top:50%!important;left:20px!important;transform:translateY(-50%)!important;";
+  else if (position === "center-right") posCSS += "top:50%!important;right:20px!important;transform:translateY(-50%)!important;";
+  else posCSS += "bottom:20px!important;right:20px!important;";
 
-  if (pos === "top-right") {
-    posStyles += "top:16px !important;right:16px !important;";
-  } else if (pos === "top-left") {
-    posStyles += "top:16px !important;left:16px !important;";
-  } else if (pos === "bottom-left") {
-    posStyles += "bottom:16px !important;left:16px !important;";
-  } else if (pos === "center-left") {
-    posStyles += "top:50% !important;left:16px !important;transform:translateY(-50%) !important;";
-  } else if (pos === "center-right") {
-    posStyles += "top:50% !important;right:16px !important;transform:translateY(-50%) !important;";
-  } else {
-    posStyles += "bottom:16px !important;right:16px !important;";
+  container.style.cssText = posCSS;
+  if (!document.body) return;
+  document.body.appendChild(container);
+
+  if (!document.getElementById("nvx-nf-kf")) {
+    var st = document.createElement("style");
+    st.id = "nvx-nf-kf";
+    st.textContent = "@keyframes nvxNfIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}";
+    document.head.appendChild(st);
   }
 
-  container.style.cssText = posStyles;
-
-  if (document.body) {
-    document.body.appendChild(container);
-  } else {
-    return;
-  }
-
-  // Helper de escape seguro
-  var safeEscape = function(str) {
-    if (!str) return "";
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+  var esc = function(s) {
+    if (!s) return "";
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   };
 
-  var firstDelayMs = (parseInt(cfg.first_delay, 10) || 1) * 1000;
-  var intervalDelayMs = (parseInt(cfg.interval_delay, 10) || 6) * 1000;
-  var autoCloseMs = (parseInt(cfg.auto_close_timer, 10) || 5) * 1000;
+  var curIdx = 0;
+  var closeTimer = null;
+  var rotateTimer = null;
 
-  var currentIdx = 0;
-  var hideTimeout = null;
+  var showOne = function() {
+    if (!container || !container.parentNode) return;
+    clearTimeout(closeTimer);
+    clearTimeout(rotateTimer);
 
-  var showNextNotification = function() {
-    if (!items || items.length === 0) return;
+    var n = notifs[curIdx % notifs.length];
+    if (!n) return;
 
-    var item = items[currentIdx];
-    currentIdx = (currentIdx + 1) % items.length;
+    var bL = borderLeftColor ? "border-left:4px solid " + borderLeftColor + "!important;" : "";
 
-    var cardId = nsPrefix + "-nf-card";
-    var closeId = nsPrefix + "-nf-close";
+    var h = '<div style="pointer-events:auto!important;background:' + bgColor + '!important;border-radius:' + borderRadius + 'px!important;padding:' + padding + 'px!important;box-shadow:0 8px 30px rgba(0,0,0,0.15)!important;' + bL + 'display:flex!important;gap:12px!important;align-items:flex-start!important;font-family:system-ui,-apple-system,sans-serif!important;animation:nvxNfIn 0.4s ease!important;position:relative!important;box-sizing:border-box!important;width:100%!important;">';
 
-    var bgColor = cfg.bg_color || "#ffffff";
-    var titleColor = cfg.title_color || "#111827";
-    var subColor = cfg.subtitle_color || "#6b7280";
-    var textColor = cfg.text_color || "#374151";
-    var useBorderLeft = cfg.use_border_left !== false && cfg.use_border_left !== "false";
-    var borderLeftColor = cfg.border_left_color || "#6366f1";
-    var borderRadius = (cfg.border_radius !== undefined ? cfg.border_radius : 12) + "px";
-    var padding = (cfg.padding !== undefined ? cfg.padding : 12) + "px";
+    h += '<div class="nvx-nf-x" style="position:absolute!important;top:8px!important;right:10px!important;cursor:pointer!important;color:' + textColor + '!important;opacity:0.4!important;font-size:16px!important;line-height:1!important;z-index:2!important;">&#10005;</div>';
 
-    var borderLeftStyle = useBorderLeft ? ("border-left:4px solid " + borderLeftColor + " !important;") : "";
-
-    var imgHtml = "";
-    if (item.image) {
-      imgHtml = '<img src="' + safeEscape(item.image) + '" style="width:48px !important;height:48px !important;object-fit:cover !important;border-radius:8px !important;flex-shrink:0 !important;display:block !important;" />';
+    if (n.image) {
+      h += '<img src="' + n.image + '" alt="" style="width:48px!important;height:48px!important;border-radius:8px!important;object-fit:cover!important;flex-shrink:0!important;display:block!important;" />';
     }
 
-    var subtitleHtml = "";
-    if (item.subtitle) {
-      subtitleHtml = '<div style="font-size:' + (cfg.subtitle_font_size || 11) + 'px !important;color:' + subColor + ' !important;line-height:1.25 !important;margin-top:2px !important;">' + safeEscape(item.subtitle) + '</div>';
+    h += '<div style="flex:1!important;min-width:0!important;padding-right:18px!important;">';
+
+    if (n.title) {
+      h += '<div style="font-size:' + titleSize + 'px!important;font-weight:800!important;color:' + titleColor + '!important;line-height:1.3!important;margin-bottom:2px!important;">' + esc(n.title) + '</div>';
     }
 
-    var btnHtml = "";
-    if (item.button_text) {
-      var btnBg = cfg.button_bg || "#6366f1";
-      var btnTextColor = cfg.button_text_color || "#ffffff";
-      var btnFontSize = (cfg.button_font_size || 12) + "px";
-      btnHtml = '<a href="' + safeEscape(item.button_url || "#") + '" target="_blank" style="display:inline-block !important;margin-top:8px !important;padding:6px 14px !important;background:' + btnBg + ' !important;color:' + btnTextColor + ' !important;font-size:' + btnFontSize + ' !important;font-weight:600 !important;border-radius:6px !important;text-decoration:none !important;box-shadow:0 2px 6px rgba(0,0,0,0.12) !important;">' + safeEscape(item.button_text) + '</a>';
+    if (n.subtitle) {
+      h += '<div style="font-size:' + subtitleSize + 'px!important;color:' + subtitleColor + '!important;margin-bottom:4px!important;font-weight:600!important;">' + esc(n.subtitle) + '</div>';
     }
 
-    var cardHtml = '<div id="' + cardId + '" style="' +
-      'background:' + bgColor + ' !important;' +
-      'border-radius:' + borderRadius + ' !important;' +
-      'padding:' + padding + ' !important;' +
-      borderLeftStyle +
-      'display:flex !important;' +
-      'align-items:flex-start !important;' +
-      'gap:12px !important;' +
-      'box-shadow:0 10px 25px rgba(0,0,0,0.16) !important;' +
-      'pointer-events:auto !important;' +
-      'transition:all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;' +
-      'transform:translateY(15px) !important;' +
-      'opacity:0 !important;' +
-      'box-sizing:border-box !important;' +
-      'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif !important;' +
-      'margin:0 !important;' +
-      'width:100% !important;' +
-      '">' +
-      imgHtml +
-      '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
-        '<div style="font-size:' + (cfg.title_font_size || 14) + 'px !important;font-weight:700 !important;line-height:1.25 !important;color:' + titleColor + ' !important;margin:0 !important;">' + safeEscape(item.title) + '</div>' +
-        subtitleHtml +
-        '<div style="font-size:' + (cfg.text_font_size || 12) + 'px !important;color:' + textColor + ' !important;line-height:1.35 !important;margin-top:4px !important;">' + safeEscape(item.text) + '</div>' +
-        btnHtml +
-      '</div>' +
-      '<button type="button" id="' + closeId + '" style="background:transparent !important;border:none !important;color:' + subColor + ' !important;cursor:pointer !important;padding:2px !important;font-size:14px !important;line-height:1 !important;margin-left:2px !important;flex-shrink:0 !important;outline:none !important;">✕</button>' +
-    '</div>';
+    if (n.text) {
+      h += '<div style="font-size:' + textSize + 'px!important;color:' + textColor + '!important;line-height:1.4!important;margin-bottom:' + (n.btnText ? '10' : '0') + 'px!important;">' + esc(n.text) + '</div>';
+    }
 
-    container.innerHTML = cardHtml;
+    if (n.btnText) {
+      h += '<button class="nvx-nf-btn" style="display:inline-block!important;padding:6px 14px!important;background:' + btnBg + '!important;color:' + btnTextColor + '!important;border:none!important;border-radius:' + btnBorderRadius + 'px!important;font-size:' + btnSize + 'px!important;font-weight:700!important;cursor:pointer!important;font-family:inherit!important;">' + esc(n.btnText) + '</button>';
+    }
 
-    var cardEl = document.getElementById(cardId);
-    var closeBtn = document.getElementById(closeId);
+    h += '</div></div>';
+    container.innerHTML = h;
 
-    var hideCard = function() {
-      if (cardEl) {
-        cardEl.style.setProperty("opacity", "0", "important");
-        cardEl.style.setProperty("transform", "translateY(15px)", "important");
-      }
-    };
-
-    if (closeBtn) {
-      closeBtn.onclick = function(e) {
-        if (e && e.stopPropagation) e.stopPropagation();
-        if (hideTimeout) clearTimeout(hideTimeout);
-        hideCard();
+    var xBtn = container.querySelector(".nvx-nf-x");
+    if (xBtn) {
+      xBtn.onclick = function() {
+        clearTimeout(closeTimer);
+        clearTimeout(rotateTimer);
+        if (container.parentNode) container.parentNode.removeChild(container);
       };
     }
 
-    setTimeout(function() {
-      if (cardEl) {
-        cardEl.style.setProperty("opacity", "1", "important");
-        cardEl.style.setProperty("transform", "translateY(0px)", "important");
-      }
-    }, 50);
+    var bBtn = container.querySelector(".nvx-nf-btn");
+    if (bBtn && n.btnUrl) {
+      bBtn.onclick = function() { window.open(n.btnUrl, "_blank"); };
+    }
 
-    if (autoCloseMs > 0) {
-      hideTimeout = setTimeout(function() {
-        hideCard();
-        setTimeout(showNextNotification, intervalDelayMs);
-      }, autoCloseMs);
+    if (autoClose > 0) {
+      closeTimer = setTimeout(function() {
+        if (notifs.length > 1) {
+          curIdx = (curIdx + 1) % notifs.length;
+          showOne();
+        } else {
+          if (container.parentNode) container.parentNode.removeChild(container);
+        }
+      }, autoClose * 1000);
+    } else if (notifs.length > 1) {
+      rotateTimer = setTimeout(function() {
+        curIdx = (curIdx + 1) % notifs.length;
+        showOne();
+      }, intervalSec * 1000);
     }
   };
 
-  setTimeout(showNextNotification, firstDelayMs);
-      }
+  if (delayFirst > 0) {
+    setTimeout(showOne, delayFirst * 1000);
+  } else {
+    showOne();
+  }
+};
 })(); 
