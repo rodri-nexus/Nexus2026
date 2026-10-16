@@ -36,7 +36,7 @@ function PopupPromocionalPreview() {
         <div style={{ display: "flex", gap: "2px", margin: "2px 0" }}>
           <div style={{ background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: "5px", fontWeight: 800, padding: "1px 3px", borderRadius: "2px" }}>06h</div>
           <div style={{ background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: "5px", fontWeight: 800, padding: "1px 3px", borderRadius: "2px" }}>30m</div>
-          <div style={{ background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: "5px", fontWeight 800, padding: "1px 3px", borderRadius: "2px" }}>12s</div>
+          <div style={{ background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: "5px", fontWeight: 800, padding: "1px 3px", borderRadius: "2px" }}>12s</div>
         </div>
         <div style={{ background: "#10B981", color: "#ffffff", borderRadius: "4px", padding: "3px 8px", fontSize: "6px", fontWeight: 800, textTransform: "uppercase" }}>
           ¡Quiero aprovechar!
@@ -745,7 +745,7 @@ function ProductosComplementariosPreview() {
           <div style={{ width: "18px", height: "18px", borderRadius: "4px", background: "#111827", color: "#ffffff", fontSize: "10px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>🔌</div>
           <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
             <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Cargador Rápido 20W</span>
-            <span style={{ fontSize: "6.5px", fontWeight 900, color: "#10B981" }}>$ 18.500</span>
+            <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>$ 18.500</span>
           </div>
         </div>
         <div style={{ background: "#111827", color: "#ffffff", borderRadius: "4px", padding: "2px 5px", fontSize: "6px", fontWeight: 800, flexShrink: 0 }}>+ Agregar</div>
@@ -962,7 +962,7 @@ function MarqueeNovedadesPreview() {
         <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
         <span style={{ fontSize: "7px", fontWeight: 800, color: "#ffffff" }}>🔥 MÁS VENDIDOS</span>
         <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
-        <span style={{ fontSize: "7px", fontWeight 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
       </div>
       <div style={{ display: "flex", justifyContent: "center", gap: "3px" }}>
         <div style={{ width: "12px", height: "2px", background: "#10B981", borderRadius: "2px" }} />
@@ -1101,4 +1101,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-    }
+          }
