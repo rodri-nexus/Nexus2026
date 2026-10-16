@@ -1839,6 +1839,7 @@
             if (w.widget_slug === "popup-promocional") renderPopupPromocional(w);
             if (w.widget_slug === "notificaciones-flotantes") renderNotificacionesFlotantes(w);
             if (w.widget_slug === "alerta-inventario") renderAlertaInventario(w);
+            if (w.widget_slug === "conjunto-productos") renderConjuntoProductos(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -13981,6 +13982,465 @@ function renderAlertaInventario(w) {
     } else {
       var main = document.querySelector("main, #content, .main-content, .js-product-container");
       if (main) main.insertBefore(container, main.firstChild);
+    }
+  }
+
+  // Telemetría Nevux
+  if (typeof nvxTrack === "function") {
+    nvxTrack(w.id, "impression");
+  }
+      }
+        /* ═══════════════════════════════════════════
+   WIDGET: CONJUNTO DE PRODUCTOS (LOOK)
+   ═══════════════════════════════════════════ */
+function renderConjuntoProductos(w) {
+  var elementId = "nvx-conjunto-productos-" + w.id;
+  if (document.getElementById(elementId)) return;
+
+  var cfg = w.config || {};
+
+  // Solo se muestra en la Ficha de Producto
+  var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
+  if (currentPage !== "product") {
+    return;
+  }
+
+  var sectionTitle = cfg.sectionTitle || "Completá tu Look";
+  var showSectionTitle = cfg.showSectionTitle !== false;
+  var position = cfg.position || "before-desc";
+  var discountType = cfg.discountType || "none";
+  var discountPercentage = typeof cfg.discountPercentage === "number" ? cfg.discountPercentage : 0;
+  var buttonText = cfg.buttonText || "Comprar look";
+
+  var sectionBgColor = cfg.sectionBgColor || "#FAFAFA";
+  var sectionTitleColor = cfg.sectionTitleColor || "#111827";
+  var sectionBorderColor = cfg.sectionBorderColor || "#E5E7EB";
+  var sectionBorderWidth = typeof cfg.sectionBorderWidth === "number" ? cfg.sectionBorderWidth : 1;
+  var sectionBorderRadius = typeof cfg.sectionBorderRadius === "number" ? cfg.sectionBorderRadius : 12;
+  var sectionPadding = typeof cfg.sectionPadding === "number" ? cfg.sectionPadding : 16;
+
+  var lookBgColor = cfg.lookBgColor || "#FFFFFF";
+  var lookBorderColor = cfg.lookBorderColor || "#F3F4F6";
+  var lookBorderRadius = typeof cfg.lookBorderRadius === "number" ? cfg.lookBorderRadius : 8;
+  var lookPadding = typeof cfg.lookPadding === "number" ? cfg.lookPadding : 12;
+
+  var itemBgColor = cfg.itemBgColor || "#F9FAFB";
+  var itemBorderColor = cfg.itemBorderColor || "#E5E7EB";
+  var itemBorderRadius = typeof cfg.itemBorderRadius === "number" ? cfg.itemBorderRadius : 6;
+
+  var productNameColor = cfg.productNameColor || "#1F2937";
+  var productPriceColor = cfg.productPriceColor || "#4B5563";
+  var totalPriceColor = cfg.totalPriceColor || "#000000";
+  var discountBadgeBg = cfg.discountBadgeBg || "#DC2626";
+  var discountBadgeText = cfg.discountBadgeText || "#FFFFFF";
+
+  var buttonBgColor = cfg.buttonBgColor || "#000000";
+  var buttonTextColor = cfg.buttonTextColor || "#FFFFFF";
+  var buttonBorderColor = cfg.buttonBorderColor || "#000000";
+  var buttonBorderRadius = typeof cfg.buttonBorderRadius === "number" ? cfg.buttonBorderRadius : 8;
+  var buttonFontSize = typeof cfg.buttonFontSize === "number" ? cfg.buttonFontSize : 15;
+
+  var typographySize = typeof cfg.typographySize === "number" ? cfg.typographySize : 14;
+  var alignment = cfg.alignment || "center";
+
+  var looks = Array.isArray(cfg.looks) && cfg.looks.length > 0 ? cfg.looks : [
+    {
+      id: "look_default_1",
+      title: "Look Urbano",
+      image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80",
+      imagePosition: "left",
+      products: [
+        { id: "p1", name: "Remera Oversize Cotton", price: 18500 },
+        { id: "p2", name: "Pantalón Wide Leg Denim", price: 34200 },
+        { id: "p3", name: "Zapatillas Urban White", price: 42000 }
+      ]
+    }
+  ];
+
+  // Helper de escape HTML
+  var safeEsc = typeof escapeHtml === "function" ? escapeHtml : function(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  };
+
+  // Helper formato de moneda
+  var formatPrice = function(amount) {
+    return "$" + Number(amount).toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  };
+
+  // Inyección CSS
+  var styleId = "style-" + elementId;
+  if (!document.getElementById(styleId)) {
+    var borderCss = (sectionBorderColor && sectionBorderColor !== "transparent" && sectionBorderWidth > 0)
+      ? sectionBorderWidth + "px solid " + sectionBorderColor
+      : "none";
+
+    var styleEl = document.createElement("style");
+    styleEl.id = styleId;
+    styleEl.type = "text/css";
+    var css =
+      "#" + elementId + " { " +
+        "background: " + sectionBgColor + " !important; " +
+        "border: " + borderCss + " !important; " +
+        "border-radius: " + sectionBorderRadius + "px !important; " +
+        "padding: " + sectionPadding + "px !important; " +
+        "margin-top: 16px !important; " +
+        "margin-bottom: 16px !important; " +
+        "width: 100% !important; " +
+        "box-sizing: border-box !important; " +
+        "font-family: system-ui, -apple-system, sans-serif !important; " +
+        "clear: both !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-header { " +
+        "text-align: " + alignment + " !important; " +
+        "margin-bottom: 12px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-title { " +
+        "color: " + sectionTitleColor + " !important; " +
+        "font-size: " + (typographySize + 4) + "px !important; " +
+        "font-weight: 700 !important; " +
+        "margin: 0 !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-tabs { " +
+        "display: flex !important; " +
+        "gap: 8px !important; " +
+        "overflow-x: auto !important; " +
+        "padding-bottom: 8px !important; " +
+        "margin-bottom: 12px !important; " +
+        "-webkit-overflow-scrolling: touch !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-tab-btn { " +
+        "background: #FFFFFF !important; " +
+        "border: 1px solid #D1D5DB !important; " +
+        "border-radius: 20px !important; " +
+        "padding: 4px 14px !important; " +
+        "font-size: 13px !important; " +
+        "font-weight: 600 !important; " +
+        "color: #374151 !important; " +
+        "cursor: pointer !important; " +
+        "white-space: nowrap !important; " +
+        "transition: all 0.2s ease !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-tab-btn.active { " +
+        "background: " + buttonBgColor + " !important; " +
+        "color: " + buttonTextColor + " !important; " +
+        "border-color: " + buttonBgColor + " !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-card { " +
+        "background: " + lookBgColor + " !important; " +
+        "border: 1px solid " + lookBorderColor + " !important; " +
+        "border-radius: " + lookBorderRadius + "px !important; " +
+        "padding: " + lookPadding + "px !important; " +
+        "display: flex !important; " +
+        "gap: 16px !important; " +
+        "box-sizing: border-box !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-card.reverse { " +
+        "flex-direction: row-reverse !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-image-col { " +
+        "flex: 0 0 40% !important; " +
+        "max-width: 40% !important; " +
+        "position: relative !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-img { " +
+        "width: 100% !important; " +
+        "height: 100% !important; " +
+        "min-height: 200px !important; " +
+        "max-height: 380px !important; " +
+        "object-fit: cover !important; " +
+        "border-radius: 6px !important; " +
+        "display: block !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-info-col { " +
+        "flex: 1 1 60% !important; " +
+        "display: flex !important; " +
+        "flex-direction: column !important; " +
+        "justify-content: space-between !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-item-title { " +
+        "font-weight: 700 !important; " +
+        "font-size: " + (typographySize + 1) + "px !important; " +
+        "color: " + productNameColor + " !important; " +
+        "margin-bottom: 8px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-products-list { " +
+        "display: flex !important; " +
+        "flex-direction: column !important; " +
+        "gap: 6px !important; " +
+        "margin-bottom: 12px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-product-item { " +
+        "background: " + itemBgColor + " !important; " +
+        "border: 1px solid " + itemBorderColor + " !important; " +
+        "border-radius: " + itemBorderRadius + "px !important; " +
+        "padding: 6px 10px !important; " +
+        "display: flex !important; " +
+        "align-items: center !important; " +
+        "justify-content: space-between !important; " +
+        "font-size: " + (typographySize - 1) + "px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-product-name { " +
+        "color: " + productNameColor + " !important; " +
+        "font-weight: 500 !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-product-price { " +
+        "color: " + productPriceColor + " !important; " +
+        "font-weight: 600 !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-summary { " +
+        "border-top: 1px dashed #E5E7EB !important; " +
+        "padding-top: 10px !important; " +
+        "margin-top: 6px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-total-row { " +
+        "display: flex !important; " +
+        "align-items: center !important; " +
+        "justify-content: space-between !important; " +
+        "margin-bottom: 8px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-total-label { " +
+        "font-weight: 700 !important; " +
+        "color: " + totalPriceColor + " !important; " +
+        "font-size: " + typographySize + "px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-total-prices { " +
+        "display: flex !important; " +
+        "align-items: center !important; " +
+        "gap: 8px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-badge { " +
+        "background: " + discountBadgeBg + " !important; " +
+        "color: " + discountBadgeText + " !important; " +
+        "font-size: 11px !important; " +
+        "font-weight: 700 !important; " +
+        "padding: 2px 6px !important; " +
+        "border-radius: 4px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-original-price { " +
+        "text-decoration: line-through !important; " +
+        "color: #9CA3AF !important; " +
+        "font-size: " + (typographySize - 2) + "px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-final-price { " +
+        "font-weight: 800 !important; " +
+        "color: " + totalPriceColor + " !important; " +
+        "font-size: " + (typographySize + 2) + "px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-buy-btn { " +
+        "background: " + buttonBgColor + " !important; " +
+        "color: " + buttonTextColor + " !important; " +
+        "border: 1px solid " + buttonBorderColor + " !important; " +
+        "border-radius: " + buttonBorderRadius + "px !important; " +
+        "font-size: " + buttonFontSize + "px !important; " +
+        "font-weight: 700 !important; " +
+        "padding: 10px 16px !important; " +
+        "width: 100% !important; " +
+        "cursor: pointer !important; " +
+        "text-align: center !important; " +
+        "transition: opacity 0.2s ease !important; " +
+      "} " +
+      "#" + elementId + " .nvx-look-buy-btn:hover { " +
+        "opacity: 0.9 !important; " +
+      "} " +
+      "@media (max-width: 640px) { " +
+        "#" + elementId + " .nvx-look-card { flex-direction: column !important; } " +
+        "#" + elementId + " .nvx-look-card.reverse { flex-direction: column !important; } " +
+        "#" + elementId + " .nvx-look-image-col { flex: 1 1 100% !important; max-width: 100% !important; } " +
+        "#" + elementId + " .nvx-look-img { height: 220px !important; } " +
+      "}";
+
+    styleEl.appendChild(document.createTextNode(css));
+    document.head.appendChild(styleEl);
+  }
+
+  // Generación de HTML
+  var html = "";
+
+  if (showSectionTitle && sectionTitle) {
+    html += '<div class="nvx-look-header">';
+    html += '<h3 class="nvx-look-title">' + safeEsc(sectionTitle) + '</h3>';
+    html += '</div>';
+  }
+
+  if (looks.length > 1) {
+    html += '<div class="nvx-look-tabs">';
+    for (var t = 0; t < looks.length; t++) {
+      var activeClass = t === 0 ? " active" : "";
+      html += '<button type="button" class="nvx-look-tab-btn' + activeClass + '" data-look-index="' + t + '">';
+      html += safeEsc(looks[t].title || ("Look " + (t + 1)));
+      html += '</button>';
+    }
+    html += '</div>';
+  }
+
+  // Paneles de cada Look
+  for (var i = 0; i < looks.length; i++) {
+    var l = looks[i];
+    var isHidden = i > 0 ? ' style="display:none;"' : '';
+    var isReverse = l.imagePosition === "right" ? " reverse" : "";
+    var items = Array.isArray(l.products) ? l.products : [];
+
+    var subtotal = 0;
+    for (var pIdx = 0; pIdx < items.length; pIdx++) {
+      subtotal += Number(items[pIdx].price || 0);
+    }
+
+    var hasDiscount = discountType === "percentage" && discountPercentage > 0;
+    var finalTotal = hasDiscount ? subtotal * (1 - discountPercentage / 100) : subtotal;
+
+    html += '<div class="nvx-look-panel" id="' + elementId + '-panel-' + i + '"' + isHidden + '>';
+    html += '<div class="nvx-look-card' + isReverse + '">';
+
+    // Imagen
+    html += '<div class="nvx-look-image-col">';
+    if (l.image) {
+      html += '<img src="' + safeEsc(l.image) + '" alt="' + safeEsc(l.title || "Look") + '" class="nvx-look-img" />';
+    } else {
+      html += '<div style="width:100%;height:220px;background:#E5E7EB;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:12px;">Sin imagen</div>';
+    }
+    html += '</div>';
+
+    // Información y lista de productos
+    html += '<div class="nvx-look-info-col">';
+    html += '<div>';
+    if (l.title) {
+      html += '<div class="nvx-look-item-title">' + safeEsc(l.title) + '</div>';
+    }
+    html += '<div class="nvx-look-products-list">';
+    for (var k = 0; k < items.length; k++) {
+      var item = items[k];
+      html += '<div class="nvx-look-product-item">';
+      html += '<span class="nvx-look-product-name">• ' + safeEsc(item.name || "Producto") + '</span>';
+      html += '<span class="nvx-look-product-price">' + formatPrice(item.price || 0) + '</span>';
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    // Resumen y Botón Comprar
+    html += '<div class="nvx-look-summary">';
+    html += '<div class="nvx-look-total-row">';
+    html += '<span class="nvx-look-total-label">Total Conjunto:</span>';
+    html += '<div class="nvx-look-total-prices">';
+    if (hasDiscount) {
+      html += '<span class="nvx-look-badge">-' + discountPercentage + '% OFF</span>';
+      html += '<span class="nvx-look-original-price">' + formatPrice(subtotal) + '</span>';
+    }
+    html += '<span class="nvx-look-final-price">' + formatPrice(finalTotal) + '</span>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '<button type="button" class="nvx-look-buy-btn" data-look-id="' + safeEsc(l.id || ("look_" + i)) + '">';
+    html += safeEsc(buttonText);
+    html += '</button>';
+    html += '</div>';
+
+    html += '</div>'; // nvx-look-info-col
+    html += '</div>'; // nvx-look-card
+    html += '</div>'; // nvx-look-panel
+  }
+
+  var container = document.createElement("div");
+  container.id = elementId;
+  container.className = "nvx-widget nvx-conjunto-productos-wrapper";
+  container.innerHTML = html;
+
+  // Interactividad de Pestañas
+  if (looks.length > 1) {
+    var tabBtns = container.querySelectorAll(".nvx-look-tab-btn");
+    for (var b = 0; b < tabBtns.length; b++) {
+      tabBtns[b].addEventListener("click", function() {
+        var idx = this.getAttribute("data-look-index");
+        for (var x = 0; x < tabBtns.length; x++) {
+          tabBtns[x].classList.remove("active");
+          var pEl = container.querySelector("#" + elementId + "-panel-" + x);
+          if (pEl) pEl.style.display = "none";
+        }
+        this.classList.add("active");
+        var activePanel = container.querySelector("#" + elementId + "-panel-" + idx);
+        if (activePanel) activePanel.style.display = "block";
+      });
+    }
+  }
+
+  // Interactividad de Botón Comprar Look
+  var buyBtns = container.querySelectorAll(".nvx-look-buy-btn");
+  for (var g = 0; g < buyBtns.length; g++) {
+    buyBtns[g].addEventListener("click", function() {
+      // Intentar agregar al carrito de Tiendanube
+      var buyForm = document.querySelector("form[action*='/cart/add'], form.js-product-form, #product_form");
+      if (buyForm) {
+        var submitBtn = buyForm.querySelector("input[type='submit'], button[type='submit'], .js-add-to-cart-btn");
+        if (submitBtn) {
+          submitBtn.click();
+          return;
+        }
+      }
+      alert("¡Genial! Añadiste este look completo a tu carrito.");
+    });
+  }
+
+  // Posicionamiento DOM
+  var targetEl = null;
+
+  if (position === "after-desc") {
+    // Después de la sección de producto / descripción
+    var afterSelectors = [
+      ".js-product-description",
+      "#description",
+      ".product-description",
+      ".user-content",
+      ".js-product-container"
+    ];
+    for (var aIdx = 0; aIdx < afterSelectors.length; aIdx++) {
+      var aEl = document.querySelector(afterSelectors[aIdx]);
+      if (aEl) {
+        targetEl = aEl;
+        break;
+      }
+    }
+    if (targetEl && targetEl.parentNode) {
+      if (targetEl.nextSibling) {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      } else {
+        targetEl.parentNode.appendChild(container);
+      }
+    }
+  }
+
+  // Fallback o posición "before-desc" (Debajo del botón de compra)
+  if (!container.parentNode) {
+    var buySelectors = [
+      "form[action*='/cart/add']",
+      "form.js-product-form",
+      ".js-product-buy-container",
+      ".product-buy-container",
+      "form.js-product-buyform",
+      ".js-add-to-cart-btn",
+      "#product_form"
+    ];
+    for (var bIdx = 0; bIdx < buySelectors.length; bIdx++) {
+      var bEl = document.querySelector(buySelectors[bIdx]);
+      if (bEl) {
+        targetEl = bEl;
+        break;
+      }
+    }
+    if (targetEl && targetEl.parentNode) {
+      if (targetEl.nextSibling) {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      } else {
+        targetEl.parentNode.appendChild(container);
+      }
+    } else {
+      var main = document.querySelector("main, #content, .main-content, .js-product-container");
+      if (main) main.appendChild(container);
     }
   }
 
