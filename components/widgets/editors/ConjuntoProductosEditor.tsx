@@ -688,7 +688,7 @@ export default function ConjuntoProductosEditor({
               </div>
 
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", fontWeight 700, color: "#374151" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", fontWeight: 700, color: "#374151" }}>
                   <span>Radio del botón</span>
                   <span>{btnBorderRadius}px</span>
                 </div>
@@ -727,4 +727,4 @@ export default function ConjuntoProductosEditor({
       </div>
     </div>
   );
-                                                }
+}
