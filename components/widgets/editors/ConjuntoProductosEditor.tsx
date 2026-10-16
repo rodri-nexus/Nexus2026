@@ -1,7 +1,47 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { compressImage } from "@/lib/image-compressor";
+
+// Función auxiliar de compresión de imágenes mediante Canvas
+async function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.8): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        } else {
+          resolve(event.target?.result as string);
+        }
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+}
 
 interface ProductItem {
   id: string;
@@ -648,7 +688,7 @@ export default function ConjuntoProductosEditor({
               </div>
 
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", fontWeight: 700, color: "#374151" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", fontWeight 700, color: "#374151" }}>
                   <span>Radio del botón</span>
                   <span>{btnBorderRadius}px</span>
                 </div>
@@ -687,4 +727,4 @@ export default function ConjuntoProductosEditor({
       </div>
     </div>
   );
-}
+                                                }
