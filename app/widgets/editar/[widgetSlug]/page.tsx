@@ -41,6 +41,7 @@ import VideoFlotanteEditor from '@/components/widgets/editors/VideoFlotanteEdito
 import BotonWhatsappEditor from '@/components/widgets/editors/BotonWhatsappEditor';
 import RaspaGanaEditor from '@/components/widgets/editors/RaspaGanaEditor';
 import PopupPromocionalEditor from '@/components/widgets/editors/PopupPromocionalEditor';
+import NotificacionesFlotantesEditor from '@/components/widgets/editors/NotificacionesFlotantesEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -147,6 +148,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: NOTIFICACIONES FLOTANTES
+  if (params.widgetSlug === 'notificaciones-flotantes') {
+    return <NotificacionesFlotantesEditor {...editorProps} />;
+  }
 
   // WIDGET: POPUP PROMOCIONAL
   if (params.widgetSlug === 'popup-promocional') {
@@ -366,4 +372,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-        }
+}
