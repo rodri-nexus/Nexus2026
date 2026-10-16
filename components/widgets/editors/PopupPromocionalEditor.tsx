@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase-browser";
 import {
   Sparkles,
   HelpCircle,
@@ -10,18 +12,18 @@ import {
   Paintbrush,
   Mail,
   Settings,
-  Clock,
-  Link,
   Tag,
   Check,
-  Layout,
   AlertCircle
 } from "lucide-react";
 
-interface Props {
-  widget: any;
-  onSave: (config: any) => Promise<void>;
-  saving: boolean;
+interface PopupPromocionalEditorProps {
+  widgetDefinition: any;
+  existingWidget?: any;
+  targetType?: "all" | "product" | "category";
+  productId?: number | null;
+  categoryId?: string | null;
+  storeId?: number;
 }
 
 const FECHAS_ESPECIALES = [
@@ -138,10 +140,23 @@ const compressImage = (file: File, maxWidth = 800, maxHeight = 800, quality = 0.
   });
 };
 
-export default function PopupPromocionalEditor({ widget, onSave, saving }: Props) {
+export default function PopupPromocionalEditor({
+  widgetDefinition,
+  existingWidget,
+  targetType: initialTargetType = "all",
+  productId = null,
+  categoryId = null,
+  storeId,
+}: PopupPromocionalEditorProps) {
+  const router = useRouter();
+  const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"general" | "emails" | "estilos">("general");
 
-  const initialConfig = widget?.config || {};
+  const initialConfig = existingWidget?.config || {};
+  const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
+  const [currentTargetType, setCurrentTargetType] = useState<"all" | "product" | "category">(
+    existingWidget?.target_type || initialTargetType
+  );
 
   const [title, setTitle] = useState(initialConfig.title ?? "¡Oferta especial!");
   const [subtitle, setSubtitle] = useState(initialConfig.subtitle ?? "Aprovechá esta promoción exclusiva");
@@ -174,9 +189,6 @@ export default function PopupPromocionalEditor({ widget, onSave, saving }: Props
   const [bodySize, setBodySize] = useState(initialConfig.bodySize ?? "15px");
 
   const [campaignTheme, setCampaignTheme] = useState(initialConfig.campaignTheme ?? "default");
-  const [targetType, setTargetType] = useState<"all" | "product" | "category">(initialConfig.target_type || "all");
-  const [targetValue, setTargetValue] = useState(initialConfig.target_value || "");
-
   const [uploadingImg, setUploadingImg] = useState(false);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,38 +216,78 @@ export default function PopupPromocionalEditor({ widget, onSave, saving }: Props
     setBtnTextColor(preset.btnTextColor);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const config = {
-      title,
-      subtitle,
-      bodyText,
-      legalText,
-      headerImg,
-      trigger,
-      frequency,
-      showCountdown,
-      countdownHours: Number(countdownHours) || 24,
-      showExternalBtn,
-      btnText,
-      btnUrl,
-      showFloatingBtn,
-      collectEmail,
-      bgColor,
-      bgGradient,
-      titleColor,
-      textColor,
-      bodyTextColor,
-      btnBg,
-      btnTextColor,
-      titleSize,
-      subtitleSize,
-      bodySize,
-      campaignTheme,
-      target_type: targetType,
-      target_value: targetValue
-    };
-    await onSave(config);
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert("Sesión no válida");
+        return;
+      }
+
+      const payloadConfig = {
+        title,
+        subtitle,
+        bodyText,
+        legalText,
+        headerImg,
+        trigger,
+        frequency,
+        showCountdown,
+        countdownHours: Number(countdownHours) || 24,
+        showExternalBtn,
+        btnText,
+        btnUrl,
+        showFloatingBtn,
+        collectEmail,
+        bgColor,
+        bgGradient,
+        titleColor,
+        textColor,
+        bodyTextColor,
+        btnBg,
+        btnTextColor,
+        titleSize,
+        subtitleSize,
+        bodySize,
+        campaignTheme,
+      };
+
+      const widgetData = {
+        user_id: user.id,
+        store_id: storeId || existingWidget?.store_id,
+        widget_slug: "popup-promocional",
+        config: payloadConfig,
+        is_active: isActive,
+        target_type: currentTargetType,
+        target_product_id: currentTargetType === "product" ? productId : null,
+        target_category_id: currentTargetType === "category" ? categoryId : null,
+        updated_at: new Date().toISOString(),
+      };
+
+      let res;
+      if (existingWidget?.id) {
+        res = await supabase
+          .from("widgets")
+          .update(widgetData)
+          .eq("id", existingWidget.id);
+      } else {
+        res = await supabase
+          .from("widgets")
+          .insert([widgetData]);
+      }
+
+      if (res.error) throw res.error;
+
+      alert("¡Widget guardado con éxito!");
+      router.refresh();
+    } catch (err: any) {
+      console.error("Error al guardar:", err);
+      alert("Error al guardar: " + (err.message || "Intente nuevamente"));
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -257,14 +309,26 @@ export default function PopupPromocionalEditor({ widget, onSave, saving }: Props
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={saving}
-          className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-slate-950 font-semibold px-5 py-2 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-500/20"
-        >
-          {saving ? "Guardando..." : "Guardar cambios"}
-        </button>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 cursor-pointer bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
+            <input
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="w-4 h-4 accent-emerald-500 rounded"
+            />
+            <span className="text-xs text-slate-300 font-medium">Widget activo</span>
+          </label>
+
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-slate-950 font-semibold px-5 py-2 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-500/20"
+          >
+            {saving ? "Guardando..." : "Guardar cambios"}
+          </button>
+        </div>
       </header>
 
       {/* Main Container */}
@@ -531,7 +595,6 @@ export default function PopupPromocionalEditor({ widget, onSave, saving }: Props
 
             {/* Opciones activables */}
             <div className="space-y-3 pt-2">
-              {/* Cuenta regresiva */}
               <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -564,7 +627,6 @@ export default function PopupPromocionalEditor({ widget, onSave, saving }: Props
                 )}
               </div>
 
-              {/* Botón con enlace externo */}
               <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -611,7 +673,6 @@ export default function PopupPromocionalEditor({ widget, onSave, saving }: Props
                 )}
               </div>
 
-              {/* Botón flotante para reabrir */}
               <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -638,37 +699,19 @@ export default function PopupPromocionalEditor({ widget, onSave, saving }: Props
                 <Tag className="w-4 h-4 text-emerald-400" /> Segmentación de visualización
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                    ¿Dónde mostrar este widget?
-                  </label>
-                  <select
-                    value={targetType}
-                    onChange={(e) => setTargetType(e.target.value as any)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                  >
-                    <option value="all">Todas las páginas (Por defecto)</option>
-                    <option value="product">En productos específicos</option>
-                    <option value="category">En categorías específicas</option>
-                  </select>
-                </div>
-
-                {targetType !== "all" && (
-                  <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                      {targetType === "product" ? "IDs o Handles del producto" : "IDs o Handles de la categoría"}
-                    </label>
-                    <input
-                      type="text"
-                      value={targetValue}
-                      onChange={(e) => setTargetValue(e.target.value)}
-                      placeholder={targetType === "product" ? "ej: remera-nike, 12345" : "ej: calzados, 6789"}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                    />
-                    <span className="text-[10px] text-slate-500 mt-1 block">Separar múltiples con comas</span>
-                  </div>
-                )}
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                  ¿Dónde mostrar este widget?
+                </label>
+                <select
+                  value={currentTargetType}
+                  onChange={(e) => setCurrentTargetType(e.target.value as any)}
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="all">Todas las páginas (Por defecto)</option>
+                  <option value="product">En productos específicos</option>
+                  <option value="category">En categorías específicas</option>
+                </select>
               </div>
             </div>
           </div>
@@ -709,7 +752,6 @@ export default function PopupPromocionalEditor({ widget, onSave, saving }: Props
         {/* TAB 3: ESTILOS */}
         {activeTab === "estilos" && (
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
-            {/* Fechas Especiales Presets */}
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-2">
                 Plantillas de Fechas Especiales
