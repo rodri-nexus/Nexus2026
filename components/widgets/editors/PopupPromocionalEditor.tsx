@@ -102,8 +102,8 @@ export default function PopupPromocionalEditor({
     cfg.countdown_date || new Date(Date.now() + 86400000 * 2).toISOString().slice(0, 16)
   );
   const [collectEmail, setCollectEmail] = useState(cfg.collect_email !== false);
-  const [trigger, setTrigger] = useState(cfg.trigger || "enter"); // enter, delay-5, delay-10, scroll-50, exit-intent
-  const [frequency, setFrequency] = useState(cfg.frequency || "once-visit"); // once-visit, once-day, always
+  const [trigger, setTrigger] = useState(cfg.trigger || "enter");
+  const [frequency, setFrequency] = useState(cfg.frequency || "once-visit");
   const [showFloatingBtn, setShowFloatingBtn] = useState(cfg.show_reopen_btn !== false && cfg.showFloatingBtn !== false);
 
   // ESTILOS
@@ -241,7 +241,7 @@ export default function PopupPromocionalEditor({
         }}
       >
         <NevuxLogo size="medium" />
-        <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#111827", display: "flex", alignItems: "center", justifyCenter: "center", color: "#ffffff", fontSize: "13px", fontWeight: 800, textAlign: "center", lineHeight: "36px" }}>
+        <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#111827", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "13px", fontWeight: 800, textAlign: "center", lineHeight: "36px" }}>
           RL
         </div>
       </div>
@@ -267,26 +267,26 @@ export default function PopupPromocionalEditor({
           
           <div style={{ position: "absolute", top: "12px", right: "12px", color: textColor, opacity: 0.6, cursor: "pointer", fontSize: "16px", fontWeight: 800, lineHeight: 1 }}>✕</div>
 
-          {headerImg && (
+          {headerImg ? (
             <img src={headerImg} alt="Header" style={{ width: "100%", maxHeight: "140px", objectFit: "cover", marginBottom: "16px", borderRadius: "8px" }} />
-          )}
+          ) : null}
 
           <div style={{ fontSize: titleSize + "px", fontWeight: 900, color: titleColor, marginBottom: "8px", lineHeight: 1.2 }}>{title}</div>
           <div style={{ fontSize: subtitleSize + "px", color: textColor, marginBottom: "12px", opacity: 0.9 }}>{subtitle}</div>
 
-          {bodyText && (
+          {bodyText ? (
             <div style={{ fontSize: "12px", color: textColor, marginBottom: "16px", opacity: 0.8, lineHeight: 1.4 }}>{bodyText}</div>
-          )}
+          ) : null}
 
           {/* TIMER REGRESIVO MOCKUP */}
-          {showCountdown && (
+          {showCountdown ? (
             <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginBottom: "16px" }}>
               <div style={{ backgroundColor: "rgba(0,0,0,0.05)", padding: "6px 8px", borderRadius: "6px", minWidth: "40px" }}>
                 <span style={{ fontSize: "14px", fontWeight: 900, display: "block", color: btnBg }}>02</span>
                 <span style={{ fontSize: "8px", textTransform: "uppercase", opacity: 0.6, fontWeight: 700, color: textColor }}>Días</span>
               </div>
               <div style={{ backgroundColor: "rgba(0,0,0,0.05)", padding: "6px 8px", borderRadius: "6px", minWidth: "40px" }}>
-                <span style={{ fontSize: "14px", fontWeight 900, display: "block", color: btnBg }}>14</span>
+                <span style={{ fontSize: "14px", fontWeight: 900, display: "block", color: btnBg }}>14</span>
                 <span style={{ fontSize: "8px", textTransform: "uppercase", opacity: 0.6, fontWeight: 700, color: textColor }}>Hs</span>
               </div>
               <div style={{ backgroundColor: "rgba(0,0,0,0.05)", padding: "6px 8px", borderRadius: "6px", minWidth: "40px" }}>
@@ -298,20 +298,20 @@ export default function PopupPromocionalEditor({
                 <span style={{ fontSize: "8px", textTransform: "uppercase", opacity: 0.6, fontWeight: 700, color: textColor }}>Seg</span>
               </div>
             </div>
-          )}
+          ) : null}
 
           {/* INPUT EMAIL MOCKUP */}
-          {collectEmail && (
+          {collectEmail ? (
             <input type="email" placeholder="Tu email aquí..." disabled style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "12px", marginBottom: "12px", boxSizing: "border-box", backgroundColor: "#ffffff" }} />
-          )}
+          ) : null}
 
           <button style={{ width: "100%", padding: "12px", backgroundColor: btnBg, color: btnTextCol, borderRadius: "10px", fontWeight: 800, fontSize: "14px", border: "none", cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
             {btnText}
           </button>
 
-          {legalText && (
+          {legalText ? (
             <div style={{ fontSize: "10px", color: textColor, opacity: 0.6, marginTop: "12px" }}>{legalText}</div>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -357,7 +357,7 @@ export default function PopupPromocionalEditor({
             </div>
 
             <div style={{ marginBottom: "12px" }}>
-              <label style={{ fontSize: "12px", fontWeight 700, color: "#374151", display: "block", marginBottom: "6px" }}>Texto del botón CTA</label>
+              <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>Texto del botón CTA</label>
               <input type="text" value={btnText} onChange={function (e) { setBtnText(e.target.value); }} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px", boxSizing: "border-box" }} />
             </div>
 
@@ -370,12 +370,12 @@ export default function PopupPromocionalEditor({
                 </select>
               </div>
 
-              {btnActionType === "link" && (
+              {btnActionType === "link" ? (
                 <div>
                   <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>URL de Destino</label>
                   <input type="url" value={btnLink} onChange={function (e) { setBtnLink(e.target.value); }} placeholder="https://..." style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px", boxSizing: "border-box" }} />
                 </div>
-              )}
+              ) : null}
             </div>
 
             <div style={{ marginBottom: "12px" }}>
@@ -419,12 +419,12 @@ export default function PopupPromocionalEditor({
               Mostrar contador regresivo
             </label>
 
-            {showCountdown && (
+            {showCountdown ? (
               <div style={{ marginLeft: "28px" }}>
                 <label style={{ fontSize: "12px", fontWeight: 700, color: "#374151", display: "block", marginBottom: "6px" }}>Fecha y hora de finalización</label>
                 <input type="datetime-local" value={countdownDate} onChange={function (e) { setCountdownDate(e.target.value); }} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #D1D5DB", fontSize: "13px" }} />
               </div>
-            )}
+            ) : null}
           </div>
 
           <div style={{ backgroundColor: "#ffffff", border: "1px solid #E5E7EB", borderRadius: "12px", padding: "16px" }}>
@@ -543,4 +543,4 @@ export default function PopupPromocionalEditor({
       <div style={{ marginTop: "28px" }}><CentroAyuda /></div>
     </div>
   );
-  }
+}
