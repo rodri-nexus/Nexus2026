@@ -13991,7 +13991,7 @@ function renderAlertaInventario(w) {
   }
       }
         /* ═══════════════════════════════════════════
-   WIDGET: CONJUNTO DE PRODUCTOS (LOOK) v384
+   WIDGET: CONJUNTO DE PRODUCTOS (LOOK) v385
    ═══════════════════════════════════════════ */
 function renderConjuntoProductos(w) {
   var elementId = "nvx-conjunto-productos-" + w.id;
@@ -14192,6 +14192,65 @@ function renderConjuntoProductos(w) {
     }
   }
 
+  var conjuntoProductosOpenCart = function() {
+    var cartTriggers = [
+      ".js-toggle-cart",
+      ".js-modal-open[data-target='#modal-cart']",
+      ".js-modal-open[data-target='#cart-modal']",
+      ".js-cart-notification",
+      ".js-ajax-cart-open",
+      ".js-cart-modal",
+      "#cart-button",
+      ".cart-btn",
+      "[data-component='cart.toggle']",
+      ".js-open-cart",
+      ".js-cart-summary"
+    ];
+    for (var c = 0; c < cartTriggers.length; c++) {
+      var trig = document.querySelector(cartTriggers[c]);
+      if (trig && trig.offsetParent !== null) {
+        try { trig.click(); return true; } catch (e) {}
+      }
+    }
+    return false;
+  };
+
+  var conjuntoProductosResolveVariants = function(prodsList, afterReady) {
+    try {
+      var xhrRes = new XMLHttpRequest();
+      xhrRes.open("GET", "/products.json", true);
+      xhrRes.onreadystatechange = function() {
+        if (xhrRes.readyState === 4) {
+          if (xhrRes.status === 200) {
+            try {
+              var data = JSON.parse(xhrRes.responseText);
+              var items = Array.isArray(data) ? data : (data.products || []);
+              var vMap = {};
+              for (var j = 0; j < items.length; j++) {
+                if (items[j] && items[j].id && items[j].variants && items[j].variants[0]) {
+                  vMap[String(items[j].id)] = items[j].variants[0].id;
+                }
+              }
+              for (var kk = 0; kk < prodsList.length; kk++) {
+                var pItem = prodsList[kk];
+                var pidItem = pItem.product_id || pItem.id;
+                if (!pItem.variant_id || String(pItem.variant_id) === String(pidItem)) {
+                  if (vMap[String(pidItem)]) {
+                    prodsList[kk].variant_id = vMap[String(pidItem)];
+                  }
+                }
+              }
+            } catch (eP) {}
+          }
+          afterReady(prodsList);
+        }
+      };
+      xhrRes.send();
+    } catch (eX) {
+      afterReady(prodsList);
+    }
+  };
+
   var buyBtns = container.querySelectorAll(".nvx-lk-buy");
   for (var g = 0; g < buyBtns.length; g++) {
     buyBtns[g].addEventListener("click", function() {
@@ -14204,51 +14263,83 @@ function renderConjuntoProductos(w) {
       var btn = this;
       var origText = lkData.buttonText || "Comprar look";
       btn.textContent = "Agregando...";
-      btn.style.opacity = "0.6";
-      btn.style.pointerEvents = "none";
+      btn.style.opacity = "0.7";
+      btn.disabled = true;
 
-      var addNext = function(index) {
-        if (index >= prodsList.length) {
-          btn.textContent = "\u2713 \u00a1Agregado!";
-          btn.style.opacity = "1";
-          btn.style.background = "#10B981";
-          if (typeof window.nube !== "undefined" && window.nube && typeof window.nube.send === "function") {
-            window.nube.send("cart:open");
-          }
-          setTimeout(function() {
-            btn.textContent = origText;
-            btn.style.background = "";
-            btn.style.pointerEvents = "";
-          }, 2500);
-          return;
-        }
-        var prod = prodsList[index];
-        var pid = prod.product_id || prod.id;
-        var vid = prod.variant_id || null;
+      conjuntoProductosResolveVariants(prodsList, function(readyList) {
 
-        if (typeof window.nube !== "undefined" && window.nube && typeof window.nube.send === "function") {
-          try {
-            var cartData = { product_id: pid, quantity: 1 };
-            if (vid) cartData.variant_id = vid;
-            window.nube.send("cart:add", cartData);
-            setTimeout(function() { addNext(index + 1); }, 700);
+        var addNext = function(index) {
+          if (index >= readyList.length) {
+            btn.textContent = "\u2713 \u00a1Agregado al carrito!";
+            btn.style.opacity = "1";
+            btn.style.background = "#10B981";
+
+            setTimeout(function() {
+              var opened = conjuntoProductosOpenCart();
+              if (!opened) {
+                if (typeof window.nube !== "undefined" && window.nube && typeof window.nube.send === "function") {
+                  try {
+                    window.nube.send("cart:open");
+                    return;
+                  } catch (eOpen) {}
+                }
+                setTimeout(function() { window.location.reload(); }, 400);
+              }
+            }, 400);
+
+            setTimeout(function() {
+              btn.textContent = origText;
+              btn.style.background = "";
+              btn.disabled = false;
+            }, 3000);
             return;
-          } catch(e) {}
-        }
+          }
 
-        var fd = new FormData();
-        fd.append("add_to_cart", String(pid));
-        if (vid) fd.append("variant_id", String(vid));
-        fd.append("quantity", "1");
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/comprar/", true);
-        xhr.withCredentials = true;
-        xhr.onload = function() { addNext(index + 1); };
-        xhr.onerror = function() { addNext(index + 1); };
-        xhr.send(fd);
-      };
+          var prod = readyList[index];
+          var pid = prod.product_id || prod.id;
+          var vid = prod.variant_id || (prod.variants && prod.variants[0] ? prod.variants[0].id : null) || pid;
 
-      addNext(0);
+          if (typeof window.nube !== "undefined" && window.nube && typeof window.nube.send === "function") {
+            try {
+              (function(cpPid, cpVid) {
+                window.nube.send("cart:add", function() {
+                  return {
+                    cart: {
+                      items: [{ product_id: Number(cpPid), variant_id: Number(cpVid), quantity: 1 }]
+                    }
+                  };
+                });
+              })(pid, vid);
+              setTimeout(function() { addNext(index + 1); }, 500);
+              return;
+            } catch (errNube) {
+              console.warn("[Nevux Conjunto Productos] NubeSDK fallo, usando fallback:", errNube);
+            }
+          }
+
+          try {
+            var fd = new FormData();
+            fd.append("add_to_cart", String(pid));
+            if (vid) fd.append("variant_id", String(vid));
+            fd.append("quantity", "1");
+
+            var xhrAdd = new XMLHttpRequest();
+            xhrAdd.open("POST", "/comprar/", true);
+            xhrAdd.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            xhrAdd.withCredentials = true;
+            xhrAdd.onreadystatechange = function() {
+              if (xhrAdd.readyState === 4) {
+                addNext(index + 1);
+              }
+            };
+            xhrAdd.send(fd);
+          } catch (errXhr) {
+            addNext(index + 1);
+          }
+        };
+
+        addNext(0);
+      });
     });
   }
 
@@ -14288,5 +14379,5 @@ function renderConjuntoProductos(w) {
   }
 
   if (typeof nvxTrack === "function") nvxTrack(w.id, "impression");
-                }
+}
 })(); 
