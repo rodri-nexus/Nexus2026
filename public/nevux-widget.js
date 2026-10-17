@@ -14723,34 +14723,35 @@ function renderCarruselResenas(w) {
 var renderCajaEstadisticas = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
   var isProductPage = pType === "product" || pType === "item";
-
   if (!isProductPage) return;
-  if (document.getElementById("nvx-caja-estadisticas-product")) return;
+
+  // Siempre recrear para que el cambio de columnas (sobre todo 3) no herede el grid anterior
+  var existing = document.getElementById("nvx-caja-estadisticas-product");
+  if (existing && existing.parentNode) {
+    existing.parentNode.removeChild(existing);
+  }
 
   var cfg = w.config || {};
 
-  // Presets de Campañas / Fechas especiales
   var presets = {
-    "black-friday": { fondo: "#111827", contenedor: "#111827", tarjeta: "transparent", titulo: "#ffffff", subtitulo: "#d1d5db", icono: "#F59E0B", numero: "#F59E0B", etiqueta: "#ffffff", texto: "#9ca3af", borde: "#F59E0B" },
-    "hot-sale": { fondo: "#0F172A", contenedor: "#0F172A", tarjeta: "transparent", titulo: "#ffffff", subtitulo: "#cbd5e1", icono: "#38BDF8", numero: "#38BDF8", etiqueta: "#ffffff", texto: "#94a3b8", borde: "#3B82F6" },
-    "cyber-monday": { fondo: "#090D16", contenedor: "#090D16", tarjeta: "transparent", titulo: "#ffffff", subtitulo: "#cbd5e1", icono: "#10B981", numero: "#10B981", etiqueta: "#ffffff", texto: "#94a3b8", borde: "#10B981" },
-    "navidad": { fondo: "#064E3B", contenedor: "#064E3B", tarjeta: "transparent", titulo: "#ffffff", subtitulo: "#ecfdf5", icono: "#FBBF24", numero: "#FBBF24", etiqueta: "#ffffff", texto: "#a7f3d0", borde: "#EF4444" },
-    "san-valentin": { fondo: "#fdf2f8", contenedor: "#fdf2f8", tarjeta: "transparent", titulo: "#831843", subtitulo: "#9d174d", icono: "#E11D48", numero: "#E11D48", etiqueta: "#831843", texto: "#9d174d", borde: "#F43F5E" },
-    "dia-padre-madre": { fondo: "#312E81", contenedor: "#312E81", tarjeta: "transparent", titulo: "#ffffff", subtitulo: "#e0e7ff", icono: "#10B981", numero: "#10B981", etiqueta: "#ffffff", texto: "#c7d2fe", borde: "#10B981" },
-    "liquidacion": { fondo: "#7F1D1D", contenedor: "#7F1D1D", tarjeta: "transparent", titulo: "#ffffff", subtitulo: "#fef2f2", icono: "#FBBF24", numero: "#FBBF24", etiqueta: "#ffffff", texto: "#fecaca", borde: "#FBBF24" }
+    "black-friday": { contenedor: "#111827", titulo: "#ffffff", numero: "#F59E0B", etiqueta: "#ffffff", texto: "#9ca3af", borde: "#F59E0B" },
+    "hot-sale": { contenedor: "#0F172A", titulo: "#ffffff", numero: "#38BDF8", etiqueta: "#ffffff", texto: "#94a3b8", borde: "#3B82F6" },
+    "cyber-monday": { contenedor: "#090D16", titulo: "#ffffff", numero: "#10B981", etiqueta: "#ffffff", texto: "#94a3b8", borde: "#10B981" },
+    "navidad": { contenedor: "#064E3B", titulo: "#ffffff", numero: "#FBBF24", etiqueta: "#ffffff", texto: "#a7f3d0", borde: "#EF4444" },
+    "san-valentin": { contenedor: "#fdf2f8", titulo: "#831843", numero: "#E11D48", etiqueta: "#831843", texto: "#9d174d", borde: "#F43F5E" },
+    "dia-padre-madre": { contenedor: "#312E81", titulo: "#ffffff", numero: "#10B981", etiqueta: "#ffffff", texto: "#c7d2fe", borde: "#10B981" },
+    "liquidacion": { contenedor: "#7F1D1D", titulo: "#ffffff", numero: "#FBBF24", etiqueta: "#ffffff", texto: "#fecaca", borde: "#FBBF24" }
   };
 
   var theme = cfg.campaignTheme || "none";
   var presetTheme = presets[theme] || null;
 
-  // Helper Markdown: convierte **texto** en <strong>texto</strong>
   var formatMarkdown = function(text) {
     if (!text) return "";
     return String(text).replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
   };
 
-  // 1. Títulos y datos
-  var rawTitulo = cfg.titulo !== undefined ? cfg.titulo : (cfg.title !== undefined ? cfg.title : "Nuestros números nos avalan");
+  var rawTitulo = cfg.titulo !== undefined ? cfg.titulo : "Nuestros números nos avalan";
   var titulo = String(rawTitulo).trim();
 
   var defaultStats = [
@@ -14759,94 +14760,96 @@ var renderCajaEstadisticas = function(w) {
     { icon: "⚡", numero: "24hs", etiqueta: "Despacho exprés", texto: "Envíos a todo el país" }
   ];
 
-  var stats = (cfg.items && cfg.items.length > 0) ? cfg.items : ((cfg.stats && cfg.stats.length > 0) ? cfg.stats : defaultStats);
+  var stats = (cfg.items && cfg.items.length > 0)
+    ? cfg.items
+    : ((cfg.stats && cfg.stats.length > 0) ? cfg.stats : defaultStats);
 
-  // 2. Lectura correcta de columnas (1, 2, 3 o 4)
-  var cols = parseInt(cfg.columnas || cfg.cols_desktop || cfg.colsDesktop || 3, 10) || 3;
-  var mobileCols = Math.min(cols, 2);
+  // ── Columnas: lectura estricta de 1 | 2 | 3 | 4 (sin pisar el 3) ──
+  var rawCols = cfg.columnas;
+  if (rawCols === undefined || rawCols === null || rawCols === "") {
+    rawCols = cfg.cols_desktop !== undefined ? cfg.cols_desktop : (cfg.colsDesktop !== undefined ? cfg.colsDesktop : "3");
+  }
+  var cols = parseInt(String(rawCols).trim(), 10);
+  if (isNaN(cols) || cols < 1) cols = 3;
+  if (cols > 4) cols = 4;
+  // Misma cantidad en móvil y desktop: lo que eligió el merchant
+  var gridCols = String(cols);
 
-  // 3. Colores
-  var colorContenedor = presetTheme ? presetTheme.contenedor : (cfg.color_fondo || cfg.color_fondo_contenedor || "#ffffff");
-  var colorBorde = presetTheme ? presetTheme.borde : (cfg.color_borde || cfg.color_borde_contenedor || "#e5e7eb");
+  var colorContenedor = presetTheme ? presetTheme.contenedor : (cfg.color_fondo || "#ffffff");
+  var colorBorde = presetTheme ? presetTheme.borde : (cfg.color_borde || "#e5e7eb");
   var colorTitulo = presetTheme ? presetTheme.titulo : (cfg.color_titulo || "#111827");
   var colorNumero = presetTheme ? presetTheme.numero : (cfg.color_numero || "#10B981");
   var colorEtiqueta = presetTheme ? presetTheme.etiqueta : (cfg.color_etiqueta || "#111827");
   var colorTexto = presetTheme ? presetTheme.texto : (cfg.color_texto || "#6b7280");
 
-  // 4. Tipografías y tamaños
   var numberSize = "22px";
   if (cfg.tamano_numero === "pequeno") numberSize = "18px";
   else if (cfg.tamano_numero === "grande") numberSize = "28px";
-  else if (typeof cfg.tamano_numero === "number" || (cfg.tamano_numero && !isNaN(cfg.tamano_numero))) numberSize = cfg.tamano_numero + "px";
 
   var textSize = "13px";
   if (cfg.tamano_texto === "pequeno") textSize = "11px";
   else if (cfg.tamano_texto === "grande") textSize = "15px";
-  else if (typeof cfg.tamano_texto === "number" || (cfg.tamano_texto && !isNaN(cfg.tamano_texto))) textSize = cfg.tamano_texto + "px";
 
-  // 5. Medidas, espaciados y bordes
   var borderRadius = (cfg.borde_redondeado !== undefined ? cfg.borde_redondeado : 12) + "px";
   var paddingContainer = (cfg.padding !== undefined ? cfg.padding : 16) + "px";
   var marginTop = (cfg.margin_top !== undefined ? cfg.margin_top : 16) + "px";
   var marginBottom = (cfg.margin_bottom !== undefined ? cfg.margin_bottom : 16) + "px";
   var ubicacion = cfg.ubicacion || "debajo_precio";
 
-  // 6. Construcción del contenedor principal
   var container = document.createElement("div");
   container.id = "nvx-caja-estadisticas-product";
+  container.setAttribute("data-nvx-cols", gridCols);
+  container.style.cssText =
+    "box-sizing: border-box !important;" +
+    "width: 100% !important;" +
+    "max-width: 100% !important;" +
+    "margin-top: " + marginTop + " !important;" +
+    "margin-bottom: " + marginBottom + " !important;" +
+    "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;" +
+    "clear: both !important;";
 
-  var css = "box-sizing: border-box !important; " +
-            "width: 100% !important; " +
-            "max-width: 100% !important; " +
-            "margin-top: " + marginTop + " !important; " +
-            "margin-bottom: " + marginBottom + " !important; " +
-            "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; " +
-            "clear: both !important; ";
-
-  container.style.cssText = css;
-
-  // 7. Generación de estilos CSS internos para el Grid adaptable por columna seleccionada
+  // Grid fijo según columnas elegidas (1, 2, 3 o 4) — sin media query que pise el 3
   var styleTag = document.createElement("style");
   styleTag.type = "text/css";
-  styleTag.innerHTML = "#nvx-caja-estadisticas-product .nvx-stats-grid {" +
-                         "display: grid !important;" +
-                         "grid-template-columns: repeat(" + mobileCols + ", minmax(0, 1fr)) !important;" +
-                         "gap: 12px !important;" +
-                         "width: 100% !important;" +
-                         "box-sizing: border-box !important;" +
-                       "}" +
-                       "@media (min-width: 768px) {" +
-                         "#nvx-caja-estadisticas-product .nvx-stats-grid {" +
-                           "grid-template-columns: repeat(" + cols + ", minmax(0, 1fr)) !important;" +
-                         "}" +
-                       "}";
+  styleTag.innerHTML =
+    "#nvx-caja-estadisticas-product .nvx-stats-grid {" +
+      "display: grid !important;" +
+      "grid-template-columns: repeat(" + gridCols + ", minmax(0, 1fr)) !important;" +
+      "gap: 12px !important;" +
+      "width: 100% !important;" +
+      "box-sizing: border-box !important;" +
+      "align-items: start !important;" +
+    "}" +
+    "#nvx-caja-estadisticas-product .nvx-stats-item {" +
+      "min-width: 0 !important;" +
+      "max-width: 100% !important;" +
+      "box-sizing: border-box !important;" +
+      "text-align: center !important;" +
+      "padding: 4px !important;" +
+      "overflow: hidden !important;" +
+    "}";
   container.appendChild(styleTag);
 
-  // 8. Armado del HTML interno
-  var html = '<div style="background: ' + colorContenedor + ' !important; ' +
-              'padding: ' + paddingContainer + ' !important; ' +
-              'border-radius: ' + borderRadius + ' !important; ' +
-              'box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important; ' +
-              'box-sizing: border-box !important; ';
+  var html = '<div style="background: ' + colorContenedor + " !important;" +
+    "padding: " + paddingContainer + " !important;" +
+    "border-radius: " + borderRadius + " !important;" +
+    "box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;" +
+    "box-sizing: border-box !important;";
 
   if (colorBorde && colorBorde !== "transparent") {
-    html += 'border: 1.5px solid ' + colorBorde + ' !important; ';
+    html += "border: 1.5px solid " + colorBorde + " !important;";
   } else {
-    html += 'border: none !important; ';
+    html += "border: none !important;";
   }
-
   html += '">';
 
-  // Cabecera (Título)
   if (titulo) {
     html += '<div style="text-align: center !important; margin-bottom: 14px !important;">' +
-              '<div style="font-size: 16px !important; font-weight: 800 !important; color: ' + colorTitulo + ' !important; line-height: 1.25 !important;">' +
-                formatMarkdown(titulo) +
-              '</div>' +
-            '</div>';
+      '<div style="font-size: 16px !important; font-weight: 800 !important; color: ' + colorTitulo + " !important; line-height: 1.25 !important; word-break: break-word !important;\">" +
+        formatMarkdown(titulo) +
+      "</div></div>";
   }
 
-  // Grilla de estadísticas
   html += '<div class="nvx-stats-grid">';
 
   for (var i = 0; i < stats.length; i++) {
@@ -14858,29 +14861,34 @@ var renderCajaEstadisticas = function(w) {
     var labelStr = st.etiqueta || st.label || "";
     var textStr = st.texto || st.text || "";
 
-    html += '<div style="text-align: center !important; padding: 4px !important; min-width: 0 !important; box-sizing: border-box !important;">';
+    html += '<div class="nvx-stats-item">';
     if (iconStr) {
-      html += '<div style="font-size: 20px !important; margin-bottom: 4px !important; line-height: 1 !important;">' + iconStr + '</div>';
+      html += '<div style="font-size: 20px !important; margin-bottom: 4px !important; line-height: 1 !important;">' + iconStr + "</div>";
     }
     if (numStr) {
-      html += '<div style="font-size: ' + numberSize + ' !important; font-weight: 800 !important; color: ' + colorNumero + ' !important; line-height: 1.1 !important; word-break: break-word !important; overflow-wrap: anywhere !important;">' + formatMarkdown(numStr) + '</div>';
+      html += '<div style="font-size: ' + numberSize + " !important; font-weight: 800 !important; color: " + colorNumero +
+        " !important; line-height: 1.1 !important; word-break: break-word !important; overflow-wrap: anywhere !important;\">" +
+        formatMarkdown(numStr) + "</div>";
     }
     if (labelStr) {
-      html += '<div style="font-size: ' + textSize + ' !important; font-weight: 700 !important; color: ' + colorEtiqueta + ' !important; margin-top: 4px !important; line-height: 1.2 !important; word-break: break-word !important; overflow-wrap: anywhere !important;">' + formatMarkdown(labelStr) + '</div>';
+      html += '<div style="font-size: ' + textSize + " !important; font-weight: 700 !important; color: " + colorEtiqueta +
+        " !important; margin-top: 4px !important; line-height: 1.2 !important; word-break: break-word !important; overflow-wrap: anywhere !important;\">" +
+        formatMarkdown(labelStr) + "</div>";
     }
     if (textStr) {
-      html += '<div style="font-size: 11px !important; color: ' + colorTexto + ' !important; margin-top: 2px !important; line-height: 1.2 !important; word-break: break-word !important; overflow-wrap: anywhere !important;">' + formatMarkdown(textStr) + '</div>';
+      html += '<div style="font-size: 11px !important; color: ' + colorTexto +
+        " !important; margin-top: 2px !important; line-height: 1.2 !important; word-break: break-word !important; overflow-wrap: anywhere !important;\">" +
+        formatMarkdown(textStr) + "</div>";
     }
-    html += '</div>';
+    html += "</div>";
   }
 
-  html += '</div></div>';
+  html += "</div></div>";
 
   var contentWrapper = document.createElement("div");
   contentWrapper.innerHTML = html;
   container.appendChild(contentWrapper);
 
-  // 9. Inserción en el DOM según la ubicación configurada
   var inserted = false;
 
   if (ubicacion === "encima_formulario" || ubicacion === "above_form" || ubicacion === "product_before") {
@@ -14895,12 +14903,10 @@ var renderCajaEstadisticas = function(w) {
     var priceBlock = document.querySelector(
       ".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price']"
     );
-
     if (priceBlock && priceBlock.parentNode) {
       var parentBlock = priceBlock.closest
         ? (priceBlock.closest(".js-price-container, .js-product-price-container, .product-price-container, .price-container") || priceBlock.parentNode)
         : priceBlock.parentNode;
-
       if (parentBlock && parentBlock.parentNode && parentBlock !== document.body) {
         parentBlock.parentNode.insertBefore(container, parentBlock.nextSibling);
         inserted = true;
