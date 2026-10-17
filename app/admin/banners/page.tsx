@@ -6,21 +6,22 @@ import {
   ArrowLeft,
   Copy,
   Check,
-  Mic,
+  TrendingUp,
   Eye,
+  Image as ImageIcon,
   Clock,
-  Film,
-  Play,
+  ChevronRight,
   Zap,
-  Volume2,
+  ShoppingCart,
+  Truck,
+  PlusCircle,
+  BarChart3,
   MessageCircle,
-  AlertTriangle,
-  MousePointerClick,
-  Palette,
-  Globe,
+  AlertCircle,
+  Percent,
 } from 'lucide-react';
 
-/* ─── Logo Oficial NEVUX (Isologotipo con N real según foto) ─── */
+/* ─── Logo Oficial NEVUX (Isologotipo con N real) ─── */
 function NevuxLogoMark({ size = 24 }: { size?: number }) {
   return (
     <svg
@@ -43,11 +44,11 @@ function NevuxLogoMark({ size = 24 }: { size?: number }) {
           <stop offset="100%" stopColor="#101010" />
         </linearGradient>
       </defs>
-      {/* Columna izquierda (blanca sólida) */}
+      {/* Columna izquierda blanca sólida */}
       <rect x="20" y="20" width="13" height="54" fill="#FFFFFF" />
-      {/* Columna derecha (degradado a oscuro) */}
+      {/* Columna derecha degradada */}
       <rect x="67" y="20" width="13" height="35" fill="url(#nvxRightGrad)" />
-      {/* Diagonal extendida hacia esquina inferior derecha */}
+      {/* Diagonal extendida */}
       <polygon points="20,20 33,20 96,96 80,96" fill="url(#nvxDiagGrad)" />
     </svg>
   );
@@ -72,8 +73,8 @@ function NevuxLogo({ size = 24 }: { size?: number }) {
   );
 }
 
-/* ─── Wrapper Portada Reel (9:16) con Logo SOLO arriba a la izquierda ─── */
-function ReelCover({
+/* ─── Wrapper Slide Carrusel (4:5) con Logo SOLO arriba a la izquierda ─── */
+function SlideWrapper({
   label,
   children,
 }: {
@@ -97,8 +98,8 @@ function ReelCover({
       </div>
       <div
         style={{
-          aspectRatio: '9/16',
-          maxWidth: 360,
+          aspectRatio: '4/5',
+          maxWidth: 420,
           background: '#020a07',
           border: '2px solid rgba(16,185,129,0.3)',
           borderRadius: 24,
@@ -129,7 +130,14 @@ function ReelCover({
             pointerEvents: 'none',
           }}
         />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: 28 }}>
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            paddingTop: 28,
+          }}
+        >
           {children}
         </div>
       </div>
@@ -220,144 +228,8 @@ function CopyBlock({
   );
 }
 
-/* ─── Card de escena para Reel ─── */
-function SceneCard({
-  time,
-  title,
-  color,
-  visual,
-  texto,
-  voz,
-}: {
-  time: string;
-  title: string;
-  color: string;
-  visual: string;
-  texto: string;
-  voz: string;
-}) {
-  return (
-    <div
-      style={{
-        background: '#061e14',
-        border: '1px solid rgba(16,185,129,0.15)',
-        borderLeft: '4px solid ' + color,
-        borderRadius: 12,
-        padding: 18,
-        marginBottom: 14,
-        fontFamily: 'system-ui, sans-serif',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          marginBottom: 12,
-        }}
-      >
-        <span
-          style={{
-            background: color,
-            color: '#000',
-            fontSize: 11,
-            fontWeight: 800,
-            padding: '3px 10px',
-            borderRadius: 6,
-          }}
-        >
-          {time}
-        </span>
-        <span style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>
-          {title}
-        </span>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-          <span style={{ fontSize: 14, flexShrink: 0 }}>📹</span>
-          <div>
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                color: '#34d399',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-              }}
-            >
-              Visual
-            </span>
-            <p
-              style={{
-                color: '#d1d5db',
-                fontSize: 12,
-                margin: '2px 0 0',
-                lineHeight: 1.5,
-              }}
-            >
-              {visual}
-            </p>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-          <span style={{ fontSize: 14, flexShrink: 0 }}>📝</span>
-          <div>
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                color: '#facc15',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-              }}
-            >
-              Texto en pantalla
-            </span>
-            <p
-              style={{
-                color: '#d1d5db',
-                fontSize: 12,
-                margin: '2px 0 0',
-                lineHeight: 1.5,
-              }}
-            >
-              {texto}
-            </p>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-          <span style={{ fontSize: 14, flexShrink: 0 }}>🎙️</span>
-          <div>
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                color: '#60a5fa',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-              }}
-            >
-              Voz en off
-            </span>
-            <p
-              style={{
-                color: '#d1d5db',
-                fontSize: 12,
-                margin: '2px 0 0',
-                lineHeight: 1.5,
-              }}
-            >
-              {voz}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ════════════════════════════════════════════════════════════
-   PÁGINA PRINCIPAL — MARTES: BUSCADOR POR VOZ (REEL 25s)
+   PÁGINA PRINCIPAL — MIÉRCOLES: TICKET PROMEDIO (CARRUSEL 7 SLIDES)
    ════════════════════════════════════════════════════════════ */
 export default function BannersPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -368,32 +240,29 @@ export default function BannersPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  /* ── Copy Martes ── */
-  const copyMartes = [
-    '🎙️ Tu cliente no quiere escribir. Quiere hablar.',
+  /* ── Copy Miércoles ── */
+  const copyMiercoles = [
+    '🛒 ¿Tus clientes entran a tu tienda, compran 1 solo producto y se van?',
     '',
-    'El 78% del tráfico de tu Tiendanube llega desde el celular.',
+    'Estás dejando dinero sobre la mesa en cada pedido.',
     '',
-    'Y ahí está el problema que nadie te dice:',
+    'El costo de envío frena las compras grandes y adquirir un cliente nuevo es cada vez más caro.',
     '',
-    'Escribir "zapatillas negras talle 42" en un teclado de 5 centímetros es una tortura.',
-    'El cliente se frustra. Borra. Se equivoca. Y en 8 segundos se va a MercadoLibre.',
+    'La clave para escalar la facturación de tu Tiendanube no es conseguir más visitas... es aumentar el TICKET PROMEDIO de las visitas que ya tenés.',
     '',
-    'Con el Buscador por Voz de Nevux:',
+    'Con Nevux lo lográs con 2 funciones clave combinadas:',
     '',
-    '✅ Un botón de micrófono flotante en tu tienda',
-    '✅ El cliente habla naturalmente desde el celu',
-    '✅ La IA entiende español argentino, portugués e inglés',
-    '✅ Resultados instantáneos sin tocar el teclado',
-    '✅ Personalizás color, posición y texto de escucha',
+    '1️⃣ Barra Progresiva de Envío Gratis: Le muestra al cliente exactamente cuánto le falta para no pagar envío (ej. "¡Estás a solo $8.500 del Envío Gratis!").',
     '',
-    'Menos fricción = más búsquedas = más productos al carrito.',
+    '2️⃣ Order Bump en Carrito: Le ofrece un producto complementario relevante con 1 solo clic antes de finalizar la compra.',
     '',
-    '🔥 Todo esto por ARS $35.000/mes con +41 widgets incluidos.',
+    '🔥 Resultado: +35% de ticket promedio sin gastar $1 extra en publicidad.',
     '',
-    'Comentá VOZ y te muestro cómo activarlo en menos de 2 minutos. 👇',
+    'Accedé a 50 Widgets + 6 funciones para impulsar tu Tiendanube.',
     '',
-    '#Tiendanube #BuscadorPorVoz #EcommerceArgentina #VentasOnline #Nevux #MobileFirst #UX #VentasPorInternet #CRO #MarketingDigital #PymesArgentina #TiendaOnline #EcommerceTips #ConversionRate',
+    'Comentá TICKET y te muestro cómo activarlo en tu tienda en menos de 2 minutos. 👇',
+    '',
+    '#Tiendanube #TicketPromedio #EnvioGratis #OrderBump #EcommerceArgentina #VentasOnline #Nevux #CRO #MarketingDigital #PymesArgentina #TiendaOnline #EcommerceTips #ConversionRate',
   ].join('\n');
 
   return (
@@ -448,7 +317,7 @@ export default function BannersPage() {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          📅 Martes — Buscador por Voz
+          📅 Miércoles — Multiplicá tu Ticket Promedio
         </h1>
         <p style={{ color: '#6b7280', fontSize: 14, marginBottom: 32 }}>
           Contenido semanal · Nevux para Tiendanube · Semana 1
@@ -478,7 +347,7 @@ export default function BannersPage() {
               gap: 10,
             }}
           >
-            <Mic size={22} style={{ color: '#10B981' }} />
+            <TrendingUp size={22} style={{ color: '#10B981' }} />
             Ficha del Día
           </h2>
           <div
@@ -489,9 +358,13 @@ export default function BannersPage() {
             }}
           >
             {[
-              { icon: Clock, label: 'Horario', value: '19:30 hs' },
-              { icon: Film, label: 'Formato', value: 'Reel · 25 segundos' },
-              { icon: Mic, label: 'Widget', value: 'Buscador por Voz' },
+              { icon: Clock, label: 'Horario', value: '11:30 hs' },
+              { icon: ImageIcon, label: 'Formato', value: 'Carrusel · 7 slides' },
+              {
+                icon: TrendingUp,
+                label: 'Funciones',
+                value: 'Barra Envío Gratis + Order Bump',
+              },
             ].map((item, i) => (
               <div
                 key={'ficha-' + i}
@@ -534,7 +407,7 @@ export default function BannersPage() {
         </div>
 
         {/* ══════════════════════════════════════════
-            REEL — PORTADA + FICHA TÉCNICA
+            CARRUSEL — 7 SLIDES
         ══════════════════════════════════════════ */}
         <h2
           style={{
@@ -547,12 +420,615 @@ export default function BannersPage() {
             gap: 10,
           }}
         >
-          <Film size={20} style={{ color: '#10B981' }} />
-          REEL — Portada + Guión
+          <ImageIcon size={20} style={{ color: '#10B981' }} />
+          CARRUSEL — 7 Slides
         </h2>
 
-        {/* ── PORTADA DEL REEL ── */}
-        <ReelCover label="Portada del Reel">
+        {/* ── SLIDE 1: HOOK ── */}
+        <SlideWrapper label="Slide 1 · Hook">
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              gap: 16,
+            }}
+          >
+            <div
+              style={{
+                background: 'rgba(248,113,113,0.1)',
+                border: '1px solid rgba(248,113,113,0.25)',
+                borderRadius: 12,
+                padding: '8px 14px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                alignSelf: 'flex-start',
+              }}
+            >
+              <ShoppingCart size={14} style={{ color: '#f87171' }} />
+              <span
+                style={{ fontSize: 11, fontWeight: 700, color: '#f87171' }}
+              >
+                PROBLEMA COMÚN EN ECOMMERCE
+              </span>
+            </div>
+            <h3
+              style={{
+                fontSize: 28,
+                fontWeight: 900,
+                lineHeight: 1.15,
+                color: '#fff',
+                margin: 0,
+              }}
+            >
+              ¿Tus clientes compran{' '}
+              <span style={{ color: '#f87171' }}>1 solo producto</span> y se
+              van?
+            </h3>
+            <p
+              style={{
+                fontSize: 16,
+                color: '#9ca3af',
+                lineHeight: 1.4,
+                margin: 0,
+              }}
+            >
+              Te enseño a lograr que se lleven 2 o 3 productos sin gastar más
+              en publicidad.
+            </p>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              color: '#4b5563',
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            Deslizá <ChevronRight size={14} />
+          </div>
+        </SlideWrapper>
+
+        {/* ── SLIDE 2: SITUACIÓN ── */}
+        <SlideWrapper label="Slide 2 · Situación">
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              gap: 18,
+            }}
+          >
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: '#facc15',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}
+            >
+              LA REALIDAD DE TU TIENDA
+            </span>
+            <h3
+              style={{
+                fontSize: 23,
+                fontWeight: 900,
+                lineHeight: 1.2,
+                color: '#fff',
+                margin: 0,
+              }}
+            >
+              Conseguir un cliente nuevo es{' '}
+              <span style={{ color: '#facc15' }}>cada vez más caro</span>
+            </h3>
+            {/* Visual ticket estancado */}
+            <div
+              style={{
+                background: 'rgba(0,0,0,0.4)',
+                borderRadius: 14,
+                padding: 18,
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 10,
+                }}
+              >
+                <span style={{ fontSize: 13, color: '#9ca3af' }}>
+                  Pedido promedio actual:
+                </span>
+                <span
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 800,
+                    color: '#f87171',
+                  }}
+                >
+                  1 item por orden
+                </span>
+              </div>
+              <div
+                style={{
+                  height: 8,
+                  background: 'rgba(255,255,255,0.1)',
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    width: '30%',
+                    height: '100%',
+                    background: '#f87171',
+                  }}
+                />
+              </div>
+            </div>
+            <p
+              style={{
+                fontSize: 14,
+                color: '#9ca3af',
+                lineHeight: 1.5,
+                margin: 0,
+              }}
+            >
+              Si el ticket promedio no sube, el margen de ganancia se lo traga
+              el costo de envío y la publicidad.
+            </p>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              color: '#4b5563',
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            Deslizá <ChevronRight size={14} />
+          </div>
+        </SlideWrapper>
+
+        {/* ── SLIDE 3: ESTRATEGIA ── */}
+        <SlideWrapper label="Slide 3 · Estrategia CRO">
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              gap: 18,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Zap size={18} style={{ color: '#10B981' }} />
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: '#10B981',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                ESTRATEGIA INTELIGENTE
+              </span>
+            </div>
+            <h3
+              style={{
+                fontSize: 24,
+                fontWeight: 900,
+                lineHeight: 1.2,
+                color: '#fff',
+                margin: 0,
+              }}
+            >
+              La solución: Incentivar el{' '}
+              <span style={{ color: '#10B981' }}>impulso de compra</span> en el
+              carrito
+            </h3>
+            <div
+              style={{
+                background: 'rgba(16,185,129,0.06)',
+                border: '1px solid rgba(16,185,129,0.2)',
+                borderRadius: 14,
+                padding: 16,
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 14,
+                  color: '#d1d5db',
+                  margin: 0,
+                  lineHeight: 1.5,
+                }}
+              >
+                No necesitas más tráfico. Necesitas que las personas que{' '}
+                <strong style={{ color: '#fff' }}>ya están listas para comprar</strong>{' '}
+                agreguen un producto más antes de pagar.
+              </p>
+            </div>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              color: '#4b5563',
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            Deslizá <ChevronRight size={14} />
+          </div>
+        </SlideWrapper>
+
+        {/* ── SLIDE 4: FUNCIÓN 1 — BARRA DE ENVÍO GRATIS ── */}
+        <SlideWrapper label="Slide 4 · Función 1: Barra Envío Gratis">
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              gap: 16,
+            }}
+          >
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: '#10B981',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}
+            >
+              FUNCIÓN #1
+            </span>
+            <h3
+              style={{
+                fontSize: 22,
+                fontWeight: 900,
+                lineHeight: 1.2,
+                color: '#fff',
+                margin: 0,
+              }}
+            >
+              Barra Progresiva de <span style={{ color: '#10B981' }}>Envío Gratis</span> 🚚
+            </h3>
+
+            {/* Simulación Barra Progresiva */}
+            <div
+              style={{
+                background: '#061e14',
+                borderRadius: 14,
+                padding: 16,
+                border: '1px solid rgba(16,185,129,0.3)',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#34d399',
+                  margin: '0 0 10px',
+                  textAlign: 'center',
+                }}
+              >
+                ¡Estás a solo 1 producto del Envío GRATIS! 🎁
+              </p>
+              <div
+                style={{
+                  height: 10,
+                  background: 'rgba(255,255,255,0.1)',
+                  borderRadius: 5,
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <div
+                  style={{
+                    width: '75%',
+                    height: '100%',
+                    background:
+                      'linear-gradient(90deg, #10B981 0%, #34d399 100%)',
+                  }}
+                />
+              </div>
+              <p
+                style={{
+                  fontSize: 10,
+                  color: '#9ca3af',
+                  margin: '8px 0 0',
+                  textAlign: 'right',
+                }}
+              >
+                75% completado
+              </p>
+            </div>
+
+            <p
+              style={{
+                fontSize: 13,
+                color: '#9ca3af',
+                lineHeight: 1.5,
+                margin: 0,
+              }}
+            >
+              El comprador agrega un segundo producto para no tener que pagar
+              el costo del envío.
+            </p>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              color: '#4b5563',
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            Deslizá <ChevronRight size={14} />
+          </div>
+        </SlideWrapper>
+
+        {/* ── SLIDE 5: FUNCIÓN 2 — ORDER BUMP ── */}
+        <SlideWrapper label="Slide 5 · Función 2: Order Bump">
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              gap: 16,
+            }}
+          >
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: '#10B981',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}
+            >
+              FUNCIÓN #2
+            </span>
+            <h3
+              style={{
+                fontSize: 22,
+                fontWeight: 900,
+                lineHeight: 1.2,
+                color: '#fff',
+                margin: 0,
+              }}
+            >
+              Order Bump con <span style={{ color: '#10B981' }}>1 solo Clic</span> ⚡
+            </h3>
+
+            {/* Simulación Order Bump */}
+            <div
+              style={{
+                background: 'rgba(16,185,129,0.08)',
+                borderRadius: 14,
+                padding: 16,
+                border: '1.5px dashed rgba(16,185,129,0.4)',
+              }}
+            >
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                <div
+                  style={{
+                    width: 42,
+                    height: 48,
+                    background: '#1f2937',
+                    borderRadius: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 20,
+                  }}
+                >
+                  🧦
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 800,
+                      color: '#fff',
+                      margin: 0,
+                    }}
+                  >
+                    ¿Sumar medias térmicas en promo?
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 11,
+                      color: '#10B981',
+                      fontWeight: 700,
+                      margin: '2px 0 0',
+                    }}
+                  >
+                    Oferta exclusiva en el carrito
+                  </p>
+                </div>
+                <div
+                  style={{
+                    background: '#10B981',
+                    borderRadius: 8,
+                    padding: '6px 12px',
+                    color: '#000',
+                    fontSize: 11,
+                    fontWeight: 900,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <PlusCircle size={12} /> Agregar
+                </div>
+              </div>
+            </div>
+
+            <p
+              style={{
+                fontSize: 13,
+                color: '#9ca3af',
+                lineHeight: 1.5,
+                margin: 0,
+              }}
+            >
+              Ofrece productos adicionales o accesorios directamente en el
+              carrito antes de pagar.
+            </p>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              color: '#4b5563',
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            Deslizá <ChevronRight size={14} />
+          </div>
+        </SlideWrapper>
+
+        {/* ── SLIDE 6: RESULTADOS ── */}
+        <SlideWrapper label="Slide 6 · Resultado">
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              gap: 18,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <BarChart3 size={18} style={{ color: '#10B981' }} />
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: '#10B981',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                RESULTADO MEDIBLE
+              </span>
+            </div>
+            <h3
+              style={{
+                fontSize: 26,
+                fontWeight: 900,
+                lineHeight: 1.15,
+                color: '#fff',
+                margin: 0,
+              }}
+            >
+              Aumentá tu ticket promedio un{' '}
+              <span style={{ color: '#10B981' }}>+35%</span>
+            </h3>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: 10,
+              }}
+            >
+              <div
+                style={{
+                  background: 'rgba(0,0,0,0.35)',
+                  borderRadius: 12,
+                  padding: 14,
+                  border: '1px solid rgba(255,255,255,0.06)',
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 900,
+                    color: '#10B981',
+                    margin: 0,
+                  }}
+                >
+                  +2.3
+                </p>
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: '#9ca3af',
+                    margin: '4px 0 0',
+                    lineHeight: 1.3,
+                  }}
+                >
+                  Productos promedio por orden
+                </p>
+              </div>
+              <div
+                style={{
+                  background: 'rgba(0,0,0,0.35)',
+                  borderRadius: 12,
+                  padding: 14,
+                  border: '1px solid rgba(255,255,255,0.06)',
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 900,
+                    color: '#10B981',
+                    margin: 0,
+                  }}
+                >
+                  0$
+                </p>
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: '#9ca3af',
+                    margin: '4px 0 0',
+                    lineHeight: 1.3,
+                  }}
+                >
+                  Gasto extra en publicidad
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              color: '#4b5563',
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            Deslizá <ChevronRight size={14} />
+          </div>
+        </SlideWrapper>
+
+        {/* ── SLIDE 7: CTA ── */}
+        <SlideWrapper label="Slide 7 · CTA Final">
           <div
             style={{
               flex: 1,
@@ -560,231 +1036,75 @@ export default function BannersPage() {
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
-              gap: 20,
+              gap: 18,
               textAlign: 'center',
             }}
           >
-            {/* Icono micrófono grande con ondas */}
-            <div style={{ position: 'relative' }}>
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: -24,
-                  borderRadius: '50%',
-                  border: '2px solid rgba(16,185,129,0.12)',
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: -42,
-                  borderRadius: '50%',
-                  border: '1.5px solid rgba(16,185,129,0.06)',
-                }}
-              />
-              <div
-                style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: '50%',
-                  background:
-                    'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 0 40px rgba(16,185,129,0.35)',
-                }}
-              >
-                <Mic size={36} style={{ color: '#fff' }} />
-              </div>
-            </div>
-
             <h3
               style={{
-                fontSize: 28,
+                fontSize: 24,
                 fontWeight: 900,
-                lineHeight: 1.1,
+                lineHeight: 1.2,
                 color: '#fff',
                 margin: 0,
               }}
             >
-              Tu cliente{' '}
-              <span style={{ color: '#f87171', textDecoration: 'line-through' }}>
-                escribe
-              </span>
-              <br />
-              <span style={{ color: '#10B981' }}>habla</span>
+              Hacé que cada pedido{' '}
+              <span style={{ color: '#10B981' }}>valga más</span>
             </h3>
 
-            <p
-              style={{
-                fontSize: 14,
-                color: '#9ca3af',
-                margin: 0,
-                lineHeight: 1.4,
-              }}
-            >
-              Buscador por Voz para Tiendanube
-            </p>
-
-            {/* Badge de tiempo */}
+            {/* Banner de Oferta de Valor */}
             <div
               style={{
-                background: 'rgba(0,0,0,0.5)',
-                borderRadius: 8,
-                padding: '6px 14px',
-                border: '1px solid rgba(255,255,255,0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
+                background:
+                  'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(6,30,20,0.9) 100%)',
+                border: '1px solid rgba(16,185,129,0.35)',
+                borderRadius: 14,
+                padding: '16px 20px',
+                width: '100%',
               }}
             >
-              <Play size={12} style={{ color: '#10B981' }} />
-              <span
-                style={{ fontSize: 12, fontWeight: 700, color: '#d1d5db' }}
-              >
-                0:25
-              </span>
-            </div>
-          </div>
-        </ReelCover>
-
-        {/* ── FICHA TÉCNICA DEL REEL ── */}
-        <div
-          style={{
-            background: '#061e14',
-            border: '1px solid rgba(16,185,129,0.2)',
-            borderRadius: 16,
-            padding: 24,
-            marginBottom: 32,
-          }}
-        >
-          <h3
-            style={{
-              fontSize: 14,
-              fontWeight: 800,
-              color: '#10B981',
-              marginBottom: 16,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-            }}
-          >
-            🎬 Ficha Técnica del Reel
-          </h3>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 12,
-            }}
-          >
-            {[
-              { label: 'Duración', value: '25 segundos' },
-              { label: 'Formato', value: '9:16 vertical' },
-              { label: 'Música', value: 'Lo-fi tech suave, volumen bajo' },
-              { label: 'Tono', value: 'Directo, urgente, demo rápida' },
-              { label: 'Hook visual', value: 'Micrófono con ondas animadas' },
-              { label: 'CTA final', value: 'Comentá VOZ' },
-            ].map((item, i) => (
-              <div
-                key={'tech-' + i}
+              <p
                 style={{
-                  background: 'rgba(0,0,0,0.25)',
-                  borderRadius: 10,
-                  padding: '10px 14px',
-                  border: '1px solid rgba(255,255,255,0.04)',
+                  fontSize: 13,
+                  color: '#fff',
+                  fontWeight: 800,
+                  margin: 0,
+                  lineHeight: 1.4,
                 }}
               >
-                <p
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: '#6b7280',
-                    margin: 0,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                  }}
-                >
-                  {item.label}
-                </p>
-                <p
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: '#fff',
-                    margin: '4px 0 0',
-                  }}
-                >
-                  {item.value}
-                </p>
-              </div>
-            ))}
+                50 Widgets + 6 funciones para impulsar tu Tiendanube
+              </p>
+            </div>
+
+            <div
+              style={{
+                background: 'rgba(16,185,129,0.1)',
+                border: '2px solid rgba(16,185,129,0.4)',
+                borderRadius: 12,
+                padding: '14px 20px',
+                width: '100%',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 18,
+                  color: '#10B981',
+                  margin: 0,
+                  fontWeight: 900,
+                }}
+              >
+                Comentá TICKET 👇
+              </p>
+              <p style={{ fontSize: 12, color: '#6b7280', margin: '4px 0 0' }}>
+                y te muestro cómo activarlo en 2 minutos
+              </p>
+            </div>
           </div>
-        </div>
-
-        {/* ── GUIÓN ESCENA POR ESCENA ── */}
-        <h3
-          style={{
-            fontSize: 16,
-            fontWeight: 800,
-            color: '#fff',
-            marginBottom: 18,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <Zap size={16} style={{ color: '#facc15' }} />
-          Guión Escena por Escena
-        </h3>
-
-        <SceneCard
-          time="0–4s"
-          title="HOOK — Dolor mobile"
-          color="#f87171"
-          visual="Pantalla de celular con una barra de búsqueda de Tiendanube. El usuario intenta escribir &quot;zapatillas negras talle 42&quot; y se equivoca dos veces. Se ve el cursor parpadeando y el texto borrándose."
-          texto="El 78% de tus visitas llegan del celular 📱"
-          voz="Tu cliente quiere buscar un producto en tu tienda desde el celular. Y escribir en un teclado de cinco centímetros es una tortura."
-        />
-
-        <SceneCard
-          time="4–9s"
-          title="PROBLEMA — Abandono"
-          color="#facc15"
-          visual="El usuario borra todo, suspira (gesto de frustración), y la pantalla cambia a la home de MercadoLibre. Transición rápida con efecto de swipe."
-          texto="8 segundos y se va a MercadoLibre 💸"
-          voz="Se frustra, borra, se equivoca otra vez. Y en ocho segundos se fue a tu competencia."
-        />
-
-        <SceneCard
-          time="9–16s"
-          title="SOLUCIÓN — Demo del micrófono"
-          color="#10B981"
-          visual="Aparece el botón de micrófono flotante de Nevux en la esquina inferior derecha de la tienda (color #10B981 con ondas animadas). El usuario lo toca, habla &quot;zapatillas negras talle 42&quot;, y al instante aparecen los resultados. Se muestra el texto &quot;Escuchando... Decí lo que buscás&quot; mientras escucha."
-          texto="🎙️ Buscador por Voz de Nevux — Hablá y listo"
-          voz="Con el Buscador por Voz de Nevux, tu cliente toca el micrófono, habla naturally, y la IA le muestra los resultados al instante. Sin teclado, sin errores."
-        />
-
-        <SceneCard
-          time="16–21s"
-          title="PERSONALIZACIÓN — Config rápida"
-          color="#60a5fa"
-          visual="Split screen rápido mostrando las opciones de configuración: posición del botón (inferior derecha, izquierda, barra flotante), selector de color (#10B981), y selector de idioma (🇦🇷 Español AR, 🇧🇷 Português, 🇺🇸 English). Todo en el panel de Nevux."
-          texto="Color · Posición · Idioma 🇦🇷🇧🇷🇺🇸 — 100% personalizable"
-          voz="Elegís la posición, el color, el idioma. Español argentino, portugués, inglés. Todo desde el panel de Nevux en un clic."
-        />
-
-        <SceneCard
-          time="21–25s"
-          title="CTA FINAL"
-          color="#10B981"
-          visual="Fondo oscuro con el logo de Nevux centrado arriba, el micrófono verde pulsando, y el texto del CTA apareciendo con animación de typewriter. Precio y badge de +41 widgets debajo."
-          texto="ARS $35.000/mes · +41 widgets · Comentá VOZ 👇"
-          voz="Activá el Buscador por Voz por treinta y cinco mil pesos al mes con más de cuarenta y un widgets incluidos. Comentá VOZ y te lo activo en dos minutos."
-        />
+        </SlideWrapper>
 
         {/* ══════════════════════════════════════════
-            STORIES DEL DÍA — 4 STORIES
+            STORIES DEL DÍA — 5 STORIES
         ══════════════════════════════════════════ */}
         <h2
           style={{
@@ -799,7 +1119,7 @@ export default function BannersPage() {
           }}
         >
           <Eye size={20} style={{ color: '#10B981' }} />
-          STORIES DEL DÍA — 4 Stories
+          STORIES DEL DÍA — 5 Stories
         </h2>
 
         <div
@@ -825,8 +1145,9 @@ export default function BannersPage() {
               fontFamily: 'system-ui, sans-serif',
             }}
           >
-            {/* Logo Nevux arriba a la izquierda únicamente */}
-            <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}>
+            <div
+              style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}
+            >
               <NevuxLogo size={16} />
             </div>
 
@@ -860,8 +1181,7 @@ export default function BannersPage() {
                   lineHeight: 1.25,
                 }}
               >
-                ¿Tu tienda tiene{' '}
-                <span style={{ color: '#10B981' }}>buscador por voz</span>?
+                ¿Cuántos productos promedian tus pedidos?
               </p>
               <div
                 style={{
@@ -882,12 +1202,12 @@ export default function BannersPage() {
                 >
                   <span
                     style={{
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: 800,
                       color: '#f87171',
                     }}
                   >
-                    No, solo texto 😬
+                    1 producto solo 🛒
                   </span>
                 </div>
                 <div
@@ -901,12 +1221,12 @@ export default function BannersPage() {
                 >
                   <span
                     style={{
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: 800,
                       color: '#10B981',
                     }}
                   >
-                    Sí, ya lo tengo 🎙️
+                    2 o más productos 🔥
                   </span>
                 </div>
               </div>
@@ -919,7 +1239,7 @@ export default function BannersPage() {
                 textAlign: 'center',
               }}
             >
-              STORY 1/4
+              STORY 1/5
             </span>
           </div>
 
@@ -938,8 +1258,9 @@ export default function BannersPage() {
               fontFamily: 'system-ui, sans-serif',
             }}
           >
-            {/* Logo Nevux arriba a la izquierda únicamente */}
-            <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}>
+            <div
+              style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}
+            >
               <NevuxLogo size={16} />
             </div>
 
@@ -953,7 +1274,7 @@ export default function BannersPage() {
                 paddingTop: 24,
               }}
             >
-              <AlertTriangle size={24} style={{ color: '#f87171' }} />
+              <AlertCircle size={24} style={{ color: '#f87171' }} />
               <p
                 style={{
                   fontSize: 15,
@@ -963,9 +1284,7 @@ export default function BannersPage() {
                   lineHeight: 1.25,
                 }}
               >
-                Tu cliente busca{' '}
-                <span style={{ color: '#facc15' }}>&quot;zapa negras&quot;</span>{' '}
-                y tu buscador no entiende nada
+                Vender 1 solo producto por orden destruye tus márgenes 📉
               </p>
               <p
                 style={{
@@ -975,27 +1294,8 @@ export default function BannersPage() {
                   lineHeight: 1.4,
                 }}
               >
-                0 resultados. El cliente se va. 💸
+                Entre el envío y la publicidad, casi no te queda ganancia.
               </p>
-              <div
-                style={{
-                  background: 'rgba(248,113,113,0.08)',
-                  borderRadius: 8,
-                  padding: 10,
-                  border: '1px solid rgba(248,113,113,0.15)',
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: 11,
-                    color: '#fca5a5',
-                    margin: 0,
-                    fontWeight: 700,
-                  }}
-                >
-                  ⚠️ 68% de búsquedas mobile tienen errores de tipeo
-                </p>
-              </div>
             </div>
             <span
               style={{
@@ -1005,11 +1305,11 @@ export default function BannersPage() {
                 textAlign: 'center',
               }}
             >
-              STORY 2/4
+              STORY 2/5
             </span>
           </div>
 
-          {/* Story 3: Demo Mic */}
+          {/* Story 3: Demo Barra Envío Gratis */}
           <div
             style={{
               aspectRatio: '9/16',
@@ -1024,8 +1324,9 @@ export default function BannersPage() {
               fontFamily: 'system-ui, sans-serif',
             }}
           >
-            {/* Logo Nevux arriba a la izquierda únicamente */}
-            <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}>
+            <div
+              style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}
+            >
               <NevuxLogo size={16} />
             </div>
 
@@ -1036,76 +1337,58 @@ export default function BannersPage() {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                gap: 14,
+                gap: 12,
                 paddingTop: 24,
               }}
             >
-              <span
+              <Truck size={24} style={{ color: '#10B981' }} />
+              <p
                 style={{
-                  fontSize: 9,
-                  fontWeight: 700,
-                  color: '#10B981',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
+                  fontSize: 14,
+                  fontWeight: 900,
+                  color: '#fff',
+                  margin: 0,
+                  textAlign: 'center',
                 }}
               >
-                🎙️ ASÍ FUNCIONA
-              </span>
-              <div style={{ position: 'relative', margin: '4px 0' }}>
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: -12,
-                    borderRadius: '50%',
-                    border: '2px solid rgba(16,185,129,0.15)',
-                  }}
-                />
-                <div
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: '50%',
-                    background:
-                      'linear-gradient(135deg, #10B981, #059669)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 0 20px rgba(16,185,129,0.3)',
-                  }}
-                >
-                  <Mic size={20} style={{ color: '#fff' }} />
-                </div>
-              </div>
+                Barra de Envío Gratis Progresiva
+              </p>
               <div
                 style={{
-                  background: 'rgba(0,0,0,0.4)',
-                  borderRadius: 8,
-                  padding: '8px 12px',
-                  border: '1px solid rgba(16,185,129,0.15)',
-                  textAlign: 'center',
+                  background: '#061e14',
+                  borderRadius: 10,
+                  padding: 10,
                   width: '100%',
+                  border: '1px solid rgba(16,185,129,0.2)',
                 }}
               >
                 <p
                   style={{
                     fontSize: 10,
                     color: '#34d399',
-                    margin: 0,
-                    fontWeight: 600,
-                  }}
-                >
-                  🎧 Escuchando...
-                </p>
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: '#fff',
-                    margin: '4px 0 0',
                     fontWeight: 700,
+                    margin: '0 0 6px',
+                    textAlign: 'center',
                   }}
                 >
-                  &quot;Vestido floreado&quot;
+                  ¡Falta poco para tu Envío Gratis!
                 </p>
+                <div
+                  style={{
+                    height: 6,
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: 3,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '80%',
+                      height: '100%',
+                      background: '#10B981',
+                    }}
+                  />
+                </div>
               </div>
               <p
                 style={{
@@ -1113,12 +1396,10 @@ export default function BannersPage() {
                   color: '#9ca3af',
                   margin: 0,
                   textAlign: 'center',
-                  lineHeight: 1.4,
+                  lineHeight: 1.3,
                 }}
               >
-                Sin teclado. Sin errores.
-                <br />
-                Resultados instantáneos. ⚡
+                Motiva al cliente a sumar 1 item más.
               </p>
             </div>
             <span
@@ -1129,11 +1410,110 @@ export default function BannersPage() {
                 textAlign: 'center',
               }}
             >
-              STORY 3/4
+              STORY 3/5
             </span>
           </div>
 
-          {/* Story 4: CTA */}
+          {/* Story 4: Demo Order Bump */}
+          <div
+            style={{
+              aspectRatio: '9/16',
+              background: '#020a07',
+              border: '2px solid rgba(16,185,129,0.3)',
+              borderRadius: 20,
+              padding: 16,
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'relative',
+              overflow: 'hidden',
+              fontFamily: 'system-ui, sans-serif',
+            }}
+          >
+            <div
+              style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}
+            >
+              <NevuxLogo size={16} />
+            </div>
+
+            <div
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 12,
+                paddingTop: 24,
+              }}
+            >
+              <Percent size={24} style={{ color: '#10B981' }} />
+              <p
+                style={{
+                  fontSize: 14,
+                  fontWeight: 900,
+                  color: '#fff',
+                  margin: 0,
+                  textAlign: 'center',
+                }}
+              >
+                Order Bump en Carrito
+              </p>
+              <div
+                style={{
+                  background: 'rgba(16,185,129,0.08)',
+                  borderRadius: 10,
+                  padding: 10,
+                  width: '100%',
+                  border: '1px dashed rgba(16,185,129,0.3)',
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 10,
+                    color: '#fff',
+                    fontWeight: 700,
+                    margin: 0,
+                  }}
+                >
+                  ¿Sumar accesorios en promo?
+                </p>
+                <span
+                  style={{
+                    fontSize: 9,
+                    color: '#10B981',
+                    fontWeight: 800,
+                    display: 'inline-block',
+                    marginTop: 4,
+                  }}
+                >
+                  + Agregar en 1 Clic
+                </span>
+              </div>
+              <p
+                style={{
+                  fontSize: 11,
+                  color: '#9ca3af',
+                  margin: 0,
+                  textAlign: 'center',
+                  lineHeight: 1.3,
+                }}
+              >
+                Ventas adicionales sin fricción.
+              </p>
+            </div>
+            <span
+              style={{
+                fontSize: 9,
+                color: '#4b5563',
+                fontWeight: 600,
+                textAlign: 'center',
+              }}
+            >
+              STORY 4/5
+            </span>
+          </div>
+
+          {/* Story 5: CTA */}
           <div
             style={{
               aspectRatio: '9/16',
@@ -1148,8 +1528,9 @@ export default function BannersPage() {
               fontFamily: 'system-ui, sans-serif',
             }}
           >
-            {/* Logo Nevux arriba a la izquierda únicamente */}
-            <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}>
+            <div
+              style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}
+            >
               <NevuxLogo size={16} />
             </div>
 
@@ -1165,70 +1546,28 @@ export default function BannersPage() {
                 paddingTop: 24,
               }}
             >
-              <Volume2 size={26} style={{ color: '#10B981' }} />
+              <TrendingUp size={26} style={{ color: '#10B981' }} />
               <p
                 style={{
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: 900,
                   color: '#fff',
                   margin: 0,
                   lineHeight: 1.25,
                 }}
               >
-                Activá el{' '}
-                <span style={{ color: '#10B981' }}>micrófono</span> en tu
-                tienda hoy
+                Aumentá tu <span style={{ color: '#10B981' }}>ticket promedio</span> hoy
               </p>
               <p
                 style={{
-                  fontSize: 12,
+                  fontSize: 11,
                   color: '#9ca3af',
                   margin: 0,
-                  lineHeight: 1.4,
+                  lineHeight: 1.3,
                 }}
               >
-                ARS $35.000/mes
-                <br />
-                +41 widgets incluidos
+                50 Widgets + 6 funciones para impulsar tu Tiendanube
               </p>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 6,
-                  justifyContent: 'center',
-                  flexWrap: 'wrap',
-                }}
-              >
-                {[
-                  { icon: MousePointerClick, text: 'Posición' },
-                  { icon: Palette, text: 'Color' },
-                  { icon: Globe, text: 'Idioma' },
-                ].map((f, i) => (
-                  <div
-                    key={'feat-' + i}
-                    style={{
-                      background: 'rgba(16,185,129,0.08)',
-                      borderRadius: 6,
-                      padding: '5px 8px',
-                      border: '1px solid rgba(16,185,129,0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                    }}
-                  >
-                    <f.icon size={10} style={{ color: '#10B981' }} />
-                    <span
-                      style={{
-                        fontSize: 9,
-                        fontWeight: 700,
-                        color: '#34d399',
-                      }}
-                    >
-                      {f.text}
-                    </span>
-                  </div>
-                ))}
-              </div>
               <div
                 style={{
                   background:
@@ -1258,7 +1597,7 @@ export default function BannersPage() {
                 textAlign: 'center',
               }}
             >
-              STORY 4/4
+              STORY 5/5
             </span>
           </div>
         </div>
@@ -1282,11 +1621,11 @@ export default function BannersPage() {
         </h2>
 
         <CopyBlock
-          id="copy-martes"
-          title="Copy Martes — Buscador por Voz (Reel)"
-          text={copyMartes}
-          copied={copiedId === 'copy-martes'}
-          onCopy={() => handleCopy('copy-martes', copyMartes)}
+          id="copy-miercoles"
+          title="Copy Miércoles — Ticket Promedio (Carrusel)"
+          text={copyMiercoles}
+          copied={copiedId === 'copy-miercoles'}
+          onCopy={() => handleCopy('copy-miercoles', copyMiercoles)}
         />
 
         {/* ─── Footer Página ─── */}
@@ -1308,4 +1647,4 @@ export default function BannersPage() {
       </main>
     </div>
   );
-        }
+      }
