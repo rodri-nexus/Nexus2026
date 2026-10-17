@@ -14731,13 +14731,13 @@ var renderCajaEstadisticas = function(w) {
 
   // Presets de Campañas / Fechas especiales
   var presets = {
-    "black-friday": { fondo: "#111827", contenedor: "#1f2937", tarjeta: "#374151", titulo: "#ffffff", subtitulo: "#d1d5db", icono: "#F59E0B", numero: "#ffffff", etiqueta: "#f3f4f6", texto: "#9ca3af", borde: "#F59E0B" },
-    "hot-sale": { fondo: "#0F172A", contenedor: "#1e293b", tarjeta: "#334155", titulo: "#ffffff", subtitulo: "#cbd5e1", icono: "#3B82F6", numero: "#ffffff", etiqueta: "#e2e8f0", texto: "#94a3b8", borde: "#3B82F6" },
-    "cyber-monday": { fondo: "#090D16", contenedor: "#111827", tarjeta: "#1f2937", titulo: "#ffffff", subtitulo: "#cbd5e1", icono: "#10B981", numero: "#ffffff", etiqueta: "#e2e8f0", texto: "#94a3b8", borde: "#10B981" },
-    "navidad": { fondo: "#064E3B", contenedor: "#047857", tarjeta: "#065f46", titulo: "#ffffff", subtitulo: "#ecfdf5", icono: "#EF4444", numero: "#ffffff", etiqueta: "#d1fae5", texto: "#a7f3d0", borde: "#EF4444" },
-    "san-valentin": { fondo: "#fdf2f8", contenedor: "#fce7f3", tarjeta: "#fbcfe8", titulo: "#831843", subtitulo: "#9d174d", icono: "#F43F5E", numero: "#831843", etiqueta: "#9d174d", texto: "#be185d", borde: "#F43F5E" },
-    "dia-padre-madre": { fondo: "#312E81", contenedor: "#3730a3", tarjeta: "#4338ca", titulo: "#ffffff", subtitulo: "#e0e7ff", icono: "#10B981", numero: "#ffffff", etiqueta: "#e0e7ff", texto: "#c7d2fe", borde: "#10B981" },
-    "liquidacion": { fondo: "#7F1D1D", contenedor: "#991b1b", tarjeta: "#b91c1c", titulo: "#ffffff", subtitulo: "#fef2f2", icono: "#FBBF24", numero: "#ffffff", etiqueta: "#fef2f2", texto: "#fca5a5", borde: "#FBBF24" }
+    "black-friday": { fondo: "#111827", contenedor: "#111827", tarjeta: "transparent", titulo: "#ffffff", subtitulo: "#d1d5db", icono: "#F59E0B", numero: "#F59E0B", etiqueta: "#ffffff", texto: "#9ca3af", borde: "#F59E0B" },
+    "hot-sale": { fondo: "#0F172A", contenedor: "#0F172A", tarjeta: "transparent", titulo: "#ffffff", subtitulo: "#cbd5e1", icono: "#38BDF8", numero: "#38BDF8", etiqueta: "#ffffff", texto: "#94a3b8", borde: "#3B82F6" },
+    "cyber-monday": { fondo: "#090D16", contenedor: "#090D16", tarjeta: "transparent", titulo: "#ffffff", subtitulo: "#cbd5e1", icono: "#10B981", numero: "#10B981", etiqueta: "#ffffff", texto: "#94a3b8", borde: "#10B981" },
+    "navidad": { fondo: "#064E3B", contenedor: "#064E3B", tarjeta: "transparent", titulo: "#ffffff", subtitulo: "#ecfdf5", icono: "#FBBF24", numero: "#FBBF24", etiqueta: "#ffffff", texto: "#a7f3d0", borde: "#EF4444" },
+    "san-valentin": { fondo: "#fdf2f8", contenedor: "#fdf2f8", tarjeta: "transparent", titulo: "#831843", subtitulo: "#9d174d", icono: "#E11D48", numero: "#E11D48", etiqueta: "#831843", texto: "#9d174d", borde: "#F43F5E" },
+    "dia-padre-madre": { fondo: "#312E81", contenedor: "#312E81", tarjeta: "transparent", titulo: "#ffffff", subtitulo: "#e0e7ff", icono: "#10B981", numero: "#10B981", etiqueta: "#ffffff", texto: "#c7d2fe", borde: "#10B981" },
+    "liquidacion": { fondo: "#7F1D1D", contenedor: "#7F1D1D", tarjeta: "transparent", titulo: "#ffffff", subtitulo: "#fef2f2", icono: "#FBBF24", numero: "#FBBF24", etiqueta: "#ffffff", texto: "#fecaca", borde: "#FBBF24" }
   };
 
   var theme = cfg.campaignTheme || "none";
@@ -14750,59 +14750,46 @@ var renderCajaEstadisticas = function(w) {
   };
 
   // 1. Títulos y datos
-  var rawTitulo = cfg.titulo !== undefined ? cfg.titulo : (cfg.title !== undefined ? cfg.title : "Nuestros números");
+  var rawTitulo = cfg.titulo !== undefined ? cfg.titulo : (cfg.title !== undefined ? cfg.title : "Nuestros números nos avalan");
   var titulo = String(rawTitulo).trim();
 
-  var rawSubtitulo = cfg.subtitulo !== undefined ? cfg.subtitulo : (cfg.subtitle !== undefined ? cfg.subtitle : "Lo que nos respalda");
-  var subtitulo = String(rawSubtitulo).trim();
-
   var defaultStats = [
-    { icon: "📦", number: "+1.500", label: "Pedidos enviados", text: "Envíos a todo el país" },
-    { icon: "⭐", number: "4.9/5", label: "Calificación", text: "Más de 500 opiniones" },
-    { icon: "😊", number: "98%", label: "Clientes felices", text: "Garantía de satisfacción" }
+    { icon: "👥", numero: "+15.000", etiqueta: "Clientes felices", texto: "Compraron este año" },
+    { icon: "⭐", numero: "4.9 / 5", etiqueta: "Valoración media", texto: "Más de 2.000 reseñas" },
+    { icon: "⚡", numero: "24hs", etiqueta: "Despacho exprés", texto: "Envíos a todo el país" }
   ];
 
-  var stats = (cfg.stats && cfg.stats.length > 0) ? cfg.stats : (cfg.items && cfg.items.length > 0 ? cfg.items : defaultStats);
+  var stats = (cfg.items && cfg.items.length > 0) ? cfg.items : ((cfg.stats && cfg.stats.length > 0) ? cfg.stats : defaultStats);
 
-  // 2. Opciones de diseño
-  var layout = cfg.diseno || cfg.layout || "columns";
-  var alignment = cfg.alineacion || cfg.alignment || "center";
-  var colsDesktop = cfg.cols_desktop || cfg.colsDesktop || 3;
-  var colsMobile = cfg.cols_mobile || cfg.colsMobile || 1;
+  // 2. Lectura correcta de columnas (1, 2, 3 o 4)
+  var cols = parseInt(cfg.columnas || cfg.cols_desktop || cfg.colsDesktop || 3, 10) || 3;
+  var mobileCols = Math.min(cols, 2);
 
-  // 3. Colores (Presets o configuración de Estilos)
-  var colorFondoSeccion = cfg.color_fondo_seccion || cfg.bgSection || "transparent";
-  var colorContenedor = presetTheme ? presetTheme.contenedor : (cfg.color_fondo_contenedor || cfg.bgContainer || "#ffffff");
-  var colorTarjeta = presetTheme ? presetTheme.tarjeta : (cfg.color_fondo_tarjeta || cfg.bgCard || "#f9fafb");
-  var colorBorde = presetTheme ? presetTheme.borde : (cfg.color_borde_contenedor || cfg.borderColorContainer || "#e5e7eb");
-
-  var colorTitulo = presetTheme ? presetTheme.titulo : (cfg.color_titulo || cfg.colorTitle || "#111827");
-  var colorSubtitulo = presetTheme ? presetTheme.subtitulo : (cfg.color_subtitulo || cfg.colorSubtitle || "#6b7280");
-  var colorIcono = presetTheme ? presetTheme.icono : (cfg.color_icono || cfg.colorIcon || "#10B981");
-  var colorNumero = presetTheme ? presetTheme.numero : (cfg.color_numero || cfg.colorNumber || "#111827");
-  var colorEtiqueta = presetTheme ? presetTheme.etiqueta : (cfg.color_etiqueta || cfg.colorLabel || "#374151");
-  var colorTexto = presetTheme ? presetTheme.texto : (cfg.color_texto || cfg.colorText || "#6b7280");
+  // 3. Colores
+  var colorContenedor = presetTheme ? presetTheme.contenedor : (cfg.color_fondo || cfg.color_fondo_contenedor || "#ffffff");
+  var colorBorde = presetTheme ? presetTheme.borde : (cfg.color_borde || cfg.color_borde_contenedor || "#e5e7eb");
+  var colorTitulo = presetTheme ? presetTheme.titulo : (cfg.color_titulo || "#111827");
+  var colorNumero = presetTheme ? presetTheme.numero : (cfg.color_numero || "#10B981");
+  var colorEtiqueta = presetTheme ? presetTheme.etiqueta : (cfg.color_etiqueta || "#111827");
+  var colorTexto = presetTheme ? presetTheme.texto : (cfg.color_texto || "#6b7280");
 
   // 4. Tipografías y tamaños
-  var iconSize = (cfg.tamano_icono !== undefined ? cfg.tamano_icono : (cfg.iconSize !== undefined ? cfg.iconSize : 28)) + "px";
-  var numberSize = (cfg.tamano_numero !== undefined ? cfg.tamano_numero : (cfg.numberSize !== undefined ? cfg.numberSize : 24)) + "px";
-  var labelSize = (cfg.tamano_etiqueta !== undefined ? cfg.tamano_etiqueta : (cfg.labelSize !== undefined ? cfg.labelSize : 14)) + "px";
-  var textSize = (cfg.tamano_texto !== undefined ? cfg.tamano_texto : (cfg.textSize !== undefined ? cfg.textSize : 12)) + "px";
-  var titleSize = (cfg.tamano_titulo !== undefined ? cfg.tamano_titulo : (cfg.titleSize !== undefined ? cfg.titleSize : 20)) + "px";
-  var subtitleSize = (cfg.tamano_subtitulo !== undefined ? cfg.tamano_subtitulo : (cfg.subtitleSize !== undefined ? cfg.subtitleSize : 14)) + "px";
+  var numberSize = "22px";
+  if (cfg.tamano_numero === "pequeno") numberSize = "18px";
+  else if (cfg.tamano_numero === "grande") numberSize = "28px";
+  else if (typeof cfg.tamano_numero === "number" || (cfg.tamano_numero && !isNaN(cfg.tamano_numero))) numberSize = cfg.tamano_numero + "px";
 
-  var numberWeight = (cfg.estilo_numero === "normal" || cfg.numberStyle === "normal") ? "400" : "700";
-  var labelWeight = (cfg.estilo_etiqueta === "bold" || cfg.labelStyle === "bold") ? "700" : "500";
+  var textSize = "13px";
+  if (cfg.tamano_texto === "pequeno") textSize = "11px";
+  else if (cfg.tamano_texto === "grande") textSize = "15px";
+  else if (typeof cfg.tamano_texto === "number" || (cfg.tamano_texto && !isNaN(cfg.tamano_texto))) textSize = cfg.tamano_texto + "px";
 
   // 5. Medidas, espaciados y bordes
-  var borderRadius = (cfg.redondeo_contenedor !== undefined ? cfg.redondeo_contenedor : (cfg.borderRadiusContainer !== undefined ? cfg.borderRadiusContainer : 12)) + "px";
-  var paddingContainer = (cfg.padding_contenedor !== undefined ? cfg.padding_contenedor : (cfg.paddingContainer !== undefined ? cfg.paddingContainer : 16)) + "px";
-  var paddingCard = (cfg.padding_tarjeta !== undefined ? cfg.padding_tarjeta : (cfg.paddingCard !== undefined ? cfg.paddingCard : 12)) + "px";
-  var showDivider = cfg.mostrar_linea !== false && cfg.showDivider !== false;
-
-  var marginTop = (cfg.margin_top !== undefined ? cfg.margin_top : (cfg.marginTop !== undefined ? cfg.marginTop : 16)) + "px";
-  var marginBottom = (cfg.margin_bottom !== undefined ? cfg.margin_bottom : (cfg.marginBottom !== undefined ? cfg.marginBottom : 16)) + "px";
-  var ubicacion = cfg.ubicacion || cfg.position || "debajo_precio";
+  var borderRadius = (cfg.borde_redondeado !== undefined ? cfg.borde_redondeado : 12) + "px";
+  var paddingContainer = (cfg.padding !== undefined ? cfg.padding : 16) + "px";
+  var marginTop = (cfg.margin_top !== undefined ? cfg.margin_top : 16) + "px";
+  var marginBottom = (cfg.margin_bottom !== undefined ? cfg.margin_bottom : 16) + "px";
+  var ubicacion = cfg.ubicacion || "debajo_precio";
 
   // 6. Construcción del contenedor principal
   var container = document.createElement("div");
@@ -14811,7 +14798,6 @@ var renderCajaEstadisticas = function(w) {
   var css = "box-sizing: border-box !important; " +
             "width: 100% !important; " +
             "max-width: 100% !important; " +
-            "background: " + colorFondoSeccion + " !important; " +
             "margin-top: " + marginTop + " !important; " +
             "margin-bottom: " + marginBottom + " !important; " +
             "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; " +
@@ -14819,17 +14805,19 @@ var renderCajaEstadisticas = function(w) {
 
   container.style.cssText = css;
 
-  // 7. Generación de estilos CSS internos para el Grid adaptable
+  // 7. Generación de estilos CSS internos para el Grid adaptable por columna seleccionada
   var styleTag = document.createElement("style");
   styleTag.type = "text/css";
   styleTag.innerHTML = "#nvx-caja-estadisticas-product .nvx-stats-grid {" +
                          "display: grid !important;" +
-                         "grid-template-columns: repeat(" + colsMobile + ", 1fr) !important;" +
-                         "gap: 10px !important;" +
+                         "grid-template-columns: repeat(" + mobileCols + ", minmax(0, 1fr)) !important;" +
+                         "gap: 12px !important;" +
+                         "width: 100% !important;" +
+                         "box-sizing: border-box !important;" +
                        "}" +
                        "@media (min-width: 768px) {" +
                          "#nvx-caja-estadisticas-product .nvx-stats-grid {" +
-                           "grid-template-columns: repeat(" + colsDesktop + ", 1fr) !important;" +
+                           "grid-template-columns: repeat(" + cols + ", minmax(0, 1fr)) !important;" +
                          "}" +
                        "}";
   container.appendChild(styleTag);
@@ -14838,7 +14826,8 @@ var renderCajaEstadisticas = function(w) {
   var html = '<div style="background: ' + colorContenedor + ' !important; ' +
               'padding: ' + paddingContainer + ' !important; ' +
               'border-radius: ' + borderRadius + ' !important; ' +
-              'box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important; ';
+              'box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important; ' +
+              'box-sizing: border-box !important; ';
 
   if (colorBorde && colorBorde !== "transparent") {
     html += 'border: 1.5px solid ' + colorBorde + ' !important; ';
@@ -14848,77 +14837,41 @@ var renderCajaEstadisticas = function(w) {
 
   html += '">';
 
-  // Cabecera (Título y Subtítulo)
-  if (titulo || subtitulo) {
-    html += '<div style="text-align: ' + alignment + ' !important; margin-bottom: 14px !important;">';
-    if (titulo) {
-      html += '<div style="font-size: ' + titleSize + ' !important; font-weight: 800 !important; color: ' + colorTitulo + ' !important; line-height: 1.25 !important; margin-bottom: 4px !important;">' +
+  // Cabecera (Título)
+  if (titulo) {
+    html += '<div style="text-align: center !important; margin-bottom: 14px !important;">' +
+              '<div style="font-size: 16px !important; font-weight: 800 !important; color: ' + colorTitulo + ' !important; line-height: 1.25 !important;">' +
                 formatMarkdown(titulo) +
-              '</div>';
-    }
-    if (subtitulo) {
-      html += '<div style="font-size: ' + subtitleSize + ' !important; color: ' + colorSubtitulo + ' !important; line-height: 1.3 !important; opacity: 0.9 !important;">' +
-                formatMarkdown(subtitulo) +
-              '</div>';
-    }
-    html += '</div>';
+              '</div>' +
+            '</div>';
   }
 
-  // Lista o Grilla
-  if (layout === "list") {
-    html += '<div style="display: flex !important; flex-direction: column !important; gap: 10px !important;">';
-  } else {
-    html += '<div class="nvx-stats-grid">';
-  }
-
-  var borderCardStyle = (showDivider && colorBorde && colorBorde !== "transparent") ? 'border: 1px solid ' + colorBorde + ' !important;' : 'border: none !important;';
+  // Grilla de estadísticas
+  html += '<div class="nvx-stats-grid">';
 
   for (var i = 0; i < stats.length; i++) {
     var st = stats[i];
     if (!st) continue;
 
-    var iconStr = st.icon || "";
-    var numStr = st.number || st.numero || "";
-    var labelStr = st.label || st.etiqueta || "";
-    var textStr = st.text || st.texto || "";
+    var iconStr = st.icon || st.icono || "";
+    var numStr = st.numero || st.number || "";
+    var labelStr = st.etiqueta || st.label || "";
+    var textStr = st.texto || st.text || "";
 
-    if (layout === "list") {
-      html += '<div style="background: ' + colorTarjeta + ' !important; ' + borderCardStyle + ' border-radius: 8px !important; padding: ' + paddingCard + ' !important; display: flex !important; align-items: center !important; gap: 12px !important; text-align: left !important;">';
-      if (iconStr) {
-        html += '<div style="font-size: ' + iconSize + ' !important; color: ' + colorIcono + ' !important; flex-shrink: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;">' +
-                  iconStr +
-                '</div>';
-      }
-      html += '<div style="flex: 1 !important; min-width: 0 !important;">';
-      if (numStr) {
-        html += '<div style="font-size: ' + numberSize + ' !important; font-weight: ' + numberWeight + ' !important; color: ' + colorNumero + ' !important; line-height: 1.1 !important;">' + formatMarkdown(numStr) + '</div>';
-      }
-      if (labelStr) {
-        html += '<div style="font-size: ' + labelSize + ' !important; font-weight: ' + labelWeight + ' !important; color: ' + colorEtiqueta + ' !important; margin-top: 2px !important;">' + formatMarkdown(labelStr) + '</div>';
-      }
-      if (textStr) {
-        html += '<div style="font-size: ' + textSize + ' !important; color: ' + colorTexto + ' !important; margin-top: 2px !important; opacity: 0.85 !important;">' + formatMarkdown(textStr) + '</div>';
-      }
-      html += '</div></div>';
-    } else {
-      var alignFlex = alignment === "left" ? "flex-start" : (alignment === "right" ? "flex-end" : "center");
-      var alignText = alignment;
-
-      html += '<div style="background: ' + colorTarjeta + ' !important; ' + borderCardStyle + ' border-radius: 8px !important; padding: ' + paddingCard + ' !important; display: flex !important; flex-direction: column !important; align-items: ' + alignFlex + ' !important; text-align: ' + alignText + ' !important; gap: 3px !important;">';
-      if (iconStr) {
-        html += '<div style="font-size: ' + iconSize + ' !important; color: ' + colorIcono + ' !important; margin-bottom: 2px !important; line-height: 1 !important;">' + iconStr + '</div>';
-      }
-      if (numStr) {
-        html += '<div style="font-size: ' + numberSize + ' !important; font-weight: ' + numberWeight + ' !important; color: ' + colorNumero + ' !important; line-height: 1.1 !important;">' + formatMarkdown(numStr) + '</div>';
-      }
-      if (labelStr) {
-        html += '<div style="font-size: ' + labelSize + ' !important; font-weight: ' + labelWeight + ' !important; color: ' + colorEtiqueta + ' !important;">' + formatMarkdown(labelStr) + '</div>';
-      }
-      if (textStr) {
-        html += '<div style="font-size: ' + textSize + ' !important; color: ' + colorTexto + ' !important; opacity: 0.85 !important;">' + formatMarkdown(textStr) + '</div>';
-      }
-      html += '</div>';
+    html += '<div style="text-align: center !important; padding: 4px !important; min-width: 0 !important; box-sizing: border-box !important;">';
+    if (iconStr) {
+      html += '<div style="font-size: 20px !important; margin-bottom: 4px !important; line-height: 1 !important;">' + iconStr + '</div>';
     }
+    if (numStr) {
+      html += '<div style="font-size: ' + numberSize + ' !important; font-weight: 800 !important; color: ' + colorNumero + ' !important; line-height: 1.1 !important; word-break: break-word !important; overflow-wrap: anywhere !important;">' + formatMarkdown(numStr) + '</div>';
+    }
+    if (labelStr) {
+      html += '<div style="font-size: ' + textSize + ' !important; font-weight: 700 !important; color: ' + colorEtiqueta + ' !important; margin-top: 4px !important; line-height: 1.2 !important; word-break: break-word !important; overflow-wrap: anywhere !important;">' + formatMarkdown(labelStr) + '</div>';
+    }
+    if (textStr) {
+      html += '<div style="font-size: 11px !important; color: ' + colorTexto + ' !important; margin-top: 2px !important; line-height: 1.2 !important; word-break: break-word !important; overflow-wrap: anywhere !important;">' + formatMarkdown(textStr) + '</div>';
+    }
+    html += '</div>';
   }
 
   html += '</div></div>';
