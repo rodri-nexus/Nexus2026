@@ -112,7 +112,7 @@ function ColorPicker({ label, value, onChange }: { label: string; value: string;
 
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
-    <label style={{ display: "flex", alignItems: "center", justifyBetween: "space-between", cursor: "pointer", width: "100%" }}>
+    <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", width: "100%" }}>
       <span style={{ fontSize: "13px", fontWeight: 600, color: "#374151", flex: 1 }}>{label}</span>
       <div
         onClick={() => onChange(!checked)}
@@ -736,4 +736,4 @@ export default function CajaEstadisticasEditor({ widget, productId, onSave }: Ca
       </div>
     </div>
   );
-  }
+          }
