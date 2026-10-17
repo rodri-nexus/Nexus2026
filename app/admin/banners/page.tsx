@@ -63,7 +63,66 @@ function NevuxLogo({ size = 32 }: { size?: number }) {
 }
 
 /* ============================================================
-   COPY BLOCK (con botón copiar)
+   SLIDE WRAPPER (mismo look que Stories)
+   ============================================================ */
+function SlideWrapper({
+  label,
+  children
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div style={{ width: '100%', maxWidth: 420 }}>
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 800,
+          color: '#34d399',
+          marginBottom: 8,
+          letterSpacing: '0.05em'
+        }}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          width: '100%',
+          aspectRatio: '4/5',
+          backgroundColor: '#020a07',
+          border: '2px solid rgba(16,185,129,0.3)',
+          borderRadius: 24,
+          padding: 24,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          boxSizing: 'border-box',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        {/* Glow sutil decorativo */}
+        <div
+          style={{
+            position: 'absolute',
+            top: -80,
+            right: -80,
+            width: 200,
+            height: 200,
+            borderRadius: '50%',
+            background:
+              'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)',
+            pointerEvents: 'none'
+          }}
+        />
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   COPY BLOCK
    ============================================================ */
 interface CopyBlockProps {
   id: string;
@@ -317,7 +376,9 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
           </div>
         </div>
 
-        {/* CARRUSEL */}
+        {/* ============================================================
+            CARRUSEL — DISEÑO PROFESIONAL (igual estilo que Stories)
+            ============================================================ */}
         <div
           style={{
             backgroundColor: '#061e14',
@@ -326,7 +387,7 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
             padding: 20,
             display: 'flex',
             flexDirection: 'column',
-            gap: 16
+            gap: 20
           }}
         >
           <h3
@@ -342,54 +403,46 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
               borderBottom: '1px solid rgba(16,185,129,0.15)'
             }}
           >
-            <ImageIcon style={{ width: 16, height: 16 }} /> CARRUSEL — 6 slides (uno
-            debajo del otro)
+            <ImageIcon style={{ width: 16, height: 16 }} /> CARRUSEL — 6 slides
           </h3>
 
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: 20,
+              gap: 28,
               alignItems: 'center'
             }}
           >
-            {/* SLIDE 1 */}
-            <div style={{ width: '100%', maxWidth: 400 }}>
+            {/* ================= SLIDE 1 — HOOK ================= */}
+            <SlideWrapper label="Slide 1 — HOOK">
+              <NevuxLogo size={24} />
               <div
                 style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: '#34d399',
-                  marginBottom: 6
-                }}
-              >
-                Slide 1 — HOOK
-              </div>
-              <div
-                style={{
-                  width: '100%',
-                  aspectRatio: '4/5',
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  border: '2px solid rgba(16,185,129,0.25)',
-                  backgroundColor: '#111827',
+                  margin: 'auto 0',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  padding: 28,
-                  boxSizing: 'border-box',
-                  textAlign: 'center'
+                  gap: 16,
+                  position: 'relative',
+                  zIndex: 1
                 }}
               >
-                <div style={{ fontSize: 40, marginBottom: 16 }}>🛒</div>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: '#f87171',
+                    letterSpacing: '0.1em'
+                  }}
+                >
+                  🚨 ALERTA PARA DUEÑOS DE TIENDA
+                </div>
                 <h3
                   style={{
-                    fontSize: 22,
+                    fontSize: 30,
                     fontWeight: 900,
-                    color: '#FFFFFF',
-                    lineHeight: 1.2,
+                    color: '#fff',
+                    lineHeight: 1.1,
                     margin: 0
                   }}
                 >
@@ -399,73 +452,90 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
                 <p
                   style={{
                     fontSize: 13,
-                    color: '#10B981',
-                    fontWeight: 700,
-                    marginTop: 12
+                    color: '#cbd5e1',
+                    lineHeight: 1.5,
+                    margin: 0
                   }}
                 >
-                  Y no es culpa de tus Ads.
+                  Y no es culpa de tus Ads. Te muestro el error exacto 👉
                 </p>
               </div>
-            </div>
-
-            {/* SLIDE 2 */}
-            <div style={{ width: '100%', maxWidth: 400 }}>
               <div
                 style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: '#34d399',
-                  marginBottom: 6
-                }}
-              >
-                Slide 2 — PROBLEMA
-              </div>
-              <div
-                style={{
-                  width: '100%',
-                  aspectRatio: '4/5',
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  border: '2px solid rgba(16,185,129,0.25)',
-                  backgroundColor: '#FFFFFF',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  padding: 28,
-                  boxSizing: 'border-box',
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  backgroundColor: 'rgba(16,185,129,0.1)',
+                  border: '1px solid rgba(16,185,129,0.3)',
+                  borderRadius: 10,
+                  padding: 8
                 }}
               >
                 <p
                   style={{
-                    fontSize: 14,
-                    color: '#111827',
+                    fontSize: 10,
+                    color: '#34d399',
                     fontWeight: 700,
-                    margin: 0,
-                    lineHeight: 1.4
+                    margin: 0
+                  }}
+                >
+                  DESLIZÁ →
+                </p>
+              </div>
+            </SlideWrapper>
+
+            {/* ================= SLIDE 2 — PROBLEMA ================= */}
+            <SlideWrapper label="Slide 2 — PROBLEMA">
+              <NevuxLogo size={24} />
+              <div
+                style={{
+                  margin: 'auto 0',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 16,
+                  position: 'relative',
+                  zIndex: 1
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: '#facc15',
+                    letterSpacing: '0.1em'
+                  }}
+                >
+                  📊 EL DATO QUE NADIE TE DICE
+                </div>
+                <h3
+                  style={{
+                    fontSize: 24,
+                    fontWeight: 900,
+                    color: '#fff',
+                    lineHeight: 1.2,
+                    margin: 0
                   }}
                 >
                   El{' '}
-                  <span
-                    style={{ color: '#10B981', fontSize: 28, fontWeight: 900 }}
-                  >
-                    70%
-                  </span>{' '}
+                  <span style={{ color: '#10B981', fontSize: 42 }}>70%</span>{' '}
                   de los carritos en Tiendanube se abandonan.
-                </p>
+                </h3>
                 <p
                   style={{
-                    fontSize: 12,
-                    color: '#64748b',
-                    marginTop: 12,
-                    lineHeight: 1.4
+                    fontSize: 13,
+                    color: '#cbd5e1',
+                    lineHeight: 1.5,
+                    margin: 0
                   }}
                 >
-                  De cada 10 personas que agregan un producto, 7 se van sin pagar.
-                </p>
-                <div style={{ display: 'flex', gap: 6, marginTop: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  De cada 10 que agregan al carrito,{' '}
+                  <strong style={{ color: '#f87171' }}>7 se van sin pagar.</strong>
+                </h3>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 5,
+                    flexWrap: 'wrap'
+                  }}
+                >
                   {[1, 2, 3].map((i) => (
                     <div
                       key={`g-${i}`}
@@ -473,7 +543,8 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
                         width: 24,
                         height: 24,
                         borderRadius: 6,
-                        backgroundColor: '#10B981'
+                        backgroundColor: '#10B981',
+                        boxShadow: '0 0 8px rgba(16,185,129,0.5)'
                       }}
                     />
                   ))}
@@ -484,125 +555,157 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
                         width: 24,
                         height: 24,
                         borderRadius: 6,
-                        backgroundColor: '#d1d5db'
+                        backgroundColor: 'rgba(248,113,113,0.2)',
+                        border: '1px dashed #f87171'
                       }}
                     />
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* SLIDE 3 */}
-            <div style={{ width: '100%', maxWidth: 400 }}>
-              <div
+              <p
                 style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: '#34d399',
-                  marginBottom: 6
-                }}
-              >
-                Slide 3 — IMPLICACIÓN
-              </div>
-              <div
-                style={{
-                  width: '100%',
-                  aspectRatio: '4/5',
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  border: '2px solid rgba(16,185,129,0.25)',
-                  backgroundColor: '#111827',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  padding: 28,
-                  boxSizing: 'border-box',
+                  fontSize: 10,
+                  color: '#64748b',
+                  margin: 0,
                   textAlign: 'center'
                 }}
               >
-                <p
+                🟢 Compran · 🔴 Abandonan
+              </p>
+            </SlideWrapper>
+
+            {/* ================= SLIDE 3 — IMPLICACIÓN ================= */}
+            <SlideWrapper label="Slide 3 — IMPLICACIÓN (El Costo Real)">
+              <NevuxLogo size={24} />
+              <div
+                style={{
+                  margin: 'auto 0',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 16,
+                  position: 'relative',
+                  zIndex: 1
+                }}
+              >
+                <div
                   style={{
-                    fontSize: 13,
-                    color: '#FFFFFF',
-                    margin: 0,
-                    lineHeight: 1.4
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: '#f87171',
+                    letterSpacing: '0.1em'
                   }}
                 >
-                  Si gastás $100.000/mes en Meta Ads y tu conversión es del 1%...
-                </p>
-                <p
+                  💸 HACÉ LA CUENTA
+                </div>
+                <h3
                   style={{
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: 900,
-                    color: '#10B981',
-                    marginTop: 16,
-                    lineHeight: 1.2
-                  }}
-                >
-                  Estás tirando $70.000 🔥
-                </p>
-                <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>
-                  en carritos que nunca cerraron.
-                </p>
-              </div>
-            </div>
-
-            {/* SLIDE 4 */}
-            <div style={{ width: '100%', maxWidth: 400 }}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: '#34d399',
-                  marginBottom: 6
-                }}
-              >
-                Slide 4 — SOLUCIÓN NEVUX
-              </div>
-              <div
-                style={{
-                  width: '100%',
-                  aspectRatio: '4/5',
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  border: '2px solid rgba(16,185,129,0.25)',
-                  backgroundColor: '#FFFFFF',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  padding: 28,
-                  boxSizing: 'border-box',
-                  textAlign: 'center'
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: '#64748b',
-                    fontWeight: 700,
+                    color: '#fff',
+                    lineHeight: 1.2,
                     margin: 0
                   }}
                 >
-                  ¿LA SOLUCIÓN?
-                </p>
-                <h3
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 900,
-                    color: '#111827',
-                    margin: '8px 0 12px 0'
-                  }}
-                >
-                  Urgencia real en 2 minutos.
+                  Si gastás{' '}
+                  <span style={{ color: '#facc15' }}>$100.000/mes</span> en Ads y
+                  tu conversión es del 1%...
                 </h3>
                 <div
                   style={{
-                    backgroundColor: '#10B981',
-                    borderRadius: 12,
-                    padding: '14px 20px',
-                    marginTop: 8
+                    backgroundColor: 'rgba(248,113,113,0.1)',
+                    border: '1px solid rgba(248,113,113,0.4)',
+                    borderRadius: 14,
+                    padding: 18,
+                    textAlign: 'center'
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 12,
+                      color: '#f87171',
+                      fontWeight: 700,
+                      margin: 0
+                    }}
+                  >
+                    ESTÁS TIRANDO
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 36,
+                      fontWeight: 900,
+                      color: '#f87171',
+                      margin: '4px 0',
+                      lineHeight: 1
+                    }}
+                  >
+                    $70.000 🔥
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 11,
+                      color: '#cbd5e1',
+                      margin: 0
+                    }}
+                  >
+                    en carritos que nunca cerraron.
+                  </p>
+                </div>
+              </div>
+              <p
+                style={{
+                  fontSize: 10,
+                  color: '#64748b',
+                  margin: 0,
+                  textAlign: 'center'
+                }}
+              >
+                Todos los meses. Sin que te des cuenta.
+              </p>
+            </SlideWrapper>
+
+            {/* ================= SLIDE 4 — SOLUCIÓN NEVUX ================= */}
+            <SlideWrapper label="Slide 4 — SOLUCIÓN NEVUX">
+              <NevuxLogo size={24} />
+              <div
+                style={{
+                  margin: 'auto 0',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 16,
+                  position: 'relative',
+                  zIndex: 1
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: '#34d399',
+                    letterSpacing: '0.1em'
+                  }}
+                >
+                  ✅ LA SOLUCIÓN
+                </div>
+                <h3
+                  style={{
+                    fontSize: 24,
+                    fontWeight: 900,
+                    color: '#fff',
+                    lineHeight: 1.2,
+                    margin: 0
+                  }}
+                >
+                  Urgencia real en{' '}
+                  <span style={{ color: '#10B981' }}>2 minutos.</span>
+                </h3>
+                <div
+                  style={{
+                    background:
+                      'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                    borderRadius: 16,
+                    padding: 20,
+                    textAlign: 'center',
+                    boxShadow: '0 10px 30px rgba(16,185,129,0.3)'
                   }}
                 >
                   <p
@@ -610,166 +713,221 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
                       fontSize: 11,
                       color: '#FFFFFF',
                       fontWeight: 800,
-                      margin: 0
+                      margin: 0,
+                      letterSpacing: '0.1em',
+                      opacity: 0.9
                     }}
                   >
                     ⏱️ OFERTA EXPIRA EN
                   </p>
                   <p
                     style={{
-                      fontSize: 26,
+                      fontSize: 44,
                       fontWeight: 900,
                       color: '#FFFFFF',
-                      margin: '4px 0 0 0'
+                      margin: '6px 0 0 0',
+                      lineHeight: 1,
+                      fontFamily: 'ui-monospace, monospace'
                     }}
                   >
                     14:32:08
                   </p>
                 </div>
-                <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 12 }}>
-                  Sin código. Sin diseñador. 2 clics.
-                </p>
-              </div>
-            </div>
-
-            {/* SLIDE 5 */}
-            <div style={{ width: '100%', maxWidth: 400 }}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: '#34d399',
-                  marginBottom: 6
-                }}
-              >
-                Slide 5 — RESULTADO
-              </div>
-              <div
-                style={{
-                  width: '100%',
-                  aspectRatio: '4/5',
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  border: '2px solid rgba(16,185,129,0.25)',
-                  backgroundColor: '#111827',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  padding: 28,
-                  boxSizing: 'border-box',
-                  textAlign: 'center'
-                }}
-              >
-                <p style={{ fontSize: 13, color: '#FFFFFF', margin: 0 }}>
-                  Tiendas que activaron este widget:
-                </p>
                 <p
                   style={{
-                    fontSize: 48,
-                    fontWeight: 900,
-                    color: '#10B981',
-                    margin: '12px 0 4px 0',
-                    lineHeight: 1
+                    fontSize: 12,
+                    color: '#cbd5e1',
+                    textAlign: 'center',
+                    margin: 0
                   }}
                 >
-                  +23%
-                </p>
-                <p style={{ fontSize: 14, color: '#FFFFFF', fontWeight: 700 }}>
-                  de conversión en 7 días
-                </p>
-                <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 12 }}>
-                  Configuración: 2 clics en tu panel Tiendanube.
+                  Sin código. Sin diseñador. 2 clics en tu Tiendanube.
                 </p>
               </div>
-            </div>
+            </SlideWrapper>
 
-            {/* SLIDE 6 */}
-            <div style={{ width: '100%', maxWidth: 400 }}>
+            {/* ================= SLIDE 5 — RESULTADO ================= */}
+            <SlideWrapper label="Slide 5 — RESULTADO">
+              <NevuxLogo size={24} />
               <div
                 style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: '#34d399',
-                  marginBottom: 6
-                }}
-              >
-                Slide 6 — CTA FINAL
-              </div>
-              <div
-                style={{
-                  width: '100%',
-                  aspectRatio: '4/5',
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  border: '2px solid rgba(16,185,129,0.25)',
-                  backgroundColor: '#10B981',
+                  margin: 'auto 0',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'center',
+                  gap: 16,
+                  position: 'relative',
+                  zIndex: 1,
                   alignItems: 'center',
-                  padding: 28,
-                  boxSizing: 'border-box',
                   textAlign: 'center'
                 }}
               >
-                <h3
+                <div
                   style={{
-                    fontSize: 22,
-                    fontWeight: 900,
-                    color: '#FFFFFF',
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: '#34d399',
+                    letterSpacing: '0.1em'
+                  }}
+                >
+                  📈 RESULTADO COMPROBADO
+                </div>
+                <p
+                  style={{
+                    fontSize: 14,
+                    color: '#cbd5e1',
                     margin: 0,
-                    lineHeight: 1.2
-                  }}
-                >
-                  Dejá de perder carritos hoy.
-                </h3>
-                <p
-                  style={{
-                    fontSize: 13,
-                    color: '#FFFFFF',
-                    marginTop: 12,
                     lineHeight: 1.4
                   }}
                 >
-                  Instalá Nevux en tu Tiendanube y activá la urgencia en 2 minutos.
+                  Tiendas que activaron este widget vieron hasta un
                 </p>
                 <div
                   style={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: 12,
-                    padding: '12px 24px',
-                    marginTop: 20
+                    position: 'relative',
+                    padding: '20px 30px'
                   }}
                 >
                   <p
                     style={{
-                      fontSize: 14,
+                      fontSize: 72,
                       fontWeight: 900,
                       color: '#10B981',
-                      margin: 0
+                      margin: 0,
+                      lineHeight: 1,
+                      textShadow: '0 0 30px rgba(16,185,129,0.5)'
                     }}
                   >
-                    Comentá URGENTE 👇
+                    +23%
                   </p>
                 </div>
                 <p
                   style={{
-                    fontSize: 11,
-                    color: '#FFFFFF',
-                    fontWeight: 700,
-                    marginTop: 16,
-                    opacity: 0.8
+                    fontSize: 16,
+                    color: '#fff',
+                    fontWeight: 800,
+                    margin: 0
                   }}
                 >
-                  NEVUX
+                  de conversión en 7 días
                 </p>
+                <div
+                  style={{
+                    backgroundColor: 'rgba(16,185,129,0.1)',
+                    border: '1px solid rgba(16,185,129,0.3)',
+                    borderRadius: 10,
+                    padding: '8px 16px',
+                    marginTop: 8
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 11,
+                      color: '#34d399',
+                      fontWeight: 700,
+                      margin: 0
+                    }}
+                  >
+                    Sin cambiar producto. Sin más Ads.
+                  </p>
+                </div>
               </div>
-            </div>
+            </SlideWrapper>
+
+            {/* ================= SLIDE 6 — CTA FINAL ================= */}
+            <SlideWrapper label="Slide 6 — CTA FINAL">
+              <NevuxLogo size={24} />
+              <div
+                style={{
+                  margin: 'auto 0',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 18,
+                  position: 'relative',
+                  zIndex: 1
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: '#10B981',
+                    letterSpacing: '0.1em'
+                  }}
+                >
+                  🚀 TU TURNO
+                </div>
+                <h3
+                  style={{
+                    fontSize: 28,
+                    fontWeight: 900,
+                    color: '#fff',
+                    lineHeight: 1.1,
+                    margin: 0
+                  }}
+                >
+                  Dejá de perder <br />
+                  <span style={{ color: '#10B981' }}>carritos hoy.</span>
+                </h3>
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: '#cbd5e1',
+                    lineHeight: 1.5,
+                    margin: 0
+                  }}
+                >
+                  Activá el Temporizador de Nevux en tu Tiendanube en 2 minutos.
+                </p>
+                <div
+                  style={{
+                    background:
+                      'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                    borderRadius: 14,
+                    padding: 16,
+                    textAlign: 'center',
+                    boxShadow: '0 10px 30px rgba(16,185,129,0.4)'
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 900,
+                      color: '#FFFFFF',
+                      margin: 0
+                    }}
+                  >
+                    💬 Comentá &quot;URGENTE&quot;
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 11,
+                      color: '#FFFFFF',
+                      fontWeight: 700,
+                      margin: '4px 0 0 0',
+                      opacity: 0.9
+                    }}
+                  >
+                    y te mando el acceso directo
+                  </p>
+                </div>
+              </div>
+              <p
+                style={{
+                  fontSize: 10,
+                  color: '#64748b',
+                  margin: 0,
+                  textAlign: 'center'
+                }}
+              >
+                ARS $35.000/mes · Sin permanencia · +41 widgets
+              </p>
+            </SlideWrapper>
           </div>
         </div>
 
-        {/* STORIES */}
+        {/* ============================================================
+            STORIES
+            ============================================================ */}
         <div
           style={{
             backgroundColor: '#061e14',
@@ -944,7 +1102,11 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
                     🛒 Carrito abandonado hace 2 min
                   </p>
                   <p
-                    style={{ fontSize: 11, color: '#94a3b8', marginTop: 6, margin: '6px 0 0 0' }}
+                    style={{
+                      fontSize: 11,
+                      color: '#94a3b8',
+                      margin: '6px 0 0 0'
+                    }}
                   >
                     Sin urgencia = sin compra
                   </p>
@@ -1145,4 +1307,4 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
       </main>
     </div>
   );
-}
+                   }
