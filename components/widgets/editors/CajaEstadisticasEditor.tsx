@@ -222,7 +222,7 @@ function ColorPickerField({ value, onChange }: { value: string; onChange: (v: st
   const handleClick = () => {
     const input = document.createElement('input');
     input.type = 'color';
-    input.value = value.startsWith('#') && value.length >= 7 ? value : '#ffffff';
+    input.value = value && value.startsWith('#') && value.length >= 7 ? value : '#ffffff';
     input.onchange = (e) => onChange((e.target as HTMLInputElement).value);
     input.click();
   };
@@ -271,7 +271,7 @@ function SelectField({ value, onChange, options }: { value: string; onChange: (v
 function CajaEstadisticasPreview({ config }: { config: CajaEstadisticasConfig }) {
   const numSize = config.tamano_numero === 'pequeno' ? 18 : config.tamano_numero === 'grande' ? 28 : 22;
   const textSize = config.tamano_texto === 'pequeno' ? 11 : config.tamano_texto === 'grande' ? 15 : 13;
-  const cols = parseInt(config.columnas || '3', 10);
+  const cols = Math.max(1, parseInt(String(config.columnas || '3'), 10) || 3);
 
   return (
     <div style={{
@@ -305,12 +305,14 @@ function CajaEstadisticasPreview({ config }: { config: CajaEstadisticasConfig })
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: `repeat(${Math.min(cols, Math.max(config.items.length, 1))}, 1fr)`,
+          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
           gap: 12,
+          alignItems: 'start',
+          width: '100%',
         }}>
           {config.items && config.items.length > 0 ? (
             config.items.map((item) => (
-              <div key={item.id} style={{ textAlign: 'center', padding: '6px 4px', minWidth: 0 }}>
+              <div key={item.id} style={{ textAlign: 'center', padding: '6px 4px', minWidth: 0, boxSizing: 'border-box' }}>
                 {item.icon ? (
                   <div style={{ fontSize: numSize - 4, marginBottom: 4 }}>
                     {item.icon}
@@ -322,6 +324,7 @@ function CajaEstadisticasPreview({ config }: { config: CajaEstadisticasConfig })
                   color: config.color_numero || '#10B981',
                   lineHeight: 1.1,
                   wordBreak: 'break-word',
+                  overflowWrap: 'anywhere',
                 }}>
                   {item.numero || '0'}
                 </div>
@@ -333,6 +336,7 @@ function CajaEstadisticasPreview({ config }: { config: CajaEstadisticasConfig })
                     marginTop: 4,
                     lineHeight: 1.2,
                     wordBreak: 'break-word',
+                    overflowWrap: 'anywhere',
                   }}>
                     {renderMarkdownText(item.etiqueta)}
                   </div>
@@ -344,6 +348,7 @@ function CajaEstadisticasPreview({ config }: { config: CajaEstadisticasConfig })
                     marginTop: 2,
                     lineHeight: 1.2,
                     wordBreak: 'break-word',
+                    overflowWrap: 'anywhere',
                   }}>
                     {renderMarkdownText(item.texto)}
                   </div>
@@ -506,7 +511,7 @@ export default function CajaEstadisticasEditor({
       <div>
         <FieldLabel>Columnas de la cuadrícula</FieldLabel>
         <SelectField
-          value={config.columnas}
+          value={String(config.columnas || '3')}
           onChange={(v) => update('columnas', v)}
           options={[
             { value: '1', label: '1 Columna (Lista vertical)' },
@@ -950,4 +955,4 @@ export default function CajaEstadisticasEditor({
       </div>
     </div>
   );
-  }
+   }
