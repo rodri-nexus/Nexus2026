@@ -8,60 +8,60 @@ import {
   Check,
   Mic,
   Eye,
-  Image as ImageIcon,
   Clock,
   Film,
-  Music,
+  Play,
+  Zap,
   Volume2,
   MessageCircle,
-  Zap,
-  Smartphone,
-  Globe,
-  Palette,
-  ChevronRight,
-  Play,
   AlertTriangle,
   MousePointerClick,
+  Palette,
+  Globe,
 } from 'lucide-react';
 
-/* ─── Logo Nevux ─── */
-function NevuxLogo({ size = 28 }: { size?: number }) {
+/* ─── Logo Oficial NEVUX (Isologotipo con N real según foto) ─── */
+function NevuxLogoMark({ size = 24 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 100 100"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <linearGradient id="nvxRightGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#FFFFFF" />
+          <stop offset="65%" stopColor="#505050" />
+          <stop offset="100%" stopColor="#000000" />
+        </linearGradient>
+        <linearGradient id="nvxDiagGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFFFFF" />
+          <stop offset="50%" stopColor="#E0E0E0" />
+          <stop offset="85%" stopColor="#606060" />
+          <stop offset="100%" stopColor="#101010" />
+        </linearGradient>
+      </defs>
+      {/* Columna izquierda (blanca sólida) */}
+      <rect x="20" y="20" width="13" height="54" fill="#FFFFFF" />
+      {/* Columna derecha (degradado a oscuro) */}
+      <rect x="67" y="20" width="13" height="35" fill="url(#nvxRightGrad)" />
+      {/* Diagonal extendida hacia esquina inferior derecha */}
+      <polygon points="20,20 33,20 96,96 80,96" fill="url(#nvxDiagGrad)" />
+    </svg>
+  );
+}
+
+function NevuxLogo({ size = 24 }: { size?: number }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <div
-        style={{
-          width: size,
-          height: size,
-          borderRadius: '50%',
-          background: '#000',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1.5px solid rgba(16,185,129,0.4)',
-        }}
-      >
-        <svg width={size * 0.55} height={size * 0.55} viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="nvx" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stopColor="#fff" />
-              <stop offset="100%" stopColor="#10B981" />
-            </linearGradient>
-          </defs>
-          <path
-            d="M4 20V4l8 12L20 4v16"
-            stroke="url(#nvx)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-          />
-        </svg>
-      </div>
+      <NevuxLogoMark size={size} />
       <span
         style={{
           fontFamily: 'system-ui, -apple-system, sans-serif',
           fontWeight: 900,
-          fontSize: size * 0.55,
+          fontSize: size * 0.65,
           letterSpacing: '0.08em',
           color: '#fff',
         }}
@@ -72,7 +72,7 @@ function NevuxLogo({ size = 28 }: { size?: number }) {
   );
 }
 
-/* ─── Wrapper Reel Cover (9:16) ─── */
+/* ─── Wrapper Portada Reel (9:16) con Logo SOLO arriba a la izquierda ─── */
 function ReelCover({
   label,
   children,
@@ -110,6 +110,12 @@ function ReelCover({
           fontFamily: 'system-ui, -apple-system, sans-serif',
         }}
       >
+        {/* Logo Nevux ÚNICAMENTE en la parte superior izquierda */}
+        <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 10 }}>
+          <NevuxLogo size={20} />
+        </div>
+
+        {/* Glow decorativo */}
         <div
           style={{
             position: 'absolute',
@@ -123,7 +129,9 @@ function ReelCover({
             pointerEvents: 'none',
           }}
         />
-        {children}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: 28 }}>
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -368,7 +376,7 @@ export default function BannersPage() {
     '',
     'Y ahí está el problema que nadie te dice:',
     '',
-    'Escribir &quot;zapatillas negras talle 42&quot; en un teclado de 5 centímetros es una tortura.',
+    'Escribir "zapatillas negras talle 42" en un teclado de 5 centímetros es una tortura.',
     'El cliente se frustra. Borra. Se equivoca. Y en 8 segundos se va a MercadoLibre.',
     '',
     'Con el Buscador por Voz de Nevux:',
@@ -397,7 +405,7 @@ export default function BannersPage() {
         fontFamily: 'system-ui, -apple-system, sans-serif',
       }}
     >
-      {/* ─── Header ─── */}
+      {/* ─── Header Principal ─── */}
       <header
         style={{
           background: '#04140e',
@@ -423,7 +431,7 @@ export default function BannersPage() {
           <ArrowLeft size={16} /> Volver
         </Link>
         <div style={{ flex: 1 }} />
-        <NevuxLogo size={24} />
+        <NevuxLogo size={22} />
       </header>
 
       <main
@@ -545,7 +553,6 @@ export default function BannersPage() {
 
         {/* ── PORTADA DEL REEL ── */}
         <ReelCover label="Portada del Reel">
-          <NevuxLogo size={22} />
           <div
             style={{
               flex: 1,
@@ -573,14 +580,6 @@ export default function BannersPage() {
                   inset: -42,
                   borderRadius: '50%',
                   border: '1.5px solid rgba(16,185,129,0.06)',
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: -58,
-                  borderRadius: '50%',
-                  border: '1px solid rgba(16,185,129,0.03)',
                 }}
               />
               <div
@@ -648,7 +647,6 @@ export default function BannersPage() {
               </span>
             </div>
           </div>
-          <NevuxLogo size={18} />
         </ReelCover>
 
         {/* ── FICHA TÉCNICA DEL REEL ── */}
@@ -764,7 +762,7 @@ export default function BannersPage() {
           color="#10B981"
           visual="Aparece el botón de micrófono flotante de Nevux en la esquina inferior derecha de la tienda (color #10B981 con ondas animadas). El usuario lo toca, habla &quot;zapatillas negras talle 42&quot;, y al instante aparecen los resultados. Se muestra el texto &quot;Escuchando... Decí lo que buscás&quot; mientras escucha."
           texto="🎙️ Buscador por Voz de Nevux — Hablá y listo"
-          voz="Con el Buscador por Voz de Nevux, tu cliente toca el micrófono, habla naturalmente, y la IA le muestra los resultados al instante. Sin teclado, sin errores."
+          voz="Con el Buscador por Voz de Nevux, tu cliente toca el micrófono, habla naturally, y la IA le muestra los resultados al instante. Sin teclado, sin errores."
         />
 
         <SceneCard
@@ -780,7 +778,7 @@ export default function BannersPage() {
           time="21–25s"
           title="CTA FINAL"
           color="#10B981"
-          visual="Fondo oscuro con el logo de Nevux centrado, el micrófono verde pulsando, y el texto del CTA apareciendo con animación de typewriter. Precio y badge de +41 widgets debajo."
+          visual="Fondo oscuro con el logo de Nevux centrado arriba, el micrófono verde pulsando, y el texto del CTA apareciendo con animación de typewriter. Precio y badge de +41 widgets debajo."
           texto="ARS $35.000/mes · +41 widgets · Comentá VOZ 👇"
           voz="Activá el Buscador por Voz por treinta y cinco mil pesos al mes con más de cuarenta y un widgets incluidos. Comentá VOZ y te lo activo en dos minutos."
         />
@@ -827,19 +825,11 @@ export default function BannersPage() {
               fontFamily: 'system-ui, sans-serif',
             }}
           >
-            <div
-              style={{
-                position: 'absolute',
-                top: -40,
-                right: -40,
-                width: 120,
-                height: 120,
-                background:
-                  'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)',
-                borderRadius: '50%',
-              }}
-            />
-            <NevuxLogo size={18} />
+            {/* Logo Nevux arriba a la izquierda únicamente */}
+            <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}>
+              <NevuxLogo size={16} />
+            </div>
+
             <div
               style={{
                 flex: 1,
@@ -847,6 +837,7 @@ export default function BannersPage() {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 gap: 12,
+                paddingTop: 24,
               }}
             >
               <span
@@ -947,19 +938,11 @@ export default function BannersPage() {
               fontFamily: 'system-ui, sans-serif',
             }}
           >
-            <div
-              style={{
-                position: 'absolute',
-                top: -40,
-                right: -40,
-                width: 120,
-                height: 120,
-                background:
-                  'radial-gradient(circle, rgba(248,113,113,0.08) 0%, transparent 70%)',
-                borderRadius: '50%',
-              }}
-            />
-            <NevuxLogo size={18} />
+            {/* Logo Nevux arriba a la izquierda únicamente */}
+            <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}>
+              <NevuxLogo size={16} />
+            </div>
+
             <div
               style={{
                 flex: 1,
@@ -967,6 +950,7 @@ export default function BannersPage() {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 gap: 12,
+                paddingTop: 24,
               }}
             >
               <AlertTriangle size={24} style={{ color: '#f87171' }} />
@@ -1040,19 +1024,11 @@ export default function BannersPage() {
               fontFamily: 'system-ui, sans-serif',
             }}
           >
-            <div
-              style={{
-                position: 'absolute',
-                top: -40,
-                right: -40,
-                width: 120,
-                height: 120,
-                background:
-                  'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)',
-                borderRadius: '50%',
-              }}
-            />
-            <NevuxLogo size={18} />
+            {/* Logo Nevux arriba a la izquierda únicamente */}
+            <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}>
+              <NevuxLogo size={16} />
+            </div>
+
             <div
               style={{
                 flex: 1,
@@ -1061,6 +1037,7 @@ export default function BannersPage() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 gap: 14,
+                paddingTop: 24,
               }}
             >
               <span
@@ -1074,37 +1051,29 @@ export default function BannersPage() {
               >
                 🎙️ ASÍ FUNCIONA
               </span>
-              <div style={{ position: 'relative', margin: '8px 0' }}>
+              <div style={{ position: 'relative', margin: '4px 0' }}>
                 <div
                   style={{
                     position: 'absolute',
-                    inset: -14,
+                    inset: -12,
                     borderRadius: '50%',
                     border: '2px solid rgba(16,185,129,0.15)',
                   }}
                 />
                 <div
                   style={{
-                    position: 'absolute',
-                    inset: -26,
-                    borderRadius: '50%',
-                    border: '1px solid rgba(16,185,129,0.08)',
-                  }}
-                />
-                <div
-                  style={{
-                    width: 52,
-                    height: 52,
+                    width: 48,
+                    height: 48,
                     borderRadius: '50%',
                     background:
                       'linear-gradient(135deg, #10B981, #059669)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 0 24px rgba(16,185,129,0.3)',
+                    boxShadow: '0 0 20px rgba(16,185,129,0.3)',
                   }}
                 >
-                  <Mic size={22} style={{ color: '#fff' }} />
+                  <Mic size={20} style={{ color: '#fff' }} />
                 </div>
               </div>
               <div
@@ -1179,19 +1148,11 @@ export default function BannersPage() {
               fontFamily: 'system-ui, sans-serif',
             }}
           >
-            <div
-              style={{
-                position: 'absolute',
-                top: -40,
-                right: -40,
-                width: 120,
-                height: 120,
-                background:
-                  'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)',
-                borderRadius: '50%',
-              }}
-            />
-            <NevuxLogo size={18} />
+            {/* Logo Nevux arriba a la izquierda únicamente */}
+            <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}>
+              <NevuxLogo size={16} />
+            </div>
+
             <div
               style={{
                 flex: 1,
@@ -1201,9 +1162,10 @@ export default function BannersPage() {
                 alignItems: 'center',
                 gap: 14,
                 textAlign: 'center',
+                paddingTop: 24,
               }}
             >
-              <Volume2 size={28} style={{ color: '#10B981' }} />
+              <Volume2 size={26} style={{ color: '#10B981' }} />
               <p
                 style={{
                   fontSize: 16,
@@ -1327,7 +1289,7 @@ export default function BannersPage() {
           onCopy={() => handleCopy('copy-martes', copyMartes)}
         />
 
-        {/* ─── Footer ─── */}
+        {/* ─── Footer Página ─── */}
         <div
           style={{
             marginTop: 48,
@@ -1341,9 +1303,9 @@ export default function BannersPage() {
           <span style={{ fontSize: 12, color: '#4b5563' }}>
             Nevux · Planificación Semanal · Semana 1
           </span>
-          <NevuxLogo size={20} />
+          <NevuxLogo size={18} />
         </div>
       </main>
     </div>
   );
-  }
+        }
