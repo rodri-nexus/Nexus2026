@@ -1145,6 +1145,64 @@ function MarqueeNovedadesPreview() {
   );
 }
 
+function CajaEstadisticasPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📊 CAJA DE ESTADÍSTICAS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          NÚMEROS
+        </span>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1px", textAlign: "center" }}>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#111827" }}>Nuestros números</span>
+        <span style={{ fontSize: "5.5px", color: "#6b7280" }}>Lo que nos respalda</span>
+      </div>
+
+      <div style={{ display: "flex", gap: "4px", justifyContent: "center", padding: "2px 0" }}>
+        {[
+          { icon: "📦", number: "+1.500", label: "Pedidos" },
+          { icon: "⭐", number: "4.9", label: "Rating" },
+          { icon: "😊", number: "98%", label: "Clientes" },
+        ].map((item, idx) => (
+          <div
+            key={idx}
+            style={{
+              flex: 1,
+              background: "#f9fafb",
+              border: "1px solid #e5e7eb",
+              borderRadius: "6px",
+              padding: "5px 3px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "2px",
+              minWidth: 0,
+            }}
+          >
+            <span style={{ fontSize: "10px", lineHeight: 1 }}>{item.icon}</span>
+            <span style={{ fontSize: "8px", fontWeight: 900, color: "#111827", lineHeight: 1.1 }}>{item.number}</span>
+            <span style={{ fontSize: "5px", fontWeight: 700, color: "#6b7280", textAlign: "center", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>{item.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function DefaultPreview() {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px" }}>
@@ -1252,6 +1310,8 @@ function renderPreview(slug: string) {
       return <HorarioAtencionPreview />;
     case "marquee-novedades":
       return <MarqueeNovedadesPreview />;
+    case "caja-estadisticas":
+      return <CajaEstadisticasPreview />;
     default:
       return <DefaultPreview />;
   }
@@ -1281,4 +1341,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-      }
+                            }
