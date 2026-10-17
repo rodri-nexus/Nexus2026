@@ -85,9 +85,9 @@ function TextInput({ value, onChange, placeholder }: { value: string; onChange: 
 
 function ColorPicker({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
-    <div style={{ minWidth: 0 }}>
-      <div style={{ fontSize: "12px", fontWeight: 600, color: "#374151", marginBottom: "4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
-      <div style={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0 }}>
+    <div style={{ width: "100%", minWidth: 0, boxSizing: "border-box" }}>
+      <div style={{ fontSize: "11px", fontWeight: 600, color: "#374151", marginBottom: "4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: "6px", width: "100%", minWidth: 0 }}>
         <input
           type="color"
           value={value === "transparent" ? "#ffffff" : value}
@@ -99,10 +99,10 @@ function ColorPicker({ label, value, onChange }: { label: string; value: string;
           value={value}
           onChange={(e) => onChange(e.target.value)}
           style={{
-            flex: 1,
-            minWidth: 0,
             width: "100%",
-            padding: "7px 8px",
+            minWidth: 0,
+            flex: 1,
+            padding: "7px 6px",
             borderRadius: "6px",
             border: "1px solid #d1d5db",
             fontSize: "11px",
@@ -119,7 +119,7 @@ function ColorPicker({ label, value, onChange }: { label: string; value: string;
 
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
-    <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", width: "100%" }}>
+    <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", width: "100%", boxSizing: "border-box" }}>
       <span style={{ fontSize: "13px", fontWeight: 600, color: "#374151", flex: 1, paddingRight: "10px" }}>{label}</span>
       <div
         onClick={() => onChange(!checked)}
@@ -153,10 +153,10 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 
 function SliderInput({ label, value, min, max, unit = "px", onChange }: { label: string; value: number; min: number; max: number; unit?: string; onChange: (v: number) => void }) {
   return (
-    <div style={{ minWidth: 0 }}>
+    <div style={{ width: "100%", minWidth: 0, boxSizing: "border-box" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-        <span style={{ fontSize: "12px", fontWeight: 600, color: "#374151" }}>{label}</span>
-        <span style={{ fontSize: "12px", fontWeight: 700, color: "#10b981" }}>{value}{unit}</span>
+        <span style={{ fontSize: "11px", fontWeight: 600, color: "#374151", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</span>
+        <span style={{ fontSize: "11px", fontWeight: 700, color: "#10b981", marginLeft: "4px", flexShrink: 0 }}>{value}{unit}</span>
       </div>
       <input
         type="range"
@@ -172,7 +172,7 @@ function SliderInput({ label, value, min, max, unit = "px", onChange }: { label:
 
 function SelectInput({ label, value, options, onChange }: { label: string; value: any; options: { value: any; label: string }[]; onChange: (v: any) => void }) {
   return (
-    <div style={{ minWidth: 0 }}>
+    <div style={{ width: "100%", minWidth: 0, boxSizing: "border-box" }}>
       {label && <div style={{ fontSize: "12px", fontWeight: 600, color: "#374151", marginBottom: "4px" }}>{label}</div>}
       <select
         value={value}
@@ -426,9 +426,9 @@ export default function CajaEstadisticasEditor({
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+    <div style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "16px", overflowX: "hidden" }}>
       {/* Navegación por Pestañas */}
-      <div style={{ display: "flex", gap: "4px", borderBottom: "1px solid #e5e7eb", overflowX: "auto", paddingBottom: "2px" }}>
+      <div style={{ display: "flex", gap: "4px", borderBottom: "1px solid #e5e7eb", overflowX: "auto", paddingBottom: "2px", width: "100%", boxSizing: "border-box" }}>
         {[
           { id: "gen", label: "General" },
           { id: "location", label: "Ubicación" },
@@ -439,7 +439,7 @@ export default function CajaEstadisticasEditor({
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
             style={{
-              padding: "10px 14px",
+              padding: "10px 12px",
               fontSize: "13px",
               fontWeight: activeTab === tab.id ? 700 : 500,
               color: activeTab === tab.id ? "#10b981" : "#6b7280",
@@ -458,7 +458,7 @@ export default function CajaEstadisticasEditor({
 
       {/* 1. PESTAÑA GENERAL */}
       {activeTab === "gen" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "14px", width: "100%", boxSizing: "border-box" }}>
           <div>
             <FieldLabel help="Título superior opcional para encabezar el bloque.">Título (opcional)</FieldLabel>
             <TextInput value={cfg.title} onChange={(v) => updateCfg("title", v)} placeholder="ej: Nuestros números" />
@@ -471,7 +471,7 @@ export default function CajaEstadisticasEditor({
 
           <div>
             <FieldLabel help="Muestra de 1 a 6 estadísticas con ícono, número, etiqueta y texto.">Estadísticas</FieldLabel>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "6px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "6px", width: "100%", boxSizing: "border-box" }}>
               {cfg.items.map((item: StatItem, idx: number) => (
                 <div
                   key={item.id}
@@ -483,6 +483,8 @@ export default function CajaEstadisticasEditor({
                     display: "flex",
                     flexDirection: "column",
                     gap: "10px",
+                    width: "100%",
+                    boxSizing: "border-box",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -506,27 +508,27 @@ export default function CajaEstadisticasEditor({
                     )}
                   </div>
 
-                  {/* Fila 1: Ícono + Número */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "10px" }}>
-                    <SelectInput
-                      label="Ícono"
-                      value={item.icon}
-                      options={AVAILABLE_ICONS.map((i) => ({ value: i.id, label: `${i.icon} ${i.label}` }))}
-                      onChange={(v) => handleUpdateItem(item.id, "icon", v)}
-                    />
+                  {/* Campo Ícono (100% ancho para que no se corte el selector) */}
+                  <SelectInput
+                    label="Ícono"
+                    value={item.icon}
+                    options={AVAILABLE_ICONS.map((i) => ({ value: i.id, label: `${i.icon} ${i.label}` }))}
+                    onChange={(v) => handleUpdateItem(item.id, "icon", v)}
+                  />
+
+                  {/* Número y Etiqueta en 2 columnas parejas */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "8px", width: "100%", boxSizing: "border-box" }}>
                     <div>
                       <div style={{ fontSize: "12px", fontWeight: 600, color: "#374151", marginBottom: "4px" }}>Número</div>
                       <TextInput value={item.number} onChange={(v) => handleUpdateItem(item.id, "number", v)} placeholder="ej: +1.500" />
                     </div>
+                    <div>
+                      <div style={{ fontSize: "12px", fontWeight: 600, color: "#374151", marginBottom: "4px" }}>Etiqueta</div>
+                      <TextInput value={item.label} onChange={(v) => handleUpdateItem(item.id, "label", v)} placeholder="ej: Pedidos enviados" />
+                    </div>
                   </div>
 
-                  {/* Fila 2: Etiqueta */}
-                  <div>
-                    <div style={{ fontSize: "12px", fontWeight: 600, color: "#374151", marginBottom: "4px" }}>Etiqueta</div>
-                    <TextInput value={item.label} onChange={(v) => handleUpdateItem(item.id, "label", v)} placeholder="ej: Pedidos enviados" />
-                  </div>
-
-                  {/* Fila 3: Texto opcional */}
+                  {/* Texto opcional */}
                   <div>
                     <div style={{ fontSize: "12px", fontWeight: 600, color: "#374151", marginBottom: "4px" }}>Texto descriptivo (opcional)</div>
                     <TextInput value={item.text} onChange={(v) => handleUpdateItem(item.id, "text", v)} placeholder="ej: Envíos a todo el país" />
@@ -548,6 +550,7 @@ export default function CajaEstadisticasEditor({
                     fontSize: "13px",
                     cursor: "pointer",
                     textAlign: "center",
+                    boxSizing: "border-box",
                   }}
                 >
                   + Agregar estadística
@@ -560,9 +563,9 @@ export default function CajaEstadisticasEditor({
 
       {/* 2. PESTAÑA UBICACIÓN */}
       {activeTab === "location" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%", boxSizing: "border-box" }}>
           <FieldLabel help="Elige la posición del widget dentro de la ficha de producto.">Posición del widget</FieldLabel>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", boxSizing: "border-box" }}>
             {[
               { id: "product_before", title: "Antes de la descripción", desc: "Debajo del botón de compra u opciones de envío." },
               { id: "product_after", title: "Después de la descripción", desc: "A ancho completo debajo de la sección principal." },
@@ -579,9 +582,10 @@ export default function CajaEstadisticasEditor({
                   border: cfg.location === loc.id ? "2px solid #10b981" : "1px solid #e5e7eb",
                   background: cfg.location === loc.id ? "#ecfdf5" : "#ffffff",
                   cursor: "pointer",
+                  boxSizing: "border-box",
                 }}
               >
-                <input type="radio" name="location" checked={cfg.location === loc.id} onChange={() => {}} style={{ marginTop: "2px" }} />
+                <input type="radio" name="location" checked={cfg.location === loc.id} onChange={() => {}} style={{ marginTop: "3px" }} />
                 <div>
                   <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827" }}>{loc.title}</div>
                   <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>{loc.desc}</div>
@@ -590,7 +594,7 @@ export default function CajaEstadisticasEditor({
             ))}
           </div>
 
-          <hr style={{ border: "none", borderTop: "1px solid #e5e7eb", margin: "8px 0" }} />
+          <hr style={{ border: "none", borderTop: "1px solid #e5e7eb", margin: "4px 0" }} />
 
           <Toggle checked={isActive} onChange={setIsActive} label="Widget activo en la tienda" />
         </div>
@@ -598,11 +602,11 @@ export default function CajaEstadisticasEditor({
 
       {/* 3. PESTAÑA ESTILOS */}
       {activeTab === "style" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%", boxSizing: "border-box" }}>
           {/* Distribución */}
-          <div style={{ background: "#f9fafb", padding: "14px", borderRadius: "10px", border: "1px solid #e5e7eb" }}>
-            <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827", marginBottom: "12px" }}>📊 Distribución</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+          <div style={{ background: "#f9fafb", padding: "12px", borderRadius: "10px", border: "1px solid #e5e7eb", width: "100%", boxSizing: "border-box" }}>
+            <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827", marginBottom: "10px" }}>📊 Distribución</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "10px", width: "100%", boxSizing: "border-box" }}>
               <SelectInput
                 label="Diseño"
                 value={cfg.layout}
@@ -625,7 +629,7 @@ export default function CajaEstadisticasEditor({
             </div>
 
             {cfg.layout === "columns" && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginTop: "10px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "10px", marginTop: "10px", width: "100%", boxSizing: "border-box" }}>
                 <SelectInput
                   label="Columnas Escritorio"
                   value={cfg.colsDesktop}
@@ -653,9 +657,9 @@ export default function CajaEstadisticasEditor({
           </div>
 
           {/* Colores */}
-          <div style={{ background: "#f9fafb", padding: "14px", borderRadius: "10px", border: "1px solid #e5e7eb" }}>
-            <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827", marginBottom: "12px" }}>🎨 Colores</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+          <div style={{ background: "#f9fafb", padding: "12px", borderRadius: "10px", border: "1px solid #e5e7eb", width: "100%", boxSizing: "border-box" }}>
+            <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827", marginBottom: "10px" }}>🎨 Colores</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "10px", width: "100%", boxSizing: "border-box" }}>
               <ColorPicker label="Título" value={cfg.titleColor} onChange={(v) => updateCfg("titleColor", v)} />
               <ColorPicker label="Subtítulo" value={cfg.subtitleColor} onChange={(v) => updateCfg("subtitleColor", v)} />
               <ColorPicker label="Ícono" value={cfg.iconColor} onChange={(v) => updateCfg("iconColor", v)} />
@@ -670,9 +674,9 @@ export default function CajaEstadisticasEditor({
           </div>
 
           {/* Tipografías */}
-          <div style={{ background: "#f9fafb", padding: "14px", borderRadius: "10px", border: "1px solid #e5e7eb" }}>
-            <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827", marginBottom: "12px" }}>✏️ Tipografías y Tamaños</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+          <div style={{ background: "#f9fafb", padding: "12px", borderRadius: "10px", border: "1px solid #e5e7eb", width: "100%", boxSizing: "border-box" }}>
+            <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827", marginBottom: "10px" }}>✏️ Tipografías y Tamaños</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "10px", width: "100%", boxSizing: "border-box" }}>
               <SliderInput label="Tamaño Ícono" value={cfg.iconSize} min={16} max={64} onChange={(v) => updateCfg("iconSize", v)} />
               <SliderInput label="Tamaño Número" value={cfg.numberSize} min={14} max={48} onChange={(v) => updateCfg("numberSize", v)} />
               <SliderInput label="Tamaño Etiqueta" value={cfg.labelSize} min={10} max={24} onChange={(v) => updateCfg("labelSize", v)} />
@@ -680,7 +684,7 @@ export default function CajaEstadisticasEditor({
               <SliderInput label="Tamaño Título" value={cfg.titleSize} min={14} max={36} onChange={(v) => updateCfg("titleSize", v)} />
               <SliderInput label="Tamaño Subtítulo" value={cfg.subtitleSize} min={10} max={24} onChange={(v) => updateCfg("subtitleSize", v)} />
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginTop: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "10px", marginTop: "10px", width: "100%", boxSizing: "border-box" }}>
               <SelectInput
                 label="Estilo del Número"
                 value={cfg.numberWeight}
@@ -703,16 +707,16 @@ export default function CajaEstadisticasEditor({
           </div>
 
           {/* Espaciado y Bordes */}
-          <div style={{ background: "#f9fafb", padding: "14px", borderRadius: "10px", border: "1px solid #e5e7eb" }}>
-            <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827", marginBottom: "12px" }}>📐 Espaciados y Bordes</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+          <div style={{ background: "#f9fafb", padding: "12px", borderRadius: "10px", border: "1px solid #e5e7eb", width: "100%", boxSizing: "border-box" }}>
+            <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827", marginBottom: "10px" }}>📐 Espaciados y Bordes</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "10px", width: "100%", boxSizing: "border-box" }}>
               <SliderInput label="Padding Contenedor" value={cfg.containerPadding} min={0} max={60} onChange={(v) => updateCfg("containerPadding", v)} />
               <SliderInput label="Padding Tarjeta" value={cfg.cardPadding} min={0} max={40} onChange={(v) => updateCfg("cardPadding", v)} />
             </div>
-            <div style={{ marginTop: "12px" }}>
+            <div style={{ marginTop: "10px", width: "100%", boxSizing: "border-box" }}>
               <SliderInput label="Redondeo Contenedor" value={cfg.containerRadius} min={0} max={40} onChange={(v) => updateCfg("containerRadius", v)} />
             </div>
-            <div style={{ marginTop: "14px" }}>
+            <div style={{ marginTop: "12px", width: "100%", boxSizing: "border-box" }}>
               <Toggle checked={cfg.showSeparator} onChange={(v) => updateCfg("showSeparator", v)} label="Mostrar línea separadora entre estadísticas" />
             </div>
           </div>
@@ -721,25 +725,29 @@ export default function CajaEstadisticasEditor({
 
       {/* 4. PESTAÑA FECHAS ESPECIALES */}
       {activeTab === "dates" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%", boxSizing: "border-box" }}>
           <FieldLabel help="Aplica combinaciones de colores temáticas predefinidas para eventos comerciales.">
             Campaña activa
           </FieldLabel>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "10px", width: "100%", boxSizing: "border-box" }}>
             {CAMPAIGN_PRESETS.map((preset) => (
               <button
                 key={preset.id}
                 onClick={() => applyCampaignPreset(preset.id)}
                 style={{
-                  padding: "12px",
+                  padding: "12px 10px",
                   borderRadius: "8px",
                   border: cfg.campaignTheme === preset.id ? "2px solid #10b981" : "1px solid #e5e7eb",
                   background: cfg.campaignTheme === preset.id ? "#ecfdf5" : "#ffffff",
                   color: "#111827",
-                  fontSize: "13px",
+                  fontSize: "12px",
                   fontWeight: cfg.campaignTheme === preset.id ? 700 : 500,
                   cursor: "pointer",
                   textAlign: "left",
+                  boxSizing: "border-box",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
                 {preset.name}
@@ -750,7 +758,7 @@ export default function CajaEstadisticasEditor({
       )}
 
       {/* BOTÓN GUARDAR */}
-      <div style={{ paddingTop: "10px" }}>
+      <div style={{ paddingTop: "6px", width: "100%", boxSizing: "border-box" }}>
         <button
           onClick={handleSave}
           disabled={loading}
@@ -766,6 +774,7 @@ export default function CajaEstadisticasEditor({
             cursor: "pointer",
             opacity: loading ? 0.7 : 1,
             textAlign: "center",
+            boxSizing: "border-box",
           }}
         >
           {loading ? "Guardando..." : "Guardar widget"}
@@ -773,4 +782,4 @@ export default function CajaEstadisticasEditor({
       </div>
     </div>
   );
-  }
+        }
