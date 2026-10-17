@@ -6,19 +6,19 @@ import {
   ArrowLeft,
   Copy,
   Check,
-  TrendingUp,
+  Gift,
   Eye,
-  Image as ImageIcon,
   Clock,
-  ChevronRight,
+  Film,
+  Play,
   Zap,
-  ShoppingCart,
-  Truck,
-  PlusCircle,
-  BarChart3,
   MessageCircle,
-  AlertCircle,
-  Percent,
+  AlertTriangle,
+  Mail,
+  Smartphone,
+  Users,
+  Sparkles,
+  BarChart2,
 } from 'lucide-react';
 
 /* ─── Logo Oficial NEVUX (Isologotipo con N real) ─── */
@@ -73,8 +73,8 @@ function NevuxLogo({ size = 24 }: { size?: number }) {
   );
 }
 
-/* ─── Wrapper Slide Carrusel (4:5) con Logo SOLO arriba a la izquierda ─── */
-function SlideWrapper({
+/* ─── Wrapper Portada Reel (9:16) con Logo SOLO arriba a la izquierda ─── */
+function ReelCover({
   label,
   children,
 }: {
@@ -98,8 +98,8 @@ function SlideWrapper({
       </div>
       <div
         style={{
-          aspectRatio: '4/5',
-          maxWidth: 420,
+          aspectRatio: '9/16',
+          maxWidth: 360,
           background: '#020a07',
           border: '2px solid rgba(16,185,129,0.3)',
           borderRadius: 24,
@@ -228,8 +228,144 @@ function CopyBlock({
   );
 }
 
+/* ─── Card de escena para Reel ─── */
+function SceneCard({
+  time,
+  title,
+  color,
+  visual,
+  texto,
+  voz,
+}: {
+  time: string;
+  title: string;
+  color: string;
+  visual: string;
+  texto: string;
+  voz: string;
+}) {
+  return (
+    <div
+      style={{
+        background: '#061e14',
+        border: '1px solid rgba(16,185,129,0.15)',
+        borderLeft: '4px solid ' + color,
+        borderRadius: 12,
+        padding: 18,
+        marginBottom: 14,
+        fontFamily: 'system-ui, sans-serif',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          marginBottom: 12,
+        }}
+      >
+        <span
+          style={{
+            background: color,
+            color: '#000',
+            fontSize: 11,
+            fontWeight: 800,
+            padding: '3px 10px',
+            borderRadius: 6,
+          }}
+        >
+          {time}
+        </span>
+        <span style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>
+          {title}
+        </span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 14, flexShrink: 0 }}>📹</span>
+          <div>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: '#34d399',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+              }}
+            >
+              Visual
+            </span>
+            <p
+              style={{
+                color: '#d1d5db',
+                fontSize: 12,
+                margin: '2px 0 0',
+                lineHeight: 1.5,
+              }}
+            >
+              {visual}
+            </p>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 14, flexShrink: 0 }}>📝</span>
+          <div>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: '#facc15',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+              }}
+            >
+              Texto en pantalla
+            </span>
+            <p
+              style={{
+                color: '#d1d5db',
+                fontSize: 12,
+                margin: '2px 0 0',
+                lineHeight: 1.5,
+              }}
+            >
+              {texto}
+            </p>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 14, flexShrink: 0 }}>🎙️</span>
+          <div>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: '#60a5fa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+              }}
+            >
+              Voz en off
+            </span>
+            <p
+              style={{
+                color: '#d1d5db',
+                fontSize: 12,
+                margin: '2px 0 0',
+                lineHeight: 1.5,
+              }}
+            >
+              {voz}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ════════════════════════════════════════════════════════════
-   PÁGINA PRINCIPAL — MIÉRCOLES: TICKET PROMEDIO (CARRUSEL 7 SLIDES)
+   PÁGINA PRINCIPAL — JUEVES: CAPTACIÓN DE LEADS (REEL 28s)
    ════════════════════════════════════════════════════════════ */
 export default function BannersPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -240,29 +376,29 @@ export default function BannersPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  /* ── Copy Miércoles ── */
-  const copyMiercoles = [
-    '🛒 ¿Tus clientes entran a tu tienda, compran 1 solo producto y se van?',
+  /* ── Copy Jueves ── */
+  const copyJueves = [
+    '🎁 El 97% de las visitas que entran a tu Tiendanube se van sin comprar nada.',
     '',
-    'Estás dejando dinero sobre la mesa en cada pedido.',
+    '¿Y sabés qué es lo peor?',
+    'Que no tenés ni su Email ni su WhatsApp para volver a contactarlos.',
     '',
-    'El costo de envío frena las compras grandes y adquirir un cliente nuevo es cada vez más caro.',
+    'Estás tirando plata en publicidad para traer visitas que se pierden para siempre.',
     '',
-    'La clave para escalar la facturación de tu Tiendanube no es conseguir más visitas... es aumentar el TICKET PROMEDIO de las visitas que ya tenés.',
+    'Con el widget "Raspá y Gana" de Nevux cambiás las reglas del juego:',
     '',
-    'Con Nevux lo lográs con 2 funciones clave combinadas:',
+    '🎮 Convertís la captación en un juego interactivo irresistible.',
+    '📱 El visitante raspa la tarjeta desde su celular para descubrir su premio.',
+    '📲 Desbloquea su descuento o regalo dejando su WhatsApp o Email.',
+    '🔥 Tu lista de contactos calientes crece automáticamente todos los días.',
     '',
-    '1️⃣ Barra Progresiva de Envío Gratis: Le muestra al cliente exactamente cuánto le falta para no pagar envío (ej. "¡Estás a solo $8.500 del Envío Gratis!").',
-    '',
-    '2️⃣ Order Bump en Carrito: Le ofrece un producto complementario relevante con 1 solo clic antes de finalizar la compra.',
-    '',
-    '🔥 Resultado: +35% de ticket promedio sin gastar $1 extra en publicidad.',
+    'Dejá de perder visitas. Empezá a capturar clientes.',
     '',
     'Accedé a 50 Widgets + 6 funciones para impulsar tu Tiendanube.',
     '',
-    'Comentá TICKET y te muestro cómo activarlo en tu tienda en menos de 2 minutos. 👇',
+    'Comentá LEADS y te muestro cómo activarlo en tu tienda en menos de 2 minutos. 👇',
     '',
-    '#Tiendanube #TicketPromedio #EnvioGratis #OrderBump #EcommerceArgentina #VentasOnline #Nevux #CRO #MarketingDigital #PymesArgentina #TiendaOnline #EcommerceTips #ConversionRate',
+    '#Tiendanube #CaptacionDeLeads #RaspaYGana #EcommerceArgentina #VentasOnline #Nevux #Remarketing #EmailMarketing #CRO #MarketingDigital #PymesArgentina #TiendaOnline #ConversionRate',
   ].join('\n');
 
   return (
@@ -317,7 +453,7 @@ export default function BannersPage() {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          📅 Miércoles — Multiplicá tu Ticket Promedio
+          📅 Jueves — Captación de Leads con Raspá y Gana
         </h1>
         <p style={{ color: '#6b7280', fontSize: 14, marginBottom: 32 }}>
           Contenido semanal · Nevux para Tiendanube · Semana 1
@@ -347,7 +483,7 @@ export default function BannersPage() {
               gap: 10,
             }}
           >
-            <TrendingUp size={22} style={{ color: '#10B981' }} />
+            <Gift size={22} style={{ color: '#10B981' }} />
             Ficha del Día
           </h2>
           <div
@@ -358,13 +494,9 @@ export default function BannersPage() {
             }}
           >
             {[
-              { icon: Clock, label: 'Horario', value: '11:30 hs' },
-              { icon: ImageIcon, label: 'Formato', value: 'Carrusel · 7 slides' },
-              {
-                icon: TrendingUp,
-                label: 'Funciones',
-                value: 'Barra Envío Gratis + Order Bump',
-              },
+              { icon: Clock, label: 'Horario', value: '19:30 hs' },
+              { icon: Film, label: 'Formato', value: 'Reel · 28 segundos' },
+              { icon: Gift, label: 'Widget', value: 'Raspá y Gana (Gamificación)' },
             ].map((item, i) => (
               <div
                 key={'ficha-' + i}
@@ -407,7 +539,7 @@ export default function BannersPage() {
         </div>
 
         {/* ══════════════════════════════════════════
-            CARRUSEL — 7 SLIDES
+            REEL — PORTADA + FICHA TÉCNICA
         ══════════════════════════════════════════ */}
         <h2
           style={{
@@ -420,519 +552,50 @@ export default function BannersPage() {
             gap: 10,
           }}
         >
-          <ImageIcon size={20} style={{ color: '#10B981' }} />
-          CARRUSEL — 7 Slides
+          <Film size={20} style={{ color: '#10B981' }} />
+          REEL — Portada + Guión
         </h2>
 
-        {/* ── SLIDE 1: HOOK ── */}
-        <SlideWrapper label="Slide 1 · Hook">
+        {/* ── PORTADA DEL REEL ── */}
+        <ReelCover label="Portada del Reel">
           <div
             style={{
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              gap: 16,
-            }}
-          >
-            <div
-              style={{
-                background: 'rgba(248,113,113,0.1)',
-                border: '1px solid rgba(248,113,113,0.25)',
-                borderRadius: 12,
-                padding: '8px 14px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                alignSelf: 'flex-start',
-              }}
-            >
-              <ShoppingCart size={14} style={{ color: '#f87171' }} />
-              <span
-                style={{ fontSize: 11, fontWeight: 700, color: '#f87171' }}
-              >
-                PROBLEMA COMÚN EN ECOMMERCE
-              </span>
-            </div>
-            <h3
-              style={{
-                fontSize: 28,
-                fontWeight: 900,
-                lineHeight: 1.15,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              ¿Tus clientes compran{' '}
-              <span style={{ color: '#f87171' }}>1 solo producto</span> y se
-              van?
-            </h3>
-            <p
-              style={{
-                fontSize: 16,
-                color: '#9ca3af',
-                lineHeight: 1.4,
-                margin: 0,
-              }}
-            >
-              Te enseño a lograr que se lleven 2 o 3 productos sin gastar más
-              en publicidad.
-            </p>
-          </div>
-          <div
-            style={{
-              display: 'flex',
               alignItems: 'center',
-              gap: 6,
-              color: '#4b5563',
-              fontSize: 11,
-              fontWeight: 600,
+              gap: 20,
+              textAlign: 'center',
             }}
           >
-            Deslizá <ChevronRight size={14} />
-          </div>
-        </SlideWrapper>
-
-        {/* ── SLIDE 2: SITUACIÓN ── */}
-        <SlideWrapper label="Slide 2 · Situación">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              gap: 18,
-            }}
-          >
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: '#facc15',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-              }}
-            >
-              LA REALIDAD DE TU TIENDA
-            </span>
-            <h3
-              style={{
-                fontSize: 23,
-                fontWeight: 900,
-                lineHeight: 1.2,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              Conseguir un cliente nuevo es{' '}
-              <span style={{ color: '#facc15' }}>cada vez más caro</span>
-            </h3>
-            {/* Visual ticket estancado */}
-            <div
-              style={{
-                background: 'rgba(0,0,0,0.4)',
-                borderRadius: 14,
-                padding: 18,
-                border: '1px solid rgba(255,255,255,0.08)',
-              }}
-            >
+            {/* Icono regalo o tarjeta raspable */}
+            <div style={{ position: 'relative' }}>
               <div
                 style={{
+                  position: 'absolute',
+                  inset: -20,
+                  borderRadius: '50%',
+                  border: '2px solid rgba(16,185,129,0.12)',
+                }}
+              />
+              <div
+                style={{
+                  width: 76,
+                  height: 76,
+                  borderRadius: '50%',
+                  background:
+                    'linear-gradient(135deg, #10B981 0%, #059669 100%)',
                   display: 'flex',
-                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginBottom: 10,
+                  justifyContent: 'center',
+                  boxShadow: '0 0 35px rgba(16,185,129,0.35)',
                 }}
               >
-                <span style={{ fontSize: 13, color: '#9ca3af' }}>
-                  Pedido promedio actual:
-                </span>
-                <span
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 800,
-                    color: '#f87171',
-                  }}
-                >
-                  1 item por orden
-                </span>
-              </div>
-              <div
-                style={{
-                  height: 8,
-                  background: 'rgba(255,255,255,0.1)',
-                  borderRadius: 4,
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    width: '30%',
-                    height: '100%',
-                    background: '#f87171',
-                  }}
-                />
-              </div>
-            </div>
-            <p
-              style={{
-                fontSize: 14,
-                color: '#9ca3af',
-                lineHeight: 1.5,
-                margin: 0,
-              }}
-            >
-              Si el ticket promedio no sube, el margen de ganancia se lo traga
-              el costo de envío y la publicidad.
-            </p>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#4b5563',
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            Deslizá <ChevronRight size={14} />
-          </div>
-        </SlideWrapper>
-
-        {/* ── SLIDE 3: ESTRATEGIA ── */}
-        <SlideWrapper label="Slide 3 · Estrategia CRO">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              gap: 18,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Zap size={18} style={{ color: '#10B981' }} />
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: '#10B981',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                ESTRATEGIA INTELIGENTE
-              </span>
-            </div>
-            <h3
-              style={{
-                fontSize: 24,
-                fontWeight: 900,
-                lineHeight: 1.2,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              La solución: Incentivar el{' '}
-              <span style={{ color: '#10B981' }}>impulso de compra</span> en el
-              carrito
-            </h3>
-            <div
-              style={{
-                background: 'rgba(16,185,129,0.06)',
-                border: '1px solid rgba(16,185,129,0.2)',
-                borderRadius: 14,
-                padding: 16,
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 14,
-                  color: '#d1d5db',
-                  margin: 0,
-                  lineHeight: 1.5,
-                }}
-              >
-                No necesitas más tráfico. Necesitas que las personas que{' '}
-                <strong style={{ color: '#fff' }}>ya están listas para comprar</strong>{' '}
-                agreguen un producto más antes de pagar.
-              </p>
-            </div>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#4b5563',
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            Deslizá <ChevronRight size={14} />
-          </div>
-        </SlideWrapper>
-
-        {/* ── SLIDE 4: FUNCIÓN 1 — BARRA DE ENVÍO GRATIS ── */}
-        <SlideWrapper label="Slide 4 · Función 1: Barra Envío Gratis">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              gap: 16,
-            }}
-          >
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: '#10B981',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-              }}
-            >
-              FUNCIÓN #1
-            </span>
-            <h3
-              style={{
-                fontSize: 22,
-                fontWeight: 900,
-                lineHeight: 1.2,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              Barra Progresiva de <span style={{ color: '#10B981' }}>Envío Gratis</span> 🚚
-            </h3>
-
-            {/* Simulación Barra Progresiva */}
-            <div
-              style={{
-                background: '#061e14',
-                borderRadius: 14,
-                padding: 16,
-                border: '1px solid rgba(16,185,129,0.3)',
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: '#34d399',
-                  margin: '0 0 10px',
-                  textAlign: 'center',
-                }}
-              >
-                ¡Estás a solo 1 producto del Envío GRATIS! 🎁
-              </p>
-              <div
-                style={{
-                  height: 10,
-                  background: 'rgba(255,255,255,0.1)',
-                  borderRadius: 5,
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
-              >
-                <div
-                  style={{
-                    width: '75%',
-                    height: '100%',
-                    background:
-                      'linear-gradient(90deg, #10B981 0%, #34d399 100%)',
-                  }}
-                />
-              </div>
-              <p
-                style={{
-                  fontSize: 10,
-                  color: '#9ca3af',
-                  margin: '8px 0 0',
-                  textAlign: 'right',
-                }}
-              >
-                75% completado
-              </p>
-            </div>
-
-            <p
-              style={{
-                fontSize: 13,
-                color: '#9ca3af',
-                lineHeight: 1.5,
-                margin: 0,
-              }}
-            >
-              El comprador agrega un segundo producto para no tener que pagar
-              el costo del envío.
-            </p>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#4b5563',
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            Deslizá <ChevronRight size={14} />
-          </div>
-        </SlideWrapper>
-
-        {/* ── SLIDE 5: FUNCIÓN 2 — ORDER BUMP ── */}
-        <SlideWrapper label="Slide 5 · Función 2: Order Bump">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              gap: 16,
-            }}
-          >
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: '#10B981',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-              }}
-            >
-              FUNCIÓN #2
-            </span>
-            <h3
-              style={{
-                fontSize: 22,
-                fontWeight: 900,
-                lineHeight: 1.2,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              Order Bump con <span style={{ color: '#10B981' }}>1 solo Clic</span> ⚡
-            </h3>
-
-            {/* Simulación Order Bump */}
-            <div
-              style={{
-                background: 'rgba(16,185,129,0.08)',
-                borderRadius: 14,
-                padding: 16,
-                border: '1.5px dashed rgba(16,185,129,0.4)',
-              }}
-            >
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                <div
-                  style={{
-                    width: 42,
-                    height: 48,
-                    background: '#1f2937',
-                    borderRadius: 8,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 20,
-                  }}
-                >
-                  🧦
-                </div>
-                <div style={{ flex: 1 }}>
-                  <p
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 800,
-                      color: '#fff',
-                      margin: 0,
-                    }}
-                  >
-                    ¿Sumar medias térmicas en promo?
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 11,
-                      color: '#10B981',
-                      fontWeight: 700,
-                      margin: '2px 0 0',
-                    }}
-                  >
-                    Oferta exclusiva en el carrito
-                  </p>
-                </div>
-                <div
-                  style={{
-                    background: '#10B981',
-                    borderRadius: 8,
-                    padding: '6px 12px',
-                    color: '#000',
-                    fontSize: 11,
-                    fontWeight: 900,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                  }}
-                >
-                  <PlusCircle size={12} /> Agregar
-                </div>
+                <Sparkles size={34} style={{ color: '#fff' }} />
               </div>
             </div>
 
-            <p
-              style={{
-                fontSize: 13,
-                color: '#9ca3af',
-                lineHeight: 1.5,
-                margin: 0,
-              }}
-            >
-              Ofrece productos adicionales o accesorios directamente en el
-              carrito antes de pagar.
-            </p>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#4b5563',
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            Deslizá <ChevronRight size={14} />
-          </div>
-        </SlideWrapper>
-
-        {/* ── SLIDE 6: RESULTADOS ── */}
-        <SlideWrapper label="Slide 6 · Resultado">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              gap: 18,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <BarChart3 size={18} style={{ color: '#10B981' }} />
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: '#10B981',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                RESULTADO MEDIBLE
-              </span>
-            </div>
             <h3
               style={{
                 fontSize: 26,
@@ -942,169 +605,179 @@ export default function BannersPage() {
                 margin: 0,
               }}
             >
-              Aumentá tu ticket promedio un{' '}
-              <span style={{ color: '#10B981' }}>+35%</span>
+              El <span style={{ color: '#f87171' }}>97%</span> de tus visitas{' '}
+              <span style={{ color: '#f87171' }}>se van</span> sin dejar su mail
             </h3>
 
-            <div
+            <p
               style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: 10,
-              }}
-            >
-              <div
-                style={{
-                  background: 'rgba(0,0,0,0.35)',
-                  borderRadius: 12,
-                  padding: 14,
-                  border: '1px solid rgba(255,255,255,0.06)',
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 900,
-                    color: '#10B981',
-                    margin: 0,
-                  }}
-                >
-                  +2.3
-                </p>
-                <p
-                  style={{
-                    fontSize: 11,
-                    color: '#9ca3af',
-                    margin: '4px 0 0',
-                    lineHeight: 1.3,
-                  }}
-                >
-                  Productos promedio por orden
-                </p>
-              </div>
-              <div
-                style={{
-                  background: 'rgba(0,0,0,0.35)',
-                  borderRadius: 12,
-                  padding: 14,
-                  border: '1px solid rgba(255,255,255,0.06)',
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 900,
-                    color: '#10B981',
-                    margin: 0,
-                  }}
-                >
-                  0$
-                </p>
-                <p
-                  style={{
-                    fontSize: 11,
-                    color: '#9ca3af',
-                    margin: '4px 0 0',
-                    lineHeight: 1.3,
-                  }}
-                >
-                  Gasto extra en publicidad
-                </p>
-              </div>
-            </div>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#4b5563',
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            Deslizá <ChevronRight size={14} />
-          </div>
-        </SlideWrapper>
-
-        {/* ── SLIDE 7: CTA ── */}
-        <SlideWrapper label="Slide 7 · CTA Final">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 18,
-              textAlign: 'center',
-            }}
-          >
-            <h3
-              style={{
-                fontSize: 24,
-                fontWeight: 900,
-                lineHeight: 1.2,
-                color: '#fff',
+                fontSize: 13,
+                color: '#9ca3af',
                 margin: 0,
+                lineHeight: 1.4,
               }}
             >
-              Hacé que cada pedido{' '}
-              <span style={{ color: '#10B981' }}>valga más</span>
-            </h3>
+              Transformá visitas en clientes con Raspá y Gana 🎮
+            </p>
 
-            {/* Banner de Oferta de Valor */}
+            {/* Badge de tiempo */}
             <div
               style={{
-                background:
-                  'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(6,30,20,0.9) 100%)',
-                border: '1px solid rgba(16,185,129,0.35)',
-                borderRadius: 14,
-                padding: '16px 20px',
-                width: '100%',
+                background: 'rgba(0,0,0,0.5)',
+                borderRadius: 8,
+                padding: '6px 14px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
               }}
             >
-              <p
-                style={{
-                  fontSize: 13,
-                  color: '#fff',
-                  fontWeight: 800,
-                  margin: 0,
-                  lineHeight: 1.4,
-                }}
+              <Play size={12} style={{ color: '#10B981' }} />
+              <span
+                style={{ fontSize: 12, fontWeight: 700, color: '#d1d5db' }}
               >
-                50 Widgets + 6 funciones para impulsar tu Tiendanube
-              </p>
-            </div>
-
-            <div
-              style={{
-                background: 'rgba(16,185,129,0.1)',
-                border: '2px solid rgba(16,185,129,0.4)',
-                borderRadius: 12,
-                padding: '14px 20px',
-                width: '100%',
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 18,
-                  color: '#10B981',
-                  margin: 0,
-                  fontWeight: 900,
-                }}
-              >
-                Comentá TICKET 👇
-              </p>
-              <p style={{ fontSize: 12, color: '#6b7280', margin: '4px 0 0' }}>
-                y te muestro cómo activarlo en 2 minutos
-              </p>
+                0:28
+              </span>
             </div>
           </div>
-        </SlideWrapper>
+        </ReelCover>
+
+        {/* ── FICHA TÉCNICA DEL REEL ── */}
+        <div
+          style={{
+            background: '#061e14',
+            border: '1px solid rgba(16,185,129,0.2)',
+            borderRadius: 16,
+            padding: 24,
+            marginBottom: 32,
+          }}
+        >
+          <h3
+            style={{
+              fontSize: 14,
+              fontWeight: 800,
+              color: '#10B981',
+              marginBottom: 16,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+            }}
+          >
+            🎬 Ficha Técnica del Reel
+          </h3>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 12,
+            }}
+          >
+            {[
+              { label: 'Duración', value: '28 segundos' },
+              { label: 'Formato', value: '9:16 vertical' },
+              { label: 'Música', value: 'Beat dinámico / Gamificación' },
+              { label: 'Tono', value: 'Entretenido, enfocado en crecimiento' },
+              { label: 'Hook visual', value: 'Dedo raspando tarjeta virtual' },
+              { label: 'CTA final', value: 'Comentá LEADS' },
+            ].map((item, i) => (
+              <div
+                key={'tech-' + i}
+                style={{
+                  background: 'rgba(0,0,0,0.25)',
+                  borderRadius: 10,
+                  padding: '10px 14px',
+                  border: '1px solid rgba(255,255,255,0.04)',
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: '#6b7280',
+                    margin: 0,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                  }}
+                >
+                  {item.label}
+                </p>
+                <p
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: '#fff',
+                    margin: '4px 0 0',
+                  }}
+                >
+                  {item.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── GUIÓN ESCENA POR ESCENA ── */}
+        <h3
+          style={{
+            fontSize: 16,
+            fontWeight: 800,
+            color: '#fff',
+            marginBottom: 18,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <Zap size={16} style={{ color: '#facc15' }} />
+          Guión Escena por Escena
+        </h3>
+
+        <SceneCard
+          time="0–4s"
+          title="HOOK — Tráfico desperdiciado"
+          color="#f87171"
+          visual="Celular mostrando una Tiendanube. El usuario navega unos segundos y desliza hacia arriba para cerrar la pestaña sin comprar nada."
+          texto="El 97% de tus visitas se van sin comprar nada 🚪"
+          voz="De cada cien personas que entran a tu Tiendanube, noventa y siete se van con las manos vacías y sin dejarte su contacto."
+        />
+
+        <SceneCard
+          time="4–9s"
+          title="PROBLEMA — Placa perdida"
+          color="#facc15"
+          visual="Se muestra la interfaz de Meta Ads gastando dinero en publicidad y un contador de visitas que no se convierte en contactos."
+          texto="Anuncios caros + Visitas anónimas = Dinero tirado 📉"
+          voz="Pagas por traerlos, pero si no compran al instante, los perdiste para siempre porque no tenés ni su mail ni su WhatsApp."
+        />
+
+        <SceneCard
+          time="9–17s"
+          title="SOLUCIÓN — Widget Raspá y Gana"
+          color="#10B981"
+          visual="Aparece la tarjeta interactiva de 'Raspá y Gana' de Nevux. Un dedo raspa la superficie gris y revela '¡GANASTE 15% OFF!'. Inmediatamente pide ingresar WhatsApp o Mail para enviarle el cupón."
+          texto="🎮 Widget Raspá y Gana — Captación Gamificada"
+          voz="Con el widget Raspá y Gana de Nevux, transformás la captación en un juego irresistible. El cliente raspa en pantalla, se entusiasma y te deja su WhatsApp feliz para reclamar su premio."
+        />
+
+        <SceneCard
+          time="17–23s"
+          title="BENEFICIO — Base de datos caliente"
+          color="#60a5fa"
+          visual="Un panel de contactos de Nevux sumando leads en tiempo real con iconos de WhatsApp y Mail ingresando continuamente."
+          texto="Base de contactos creciendo en piloto automático 🚀"
+          voz="Ahora tenés una lista de clientes calientes a los que podés escribirles por WhatsApp o email marketing cuando quieras."
+        />
+
+        <SceneCard
+          time="23–28s"
+          title="CTA FINAL"
+          color="#10B981"
+          visual="Fondo oscuro con el logo de Nevux arriba a la izquierda, la frase '50 Widgets + 6 funciones para impulsar tu Tiendanube' en una placa esmeralda destacada."
+          texto="50 Widgets + 6 funciones · Comentá LEADS 👇"
+          voz="Accedé a 50 Widgets y 6 funciones para impulsar tu Tiendanube. Comentá LEADS y te muestro cómo activarlo en dos minutos."
+        />
 
         {/* ══════════════════════════════════════════
-            STORIES DEL DÍA — 5 STORIES
+            STORIES DEL DÍA — 4 STORIES
         ══════════════════════════════════════════ */}
         <h2
           style={{
@@ -1119,7 +792,7 @@ export default function BannersPage() {
           }}
         >
           <Eye size={20} style={{ color: '#10B981' }} />
-          STORIES DEL DÍA — 5 Stories
+          STORIES DEL DÍA — 4 Stories
         </h2>
 
         <div
@@ -1181,7 +854,8 @@ export default function BannersPage() {
                   lineHeight: 1.25,
                 }}
               >
-                ¿Cuántos productos promedian tus pedidos?
+                ¿Pedís el <span style={{ color: '#10B981' }}>WhatsApp</span> a
+                las visitas que entran a tu tienda?
               </p>
               <div
                 style={{
@@ -1207,7 +881,7 @@ export default function BannersPage() {
                       color: '#f87171',
                     }}
                   >
-                    1 producto solo 🛒
+                    No, se me van 😢
                   </span>
                 </div>
                 <div
@@ -1226,7 +900,7 @@ export default function BannersPage() {
                       color: '#10B981',
                     }}
                   >
-                    2 o más productos 🔥
+                    Sí, capto contactos 📲
                   </span>
                 </div>
               </div>
@@ -1239,7 +913,7 @@ export default function BannersPage() {
                 textAlign: 'center',
               }}
             >
-              STORY 1/5
+              STORY 1/4
             </span>
           </div>
 
@@ -1274,7 +948,7 @@ export default function BannersPage() {
                 paddingTop: 24,
               }}
             >
-              <AlertCircle size={24} style={{ color: '#f87171' }} />
+              <AlertTriangle size={24} style={{ color: '#f87171' }} />
               <p
                 style={{
                   fontSize: 15,
@@ -1284,7 +958,7 @@ export default function BannersPage() {
                   lineHeight: 1.25,
                 }}
               >
-                Vender 1 solo producto por orden destruye tus márgenes 📉
+                Traer visitas cuesta plata. Dejarlas ir anónimas es un error.
               </p>
               <p
                 style={{
@@ -1294,7 +968,7 @@ export default function BannersPage() {
                   lineHeight: 1.4,
                 }}
               >
-                Entre el envío y la publicidad, casi no te queda ganancia.
+                Si no compraste su contacto, tu anuncio salió carísimo.
               </p>
             </div>
             <span
@@ -1305,11 +979,11 @@ export default function BannersPage() {
                 textAlign: 'center',
               }}
             >
-              STORY 2/5
+              STORY 2/4
             </span>
           </div>
 
-          {/* Story 3: Demo Barra Envío Gratis */}
+          {/* Story 3: Demo Raspá y Gana */}
           <div
             style={{
               aspectRatio: '9/16',
@@ -1341,7 +1015,7 @@ export default function BannersPage() {
                 paddingTop: 24,
               }}
             >
-              <Truck size={24} style={{ color: '#10B981' }} />
+              <Gift size={26} style={{ color: '#10B981' }} />
               <p
                 style={{
                   fontSize: 14,
@@ -1351,112 +1025,7 @@ export default function BannersPage() {
                   textAlign: 'center',
                 }}
               >
-                Barra de Envío Gratis Progresiva
-              </p>
-              <div
-                style={{
-                  background: '#061e14',
-                  borderRadius: 10,
-                  padding: 10,
-                  width: '100%',
-                  border: '1px solid rgba(16,185,129,0.2)',
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: 10,
-                    color: '#34d399',
-                    fontWeight: 700,
-                    margin: '0 0 6px',
-                    textAlign: 'center',
-                  }}
-                >
-                  ¡Falta poco para tu Envío Gratis!
-                </p>
-                <div
-                  style={{
-                    height: 6,
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: 3,
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '80%',
-                      height: '100%',
-                      background: '#10B981',
-                    }}
-                  />
-                </div>
-              </div>
-              <p
-                style={{
-                  fontSize: 11,
-                  color: '#9ca3af',
-                  margin: 0,
-                  textAlign: 'center',
-                  lineHeight: 1.3,
-                }}
-              >
-                Motiva al cliente a sumar 1 item más.
-              </p>
-            </div>
-            <span
-              style={{
-                fontSize: 9,
-                color: '#4b5563',
-                fontWeight: 600,
-                textAlign: 'center',
-              }}
-            >
-              STORY 3/5
-            </span>
-          </div>
-
-          {/* Story 4: Demo Order Bump */}
-          <div
-            style={{
-              aspectRatio: '9/16',
-              background: '#020a07',
-              border: '2px solid rgba(16,185,129,0.3)',
-              borderRadius: 20,
-              padding: 16,
-              display: 'flex',
-              flexDirection: 'column',
-              position: 'relative',
-              overflow: 'hidden',
-              fontFamily: 'system-ui, sans-serif',
-            }}
-          >
-            <div
-              style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}
-            >
-              <NevuxLogo size={16} />
-            </div>
-
-            <div
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 12,
-                paddingTop: 24,
-              }}
-            >
-              <Percent size={24} style={{ color: '#10B981' }} />
-              <p
-                style={{
-                  fontSize: 14,
-                  fontWeight: 900,
-                  color: '#fff',
-                  margin: 0,
-                  textAlign: 'center',
-                }}
-              >
-                Order Bump en Carrito
+                Raspá y Gana 🎮
               </p>
               <div
                 style={{
@@ -1465,41 +1034,30 @@ export default function BannersPage() {
                   padding: 10,
                   width: '100%',
                   border: '1px dashed rgba(16,185,129,0.3)',
+                  textAlign: 'center',
                 }}
               >
                 <p
                   style={{
-                    fontSize: 10,
-                    color: '#fff',
-                    fontWeight: 700,
+                    fontSize: 11,
+                    color: '#34d399',
+                    fontWeight: 800,
                     margin: 0,
                   }}
                 >
-                  ¿Sumar accesorios en promo?
+                  ¡Ganaste 15% OFF! 🎁
                 </p>
                 <span
                   style={{
                     fontSize: 9,
-                    color: '#10B981',
-                    fontWeight: 800,
-                    display: 'inline-block',
+                    color: '#9ca3af',
+                    display: 'block',
                     marginTop: 4,
                   }}
                 >
-                  + Agregar en 1 Clic
+                  Ingresá tu WhatsApp para recibir la clave
                 </span>
               </div>
-              <p
-                style={{
-                  fontSize: 11,
-                  color: '#9ca3af',
-                  margin: 0,
-                  textAlign: 'center',
-                  lineHeight: 1.3,
-                }}
-              >
-                Ventas adicionales sin fricción.
-              </p>
             </div>
             <span
               style={{
@@ -1509,11 +1067,11 @@ export default function BannersPage() {
                 textAlign: 'center',
               }}
             >
-              STORY 4/5
+              STORY 3/4
             </span>
           </div>
 
-          {/* Story 5: CTA */}
+          {/* Story 4: CTA */}
           <div
             style={{
               aspectRatio: '9/16',
@@ -1546,7 +1104,7 @@ export default function BannersPage() {
                 paddingTop: 24,
               }}
             >
-              <TrendingUp size={26} style={{ color: '#10B981' }} />
+              <Users size={26} style={{ color: '#10B981' }} />
               <p
                 style={{
                   fontSize: 15,
@@ -1556,7 +1114,7 @@ export default function BannersPage() {
                   lineHeight: 1.25,
                 }}
               >
-                Aumentá tu <span style={{ color: '#10B981' }}>ticket promedio</span> hoy
+                Captá clientes antes de que se vayan
               </p>
               <p
                 style={{
@@ -1597,7 +1155,7 @@ export default function BannersPage() {
                 textAlign: 'center',
               }}
             >
-              STORY 5/5
+              STORY 4/4
             </span>
           </div>
         </div>
@@ -1621,11 +1179,11 @@ export default function BannersPage() {
         </h2>
 
         <CopyBlock
-          id="copy-miercoles"
-          title="Copy Miércoles — Ticket Promedio (Carrusel)"
-          text={copyMiercoles}
-          copied={copiedId === 'copy-miercoles'}
-          onCopy={() => handleCopy('copy-miercoles', copyMiercoles)}
+          id="copy-jueves"
+          title="Copy Jueves — Captación de Leads (Reel)"
+          text={copyJueves}
+          copied={copiedId === 'copy-jueves'}
+          onCopy={() => handleCopy('copy-jueves', copyJueves)}
         />
 
         {/* ─── Footer Página ─── */}
@@ -1647,4 +1205,4 @@ export default function BannersPage() {
       </main>
     </div>
   );
-      }
+          }
