@@ -3,8 +3,12 @@
 import React, { useState } from "react";
 
 export interface CajaEstadisticasEditorProps {
-  widget: any;
-  productId?: string;
+  widgetDefinition?: any;
+  existingWidget?: any;
+  targetType?: string;
+  productId?: number | null | string;
+  categoryId?: string | null;
+  storeId?: any;
   onSave?: () => void;
 }
 
@@ -190,9 +194,16 @@ function SelectInput({ label, value, options, onChange }: { label: string; value
   );
 }
 
-export default function CajaEstadisticasEditor({ widget, productId, onSave }: CajaEstadisticasEditorProps) {
+export default function CajaEstadisticasEditor({
+  existingWidget,
+  targetType,
+  productId,
+  categoryId,
+  storeId,
+  onSave,
+}: CajaEstadisticasEditorProps) {
   const parseCfg = () => {
-    let cfg = widget?.config;
+    let cfg = existingWidget?.config;
     if (typeof cfg === "string") {
       try { cfg = JSON.parse(cfg); } catch (e) { cfg = {}; }
     }
@@ -240,7 +251,7 @@ export default function CajaEstadisticasEditor({ widget, productId, onSave }: Ca
 
   const [activeTab, setActiveTab] = useState<"gen" | "location" | "style" | "dates">("gen");
   const [loading, setLoading] = useState(false);
-  const [isActive, setIsActive] = useState<boolean>(widget?.is_active ?? true);
+  const [isActive, setIsActive] = useState<boolean>(existingWidget?.is_active ?? true);
 
   const [cfg, setCfg] = useState(parseCfg());
 
@@ -390,9 +401,12 @@ export default function CajaEstadisticasEditor({ widget, productId, onSave }: Ca
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: widget?.id,
+          id: existingWidget?.id,
           widget_slug: "caja-estadisticas",
-          product_id: productId,
+          store_id: storeId,
+          target_type: targetType || "all",
+          target_product_id: productId,
+          target_category_id: categoryId,
           config: cfg,
           is_active: isActive,
         }),
@@ -736,4 +750,4 @@ export default function CajaEstadisticasEditor({ widget, productId, onSave }: Ca
       </div>
     </div>
   );
-          }
+   }
