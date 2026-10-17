@@ -101,7 +101,6 @@ function SlideWrapper({
           overflow: 'hidden'
         }}
       >
-        {/* Glow sutil decorativo */}
         <div
           style={{
             position: 'absolute',
@@ -228,20 +227,22 @@ export default function BannersPage() {
     setTimeout(() => setCopiedId(''), 2000);
   };
 
-  const copyLunes = `Tu tienda Tiendanube tiene visitas. Los Ads funcionan. La gente agrega productos al carrito.
-Pero no compran. Se van. Y vos mirás las métricas sin entender qué pasa.
-
-El 70% de los carritos se abandonan. Eso significa que de cada $100.000 que invertís en tráfico, $70.000 se evaporan porque tu tienda no genera URGENCIA. No hay reloj. No hay escasez. No hay motivo para comprar AHORA.
-
-Con el Temporizador de Cuenta Regresiva de Nevux, cada visitante ve que la oferta tiene fecha de vencimiento. Se activa en 2 minutos, sin tocar una línea de código, directo desde tu panel de Tiendanube.
-
-Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera semana.
-
-💰 ARS $35.000/mes. Con que recuperes 2 carritos al mes, ya estás en ganancia neta.
-
-👇 Comentá URGENTE y te mando el link para que lo pruebes hoy mismo en tu tienda.
-
-#Tiendanube #EcommerceArgentina #VentasOnline #CarritosAbandonados #ConversionRate #Nevux #TiendaOnline #MarketingDigital #CRO #PymesArgentina #VentasPorInternet #EcommerceTips`;
+  const copyLunes = [
+    'Tu tienda Tiendanube tiene visitas. Los Ads funcionan. La gente agrega productos al carrito.',
+    'Pero no compran. Se van. Y vos mirás las métricas sin entender qué pasa.',
+    '',
+    'El 70% de los carritos se abandonan. Eso significa que de cada $100.000 que invertís en tráfico, $70.000 se evaporan porque tu tienda no genera URGENCIA. No hay reloj. No hay escasez. No hay motivo para comprar AHORA.',
+    '',
+    'Con el Temporizador de Cuenta Regresiva de Nevux, cada visitante ve que la oferta tiene fecha de vencimiento. Se activa en 2 minutos, sin tocar una línea de código, directo desde tu panel de Tiendanube.',
+    '',
+    'Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera semana.',
+    '',
+    '💰 ARS $35.000/mes. Con que recuperes 2 carritos al mes, ya estás en ganancia neta.',
+    '',
+    '👇 Comentá URGENTE y te mando el link para que lo pruebes hoy mismo en tu tienda.',
+    '',
+    '#Tiendanube #EcommerceArgentina #VentasOnline #CarritosAbandonados #ConversionRate #Nevux #TiendaOnline #MarketingDigital #CRO #PymesArgentina #VentasPorInternet #EcommerceTips'
+  ].join('\n');
 
   return (
     <div
@@ -376,9 +377,7 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
           </div>
         </div>
 
-        {/* ============================================================
-            CARRUSEL — DISEÑO PROFESIONAL (igual estilo que Stories)
-            ============================================================ */}
+        {/* CARRUSEL */}
         <div
           style={{
             backgroundColor: '#061e14',
@@ -414,7 +413,7 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
               alignItems: 'center'
             }}
           >
-            {/* ================= SLIDE 1 — HOOK ================= */}
+            {/* SLIDE 1 - HOOK */}
             <SlideWrapper label="Slide 1 — HOOK">
               <NevuxLogo size={24} />
               <div
@@ -482,7 +481,7 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
               </div>
             </SlideWrapper>
 
-            {/* ================= SLIDE 2 — PROBLEMA ================= */}
+            {/* SLIDE 2 - PROBLEMA */}
             <SlideWrapper label="Slide 2 — PROBLEMA">
               <NevuxLogo size={24} />
               <div
@@ -507,7 +506,7 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
                 </div>
                 <h3
                   style={{
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: 900,
                     color: '#fff',
                     lineHeight: 1.2,
@@ -527,8 +526,10 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
                   }}
                 >
                   De cada 10 que agregan al carrito,{' '}
-                  <strong style={{ color: '#f87171' }}>7 se van sin pagar.</strong>
-                </h3>
+                  <strong style={{ color: '#f87171' }}>
+                    7 se van sin pagar.
+                  </strong>
+                </p>
                 <div
                   style={{
                     display: 'flex',
@@ -538,7 +539,7 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
                 >
                   {[1, 2, 3].map((i) => (
                     <div
-                      key={`g-${i}`}
+                      key={'g-' + i}
                       style={{
                         width: 24,
                         height: 24,
@@ -550,7 +551,7 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
                   ))}
                   {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                     <div
-                      key={`gr-${i}`}
+                      key={'gr-' + i}
                       style={{
                         width: 24,
                         height: 24,
@@ -574,8 +575,8 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
               </p>
             </SlideWrapper>
 
-            {/* ================= SLIDE 3 — IMPLICACIÓN ================= */}
-            <SlideWrapper label="Slide 3 — IMPLICACIÓN (El Costo Real)">
+            {/* SLIDE 3 - IMPLICACIÓN */}
+            <SlideWrapper label="Slide 3 — IMPLICACIÓN">
               <NevuxLogo size={24} />
               <div
                 style={{
@@ -663,7 +664,7 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
               </p>
             </SlideWrapper>
 
-            {/* ================= SLIDE 4 — SOLUCIÓN NEVUX ================= */}
+            {/* SLIDE 4 - SOLUCIÓN */}
             <SlideWrapper label="Slide 4 — SOLUCIÓN NEVUX">
               <NevuxLogo size={24} />
               <div
@@ -746,7 +747,7 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
               </div>
             </SlideWrapper>
 
-            {/* ================= SLIDE 5 — RESULTADO ================= */}
+            {/* SLIDE 5 - RESULTADO */}
             <SlideWrapper label="Slide 5 — RESULTADO">
               <NevuxLogo size={24} />
               <div
@@ -833,7 +834,7 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
               </div>
             </SlideWrapper>
 
-            {/* ================= SLIDE 6 — CTA FINAL ================= */}
+            {/* SLIDE 6 - CTA FINAL */}
             <SlideWrapper label="Slide 6 — CTA FINAL">
               <NevuxLogo size={24} />
               <div
@@ -865,7 +866,7 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
                     margin: 0
                   }}
                 >
-                  Dejá de perder <br />
+                  Dejá de perder{' '}
                   <span style={{ color: '#10B981' }}>carritos hoy.</span>
                 </h3>
                 <p
@@ -925,9 +926,7 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
           </div>
         </div>
 
-        {/* ============================================================
-            STORIES
-            ============================================================ */}
+        {/* STORIES */}
         <div
           style={{
             backgroundColor: '#061e14',
@@ -1307,4 +1306,4 @@ Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera
       </main>
     </div>
   );
-                   }
+          }
