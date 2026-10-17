@@ -6,9 +6,13 @@ import {
   ArrowLeft,
   Copy,
   Check,
-  Timer,
+  Users,
   Eye,
-  Image as ImageIcon
+  Play,
+  Film,
+  Clock,
+  Music,
+  Mic
 } from 'lucide-react';
 
 /* ============================================================
@@ -63,9 +67,9 @@ function NevuxLogo({ size = 32 }: { size?: number }) {
 }
 
 /* ============================================================
-   SLIDE WRAPPER (mismo look que Stories)
+   PORTADA REEL (mismo look que Stories/Slides)
    ============================================================ */
-function SlideWrapper({
+function ReelCover({
   label,
   children
 }: {
@@ -73,7 +77,7 @@ function SlideWrapper({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ width: '100%', maxWidth: 420 }}>
+    <div style={{ width: '100%', maxWidth: 360 }}>
       <div
         style={{
           fontSize: 11,
@@ -88,7 +92,7 @@ function SlideWrapper({
       <div
         style={{
           width: '100%',
-          aspectRatio: '4/5',
+          aspectRatio: '9/16',
           backgroundColor: '#020a07',
           border: '2px solid rgba(16,185,129,0.3)',
           borderRadius: 24,
@@ -216,6 +220,68 @@ function CopyBlock({ id, title, text, copied, onCopy }: CopyBlockProps) {
 }
 
 /* ============================================================
+   ESCENA DEL REEL
+   ============================================================ */
+function SceneCard({
+  time,
+  title,
+  color,
+  visual,
+  texto,
+  voz
+}: {
+  time: string;
+  title: string;
+  color: string;
+  visual: string;
+  texto: string;
+  voz: string;
+}) {
+  return (
+    <div
+      style={{
+        backgroundColor: '#020a07',
+        borderLeft: '4px solid ' + color,
+        borderRadius: 10,
+        padding: 14,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span
+          style={{
+            backgroundColor: color,
+            color: color === '#FFFFFF' ? '#111827' : '#FFFFFF',
+            fontSize: 10,
+            fontWeight: 900,
+            padding: '3px 10px',
+            borderRadius: 6,
+            letterSpacing: '0.05em'
+          }}
+        >
+          {time}
+        </span>
+        <span style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>
+          {title}
+        </span>
+      </div>
+      <div style={{ fontSize: 11, color: '#cbd5e1', lineHeight: 1.5 }}>
+        <strong style={{ color: '#34d399' }}>📹 Visual:</strong> {visual}
+      </div>
+      <div style={{ fontSize: 11, color: '#cbd5e1', lineHeight: 1.5 }}>
+        <strong style={{ color: '#facc15' }}>📝 Texto en pantalla:</strong>{' '}
+        {texto}
+      </div>
+      <div style={{ fontSize: 11, color: '#cbd5e1', lineHeight: 1.5 }}>
+        <strong style={{ color: '#60a5fa' }}>🎙️ Voz en off:</strong> {voz}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    PÁGINA PRINCIPAL
    ============================================================ */
 export default function BannersPage() {
@@ -227,21 +293,22 @@ export default function BannersPage() {
     setTimeout(() => setCopiedId(''), 2000);
   };
 
-  const copyLunes = [
-    'Tu tienda Tiendanube tiene visitas. Los Ads funcionan. La gente agrega productos al carrito.',
-    'Pero no compran. Se van. Y vos mirás las métricas sin entender qué pasa.',
+  const copyMartes = [
+    'Tu tienda Tiendanube parece un local vacío un viernes a la noche. Y eso está matando tus ventas.',
     '',
-    'El 70% de los carritos se abandonan. Eso significa que de cada $100.000 que invertís en tráfico, $70.000 se evaporan porque tu tienda no genera URGENCIA. No hay reloj. No hay escasez. No hay motivo para comprar AHORA.',
+    'Cuando un visitante entra a tu tienda y no ve ninguna señal de que otras personas están comprando, su cerebro activa una alerta: ¿Será confiable? ¿Será una estafa? ¿El producto será bueno?',
     '',
-    'Con el Temporizador de Cuenta Regresiva de Nevux, cada visitante ve que la oferta tiene fecha de vencimiento. Se activa en 2 minutos, sin tocar una línea de código, directo desde tu panel de Tiendanube.',
+    'Resultado: cierra la pestaña y se va a la competencia.',
     '',
-    'Las tiendas que lo activaron reportan hasta un +23% de conversión en la primera semana.',
+    'Con las Notificaciones Flotantes de Nevux, cada nuevo visitante ve en tiempo real: María de Córdoba acaba de comprar Remera Oversize. Es el mismo efecto psicológico que te hace entrar a un restaurante lleno: si otros compran, es seguro.',
     '',
-    '💰 ARS $35.000/mes. Con que recuperes 2 carritos al mes, ya estás en ganancia neta.',
+    '📈 Tiendas que activaron este widget duplicaron su tasa de conversión en menos de 14 días.',
     '',
-    '👇 Comentá URGENTE y te mando el link para que lo pruebes hoy mismo en tu tienda.',
+    '💰 ARS $35.000/mes — Menos de lo que gastás en un día de Ads que no convierte.',
     '',
-    '#Tiendanube #EcommerceArgentina #VentasOnline #CarritosAbandonados #ConversionRate #Nevux #TiendaOnline #MarketingDigital #CRO #PymesArgentina #VentasPorInternet #EcommerceTips'
+    '👇 Comentá PRUEBA y te mando el acceso para que lo actives hoy en tu tienda. Sin código. Sin diseñador. 2 minutos.',
+    '',
+    '#Tiendanube #PruebaSocial #EcommerceArgentina #VentasOnline #Nevux #ConversionRate #MarketingDigital #PymesArgentina #TiendaOnline #CRO #SocialProof #EcommerceTips'
   ].join('\n');
 
   return (
@@ -337,17 +404,18 @@ export default function BannersPage() {
               gap: 10
             }}
           >
-            <Timer style={{ width: 22, height: 22, color: '#34d399' }} />
-            Lunes — Urgencia y Carritos Abandonados
+            <Users style={{ width: 22, height: 22, color: '#34d399' }} />
+            Martes — Prueba Social y Confianza
           </h2>
           <p style={{ fontSize: 12, color: '#94a3b8', margin: '6px 0 14px 0' }}>
-            Atacamos el dolor #1: carritos que se abandonan por falta de urgencia.
+            Tu tienda parece vacía. El visitante desconfía y se va. Hoy lo
+            solucionamos.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {[
-              { label: '⏰ Horario', value: '11:30 hs' },
-              { label: '📐 Formato', value: 'Carrusel (6 slides)' },
-              { label: '🧩 Widget', value: 'Temporizador Cuenta Regresiva' }
+              { label: '⏰ Horario', value: '19:30 hs' },
+              { label: '📐 Formato', value: 'Reel (25 segundos)' },
+              { label: '🧩 Widget', value: 'Notificaciones Flotantes' }
             ].map((item, i) => (
               <div
                 key={i}
@@ -359,7 +427,9 @@ export default function BannersPage() {
                   minWidth: 140
                 }}
               >
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 700 }}>
+                <div
+                  style={{ fontSize: 10, color: '#64748b', fontWeight: 700 }}
+                >
                   {item.label}
                 </div>
                 <div
@@ -377,7 +447,7 @@ export default function BannersPage() {
           </div>
         </div>
 
-        {/* CARRUSEL */}
+        {/* INFO TÉCNICA DEL REEL */}
         <div
           style={{
             backgroundColor: '#061e14',
@@ -386,7 +456,7 @@ export default function BannersPage() {
             padding: 20,
             display: 'flex',
             flexDirection: 'column',
-            gap: 20
+            gap: 16
           }}
         >
           <h3
@@ -402,528 +472,292 @@ export default function BannersPage() {
               borderBottom: '1px solid rgba(16,185,129,0.15)'
             }}
           >
-            <ImageIcon style={{ width: 16, height: 16 }} /> CARRUSEL — 6 slides
+            <Film style={{ width: 16, height: 16 }} /> FICHA TÉCNICA DEL REEL
           </h3>
-
           <div
             style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 28,
-              alignItems: 'center'
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: 10
             }}
           >
-            {/* SLIDE 1 - HOOK */}
-            <SlideWrapper label="Slide 1 — HOOK">
-              <NevuxLogo size={24} />
+            {[
+              {
+                icon: <Clock style={{ width: 16, height: 16 }} />,
+                label: 'Duración',
+                value: '25 segundos'
+              },
+              {
+                icon: <Film style={{ width: 16, height: 16 }} />,
+                label: 'Formato',
+                value: '9:16 · 1080x1920'
+              },
+              {
+                icon: <Music style={{ width: 16, height: 16 }} />,
+                label: 'Audio',
+                value: 'Suspense reveal beat'
+              },
+              {
+                icon: <Mic style={{ width: 16, height: 16 }} />,
+                label: 'Voz',
+                value: 'Voz en off clara'
+              }
+            ].map((item, i) => (
               <div
+                key={i}
                 style={{
-                  margin: 'auto 0',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 16,
-                  position: 'relative',
-                  zIndex: 1
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 800,
-                    color: '#f87171',
-                    letterSpacing: '0.1em'
-                  }}
-                >
-                  🚨 ALERTA PARA DUEÑOS DE TIENDA
-                </div>
-                <h3
-                  style={{
-                    fontSize: 30,
-                    fontWeight: 900,
-                    color: '#fff',
-                    lineHeight: 1.1,
-                    margin: 0
-                  }}
-                >
-                  Tu tienda pierde ventas{' '}
-                  <span style={{ color: '#10B981' }}>MIENTRAS dormís.</span>
-                </h3>
-                <p
-                  style={{
-                    fontSize: 13,
-                    color: '#cbd5e1',
-                    lineHeight: 1.5,
-                    margin: 0
-                  }}
-                >
-                  Y no es culpa de tus Ads. Te muestro el error exacto 👉
-                </p>
-              </div>
-              <div
-                style={{
-                  textAlign: 'center',
-                  backgroundColor: 'rgba(16,185,129,0.1)',
-                  border: '1px solid rgba(16,185,129,0.3)',
+                  backgroundColor: '#020a07',
+                  border: '1px solid rgba(16,185,129,0.2)',
                   borderRadius: 10,
-                  padding: 8
+                  padding: 12
                 }}
               >
-                <p
-                  style={{
-                    fontSize: 10,
-                    color: '#34d399',
-                    fontWeight: 700,
-                    margin: 0
-                  }}
-                >
-                  DESLIZÁ →
-                </p>
-              </div>
-            </SlideWrapper>
-
-            {/* SLIDE 2 - PROBLEMA */}
-            <SlideWrapper label="Slide 2 — PROBLEMA">
-              <NevuxLogo size={24} />
-              <div
-                style={{
-                  margin: 'auto 0',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 16,
-                  position: 'relative',
-                  zIndex: 1
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 800,
-                    color: '#facc15',
-                    letterSpacing: '0.1em'
-                  }}
-                >
-                  📊 EL DATO QUE NADIE TE DICE
-                </div>
-                <h3
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 900,
-                    color: '#fff',
-                    lineHeight: 1.2,
-                    margin: 0
-                  }}
-                >
-                  El{' '}
-                  <span style={{ color: '#10B981', fontSize: 42 }}>70%</span>{' '}
-                  de los carritos en Tiendanube se abandonan.
-                </h3>
-                <p
-                  style={{
-                    fontSize: 13,
-                    color: '#cbd5e1',
-                    lineHeight: 1.5,
-                    margin: 0
-                  }}
-                >
-                  De cada 10 que agregan al carrito,{' '}
-                  <strong style={{ color: '#f87171' }}>
-                    7 se van sin pagar.
-                  </strong>
-                </p>
                 <div
                   style={{
                     display: 'flex',
-                    gap: 5,
-                    flexWrap: 'wrap'
+                    alignItems: 'center',
+                    gap: 6,
+                    color: '#34d399'
                   }}
                 >
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={'g-' + i}
-                      style={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: 6,
-                        backgroundColor: '#10B981',
-                        boxShadow: '0 0 8px rgba(16,185,129,0.5)'
-                      }}
-                    />
-                  ))}
-                  {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-                    <div
-                      key={'gr-' + i}
-                      style={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: 6,
-                        backgroundColor: 'rgba(248,113,113,0.2)',
-                        border: '1px dashed #f87171'
-                      }}
-                    />
-                  ))}
+                  {item.icon}
+                  <span style={{ fontSize: 10, fontWeight: 700 }}>
+                    {item.label}
+                  </span>
                 </div>
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: '#fff',
+                    fontWeight: 700,
+                    marginTop: 4,
+                    display: 'block'
+                  }}
+                >
+                  {item.value}
+                </span>
               </div>
-              <p
-                style={{
-                  fontSize: 10,
-                  color: '#64748b',
-                  margin: 0,
-                  textAlign: 'center'
-                }}
-              >
-                🟢 Compran · 🔴 Abandonan
-              </p>
-            </SlideWrapper>
+            ))}
+          </div>
+        </div>
 
-            {/* SLIDE 3 - IMPLICACIÓN */}
-            <SlideWrapper label="Slide 3 — IMPLICACIÓN">
-              <NevuxLogo size={24} />
+        {/* GUIÓN ESCENA POR ESCENA */}
+        <div
+          style={{
+            backgroundColor: '#061e14',
+            border: '1px solid rgba(16,185,129,0.25)',
+            borderRadius: 16,
+            padding: 20,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16
+          }}
+        >
+          <h3
+            style={{
+              fontSize: 15,
+              fontWeight: 800,
+              color: '#34d399',
+              margin: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              paddingBottom: 8,
+              borderBottom: '1px solid rgba(16,185,129,0.15)'
+            }}
+          >
+            <Play style={{ width: 16, height: 16 }} /> GUIÓN REEL — Escena por
+            escena
+          </h3>
+
+          <SceneCard
+            time="0-3s"
+            title="GANCHO"
+            color="#f87171"
+            visual="Vos frente a cámara con el celular en la mano. Fondo oscuro, buena luz. Energía alta."
+            texto='"Tu tienda parece un local VACÍO. Y eso MATA ventas."'
+            voz="Si tu tienda no muestra que otras personas están comprando, el nuevo visitante desconfía y se va."
+          />
+
+          <SceneCard
+            time="3-8s"
+            title="EL PROBLEMA"
+            color="#facc15"
+            visual="Grabación de pantalla de una tienda Tiendanube genérica, limpia pero sin señales de actividad. Zoom lento al botón de comprar."
+            texto='"Sin prueba social = sin confianza."'
+            voz="Imaginate entrar a un restaurante vacío un viernes a la noche. ¿Te quedás o te vas?"
+          />
+
+          <SceneCard
+            time="8-16s"
+            title="SOLUCIÓN NEVUX"
+            color="#10B981"
+            visual="La misma tienda, ahora con notificación flotante verde en la esquina inferior izquierda: María de Córdoba acaba de comprar Remera Oversize. Slide-in animado."
+            texto='"Notificaciones de ventas en tiempo real."'
+            voz="Con Nevux, cada visitante ve en tiempo real que otras personas están comprando. Es el efecto restaurante lleno aplicado a tu tienda online."
+          />
+
+          <SceneCard
+            time="16-22s"
+            title="RESULTADO"
+            color="#10B981"
+            visual="Split screen: Izquierda ANTES (conversión 0.8%, tienda vacía). Derecha DESPUÉS (conversión 1.9%, con notificaciones). Números gigantes verdes."
+            texto='"Más del doble de conversión."'
+            voz="Más del doble de conversión solo por mostrar que tu tienda está viva."
+          />
+
+          <SceneCard
+            time="22-25s"
+            title="CTA FINAL"
+            color="#FFFFFF"
+            visual="Vos de vuelta a cámara. Sonreí. Fondo verde #10B981 con texto blanco bold grande."
+            texto='"Comentá PRUEBA y te muestro cómo."'
+            voz="Comentá PRUEBA y te muestro cómo activarlo en 2 minutos."
+          />
+        </div>
+
+        {/* PORTADA DEL REEL */}
+        <div
+          style={{
+            backgroundColor: '#061e14',
+            border: '1px solid rgba(16,185,129,0.25)',
+            borderRadius: 16,
+            padding: 20,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 20,
+            alignItems: 'center'
+          }}
+        >
+          <h3
+            style={{
+              fontSize: 15,
+              fontWeight: 800,
+              color: '#34d399',
+              margin: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              paddingBottom: 8,
+              borderBottom: '1px solid rgba(16,185,129,0.15)',
+              alignSelf: 'stretch'
+            }}
+          >
+            <Film style={{ width: 16, height: 16 }} /> PORTADA DEL REEL
+          </h3>
+
+          <ReelCover label="Portada que se ve en el Feed de Instagram">
+            <NevuxLogo size={24} />
+            <div
+              style={{
+                margin: 'auto 0',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 16,
+                position: 'relative',
+                zIndex: 1
+              }}
+            >
               <div
                 style={{
-                  margin: 'auto 0',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 16,
-                  position: 'relative',
-                  zIndex: 1
+                  fontSize: 11,
+                  fontWeight: 800,
+                  color: '#f87171',
+                  letterSpacing: '0.1em'
                 }}
               >
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 800,
-                    color: '#f87171',
-                    letterSpacing: '0.1em'
-                  }}
-                >
-                  💸 HACÉ LA CUENTA
-                </div>
-                <h3
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 900,
-                    color: '#fff',
-                    lineHeight: 1.2,
-                    margin: 0
-                  }}
-                >
-                  Si gastás{' '}
-                  <span style={{ color: '#facc15' }}>$100.000/mes</span> en Ads y
-                  tu conversión es del 1%...
-                </h3>
-                <div
-                  style={{
-                    backgroundColor: 'rgba(248,113,113,0.1)',
-                    border: '1px solid rgba(248,113,113,0.4)',
-                    borderRadius: 14,
-                    padding: 18,
-                    textAlign: 'center'
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: '#f87171',
-                      fontWeight: 700,
-                      margin: 0
-                    }}
-                  >
-                    ESTÁS TIRANDO
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 36,
-                      fontWeight: 900,
-                      color: '#f87171',
-                      margin: '4px 0',
-                      lineHeight: 1
-                    }}
-                  >
-                    $70.000 🔥
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 11,
-                      color: '#cbd5e1',
-                      margin: 0
-                    }}
-                  >
-                    en carritos que nunca cerraron.
-                  </p>
-                </div>
+                🚨 ERROR MORTAL EN TU TIENDA
               </div>
-              <p
+              <h3
                 style={{
-                  fontSize: 10,
-                  color: '#64748b',
-                  margin: 0,
-                  textAlign: 'center'
+                  fontSize: 28,
+                  fontWeight: 900,
+                  color: '#fff',
+                  lineHeight: 1.1,
+                  margin: 0
                 }}
               >
-                Todos los meses. Sin que te des cuenta.
-              </p>
-            </SlideWrapper>
-
-            {/* SLIDE 4 - SOLUCIÓN */}
-            <SlideWrapper label="Slide 4 — SOLUCIÓN NEVUX">
-              <NevuxLogo size={24} />
+                ¿Tu tienda parece{' '}
+                <span style={{ color: '#f87171' }}>VACÍA</span>?
+              </h3>
               <div
                 style={{
-                  margin: 'auto 0',
+                  background:
+                    'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                  borderRadius: 12,
+                  padding: 14,
+                  boxShadow: '0 10px 30px rgba(16,185,129,0.3)',
                   display: 'flex',
-                  flexDirection: 'column',
-                  gap: 16,
-                  position: 'relative',
-                  zIndex: 1
+                  alignItems: 'center',
+                  gap: 10
                 }}
               >
                 <div
                   style={{
-                    fontSize: 11,
-                    fontWeight: 800,
-                    color: '#34d399',
-                    letterSpacing: '0.1em'
+                    width: 10,
+                    height: 10,
+                    borderRadius: '50%',
+                    backgroundColor: '#FFFFFF',
+                    boxShadow: '0 0 10px #FFFFFF'
                   }}
-                >
-                  ✅ LA SOLUCIÓN
-                </div>
-                <h3
-                  style={{
-                    fontSize: 24,
-                    fontWeight: 900,
-                    color: '#fff',
-                    lineHeight: 1.2,
-                    margin: 0
-                  }}
-                >
-                  Urgencia real en{' '}
-                  <span style={{ color: '#10B981' }}>2 minutos.</span>
-                </h3>
-                <div
-                  style={{
-                    background:
-                      'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                    borderRadius: 16,
-                    padding: 20,
-                    textAlign: 'center',
-                    boxShadow: '0 10px 30px rgba(16,185,129,0.3)'
-                  }}
-                >
+                />
+                <div style={{ flex: 1 }}>
                   <p
                     style={{
                       fontSize: 11,
                       color: '#FFFFFF',
                       fontWeight: 800,
                       margin: 0,
-                      letterSpacing: '0.1em',
+                      lineHeight: 1.2
+                    }}
+                  >
+                    🛒 María de Córdoba
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 10,
+                      color: '#FFFFFF',
+                      margin: '2px 0 0 0',
                       opacity: 0.9
                     }}
                   >
-                    ⏱️ OFERTA EXPIRA EN
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 44,
-                      fontWeight: 900,
-                      color: '#FFFFFF',
-                      margin: '6px 0 0 0',
-                      lineHeight: 1,
-                      fontFamily: 'ui-monospace, monospace'
-                    }}
-                  >
-                    14:32:08
-                  </p>
-                </div>
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: '#cbd5e1',
-                    textAlign: 'center',
-                    margin: 0
-                  }}
-                >
-                  Sin código. Sin diseñador. 2 clics en tu Tiendanube.
-                </p>
-              </div>
-            </SlideWrapper>
-
-            {/* SLIDE 5 - RESULTADO */}
-            <SlideWrapper label="Slide 5 — RESULTADO">
-              <NevuxLogo size={24} />
-              <div
-                style={{
-                  margin: 'auto 0',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 16,
-                  position: 'relative',
-                  zIndex: 1,
-                  alignItems: 'center',
-                  textAlign: 'center'
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 800,
-                    color: '#34d399',
-                    letterSpacing: '0.1em'
-                  }}
-                >
-                  📈 RESULTADO COMPROBADO
-                </div>
-                <p
-                  style={{
-                    fontSize: 14,
-                    color: '#cbd5e1',
-                    margin: 0,
-                    lineHeight: 1.4
-                  }}
-                >
-                  Tiendas que activaron este widget vieron hasta un
-                </p>
-                <div
-                  style={{
-                    position: 'relative',
-                    padding: '20px 30px'
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: 72,
-                      fontWeight: 900,
-                      color: '#10B981',
-                      margin: 0,
-                      lineHeight: 1,
-                      textShadow: '0 0 30px rgba(16,185,129,0.5)'
-                    }}
-                  >
-                    +23%
-                  </p>
-                </div>
-                <p
-                  style={{
-                    fontSize: 16,
-                    color: '#fff',
-                    fontWeight: 800,
-                    margin: 0
-                  }}
-                >
-                  de conversión en 7 días
-                </p>
-                <div
-                  style={{
-                    backgroundColor: 'rgba(16,185,129,0.1)',
-                    border: '1px solid rgba(16,185,129,0.3)',
-                    borderRadius: 10,
-                    padding: '8px 16px',
-                    marginTop: 8
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: 11,
-                      color: '#34d399',
-                      fontWeight: 700,
-                      margin: 0
-                    }}
-                  >
-                    Sin cambiar producto. Sin más Ads.
-                  </p>
-                </div>
-              </div>
-            </SlideWrapper>
-
-            {/* SLIDE 6 - CTA FINAL */}
-            <SlideWrapper label="Slide 6 — CTA FINAL">
-              <NevuxLogo size={24} />
-              <div
-                style={{
-                  margin: 'auto 0',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 18,
-                  position: 'relative',
-                  zIndex: 1
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 800,
-                    color: '#10B981',
-                    letterSpacing: '0.1em'
-                  }}
-                >
-                  🚀 TU TURNO
-                </div>
-                <h3
-                  style={{
-                    fontSize: 28,
-                    fontWeight: 900,
-                    color: '#fff',
-                    lineHeight: 1.1,
-                    margin: 0
-                  }}
-                >
-                  Dejá de perder{' '}
-                  <span style={{ color: '#10B981' }}>carritos hoy.</span>
-                </h3>
-                <p
-                  style={{
-                    fontSize: 13,
-                    color: '#cbd5e1',
-                    lineHeight: 1.5,
-                    margin: 0
-                  }}
-                >
-                  Activá el Temporizador de Nevux en tu Tiendanube en 2 minutos.
-                </p>
-                <div
-                  style={{
-                    background:
-                      'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                    borderRadius: 14,
-                    padding: 16,
-                    textAlign: 'center',
-                    boxShadow: '0 10px 30px rgba(16,185,129,0.4)'
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 900,
-                      color: '#FFFFFF',
-                      margin: 0
-                    }}
-                  >
-                    💬 Comentá &quot;URGENTE&quot;
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 11,
-                      color: '#FFFFFF',
-                      fontWeight: 700,
-                      margin: '4px 0 0 0',
-                      opacity: 0.9
-                    }}
-                  >
-                    y te mando el acceso directo
+                    acaba de comprar
                   </p>
                 </div>
               </div>
               <p
                 style={{
-                  fontSize: 10,
-                  color: '#64748b',
+                  fontSize: 13,
+                  color: '#10B981',
+                  fontWeight: 800,
                   margin: 0,
                   textAlign: 'center'
                 }}
               >
-                ARS $35.000/mes · Sin permanencia · +41 widgets
+                La prueba social que DUPLICA ventas 🚀
               </p>
-            </SlideWrapper>
-          </div>
+            </div>
+            <div
+              style={{
+                textAlign: 'center',
+                backgroundColor: 'rgba(16,185,129,0.1)',
+                border: '1px solid rgba(16,185,129,0.3)',
+                borderRadius: 10,
+                padding: 8
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 10,
+                  color: '#34d399',
+                  fontWeight: 700,
+                  margin: 0
+                }}
+              >
+                ▶ MIRÁ EL REEL COMPLETO
+              </p>
+            </div>
+          </ReelCover>
         </div>
 
         {/* STORIES */}
@@ -951,7 +785,8 @@ export default function BannersPage() {
               borderBottom: '1px solid rgba(16,185,129,0.15)'
             }}
           >
-            <Eye style={{ width: 16, height: 16 }} /> STORIES — 4 historias del día
+            <Eye style={{ width: 16, height: 16 }} /> STORIES — 4 historias del
+            día
           </h3>
 
           <div
@@ -962,7 +797,7 @@ export default function BannersPage() {
               justifyContent: 'center'
             }}
           >
-            {/* STORY 1 */}
+            {/* STORY 1 - ENCUESTA */}
             <div
               style={{
                 width: '100%',
@@ -996,25 +831,11 @@ export default function BannersPage() {
                     margin: 0
                   }}
                 >
-                  ¿Cuántos carritos abandonados tuviste{' '}
-                  <span style={{ color: '#10B981' }}>ayer</span>?
+                  Entrás a una tienda que{' '}
+                  <span style={{ color: '#f87171' }}>NO muestra ventas</span>{' '}
+                  recientes...
                 </h3>
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <div
-                    style={{
-                      flex: 1,
-                      backgroundColor: '#f0fdf4',
-                      border: '2px solid #10B981',
-                      borderRadius: 12,
-                      padding: 14,
-                      textAlign: 'center',
-                      fontWeight: 900,
-                      color: '#1e293b',
-                      fontSize: 12
-                    }}
-                  >
-                    Menos de 5 😌
-                  </div>
                   <div
                     style={{
                       flex: 1,
@@ -1028,7 +849,22 @@ export default function BannersPage() {
                       fontSize: 12
                     }}
                   >
-                    Más de 10 😰
+                    Desconfío 🚪
+                  </div>
+                  <div
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#f0fdf4',
+                      border: '2px solid #10B981',
+                      borderRadius: 12,
+                      padding: 14,
+                      textAlign: 'center',
+                      fontWeight: 900,
+                      color: '#1e293b',
+                      fontSize: 12
+                    }}
+                  >
+                    Compro igual 🤷
                   </div>
                 </div>
               </div>
@@ -1044,7 +880,7 @@ export default function BannersPage() {
               </p>
             </div>
 
-            {/* STORY 2 */}
+            {/* STORY 2 - DOLOR */}
             <div
               style={{
                 width: '100%',
@@ -1078,9 +914,9 @@ export default function BannersPage() {
                     margin: 0
                   }}
                 >
-                  Alguien agrega un producto y{' '}
-                  <span style={{ color: '#f87171' }}>NO tiene motivo</span> para
-                  comprar YA.
+                  Es como entrar a un restaurante{' '}
+                  <span style={{ color: '#facc15' }}>vacío</span> un viernes a
+                  la noche.
                 </h3>
                 <div
                   style={{
@@ -1092,24 +928,34 @@ export default function BannersPage() {
                 >
                   <p
                     style={{
-                      fontSize: 12,
-                      color: '#f87171',
-                      fontWeight: 800,
+                      fontSize: 24,
                       margin: 0
                     }}
                   >
-                    🛒 Carrito abandonado hace 2 min
+                    🏚️
                   </p>
                   <p
                     style={{
                       fontSize: 11,
-                      color: '#94a3b8',
+                      color: '#f87171',
+                      fontWeight: 700,
                       margin: '6px 0 0 0'
                     }}
                   >
-                    Sin urgencia = sin compra
+                    Algo no cierra. Te vas.
                   </p>
                 </div>
+                <p
+                  style={{
+                    fontSize: 12,
+                    color: '#34d399',
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    margin: 0
+                  }}
+                >
+                  En e-commerce pasa lo mismo.
+                </p>
               </div>
               <p
                 style={{
@@ -1119,11 +965,11 @@ export default function BannersPage() {
                   textAlign: 'center'
                 }}
               >
-                Captura de carrito real 👆
+                Foto restaurante vacío con filtro oscuro 👆
               </p>
             </div>
 
-            {/* STORY 3 */}
+            {/* STORY 3 - DEMO */}
             <div
               style={{
                 width: '100%',
@@ -1157,37 +1003,55 @@ export default function BannersPage() {
                     margin: 0
                   }}
                 >
-                  Así se ve tu tienda con el{' '}
-                  <span style={{ color: '#10B981' }}>Temporizador Nevux</span> 👇
+                  Mirá cómo se ve con las{' '}
+                  <span style={{ color: '#10B981' }}>notificaciones Nevux</span>{' '}
+                  👇
                 </h3>
                 <div
                   style={{
-                    backgroundColor: '#10B981',
+                    background:
+                      'linear-gradient(135deg, #10B981 0%, #059669 100%)',
                     borderRadius: 12,
                     padding: 14,
-                    textAlign: 'center'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    boxShadow: '0 10px 30px rgba(16,185,129,0.3)'
                   }}
                 >
-                  <p
+                  <div
                     style={{
-                      fontSize: 11,
-                      color: '#FFFFFF',
-                      fontWeight: 800,
-                      margin: 0
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      backgroundColor: '#FFFFFF',
+                      flexShrink: 0,
+                      boxShadow: '0 0 10px #FFFFFF'
                     }}
-                  >
-                    🔥 ¡OFERTA EXPIRA EN!
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 22,
-                      color: '#FFFFFF',
-                      fontWeight: 900,
-                      margin: '4px 0 0 0'
-                    }}
-                  >
-                    14:32:08
-                  </p>
+                  />
+                  <div>
+                    <p
+                      style={{
+                        fontSize: 11,
+                        color: '#FFFFFF',
+                        fontWeight: 800,
+                        margin: 0,
+                        lineHeight: 1.2
+                      }}
+                    >
+                      Lucas de Rosario
+                    </p>
+                    <p
+                      style={{
+                        fontSize: 10,
+                        color: '#FFFFFF',
+                        margin: '2px 0 0 0',
+                        opacity: 0.9
+                      }}
+                    >
+                      compró Zapatillas Urban
+                    </p>
+                  </div>
                 </div>
                 <p
                   style={{
@@ -1198,7 +1062,7 @@ export default function BannersPage() {
                     margin: 0
                   }}
                 >
-                  2 clics. Cero código.
+                  Slide-in animado en tiempo real
                 </p>
               </div>
               <p
@@ -1209,11 +1073,11 @@ export default function BannersPage() {
                   textAlign: 'center'
                 }}
               >
-                Mockup de tienda Tiendanube 👆
+                Sticker 🔥 de reacción 👆
               </p>
             </div>
 
-            {/* STORY 4 */}
+            {/* STORY 4 - CTA */}
             <div
               style={{
                 width: '100%',
@@ -1240,7 +1104,7 @@ export default function BannersPage() {
               >
                 <h3
                   style={{
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: 900,
                     color: '#fff',
                     lineHeight: 1.2,
@@ -1248,15 +1112,17 @@ export default function BannersPage() {
                     textAlign: 'center'
                   }}
                 >
-                  ¿Querés dejar de perder ventas{' '}
-                  <span style={{ color: '#10B981' }}>mientras dormís</span>?
+                  Tu tienda necesita parecer un local{' '}
+                  <span style={{ color: '#10B981' }}>LLENO</span>.
                 </h3>
                 <div
                   style={{
-                    backgroundColor: '#10B981',
+                    background:
+                      'linear-gradient(135deg, #10B981 0%, #059669 100%)',
                     borderRadius: 14,
                     padding: 16,
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    boxShadow: '0 10px 30px rgba(16,185,129,0.4)'
                   }}
                 >
                   <p
@@ -1267,7 +1133,7 @@ export default function BannersPage() {
                       margin: 0
                     }}
                   >
-                    🔗 ACTIVAR NEVUX PRO →
+                    🔗 ACTIVAR PRUEBA SOCIAL →
                   </p>
                 </div>
                 <p
@@ -1278,7 +1144,7 @@ export default function BannersPage() {
                     margin: 0
                   }}
                 >
-                  ARS $35.000/mes. Se paga solo con 2 ventas.
+                  Plan Pro: ARS $35.000/mes. +41 widgets.
                 </p>
               </div>
               <p
@@ -1297,13 +1163,13 @@ export default function BannersPage() {
 
         {/* COPY */}
         <CopyBlock
-          id="lunes"
-          title="Descripción Carrusel Lunes (Urgencia / Carritos)"
-          text={copyLunes}
-          copied={copiedId === 'lunes'}
+          id="martes"
+          title="Descripción Reel Martes (Prueba Social)"
+          text={copyMartes}
+          copied={copiedId === 'martes'}
           onCopy={handleCopy}
         />
       </main>
     </div>
   );
-          }
+  }
