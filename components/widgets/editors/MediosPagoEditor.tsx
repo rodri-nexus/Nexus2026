@@ -40,7 +40,7 @@ export interface CfgMediosPago {
   secureBadgeText: string;
   activeMethods: string[];
   customLogos: CustomLogoItem[];
-  position: 'before-description' | 'before-add-to-cart';
+  position: 'before-description' | 'before-add-to-cart' | 'after-add-to-cart';
   alignment: 'left' | 'center' | 'right';
   bgColor: string;
   textColor: string;
@@ -99,7 +99,7 @@ const DEF: CfgMediosPago = {
     'transferencia',
   ],
   customLogos: [],
-  position: 'before-description',
+  position: 'before-add-to-cart',
   alignment: 'center',
   bgColor: '#ffffff',
   textColor: '#111827',
@@ -137,84 +137,87 @@ const PaymentLogoSVG = ({ id, mode = 'original' }: { id: string; mode?: 'origina
 
   const logoMap: Record<string, React.ReactNode> = {
     visa: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#1A1F71" />
-        <path d="M14.5 16.5L16.6 6.8H19.5L17.4 16.5H14.5ZM24.4 7C23.8 6.8 22.9 6.5 21.8 6.5C18.9 6.5 16.9 8 16.9 10.1C16.9 11.7 18.3 12.6 19.4 13.1C20.5 13.6 20.9 14 20.9 14.5C20.9 15.3 19.9 15.6 19 15.6C17.7 15.6 16.9 15.3 16.2 14.9L15.7 17.2C16.5 17.6 17.8 17.9 19.2 17.9C22.3 17.9 24.3 16.4 24.3 14.1C24.3 12.1 22.4 11.3 21.2 10.7C20.4 10.3 20 10 20 9.5C20 9 20.6 8.6 21.6 8.6C22.6 8.6 23.4 8.8 24 9.1L24.4 7ZM30.4 16.5H33L30.7 6.8H28.3C27.7 6.8 27.2 7.1 27 7.6L23 16.5H26L26.6 14.8H30L30.4 16.5ZM27.4 12.6L28.8 8.8L29.6 12.6H27.4ZM13.2 6.8L10.4 13.4L10.1 11.9C9.6 10.2 8.1 8.3 6.3 7.4L8.8 16.5H11.8L16.2 6.8H13.2Z" fill="#F7B600" />
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#1A1F71"/>
+        <path d="M19.4 21.3h-2.6l1.6-10h2.6l-1.6 10zm9.5-9.8c-.5-.2-1.3-.4-2.4-.4-2.6 0-4.4 1.4-4.4 3.4 0 1.5 1.3 2.3 2.3 2.8 1 .5 1.4.9 1.4 1.3 0 .7-.8 1-1.6 1-1 0-1.7-.1-2.5-.5l-.4-.2-.4 2.3c.7.3 1.9.6 3.1.6 2.8 0 4.6-1.4 4.6-3.5 0-1.2-.7-2.1-2.3-2.8-.9-.5-1.5-.8-1.5-1.3 0-.4.5-.9 1.5-.9.9 0 1.6.2 2.1.4l.3.1.4-2.3zm6.6-.2h-2c-.6 0-1.1.2-1.4.8l-3.9 9.2h2.7s.4-1.3.5-1.5h3.3c.1.3.3 1.5.3 1.5h2.4l-2.1-10zm-3.3 6.4c.2-.6 1.1-2.9 1.1-2.9 0 .1.2-.6.4-1l.2.9s.4 2.2.5 2.9h-2.2zm-18.1-6.4l-2.6 6.8-.3-1.4c-.5-1.6-1.9-3.3-3.5-4.1l2.4 8.7h2.8l4.1-10h-2.9z" fill="#FFFFFF"/>
+        <path d="M11.3 11.3H7l-.1.3c3.4.8 5.6 2.9 6.6 5.3l-.9-4.7c-.2-.6-.6-.9-1.3-.9z" fill="#F7B600"/>
       </svg>
     ),
     mastercard: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#111827" />
-        <circle cx="15" cy="12" r="7" fill="#EB001B" />
-        <circle cx="23" cy="12" r="7" fill="#F79E1B" fillOpacity="0.9" />
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#16181D"/>
+        <circle cx="19" cy="16" r="8" fill="#EB001B"/>
+        <circle cx="29" cy="16" r="8" fill="#F79E1B"/>
+        <path d="M24 10a7.97 7.97 0 0 0-3 6.25 7.97 7.97 0 0 0 3 6.25 7.97 7.97 0 0 0 3-6.25A7.97 7.97 0 0 0 24 10z" fill="#FF5F00"/>
       </svg>
     ),
     amex: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#006FCF" />
-        <text x="5" y="16" fill="#FFFFFF" fontSize="10" fontWeight="900" fontFamily="sans-serif">AMEX</text>
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#1F72CD"/>
+        <text x="24" y="20" fill="#FFFFFF" fontSize="9" fontWeight="900" fontFamily="Arial, sans-serif" textAnchor="middle" letterSpacing="1">AMEX</text>
       </svg>
     ),
     cabal: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#003865" />
-        <circle cx="13" cy="12" r="5" fill="#E30613" />
-        <circle cx="21" cy="12" r="5" fill="#009639" />
-        <circle cx="25" cy="12" r="3" fill="#0072CE" />
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#003865"/>
+        <circle cx="18" cy="16" r="6" fill="#E30613"/>
+        <circle cx="27" cy="16" r="6" fill="#009639" fillOpacity="0.9"/>
+        <text x="24" y="29" fill="#FFFFFF" fontSize="4" fontWeight="700" fontFamily="Arial, sans-serif" textAnchor="middle">CABAL</text>
       </svg>
     ),
     naranjax: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#FF6B00" />
-        <text x="6" y="16" fill="#FFFFFF" fontSize="11" fontWeight="900" fontFamily="sans-serif">NX</text>
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#FF6B00"/>
+        <text x="24" y="20" fill="#FFFFFF" fontSize="11" fontWeight="900" fontFamily="Arial, sans-serif" textAnchor="middle">NX</text>
       </svg>
     ),
     mercadopago: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#009EE3" />
-        <path d="M11 12C11 9.8 12.8 8 15 8C17.2 8 19 9.8 19 12M19 12C19 14.2 20.8 16 23 16C25.2 16 27 14.2 27 12" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" />
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#00B1EA"/>
+        <path d="M14 16c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5c0 2.5 2 4.5 4.5 4.5s4.5-2 4.5-4.5" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+        <circle cx="18.5" cy="16" r="1.2" fill="#FFCC33"/>
       </svg>
     ),
     modo: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#432483" />
-        <text x="4" y="16" fill="#FFFFFF" fontSize="10" fontWeight="900" fontFamily="sans-serif">modo</text>
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#000000"/>
+        <text x="24" y="20" fill="#00E599" fontSize="10" fontWeight="900" fontFamily="Arial, sans-serif" textAnchor="middle">MODO</text>
       </svg>
     ),
     uala: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#FF3B5C" />
-        <text x="8" y="16" fill="#FFFFFF" fontSize="11" fontWeight="900" fontFamily="sans-serif">ualá</text>
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#3545EE"/>
+        <text x="24" y="20" fill="#FFFFFF" fontSize="11" fontWeight="900" fontFamily="Arial, sans-serif" textAnchor="middle">ualá</text>
       </svg>
     ),
     gocuotas: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#00D084" />
-        <text x="6" y="16" fill="#FFFFFF" fontSize="9" fontWeight="900" fontFamily="sans-serif">GO!</text>
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#00D084"/>
+        <text x="24" y="20" fill="#FFFFFF" fontSize="9" fontWeight="900" fontFamily="Arial, sans-serif" textAnchor="middle">GO!</text>
       </svg>
     ),
     pagonube: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#2B6CB0" />
-        <path d="M12 15C10.5 15 9.5 14 9.5 12.5C9.5 11 10.8 9.8 12.2 10C13 8.8 14.5 8 16 8C18.2 8 20 9.8 20 12C21 12 22 13 22 14.2C22 15.5 21 16 19.5 16H12Z" fill="#FFFFFF" />
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#2B3445"/>
+        <text x="24" y="20" fill="#00C48C" fontSize="7" fontWeight="900" fontFamily="Arial, sans-serif" textAnchor="middle">PagoNube</text>
       </svg>
     ),
     pagofacil: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#FFE800" />
-        <text x="4" y="16" fill="#003865" fontSize="10" fontWeight="900" fontFamily="sans-serif">PAGO</text>
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#FFE800"/>
+        <text x="24" y="20" fill="#003865" fontSize="7" fontWeight="900" fontFamily="Arial, sans-serif" textAnchor="middle">Pago Fácil</text>
       </svg>
     ),
     rapipago: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#FFCC00" />
-        <text x="5" y="16" fill="#002D62" fontSize="10" fontWeight="900" fontFamily="sans-serif">Rapi</text>
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#0039A6"/>
+        <text x="24" y="20" fill="#FFDD00" fontSize="8" fontWeight="900" fontFamily="Arial, sans-serif" textAnchor="middle">Rapipago</text>
       </svg>
     ),
     transferencia: (
-      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
-        <rect width="38" height="24" rx="4" fill="#10B981" />
-        <path d="M9 17V16H29V17H9ZM10 14V10H12V14H10ZM15 14V10H17V14H15ZM20 14V10H22V14H20ZM25 14V10H27V14H25ZM19 7L29 9V8L19 6L9 8V9L19 7Z" fill="#FFFFFF" />
+      <svg width="38" height="24" viewBox="0 0 48 32" fill="none" style={filterStyle} xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="32" rx="4" fill="#10B981"/>
+        <path d="M24 8l-8 5h16l-8-5zm-7 7v7h2v-7h-2zm6 0v7h2v-7h-2zm6 0v7h2v-7h-2zm-13 8v2h18v-2H16z" fill="#FFFFFF"/>
       </svg>
     ),
   };
@@ -773,6 +776,16 @@ export default function MediosPagoEditor({
                 )}
               </div>
 
+              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#000000' }}>💳 Mostrar Mensaje de Cuotas</div>
+                    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Destacá una promoción importante de cuotas en tu tienda.</div>
+                  </div>
+                  <ToggleSwitch checked={cfg.showInstallmentMessage} onChange={(v) => set('showInstallmentMessage', v)} />
+                </div>
+              </div>
+
               {/* SELECCIÓN DE MEDIOS DE PAGO */}
               <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 20 }}>
                 <FieldLabel>Medios de Pago Disponibles</FieldLabel>
@@ -864,6 +877,7 @@ export default function MediosPagoEditor({
                   {[
                     { id: 'before-description', label: 'Antes de la descripción', desc: 'Ubicado arriba de la solapa de descripción del producto.' },
                     { id: 'before-add-to-cart', label: 'Antes del botón Agregar al Carrito', desc: 'Justo arriba del botón de compra para acelerar la conversión.' },
+                    { id: 'after-add-to-cart', label: 'Después del botón Agregar al Carrito', desc: 'Debajo del botón de compra, ideal para reforzar confianza al momento de decidir.' },
                   ].map((pos) => (
                     <label
                       key={pos.id}
@@ -1056,4 +1070,4 @@ export default function MediosPagoEditor({
 
     </div>
   );
-     }
+   }
