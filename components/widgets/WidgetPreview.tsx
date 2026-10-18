@@ -8,7 +8,7 @@ interface WidgetPreviewProps {
 }
 
 export default function WidgetPreview({ slug, widgetSlug }: WidgetPreviewProps) {
-  const activeSlug = slug || widgetSlug || "";
+  const activeSlug = (slug || widgetSlug || "").trim().toLowerCase();
 
   switch (activeSlug) {
     case "barra-descuento":
@@ -26,6 +26,7 @@ export default function WidgetPreview({ slug, widgetSlug }: WidgetPreviewProps) 
     case "popups":
       return <PopupsPreview />;
     case "sticky-add-to-cart":
+    case "barra-accion":
       return <StickyAddToCartPreview />;
     case "whatsapp-chat":
       return <WhatsappChatPreview />;
@@ -34,6 +35,7 @@ export default function WidgetPreview({ slug, widgetSlug }: WidgetPreviewProps) 
     case "banner-promocional":
       return <BannerPromocionalPreview />;
     case "alerta-stock":
+    case "alerta-inventario":
       return <AlertaStockPreview />;
     case "tabla-talles":
       return <TablaTallesPreview />;
@@ -75,6 +77,8 @@ export default function WidgetPreview({ slug, widgetSlug }: WidgetPreviewProps) 
       return <SocialProofVivoPreview />;
     case "badge-garantia":
       return <BadgeGarantiaPreview />;
+    case "badge-efectivo":
+      return <BadgeEfectivoPreview />;
     case "barra-progreso-envio":
       return <BarraProgresoEnvioPreview />;
     case "cronometro-oferta":
@@ -83,7 +87,11 @@ export default function WidgetPreview({ slug, widgetSlug }: WidgetPreviewProps) 
       return <VerificadorCodigoPostalPreview />;
     case "banner-rotativo":
       return <BannerRotativoPreview />;
+    case "banner-superior":
+    case "banner-anuncios-top":
+      return <BannerAnunciosTopPreview />;
     case "combos-descuento":
+    case "bundle-promociones":
       return <CombosDescuentoPreview />;
     case "regalo-por-compra":
       return <RegaloPorCompraPreview />;
@@ -93,9 +101,8 @@ export default function WidgetPreview({ slug, widgetSlug }: WidgetPreviewProps) 
       return <ShareSocialPreview />;
     case "notificacion-envio-hoy":
       return <NotificacionEnvioHoyPreview />;
-    case "banner-anuncios-top":
-      return <BannerAnunciosTopPreview />;
     case "calculadora-cuotas":
+    case "barra-cuotas-sin-interes":
       return <CalculadoraCuotasPreview />;
     case "popups-inteligente":
       return <PopupsInteligentePreview />;
@@ -108,8 +115,26 @@ export default function WidgetPreview({ slug, widgetSlug }: WidgetPreviewProps) 
     case "medios-pago":
       return <MediosPagoPreview />;
     default:
-      return <BarraDescuentoPreview />;
+      return <GenericWidgetPreview slug={activeSlug} />;
   }
+}
+
+function GenericWidgetPreview({ slug }: { slug: string }) {
+  const formattedName = slug
+    ? slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+    : "Widget Preview";
+
+  return (
+    <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "8px", padding: "8px 10px", width: "94%", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <span style={{ fontSize: "12px" }}>✨</span>
+        <span style={{ fontSize: "8.5px", fontWeight: 800, color: "#111827" }}>{formattedName}</span>
+      </div>
+      <span style={{ fontSize: "7px", background: "#ecfdf5", color: "#059669", padding: "2px 5px", borderRadius: "4px", fontWeight: 700 }}>
+        Nevux
+      </span>
+    </div>
+  );
 }
 
 function BarraDescuentoPreview() {
@@ -219,8 +244,8 @@ function BannerPromocionalPreview() {
 
 function AlertaStockPreview() {
   return (
-    <div style={{ background: "#fffbe6", border: "1px solid #ffe58f", padding: "6px 10px", borderRadius: "4px", fontSize: "9px", color: "#d48806", fontWeight: 700 }}>
-      ⚠️ Quedan pocas unidades en tu talle
+    <div style={{ background: "#fef2f2", border: "1px solid #fecaca", padding: "6px 10px", borderRadius: "4px", fontSize: "9px", color: "#991b1b", fontWeight: 700, width: "92%" }}>
+      ⚠️ Quedan pocas unidades en inventario
     </div>
   );
 }
@@ -376,7 +401,7 @@ function CajaSuscripcionPreview() {
 function ComprasJuntasPreview() {
   return (
     <div style={{ border: "1px solid #e5e7eb", padding: "6px", borderRadius: "6px", width: "95%", background: "#fff" }}>
-      <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#111827" }}>Frecuentemente comprados juntos</div>
+      <div style={{ fontSize: "8.5px", fontWeight 800, color: "#111827" }}>Frecuentemente comprados juntos</div>
       <div style={{ fontSize: "7.5px", color: "#10B981", fontWeight: 700 }}>Ahorrás 10% llevando ambos</div>
     </div>
   );
@@ -402,6 +427,14 @@ function BadgeGarantiaPreview() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "8.5px", fontWeight: 700, color: "#374151" }}>
       <span style={{ color: "#10B981", fontSize: "12px" }}>🛡️</span> Garantía oficial de 12 meses
+    </div>
+  );
+}
+
+function BadgeEfectivoPreview() {
+  return (
+    <div style={{ background: "#ecfdf5", border: "1px solid #10B981", padding: "6px 10px", borderRadius: "6px", fontSize: "8.5px", color: "#065f46", fontWeight: 700, display: "flex", alignItems: "center", gap: "4px" }}>
+      <span>💵</span> 10% OFF pagando en Efectivo / Transferencia
     </div>
   );
 }
@@ -559,22 +592,18 @@ function MediosPagoPreview() {
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "3px", marginTop: "2px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "3px", border: "1px solid #e5e7eb", borderRadius: "4px", padding: "2px 4px", background: "#fff" }}>
-          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" style={{ width: "16px", height: "10px", objectFit: "contain" }} />
-          <span style={{ fontSize: "6.5px", color: "#374151", fontWeight: 600 }}>Visa</span>
+          <span style={{ fontSize: "8px", fontWeight: 800, color: "#1434CB" }}>VISA</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "3px", border: "1px solid #e5e7eb", borderRadius: "4px", padding: "2px 4px", background: "#fff" }}>
-          <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" style={{ width: "16px", height: "10px", objectFit: "contain" }} />
-          <span style={{ fontSize: "6.5px", color: "#374151", fontWeight: 600 }}>Mastercard</span>
+          <span style={{ fontSize: "8px", fontWeight: 800, color: "#EB001B" }}>MC</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "3px", border: "1px solid #e5e7eb", borderRadius: "4px", padding: "2px 4px", background: "#fff" }}>
-          <img src="https://http2.mlstatic.com/frontend-assets/mp-web-navigation/ui-navigation/6.6.95/mercadopago/logo__large.png" alt="Mercado Pago" style={{ width: "16px", height: "10px", objectFit: "contain" }} />
-          <span style={{ fontSize: "6.5px", color: "#374151", fontWeight: 600 }}>Mercado Pago</span>
+          <span style={{ fontSize: "8px", fontWeight: 800, color: "#009EE3" }}>MP</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "3px", border: "1px solid #e5e7eb", borderRadius: "4px", padding: "2px 4px", background: "#fff" }}>
-          <img src="https://play-lh.googleusercontent.com/J0Wj6c3qJj1nkPtlyNVmLHhR0yygQ9yJIAVKQg7E3bHCUmJd9NwRJJBz9x9h8qV1kw" alt="MODO" style={{ width: "16px", height: "10px", objectFit: "contain" }} />
-          <span style={{ fontSize: "6.5px", color: "#374151", fontWeight: 600 }}>MODO</span>
+          <span style={{ fontSize: "8px", fontWeight: 800, color: "#00E599" }}>MODO</span>
         </div>
       </div>
     </div>
   );
-  }
+      }
