@@ -46,6 +46,7 @@ import AlertaInventarioEditor from '@/components/widgets/editors/AlertaInventari
 import ConjuntoProductosEditor from '@/components/widgets/editors/ConjuntoProductosEditor';
 import CarruselResenasEditor from '@/components/widgets/editors/CarruselResenasEditor';
 import CajaEstadisticasEditor from '@/components/widgets/editors/CajaEstadisticasEditor';
+import BarraDescuentoEditor from '@/components/widgets/editors/BarraDescuentoEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -152,6 +153,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: BARRA DE DESCUENTO
+  if (params.widgetSlug === 'barra-descuento') {
+    return <BarraDescuentoEditor {...editorProps} />;
+  }
 
   // WIDGET: CAJA DE ESTADÍSTICAS
   if (params.widgetSlug === 'caja-estadisticas') {
@@ -396,4 +402,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-      }
+  }
