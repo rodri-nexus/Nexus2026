@@ -48,6 +48,7 @@ import CarruselResenasEditor from '@/components/widgets/editors/CarruselResenasE
 import CajaEstadisticasEditor from '@/components/widgets/editors/CajaEstadisticasEditor';
 import BarraDescuentoEditor from '@/components/widgets/editors/BarraDescuentoEditor';
 import MediosPagoEditor from '@/components/widgets/editors/MediosPagoEditor';
+import FavoritosEditor from '@/components/widgets/editors/FavoritosEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -154,6 +155,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: FAVORITOS
+  if (params.widgetSlug === 'favoritos') {
+    return <FavoritosEditor {...editorProps} />;
+  }
 
   // WIDGET: MEDIOS DE PAGO
   if (params.widgetSlug === 'medios-pago') {
@@ -408,4 +414,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+             }
