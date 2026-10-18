@@ -1843,6 +1843,7 @@
             if (w.widget_slug === "carrusel-resenas") renderCarruselResenas(w);
             if (w.widget_slug === "caja-estadisticas") renderCajaEstadisticas(w);
             if (w.widget_slug === "barra-descuento") renderBarraDescuento(w);
+            if (w.widget_slug === "medios-pago") renderMediosPago(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -15199,4 +15200,166 @@ function renderBarraDescuento(w) {
     }
   }
 }
+      /* ═══════════════════════════════════════════
+   WIDGET #48: MEDIOS DE PAGO
+   ═══════════════════════════════════════════ */
+function renderMediosPago(w) {
+  try {
+    var pageType = typeof detectPageType === "function" ? detectPageType() : "";
+    if (pageType !== "product") return;
+
+    var cfg = w.config || {};
+    var uniqueId = "nvx-medios-pago-" + (w.id || Math.random().toString(36).substring(7));
+    if (document.getElementById(uniqueId)) return;
+
+    var mensaje = cfg.mensaje !== undefined ? cfg.mensaje : "Aceptamos todos los medios de pago";
+    var metodosActivos = cfg.metodosActivos || ["visa", "mastercard", "amex", "mercadopago", "modo", "transferencia"];
+    var customLogos = cfg.customLogos || [];
+    var mostrarSelloSeguro = cfg.mostrarSelloSeguro !== false;
+    var textoSelloSeguro = cfg.textoSelloSeguro !== undefined ? cfg.textoSelloSeguro : "Pago 100% seguro y garantizado";
+    var mostrarCuotasSinInteres = cfg.mostrarCuotasSinInteres !== false;
+    var textoCuotasSinInteres = cfg.textoCuotasSinInteres !== undefined ? cfg.textoCuotasSinInteres : "Hasta 3 cuotas sin interés";
+    var posicion = (cfg.posicion || "before-add-to-cart").toString();
+    var alineacion = (cfg.alineacion || "center").toString();
+
+    var colorFondo = cfg.colorFondo || "#ffffff";
+    var paddingContainer = cfg.paddingContainer !== undefined ? parseInt(cfg.paddingContainer, 10) : 16;
+    var borderRadiusContainer = cfg.borderRadiusContainer !== undefined ? parseInt(cfg.borderRadiusContainer, 10) : 12;
+    var activarBordeContainer = cfg.activarBordeContainer !== false;
+    var colorBordeContainer = cfg.colorBordeContainer || "#e5e7eb";
+
+    var colorMensaje = cfg.colorMensaje || "#1e293b";
+    var tamanoMensaje = cfg.tamanoMensaje !== undefined ? parseInt(cfg.tamanoMensaje, 10) : 14;
+    var estiloMensaje = cfg.estiloMensaje || "bold";
+
+    var modoColorIconos = cfg.modoColorIconos || "original";
+    var separacionTarjetas = cfg.separacionTarjetas !== undefined ? parseInt(cfg.separacionTarjetas, 10) : 8;
+    var anchoTarjeta = cfg.anchoTarjeta !== undefined ? parseInt(cfg.anchoTarjeta, 10) : 48;
+    var altoTarjeta = cfg.altoTarjeta !== undefined ? parseInt(cfg.altoTarjeta, 10) : 32;
+    var borderRadiusTarjeta = cfg.borderRadiusTarjeta !== undefined ? parseInt(cfg.borderRadiusTarjeta, 10) : 6;
+    var fondoTarjeta = cfg.fondoTarjeta || "#ffffff";
+    var activarBordeTarjeta = cfg.activarBordeTarjeta !== false;
+    var colorBordeTarjeta = cfg.colorBordeTarjeta || "#e2e8f0";
+
+    var colorTextoSeguro = cfg.colorTextoSeguro || "#059669";
+    var colorIconoCandado = cfg.colorIconoCandado || "#059669";
+    var colorTextoCuotas = cfg.colorTextoCuotas || "#2563eb";
+    var tamanoTextoSeguro = cfg.tamanoTextoSeguro !== undefined ? parseInt(cfg.tamanoTextoSeguro, 10) : 12;
+
+    var campaignTheme = cfg.campaignTheme || "none";
+    if (campaignTheme && campaignTheme !== "none") {
+      if (campaignTheme === "black-friday") { colorFondo = "#111827"; colorBordeContainer = "#374151"; colorMensaje = "#F59E0B"; }
+      else if (campaignTheme === "hot-sale") { colorFondo = "#FEF2F2"; colorBordeContainer = "#FECACA"; colorMensaje = "#EF4444"; }
+      else if (campaignTheme === "cyber-monday") { colorFondo = "#EFF6FF"; colorBordeContainer = "#BFDBFE"; colorMensaje = "#1E3A8A"; }
+      else if (campaignTheme === "navidad") { colorFondo = "#ECFDF5"; colorBordeContainer = "#A7F3D0"; colorMensaje = "#064E3B"; }
+      else if (campaignTheme === "san-valentin") { colorFondo = "#FDF2F8"; colorBordeContainer = "#FBCFE8"; colorMensaje = "#831843"; }
+      else if (campaignTheme === "dia-padre-madre") { colorFondo = "#EEF2FF"; colorBordeContainer = "#C7D2FE"; colorMensaje = "#312E81"; }
+      else if (campaignTheme === "liquidacion") { colorFondo = "#FEF2F2"; colorBordeContainer = "#FCA5A5"; colorMensaje = "#7F1D1D"; }
+    }
+
+    var inject = function() {
+      if (document.getElementById(uniqueId)) return;
+
+      var container = document.createElement("div");
+      container.id = uniqueId;
+      container.setAttribute("data-nevux-widget", "medios-pago");
+
+      var borderCss = activarBordeContainer ? "border: 1px solid " + colorBordeContainer + " !important;" : "border: none !important;";
+      var alignCss = alineacion === "center" ? "center" : "left";
+      var flexAlignCss = alineacion === "center" ? "center" : "flex-start";
+      var msgWeight = estiloMensaje === "bold" ? "700" : (estiloMensaje === "medium" ? "500" : "400");
+
+      container.style.cssText = "font-family: system-ui, -apple-system, sans-serif !important; margin: 16px 0 !important; padding: " + paddingContainer + "px !important; background-color: " + colorFondo + " !important; border-radius: " + borderRadiusContainer + "px !important; " + borderCss + " box-sizing: border-box !important; text-align: " + alignCss + " !important;";
+
+      var html = "";
+
+      if (mensaje) {
+        html += '<div style="color: ' + colorMensaje + ' !important; font-size: ' + tamanoMensaje + 'px !important; font-weight: ' + msgWeight + ' !important; margin-bottom: 12px !important; line-height: 1.3 !important;">' + mensaje + '</div>';
+      }
+
+      html += '<div style="display: flex !important; flex-wrap: wrap !important; gap: ' + separacionTarjetas + 'px !important; align-items: center !important; justify-content: ' + flexAlignCss + ' !important; margin-bottom: 12px !important;">';
+
+      var defaultLogos = {
+        'visa': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#1434CB"/><path d="M14.7 16.3h-2.3l1.4-8.8h2.3l-1.4 8.8zm7.3-8.6c-.5-.2-1.2-.4-2.1-.4-2.3 0-3.9 1.2-3.9 3 0 1.3 1.1 2 2 2.5.9.4 1.2.7 1.2 1.1 0 .6-.7.9-1.4.9-.9 0-1.5-.1-2.2-.4l-.3-.1-.3 2c.6.3 1.6.5 2.7.5 2.5 0 4.1-1.2 4.1-3.1 0-1-.6-1.8-2-2.5-.8-.4-1.3-.7-1.3-1.1 0-.4.4-.8 1.4-.8.8 0 1.4.2 1.8.3l.2.1.3-1.9zm5.3-.2h-1.8c-.6 0-1 .2-1.2.7l-3.5 8.3h2.4l.5-1.3h3l.3 1.3h2.1l-1.8-9zm-2.4 5.4c.2-.5.9-2.5.9-2.5l.3 1.2c.1.5.5 1.3.5 1.3h-1.7zm-14.7-5.4l-2.3 6.1-.2-1.2c-.4-1.4-1.6-2.9-3-3.6l1.9 7.3h2.4l3.6-8.6h-2.4z" fill="#FFF"/></svg>',
+        'mastercard': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#0A0A0A"/><circle cx="13" cy="12" r="7" fill="#EB001B"/><circle cx="23" cy="12" r="7" fill="#F79E1B"/><path d="M18 6.8a6.96 6.96 0 00-2.6 5.2c0 2 0.9 3.8 2.6 5.2 1.7-1.4 2.6-3.2 2.6-5.2 0-2-.9-3.8-2.6-5.2z" fill="#FF5F00"/></svg>',
+        'amex': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#006FCF"/><path d="M7 16l1.3-3.2h1.4L11 16h2l-2.4-5.5L13 5H11l-1.3 3.1L8.4 5H6.5L4 10.5 1.6 5H0l2.3 5.5L0 16h2l1.3-3.2h1.4L6 16h1zm12-11h-5v11h5v-2h-3v-2.5h3v-2h-3V7h3V5zm7 0h-2.3l-1.7 4-1.7-4H18v11h2v-6.5l2 4.5h1l2-4.5V16h2V5z" fill="#FFF"/></svg>',
+        'cabal': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#003B70"/><circle cx="18" cy="12" r="6" fill="#E30613"/><path d="M18 6a6 6 0 0 0 0 12V6z" fill="#FFF"/></svg>',
+        'naranja-x': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#FF6B00"/><text x="18" y="16" font-family="sans-serif" font-weight="bold" font-size="12" fill="#FFF" text-anchor="middle">NX</text></svg>',
+        'mercadopago': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#009EE3"/><path d="M12 15c-1.5 0-2.5-1-2.5-2.5S10.5 10 12 10s2.5 1 2.5 2.5S13.5 15 12 15zm12 0c-1.5 0-2.5-1-2.5-2.5s1-2.5 2.5-2.5 2.5 1 2.5 2.5-1 2.5-2.5 2.5z" fill="#FFF"/></svg>',
+        'modo': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#000000"/><text x="18" y="15" font-family="sans-serif" font-weight="900" font-size="9" fill="#00E599" text-anchor="middle">MODO</text></svg>',
+        'uala': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#3545EE"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="10" fill="#FFF" text-anchor="middle">ualá</text></svg>',
+        'go-cuotas': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#6C3baa"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#FFF" text-anchor="middle">GO!</text></svg>',
+        'pago-nube': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#2B3445"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="7" fill="#00C48C" text-anchor="middle">PagoNube</text></svg>',
+        'pago-facil': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#FFF200"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#003B7A" text-anchor="middle">Pago Fácil</text></svg>',
+        'rapipago': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#0039A6"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#FFDD00" text-anchor="middle">Rapipago</text></svg>',
+        'transferencia': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#10B981"/><path d="M18 6l-6 4h12l-6-4zm-5 5v5h2v-5h-2zm4 0v5h2v-5h-2zm4 0v5h2v-5h-2zm-9 6v2h12v-2H12z" fill="#FFF"/></svg>'
+      };
+
+      var itemBorderCss = activarBordeTarjeta ? "border: 1px solid " + colorBordeTarjeta + " !important;" : "border: none !important;";
+      var filterCss = modoColorIconos === "grayscale" ? "filter: grayscale(100%) !important;" : "";
+
+      for (var i = 0; i < metodosActivos.length; i++) {
+        var key = metodosActivos[i];
+        if (defaultLogos[key]) {
+          html += '<div style="width: ' + anchoTarjeta + 'px !important; height: ' + altoTarjeta + 'px !important; border-radius: ' + borderRadiusTarjeta + 'px !important; background-color: ' + fondoTarjeta + ' !important; ' + itemBorderCss + ' display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; box-sizing: border-box !important; ' + filterCss + '">' + defaultLogos[key] + '</div>';
+        }
+      }
+
+      for (var j = 0; j < customLogos.length; j++) {
+        var cl = customLogos[j];
+        if (cl && cl.logoUrl) {
+          html += '<div style="width: ' + anchoTarjeta + 'px !important; height: ' + altoTarjeta + 'px !important; border-radius: ' + borderRadiusTarjeta + 'px !important; background-color: ' + fondoTarjeta + ' !important; ' + itemBorderCss + ' display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; box-sizing: border-box !important; padding: 2px !important; ' + filterCss + '"><img src="' + cl.logoUrl + '" alt="' + (cl.name || 'Medio de pago') + '" style="max-width: 100% !important; max-height: 100% !important; object-fit: contain !important;" /></div>';
+        }
+      }
+
+      html += '</div>';
+
+      if (mostrarCuotasSinInteres || mostrarSelloSeguro) {
+        html += '<div style="display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 12px !important; justify-content: ' + flexAlignCss + ' !important; margin-top: 8px !important;">';
+
+        if (mostrarCuotasSinInteres && textoCuotasSinInteres) {
+          html += '<div style="display: inline-flex !important; align-items: center !important; gap: 4px !important; color: ' + colorTextoCuotas + ' !important; font-size: ' + tamanoTextoSeguro + 'px !important; font-weight: 600 !important;">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/><line x1="1" y1="10" x2="23" y2="10"/></svg>' +
+            '<span>' + textoCuotasSinInteres + '</span>' +
+            '</div>';
+        }
+
+        if (mostrarSelloSeguro && textoSelloSeguro) {
+          html += '<div style="display: inline-flex !important; align-items: center !important; gap: 4px !important; color: ' + colorTextoSeguro + ' !important; font-size: ' + tamanoTextoSeguro + 'px !important; font-weight: 500 !important;">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="' + colorIconoCandado + '" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
+            '<span>' + textoSelloSeguro + '</span>' +
+            '</div>';
+        }
+
+        html += '</div>';
+      }
+
+      container.innerHTML = html;
+
+      var targetEl = null;
+      if (posicion === "before-description") {
+        targetEl = document.querySelector(".js-product-description, .product-description, #product-description, [data-store=\"product-description\"], .user-content, .description");
+      } else if (posicion === "before-add-to-cart") {
+        targetEl = document.querySelector("form.js-product-form, .js-product-container, form[action*=\"/cart/add\"], .product-buy-container, .js-addtocart");
+      }
+
+      if (targetEl && targetEl.parentNode) {
+        targetEl.parentNode.insertBefore(container, targetEl);
+      } else {
+        var fallback = document.querySelector("form[action*=\"/cart/add\"], .js-product-form, .js-product-container, main");
+        if (fallback && fallback.parentNode) {
+          fallback.parentNode.insertBefore(container, fallback);
+        } else {
+          document.body.appendChild(container);
+        }
+      }
+    };
+
+    inject();
+  } catch (err) {
+    if (window.console && window.console.warn) {
+      window.console.warn("[Nevux] renderMediosPago error:", err);
+    }
+  }
+        }
 })(); 
