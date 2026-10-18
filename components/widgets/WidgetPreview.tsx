@@ -8,6 +8,44 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function FavoritosPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>❤️ FAVORITOS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          DESEOS
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: "6px", alignItems: "center", background: "#f9fafb", padding: "5px", borderRadius: "6px", border: "1px solid #e5e7eb" }}>
+        <div style={{ width: "32px", height: "32px", borderRadius: "4px", background: "#e2e8f0", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <span style={{ fontSize: "10px" }}>👟</span>
+          <div style={{ position: "absolute", top: "2px", right: "2px", width: "12px", height: "12px", borderRadius: "50%", background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", color: "#10B981", boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }}>
+            ♥
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827" }}>Mis Favoritos (1)</div>
+          <div style={{ fontSize: "5.5px", color: "#6b7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Guardados sin ingresar</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MediosPagoPreview() {
   const brands: { id: string; label: string; logo: React.ReactNode }[] = [
     {
@@ -1382,6 +1420,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "favoritos":
+      return <FavoritosPreview />;
     case "medios-pago":
       return <MediosPagoPreview />;
     case "barra-descuento":
@@ -1507,4 +1547,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-        }
+            }
