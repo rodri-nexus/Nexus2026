@@ -9,6 +9,69 @@ interface WidgetPreviewProps {
    ═══════════════════════════════════════════ */
 
 function MediosPagoPreview() {
+  const brands: { id: string; label: string; logo: React.ReactNode }[] = [
+    {
+      id: "visa",
+      label: "VISA",
+      logo: (
+        <svg viewBox="0 0 48 32" width="14" height="9" style={{ display: "block" }}>
+          <rect width="48" height="32" rx="3" fill="#1A1F71" />
+          <text x="24" y="21" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="900" fontFamily="Arial, sans-serif" fontStyle="italic" letterSpacing="0.5">VISA</text>
+        </svg>
+      ),
+    },
+    {
+      id: "mc",
+      label: "MC",
+      logo: (
+        <svg viewBox="0 0 32 20" width="12" height="8" style={{ display: "block" }}>
+          <circle cx="12" cy="10" r="7" fill="#EB001B" />
+          <circle cx="20" cy="10" r="7" fill="#F79E1B" fillOpacity="0.9" />
+        </svg>
+      ),
+    },
+    {
+      id: "amex",
+      label: "AMEX",
+      logo: (
+        <svg viewBox="0 0 48 32" width="14" height="9" style={{ display: "block" }}>
+          <rect width="48" height="32" rx="3" fill="#1F72CD" />
+          <text x="24" y="20" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="900" fontFamily="Arial, sans-serif" letterSpacing="0.3">AMEX</text>
+        </svg>
+      ),
+    },
+    {
+      id: "mp",
+      label: "MP",
+      logo: (
+        <svg viewBox="0 0 32 20" width="12" height="8" style={{ display: "block" }}>
+          <rect width="32" height="20" rx="4" fill="#00B1EA" />
+          <path d="M8 13 Q12 7 16 10 Q20 13 24 8" stroke="#ffffff" strokeWidth="2" fill="none" strokeLinecap="round" />
+        </svg>
+      ),
+    },
+    {
+      id: "modo",
+      label: "MODO",
+      logo: (
+        <svg viewBox="0 0 48 20" width="14" height="6" style={{ display: "block" }}>
+          <rect width="48" height="20" rx="3" fill="#000000" />
+          <text x="24" y="14" textAnchor="middle" fill="#00E599" fontSize="9" fontWeight="900" fontFamily="Arial, sans-serif" letterSpacing="0.3">MODO</text>
+        </svg>
+      ),
+    },
+    {
+      id: "transf",
+      label: "TRANSF",
+      logo: (
+        <svg viewBox="0 0 20 20" width="10" height="10" style={{ display: "block" }}>
+          <rect width="20" height="20" rx="3" fill="#10B981" />
+          <path d="M5 8 L13 8 M11 6 L13 8 L11 10 M15 12 L7 12 M9 14 L7 12 L9 10" stroke="#ffffff" strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
     <div
       style={{
@@ -35,21 +98,24 @@ function MediosPagoPreview() {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "3px", padding: "2px 0" }}>
-        {["VISA", "MC", "AMEX", "MP", "MODO", "TRANSF"].map((brand, idx) => (
+        {brands.map((brand) => (
           <div
-            key={idx}
+            key={brand.id}
             style={{
               background: "#ffffff",
               border: "1px solid #e5e7eb",
               borderRadius: "4px",
-              padding: "3px 0",
-              fontSize: "5.5px",
-              fontWeight: 900,
-              color: "#374151",
-              textAlign: "center"
+              padding: "3px 2px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "3px",
             }}
           >
-            {brand}
+            {brand.logo}
+            <span style={{ fontSize: "5px", fontWeight: 900, color: "#374151", lineHeight: 1 }}>
+              {brand.label}
+            </span>
           </div>
         ))}
       </div>
@@ -1441,4 +1507,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-    }
+        }
