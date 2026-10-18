@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
+import FavoritosEditor from '@/components/widgets/editors/FavoritosEditor';
 import BannerSuperiorEditor from '@/components/widgets/editors/BannerSuperiorEditor';
 import PreguntasFrecuentesEditor from '@/components/widgets/editors/PreguntasFrecuentesEditor';
 import ProductosComplementariosEditor from '@/components/widgets/editors/ProductosComplementariosEditor';
@@ -154,6 +155,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: FAVORITOS
+  if (params.widgetSlug === 'favoritos') {
+    return <FavoritosEditor {...editorProps} />;
+  }
 
   // WIDGET: MEDIOS DE PAGO
   if (params.widgetSlug === 'medios-pago') {
@@ -408,4 +414,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-    }
+          }
