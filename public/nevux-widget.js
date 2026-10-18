@@ -15201,7 +15201,7 @@ function renderBarraDescuento(w) {
   }
 }
       /* ═══════════════════════════════════════════
-   WIDGET #48: MEDIOS DE PAGO
+   WIDGET #48: MEDIOS DE PAGO (v2 — paridad editor)
    ═══════════════════════════════════════════ */
 function renderMediosPago(w) {
   try {
@@ -15214,165 +15214,171 @@ function renderMediosPago(w) {
     }
 
     var uniqueId = "nvx-medios-pago-" + (w.id || Math.random().toString(36).substring(7));
-    if (document.getElementById(uniqueId)) return;
 
-    var mensaje = cfg.mensaje !== undefined ? cfg.mensaje : "Aceptamos todos los medios de pago";
-    var metodosActivos = cfg.metodosActivos || cfg.methods || ["visa", "mastercard", "amex", "mercadopago", "modo", "transferencia"];
+    /* ===== KEYS REALES DEL EDITOR ===== */
+    var title = cfg.title !== undefined ? String(cfg.title) : "MEDIOS DE PAGO Y CUOTAS";
+    var showInstallmentMessage = cfg.showInstallmentMessage !== false;
+    var installmentText = cfg.installmentText !== undefined ? String(cfg.installmentText) : "Hasta 3 cuotas sin interés";
+    var showSecureBadge = cfg.showSecureBadge !== false;
+    var secureBadgeText = cfg.secureBadgeText !== undefined ? String(cfg.secureBadgeText) : "Pago 100% seguro";
+    var activeMethods = cfg.activeMethods && cfg.activeMethods.length ? cfg.activeMethods : ["visa","mastercard","amex","naranjax","mercadopago","modo","uala","transferencia"];
     var customLogos = cfg.customLogos || [];
-    var mostrarSelloSeguro = cfg.mostrarSelloSeguro !== false;
-    var textoSelloSeguro = cfg.textoSelloSeguro !== undefined ? cfg.textoSelloSeguro : "Pago 100% seguro y garantizado";
-    var mostrarCuotasSinInteres = cfg.mostrarCuotasSinInteres !== false;
-    var textoCuotasSinInteres = cfg.textoCuotasSinInteres !== undefined ? cfg.textoCuotasSinInteres : "Hasta 3 cuotas sin interés";
-    var posicion = (cfg.posicion || cfg.targetLocation || "before-add-to-cart").toString();
-    var alineacion = (cfg.alineacion || cfg.alignment || "center").toString();
-
-    var colorFondo = cfg.colorFondo || cfg.cardBg || "#ffffff";
-    var paddingContainer = cfg.paddingContainer !== undefined ? parseInt(cfg.paddingContainer, 10) : 16;
-    var borderRadiusContainer = cfg.borderRadiusContainer !== undefined ? parseInt(cfg.borderRadiusContainer, 10) : 12;
-    var activarBordeContainer = cfg.activarBordeContainer !== false;
-    var colorBordeContainer = cfg.colorBordeContainer || cfg.cardBorder || "#e5e7eb";
-
-    var colorMensaje = cfg.colorMensaje || cfg.textColor || "#1e293b";
-    var tamanoMensaje = cfg.tamanoMensaje !== undefined ? parseInt(cfg.tamanoMensaje, 10) : 14;
-    var estiloMensaje = cfg.estiloMensaje || "bold";
-
-    var modoColorIconos = cfg.modoColorIconos || cfg.colorMode || "original";
-    var separacionTarjetas = cfg.separacionTarjetas !== undefined ? parseInt(cfg.separacionTarjetas, 10) : 8;
-    var anchoTarjeta = cfg.anchoTarjeta !== undefined ? parseInt(cfg.anchoTarjeta, 10) : 48;
-    var altoTarjeta = cfg.altoTarjeta !== undefined ? parseInt(cfg.altoTarjeta, 10) : 32;
-    var borderRadiusTarjeta = cfg.borderRadiusTarjeta !== undefined ? parseInt(cfg.borderRadiusTarjeta, 10) : 6;
-    var fondoTarjeta = cfg.fondoTarjeta || "#ffffff";
-    var activarBordeTarjeta = cfg.activarBordeTarjeta !== false;
-    var colorBordeTarjeta = cfg.colorBordeTarjeta || "#e2e8f0";
-
-    var colorTextoSeguro = cfg.colorTextoSeguro || "#059669";
-    var colorIconoCandado = cfg.colorIconoCandado || "#059669";
-    var colorTextoCuotas = cfg.colorTextoCuotas || "#10B981";
-    var tamanoTextoSeguro = cfg.tamanoTextoSeguro !== undefined ? parseInt(cfg.tamanoTextoSeguro, 10) : 12;
-
+    var position = cfg.position || "before-add-to-cart";
+    var alignment = cfg.alignment || "center";
+    var bgColor = cfg.bgColor || "#ffffff";
+    var textColor = cfg.textColor || "#111827";
+    var accentColor = cfg.accentColor || "#10B981";
+    var modoColorIconos = cfg.modoColorIconos || "original";
     var campaignTheme = cfg.campaignTheme || "none";
-    if (campaignTheme && campaignTheme !== "none") {
-      if (campaignTheme === "black-friday") { colorFondo = "#111827"; colorBordeContainer = "#374151"; colorMensaje = "#F59E0B"; }
-      else if (campaignTheme === "hot-sale") { colorFondo = "#FEF2F2"; colorBordeContainer = "#FECACA"; colorMensaje = "#EF4444"; }
-      else if (campaignTheme === "cyber-monday") { colorFondo = "#EFF6FF"; colorBordeContainer = "#BFDBFE"; colorMensaje = "#1E3A8A"; }
-      else if (campaignTheme === "navidad") { colorFondo = "#ECFDF5"; colorBordeContainer = "#A7F3D0"; colorMensaje = "#064E3B"; }
-      else if (campaignTheme === "san-valentin") { colorFondo = "#FDF2F8"; colorBordeContainer = "#FBCFE8"; colorMensaje = "#831843"; }
-      else if (campaignTheme === "dia-padre-madre") { colorFondo = "#EEF2FF"; colorBordeContainer = "#C7D2FE"; colorMensaje = "#312E81"; }
-      else if (campaignTheme === "liquidacion") { colorFondo = "#FEF2F2"; colorBordeContainer = "#FCA5A5"; colorMensaje = "#7F1D1D"; }
+
+    /* ===== THEME_FX idéntico al editor ===== */
+    var THEME_FX = {
+      "black-friday":    { bg: "#111827", text: "#ffffff", accent: "#F59E0B", border: "1px solid #374151" },
+      "hot-sale":        { bg: "#0F172A", text: "#ffffff", accent: "#EF4444", border: "1px solid #1E293B" },
+      "cyber-monday":    { bg: "#090D16", text: "#ffffff", accent: "#3B82F6", border: "1px solid #1E3A8A" },
+      "navidad":         { bg: "#064E3B", text: "#ffffff", accent: "#EF4444", border: "1px solid #047857" },
+      "san-valentin":    { bg: "#FFF1F2", text: "#831843", accent: "#F43F5E", border: "1px solid #FECDD3" },
+      "dia-padre-madre": { bg: "#EEF2FF", text: "#312E81", accent: "#6366F1", border: "1px solid #C7D2FE" },
+      "liquidacion":     { bg: "#FEF2F2", text: "#7F1D1D", accent: "#F59E0B", border: "1px solid #FECACA" }
+    };
+
+    var borderCss = "1px solid #e5e7eb";
+    if (campaignTheme && campaignTheme !== "none" && THEME_FX[campaignTheme]) {
+      var t = THEME_FX[campaignTheme];
+      bgColor = t.bg;
+      textColor = t.text;
+      accentColor = t.accent;
+      borderCss = t.border;
     }
 
+    /* ===== LOGOS SVG INLINE (paridad con editor) ===== */
+    var filterCss = modoColorIconos === "grayscale" ? "filter: grayscale(100%) opacity(0.85);" : "";
+
+    var LOGOS = {
+      "visa": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#1A1F71"/><path d="M19.4 21.3h-2.6l1.6-10h2.6l-1.6 10zm9.5-9.8c-.5-.2-1.3-.4-2.4-.4-2.6 0-4.4 1.4-4.4 3.4 0 1.5 1.3 2.3 2.3 2.8 1 .5 1.4.9 1.4 1.3 0 .7-.8 1-1.6 1-1 0-1.7-.1-2.5-.5l-.4-.2-.4 2.3c.7.3 1.9.6 3.1.6 2.8 0 4.6-1.4 4.6-3.5 0-1.2-.7-2.1-2.3-2.8-.9-.5-1.5-.8-1.5-1.3 0-.4.5-.9 1.5-.9.9 0 1.6.2 2.1.4l.3.1.4-2.3zm6.6-.2h-2c-.6 0-1.1.2-1.4.8l-3.9 9.2h2.7s.4-1.3.5-1.5h3.3c.1.3.3 1.5.3 1.5h2.4l-2.1-10zm-3.3 6.4c.2-.6 1.1-2.9 1.1-2.9 0 .1.2-.6.4-1l.2.9s.4 2.2.5 2.9h-2.2zm-18.1-6.4l-2.6 6.8-.3-1.4c-.5-1.6-1.9-3.3-3.5-4.1l2.4 8.7h2.8l4.1-10h-2.9z" fill="#FFFFFF"/><path d="M11.3 11.3H7l-.1.3c3.4.8 5.6 2.9 6.6 5.3l-.9-4.7c-.2-.6-.6-.9-1.3-.9z" fill="#F7B600"/></svg>',
+      "mastercard": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#16181D"/><circle cx="19" cy="16" r="8" fill="#EB001B"/><circle cx="29" cy="16" r="8" fill="#F79E1B"/><path d="M24 10a7.97 7.97 0 0 0-3 6.25 7.97 7.97 0 0 0 3 6.25 7.97 7.97 0 0 0 3-6.25A7.97 7.97 0 0 0 24 10z" fill="#FF5F00"/></svg>',
+      "amex": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#1F72CD"/><text x="24" y="20" fill="#FFFFFF" font-size="9" font-weight="900" font-family="Arial, sans-serif" text-anchor="middle" letter-spacing="1">AMEX</text></svg>',
+      "cabal": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#003865"/><circle cx="18" cy="16" r="6" fill="#E30613"/><circle cx="27" cy="16" r="6" fill="#009639" fill-opacity="0.9"/><text x="24" y="29" fill="#FFFFFF" font-size="4" font-weight="700" font-family="Arial, sans-serif" text-anchor="middle">CABAL</text></svg>',
+      "naranjax": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#FF6B00"/><text x="24" y="20" fill="#FFFFFF" font-size="11" font-weight="900" font-family="Arial, sans-serif" text-anchor="middle">NX</text></svg>',
+      "mercadopago": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#00B1EA"/><path d="M14 16c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5c0 2.5 2 4.5 4.5 4.5s4.5-2 4.5-4.5" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="18.5" cy="16" r="1.2" fill="#FFCC33"/></svg>',
+      "modo": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#000000"/><text x="24" y="20" fill="#00E599" font-size="10" font-weight="900" font-family="Arial, sans-serif" text-anchor="middle">MODO</text></svg>',
+      "uala": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#3545EE"/><text x="24" y="20" fill="#FFFFFF" font-size="11" font-weight="900" font-family="Arial, sans-serif" text-anchor="middle">ualá</text></svg>',
+      "gocuotas": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#00D084"/><text x="24" y="20" fill="#FFFFFF" font-size="9" font-weight="900" font-family="Arial, sans-serif" text-anchor="middle">GO!</text></svg>',
+      "pagonube": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#2B3445"/><text x="24" y="20" fill="#00C48C" font-size="7" font-weight="900" font-family="Arial, sans-serif" text-anchor="middle">PagoNube</text></svg>',
+      "pagofacil": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#FFE800"/><text x="24" y="20" fill="#003865" font-size="7" font-weight="900" font-family="Arial, sans-serif" text-anchor="middle">Pago Fácil</text></svg>',
+      "rapipago": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#0039A6"/><text x="24" y="20" fill="#FFDD00" font-size="8" font-weight="900" font-family="Arial, sans-serif" text-anchor="middle">Rapipago</text></svg>',
+      "transferencia": '<svg width="38" height="24" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="32" rx="4" fill="#10B981"/><path d="M24 8l-8 5h16l-8-5zm-7 7v7h2v-7h-2zm6 0v7h2v-7h-2zm6 0v7h2v-7h-2zm-13 8v2h18v-2H16z" fill="#FFFFFF"/></svg>'
+    };
+
+    /* ===== INJECT ===== */
     var inject = function () {
       if (document.getElementById(uniqueId)) return;
+
+      var alignCss = alignment === "center" ? "center" : (alignment === "right" ? "right" : "left");
+      var flexAlignCss = alignment === "center" ? "center" : (alignment === "right" ? "flex-end" : "flex-start");
 
       var container = document.createElement("div");
       container.id = uniqueId;
       container.setAttribute("data-nevux-widget", "medios-pago");
-
-      var borderCss = activarBordeContainer ? "border: 1px solid " + colorBordeContainer + " !important;" : "border: none !important;";
-      var alignCss = alineacion === "center" ? "center" : (alineacion === "right" ? "right" : "left");
-      var flexAlignCss = alineacion === "center" ? "center" : (alineacion === "right" ? "flex-end" : "flex-start");
-      var msgWeight = estiloMensaje === "bold" ? "700" : (estiloMensaje === "medium" ? "500" : "400");
-
-      container.style.cssText = "font-family: system-ui, -apple-system, sans-serif !important; margin: 16px 0 !important; padding: " + paddingContainer + "px !important; background-color: " + colorFondo + " !important; border-radius: " + borderRadiusContainer + "px !important; " + borderCss + " box-sizing: border-box !important; text-align: " + alignCss + " !important;";
+      container.style.cssText = "font-family: system-ui, -apple-system, sans-serif !important; margin: 16px 0 !important; padding: 20px !important; background-color: " + bgColor + " !important; color: " + textColor + " !important; border: " + borderCss + " !important; border-radius: 16px !important; box-sizing: border-box !important; text-align: " + alignCss + " !important; transition: all 0.3s ease !important;";
 
       var html = "";
 
-      if (mensaje) {
-        html += '<div style="color: ' + colorMensaje + ' !important; font-size: ' + tamanoMensaje + 'px !important; font-weight: ' + msgWeight + ' !important; margin-bottom: 12px !important; line-height: 1.3 !important;">' + mensaje + '</div>';
+      /* Header: Título + Badge seguro */
+      html += '<div style="display: flex !important; align-items: center !important; justify-content: ' + flexAlignCss + ' !important; gap: 8px !important; margin-bottom: 10px !important; flex-wrap: wrap !important;">';
+      if (title) {
+        html += '<span style="font-size: 14px !important; font-weight: 800 !important; letter-spacing: 0.04em !important; text-transform: uppercase !important; color: ' + textColor + ' !important;">' + title + '</span>';
+      }
+      if (showSecureBadge && secureBadgeText) {
+        html += '<span style="background: ' + accentColor + ' !important; color: #ffffff !important; font-size: 10px !important; font-weight: 800 !important; padding: 3px 8px !important; border-radius: 999px !important; display: inline-flex !important; align-items: center !important; gap: 4px !important;">🔒 ' + secureBadgeText + '</span>';
+      }
+      html += '</div>';
+
+      /* Mensaje de cuotas */
+      if (showInstallmentMessage && installmentText) {
+        html += '<div style="background: rgba(16,185,129,0.1) !important; color: ' + accentColor + ' !important; border: 1px solid ' + accentColor + ' !important; border-radius: 8px !important; padding: 8px 12px !important; font-size: 12px !important; font-weight: 800 !important; margin-bottom: 14px !important; display: inline-block !important;">💳 ' + installmentText + '</div>';
       }
 
-      html += '<div style="display: flex !important; flex-wrap: wrap !important; gap: ' + separacionTarjetas + 'px !important; align-items: center !important; justify-content: ' + flexAlignCss + ' !important; margin-bottom: 12px !important;">';
+      /* Logos de pago */
+      html += '<div style="display: flex !important; flex-wrap: wrap !important; gap: 8px !important; justify-content: ' + flexAlignCss + ' !important; margin-top: 6px !important;">';
 
-      var defaultLogos = {
-        'visa': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#1434CB"/><path d="M14.7 16.3h-2.3l1.4-8.8h2.3l-1.4 8.8zm7.3-8.6c-.5-.2-1.2-.4-2.1-.4-2.3 0-3.9 1.2-3.9 3 0 1.3 1.1 2 2 2.5.9.4 1.2.7 1.2 1.1 0 .6-.7.9-1.4.9-.9 0-1.5-.1-2.2-.4l-.3-.1-.3 2c.6.3 1.6.5 2.7.5 2.5 0 4.1-1.2 4.1-3.1 0-1-.6-1.8-2-2.5-.8-.4-1.3-.7-1.3-1.1 0-.4.4-.8 1.4-.8.8 0 1.4.2 1.8.3l.2.1.3-1.9zm5.3-.2h-1.8c-.6 0-1 .2-1.2.7l-3.5 8.3h2.4l.5-1.3h3l.3 1.3h2.1l-1.8-9zm-2.4 5.4c.2-.5.9-2.5.9-2.5l.3 1.2c.1.5.5 1.3.5 1.3h-1.7zm-14.7-5.4l-2.3 6.1-.2-1.2c-.4-1.4-1.6-2.9-3-3.6l1.9 7.3h2.4l3.6-8.6h-2.4z" fill="#FFF"/></svg>',
-        'mastercard': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#0A0A0A"/><circle cx="13" cy="12" r="7" fill="#EB001B"/><circle cx="23" cy="12" r="7" fill="#F79E1B"/><path d="M18 6.8a6.96 6.96 0 00-2.6 5.2c0 2 0.9 3.8 2.6 5.2 1.7-1.4 2.6-3.2 2.6-5.2 0-2-.9-3.8-2.6-5.2z" fill="#FF5F00"/></svg>',
-        'amex': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#006FCF"/><path d="M7 16l1.3-3.2h1.4L11 16h2l-2.4-5.5L13 5H11l-1.3 3.1L8.4 5H6.5L4 10.5 1.6 5H0l2.3 5.5L0 16h2l1.3-3.2h1.4L6 16h1zm12-11h-5v11h5v-2h-3v-2.5h3v-2h-3V7h3V5zm7 0h-2.3l-1.7 4-1.7-4H18v11h2v-6.5l2 4.5h1l2-4.5V16h2V5z" fill="#FFF"/></svg>',
-        'cabal': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#003B70"/><circle cx="18" cy="12" r="6" fill="#E30613"/><path d="M18 6a6 6 0 0 0 0 12V6z" fill="#FFF"/></svg>',
-        'naranja-x': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#FF6B00"/><text x="18" y="16" font-family="sans-serif" font-weight="bold" font-size="12" fill="#FFF" text-anchor="middle">NX</text></svg>',
-        'naranja': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#FF6B00"/><text x="18" y="16" font-family="sans-serif" font-weight="bold" font-size="12" fill="#FFF" text-anchor="middle">NX</text></svg>',
-        'mercadopago': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#009EE3"/><path d="M12 15c-1.5 0-2.5-1-2.5-2.5S10.5 10 12 10s2.5 1 2.5 2.5S13.5 15 12 15zm12 0c-1.5 0-2.5-1-2.5-2.5s1-2.5 2.5-2.5 2.5 1 2.5 2.5-1 2.5-2.5 2.5z" fill="#FFF"/></svg>',
-        'modo': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#000000"/><text x="18" y="15" font-family="sans-serif" font-weight="900" font-size="9" fill="#00E599" text-anchor="middle">MODO</text></svg>',
-        'uala': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#3545EE"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="10" fill="#FFF" text-anchor="middle">ualá</text></svg>',
-        'go-cuotas': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#6C3baa"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#FFF" text-anchor="middle">GO!</text></svg>',
-        'gocuotas': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#6C3baa"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#FFF" text-anchor="middle">GO!</text></svg>',
-        'pago-nube': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#2B3445"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="7" fill="#00C48C" text-anchor="middle">PagoNube</text></svg>',
-        'pagonube': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#2B3445"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="7" fill="#00C48C" text-anchor="middle">PagoNube</text></svg>',
-        'pago-facil': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#FFF200"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#003B7A" text-anchor="middle">Pago Fácil</text></svg>',
-        'pagofacil': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#FFF200"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#003B7A" text-anchor="middle">Pago Fácil</text></svg>',
-        'rapipago': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#0039A6"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#FFDD00" text-anchor="middle">Rapipago</text></svg>',
-        'transferencia': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#10B981"/><path d="M18 6l-6 4h12l-6-4zm-5 5v5h2v-5h-2zm4 0v5h2v-5h-2zm4 0v5h2v-5h-2zm-9 6v2h12v-2H12z" fill="#FFF"/></svg>'
-      };
-
-      var itemBorderCss = activarBordeTarjeta ? "border: 1px solid " + colorBordeTarjeta + " !important;" : "border: none !important;";
-      var filterCss = modoColorIconos === "grayscale" || modoColorIconos === "monochrome" ? "filter: grayscale(100%) !important;" : "";
-
-      if (Array.isArray(metodosActivos)) {
-        for (var i = 0; i < metodosActivos.length; i++) {
-          var mItem = metodosActivos[i];
-          var key = typeof mItem === "string" ? mItem : (mItem.id || "");
-          var isEnabled = typeof mItem === "object" ? (mItem.enabled !== false) : true;
-
-          if (isEnabled) {
-            if (typeof mItem === "object" && mItem.customLogo) {
-              html += '<div style="width: ' + anchoTarjeta + 'px !important; height: ' + altoTarjeta + 'px !important; border-radius: ' + borderRadiusTarjeta + 'px !important; background-color: ' + fondoTarjeta + ' !important; ' + itemBorderCss + ' display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; box-sizing: border-box !important; padding: 2px !important; ' + filterCss + '"><img src="' + mItem.customLogo + '" alt="' + (mItem.name || 'Medio de pago') + '" style="max-width: 100% !important; max-height: 100% !important; object-fit: contain !important;" /></div>';
-            } else if (defaultLogos[key]) {
-              html += '<div style="width: ' + anchoTarjeta + 'px !important; height: ' + altoTarjeta + 'px !important; border-radius: ' + borderRadiusTarjeta + 'px !important; background-color: ' + fondoTarjeta + ' !important; ' + itemBorderCss + ' display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; box-sizing: border-box !important; ' + filterCss + '">' + defaultLogos[key] + '</div>';
-            }
-          }
+      for (var i = 0; i < activeMethods.length; i++) {
+        var mId = typeof activeMethods[i] === "string" ? activeMethods[i] : (activeMethods[i] && activeMethods[i].id ? activeMethods[i].id : "");
+        if (mId && LOGOS[mId]) {
+          html += '<div style="border-radius: 6px !important; overflow: hidden !important; box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important; display: flex !important; align-items: center !important; justify-content: center !important; ' + filterCss + '">' + LOGOS[mId] + '</div>';
         }
       }
 
       for (var j = 0; j < customLogos.length; j++) {
         var cl = customLogos[j];
-        if (cl && cl.logoUrl) {
-          html += '<div style="width: ' + anchoTarjeta + 'px !important; height: ' + altoTarjeta + 'px !important; border-radius: ' + borderRadiusTarjeta + 'px !important; background-color: ' + fondoTarjeta + ' !important; ' + itemBorderCss + ' display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; box-sizing: border-box !important; padding: 2px !important; ' + filterCss + '"><img src="' + cl.logoUrl + '" alt="' + (cl.name || 'Medio de pago') + '" style="max-width: 100% !important; max-height: 100% !important; object-fit: contain !important;" /></div>';
+        var clUrl = cl && (cl.url || cl.logoUrl) ? (cl.url || cl.logoUrl) : null;
+        if (clUrl) {
+          html += '<div style="width: 38px !important; height: 24px !important; border-radius: 6px !important; overflow: hidden !important; border: 1px solid #e5e7eb !important; background: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; ' + filterCss + '"><img src="' + clUrl + '" alt="' + (cl.name || "Medio de pago") + '" style="width: 100% !important; height: 100% !important; object-fit: contain !important;" /></div>';
         }
       }
 
       html += '</div>';
 
-      if (mostrarCuotasSinInteres || mostrarSelloSeguro) {
-        html += '<div style="display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 12px !important; justify-content: ' + flexAlignCss + ' !important; margin-top: 8px !important;">';
-
-        if (mostrarCuotasSinInteres && textoCuotasSinInteres) {
-          html += '<div style="display: inline-flex !important; align-items: center !important; gap: 4px !important; color: ' + colorTextoCuotas + ' !important; font-size: ' + tamanoTextoSeguro + 'px !important; font-weight: 600 !important;">' +
-            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/><line x1="1" y1="10" x2="23" y2="10"/></svg>' +
-            '<span>' + textoCuotasSinInteres + '</span>' +
-            '</div>';
-        }
-
-        if (mostrarSelloSeguro && textoSelloSeguro) {
-          html += '<div style="display: inline-flex !important; align-items: center !important; gap: 4px !important; color: ' + colorTextoSeguro + ' !important; font-size: ' + tamanoTextoSeguro + 'px !important; font-weight: 500 !important;">' +
-            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="' + colorIconoCandado + '" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
-            '<span>' + textoSelloSeguro + '</span>' +
-            '</div>';
-        }
-
-        html += '</div>';
-      }
-
       container.innerHTML = html;
 
-      var targetEl = null;
-      if (posicion === "before-description") {
-        targetEl = document.querySelector(".js-product-description, .product-description, #product-description, [data-store=\"product-description\"], .user-content, .description");
-      } else if (posicion === "before-add-to-cart") {
-        targetEl = document.querySelector("form.js-product-form, .js-product-container, form[action*=\"/cart/add\"], .product-buy-container, .js-addtocart");
+      /* ===== POSICIONAMIENTO DOM ===== */
+      var findDescriptionEl = function () {
+        return document.querySelector(".js-product-description") ||
+               document.querySelector(".product-description") ||
+               document.querySelector("#product-description") ||
+               document.querySelector("[data-store='product-description']") ||
+               document.querySelector(".user-content") ||
+               document.querySelector(".description");
+      };
+
+      var findAtcForm = function () {
+        return document.querySelector("form[action*='/cart/add']") ||
+               document.querySelector("form.js-product-form") ||
+               document.querySelector(".js-product-container") ||
+               document.querySelector(".product-buy-container");
+      };
+
+      var placed = false;
+
+      if (position === "before-description") {
+        var descEl = findDescriptionEl();
+        if (descEl && descEl.parentNode) {
+          descEl.parentNode.insertBefore(container, descEl);
+          placed = true;
+        }
+      } else if (position === "after-add-to-cart") {
+        var atcAfter = findAtcForm();
+        if (atcAfter && atcAfter.parentNode) {
+          atcAfter.parentNode.insertBefore(container, atcAfter.nextSibling);
+          placed = true;
+        }
+      } else {
+        /* before-add-to-cart (default) */
+        var atcBefore = findAtcForm();
+        if (atcBefore && atcBefore.parentNode) {
+          atcBefore.parentNode.insertBefore(container, atcBefore);
+          placed = true;
+        }
       }
 
-      if (targetEl && targetEl.parentNode) {
-        targetEl.parentNode.insertBefore(container, targetEl);
-      } else {
-        var fallback = document.querySelector("form[action*=\"/cart/add\"], .js-product-form, .js-product-container, main");
+      if (!placed) {
+        var fallback = document.querySelector("form[action*='/cart/add']") || document.querySelector("main");
         if (fallback && fallback.parentNode) {
           fallback.parentNode.insertBefore(container, fallback);
         } else {
           document.body.appendChild(container);
         }
       }
+
+      if (typeof nvxTrack === "function") {
+        try { nvxTrack("medios-pago", "render", { position: position, campaignTheme: campaignTheme }); } catch (e) {}
+      }
     };
 
     inject();
+    setTimeout(function () { if (!document.getElementById(uniqueId)) inject(); }, 500);
+    setTimeout(function () { if (!document.getElementById(uniqueId)) inject(); }, 1500);
+
   } catch (err) {
     if (window.console && window.console.warn) {
       window.console.warn("[Nevux] renderMediosPago error:", err);
