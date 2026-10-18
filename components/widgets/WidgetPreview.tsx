@@ -3,11 +3,14 @@
 import React from "react";
 
 interface WidgetPreviewProps {
-  widgetSlug: string;
+  slug?: string;
+  widgetSlug?: string;
 }
 
-export default function WidgetPreview({ widgetSlug }: WidgetPreviewProps) {
-  switch (widgetSlug) {
+export default function WidgetPreview({ slug, widgetSlug }: WidgetPreviewProps) {
+  const activeSlug = slug || widgetSlug || "";
+
+  switch (activeSlug) {
     case "barra-descuento":
       return <BarraDescuentoPreview />;
     case "envio-gratis":
@@ -574,4 +577,4 @@ function MediosPagoPreview() {
       </div>
     </div>
   );
-        }
+  }
