@@ -22,7 +22,8 @@ interface ExWidget {
   config: any;
   is_active: boolean;
   target_type: string;
-  target_product_id: number | null;
+  target_product_id?: number | null;
+  target_category_id?: string | null;
 }
 
 interface CustomLogoItem {
@@ -52,12 +53,12 @@ export interface CfgMediosPago {
 interface MediosPagoEditorProps {
   widgetDefinition: WidgetDef;
   existingWidget: ExWidget | null;
-  targetType: 'product' | 'all';
+  targetType: string;
   productId?: number | null;
+  categoryId?: string | null;
   storeId: string | number;
   initialConfig?: any;
-  widgetId?: string | number;
-  categoryId?: string;
+  widgetId?: string | number | null;
   onSave?: (config: any) => void;
   isSaving?: boolean;
 }
@@ -372,6 +373,7 @@ export default function MediosPagoEditor({
   existingWidget: ew,
   targetType,
   productId,
+  categoryId,
   storeId,
   initialConfig,
   onSave,
@@ -512,7 +514,8 @@ export default function MediosPagoEditor({
         widget_slug: wd.slug,
         config: cfg,
         target_type: targetType,
-        target_product_id: productId,
+        target_product_id: productId ?? null,
+        target_category_id: categoryId ?? null,
         is_active: true,
       };
       const res = await fetch('/api/widgets', {
@@ -868,7 +871,7 @@ export default function MediosPagoEditor({
                       style={{
                         display: 'flex', alignItems: 'center', gap: 12,
                         padding: '12px 14px', borderRadius: 10,
-                        border: cfg.position === pos.id ? '2px solid #10B981' : '1px solid #e5e7eb',
+                        border: cfg.position === pos.id ? '2px solid #10B981' : '1.5px solid #e5e7eb',
                         background: cfg.position === pos.id ? '#ECFDF5' : '#ffffff',
                         cursor: 'pointer'
                       }}
@@ -1053,4 +1056,4 @@ export default function MediosPagoEditor({
 
     </div>
   );
-  }
+     }
