@@ -15209,30 +15209,34 @@ function renderMediosPago(w) {
     if (pageType !== "product") return;
 
     var cfg = w.config || {};
+    if (typeof cfg === "string") {
+      try { cfg = JSON.parse(cfg); } catch (e) { cfg = {}; }
+    }
+
     var uniqueId = "nvx-medios-pago-" + (w.id || Math.random().toString(36).substring(7));
     if (document.getElementById(uniqueId)) return;
 
     var mensaje = cfg.mensaje !== undefined ? cfg.mensaje : "Aceptamos todos los medios de pago";
-    var metodosActivos = cfg.metodosActivos || ["visa", "mastercard", "amex", "mercadopago", "modo", "transferencia"];
+    var metodosActivos = cfg.metodosActivos || cfg.methods || ["visa", "mastercard", "amex", "mercadopago", "modo", "transferencia"];
     var customLogos = cfg.customLogos || [];
     var mostrarSelloSeguro = cfg.mostrarSelloSeguro !== false;
     var textoSelloSeguro = cfg.textoSelloSeguro !== undefined ? cfg.textoSelloSeguro : "Pago 100% seguro y garantizado";
     var mostrarCuotasSinInteres = cfg.mostrarCuotasSinInteres !== false;
     var textoCuotasSinInteres = cfg.textoCuotasSinInteres !== undefined ? cfg.textoCuotasSinInteres : "Hasta 3 cuotas sin interés";
-    var posicion = (cfg.posicion || "before-add-to-cart").toString();
-    var alineacion = (cfg.alineacion || "center").toString();
+    var posicion = (cfg.posicion || cfg.targetLocation || "before-add-to-cart").toString();
+    var alineacion = (cfg.alineacion || cfg.alignment || "center").toString();
 
-    var colorFondo = cfg.colorFondo || "#ffffff";
+    var colorFondo = cfg.colorFondo || cfg.cardBg || "#ffffff";
     var paddingContainer = cfg.paddingContainer !== undefined ? parseInt(cfg.paddingContainer, 10) : 16;
     var borderRadiusContainer = cfg.borderRadiusContainer !== undefined ? parseInt(cfg.borderRadiusContainer, 10) : 12;
     var activarBordeContainer = cfg.activarBordeContainer !== false;
-    var colorBordeContainer = cfg.colorBordeContainer || "#e5e7eb";
+    var colorBordeContainer = cfg.colorBordeContainer || cfg.cardBorder || "#e5e7eb";
 
-    var colorMensaje = cfg.colorMensaje || "#1e293b";
+    var colorMensaje = cfg.colorMensaje || cfg.textColor || "#1e293b";
     var tamanoMensaje = cfg.tamanoMensaje !== undefined ? parseInt(cfg.tamanoMensaje, 10) : 14;
     var estiloMensaje = cfg.estiloMensaje || "bold";
 
-    var modoColorIconos = cfg.modoColorIconos || "original";
+    var modoColorIconos = cfg.modoColorIconos || cfg.colorMode || "original";
     var separacionTarjetas = cfg.separacionTarjetas !== undefined ? parseInt(cfg.separacionTarjetas, 10) : 8;
     var anchoTarjeta = cfg.anchoTarjeta !== undefined ? parseInt(cfg.anchoTarjeta, 10) : 48;
     var altoTarjeta = cfg.altoTarjeta !== undefined ? parseInt(cfg.altoTarjeta, 10) : 32;
@@ -15243,7 +15247,7 @@ function renderMediosPago(w) {
 
     var colorTextoSeguro = cfg.colorTextoSeguro || "#059669";
     var colorIconoCandado = cfg.colorIconoCandado || "#059669";
-    var colorTextoCuotas = cfg.colorTextoCuotas || "#2563eb";
+    var colorTextoCuotas = cfg.colorTextoCuotas || "#10B981";
     var tamanoTextoSeguro = cfg.tamanoTextoSeguro !== undefined ? parseInt(cfg.tamanoTextoSeguro, 10) : 12;
 
     var campaignTheme = cfg.campaignTheme || "none";
@@ -15257,7 +15261,7 @@ function renderMediosPago(w) {
       else if (campaignTheme === "liquidacion") { colorFondo = "#FEF2F2"; colorBordeContainer = "#FCA5A5"; colorMensaje = "#7F1D1D"; }
     }
 
-    var inject = function() {
+    var inject = function () {
       if (document.getElementById(uniqueId)) return;
 
       var container = document.createElement("div");
@@ -15265,8 +15269,8 @@ function renderMediosPago(w) {
       container.setAttribute("data-nevux-widget", "medios-pago");
 
       var borderCss = activarBordeContainer ? "border: 1px solid " + colorBordeContainer + " !important;" : "border: none !important;";
-      var alignCss = alineacion === "center" ? "center" : "left";
-      var flexAlignCss = alineacion === "center" ? "center" : "flex-start";
+      var alignCss = alineacion === "center" ? "center" : (alineacion === "right" ? "right" : "left");
+      var flexAlignCss = alineacion === "center" ? "center" : (alineacion === "right" ? "flex-end" : "flex-start");
       var msgWeight = estiloMensaje === "bold" ? "700" : (estiloMensaje === "medium" ? "500" : "400");
 
       container.style.cssText = "font-family: system-ui, -apple-system, sans-serif !important; margin: 16px 0 !important; padding: " + paddingContainer + "px !important; background-color: " + colorFondo + " !important; border-radius: " + borderRadiusContainer + "px !important; " + borderCss + " box-sizing: border-box !important; text-align: " + alignCss + " !important;";
@@ -15285,23 +15289,36 @@ function renderMediosPago(w) {
         'amex': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#006FCF"/><path d="M7 16l1.3-3.2h1.4L11 16h2l-2.4-5.5L13 5H11l-1.3 3.1L8.4 5H6.5L4 10.5 1.6 5H0l2.3 5.5L0 16h2l1.3-3.2h1.4L6 16h1zm12-11h-5v11h5v-2h-3v-2.5h3v-2h-3V7h3V5zm7 0h-2.3l-1.7 4-1.7-4H18v11h2v-6.5l2 4.5h1l2-4.5V16h2V5z" fill="#FFF"/></svg>',
         'cabal': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#003B70"/><circle cx="18" cy="12" r="6" fill="#E30613"/><path d="M18 6a6 6 0 0 0 0 12V6z" fill="#FFF"/></svg>',
         'naranja-x': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#FF6B00"/><text x="18" y="16" font-family="sans-serif" font-weight="bold" font-size="12" fill="#FFF" text-anchor="middle">NX</text></svg>',
+        'naranja': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#FF6B00"/><text x="18" y="16" font-family="sans-serif" font-weight="bold" font-size="12" fill="#FFF" text-anchor="middle">NX</text></svg>',
         'mercadopago': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#009EE3"/><path d="M12 15c-1.5 0-2.5-1-2.5-2.5S10.5 10 12 10s2.5 1 2.5 2.5S13.5 15 12 15zm12 0c-1.5 0-2.5-1-2.5-2.5s1-2.5 2.5-2.5 2.5 1 2.5 2.5-1 2.5-2.5 2.5z" fill="#FFF"/></svg>',
         'modo': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#000000"/><text x="18" y="15" font-family="sans-serif" font-weight="900" font-size="9" fill="#00E599" text-anchor="middle">MODO</text></svg>',
         'uala': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#3545EE"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="10" fill="#FFF" text-anchor="middle">ualá</text></svg>',
         'go-cuotas': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#6C3baa"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#FFF" text-anchor="middle">GO!</text></svg>',
+        'gocuotas': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#6C3baa"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#FFF" text-anchor="middle">GO!</text></svg>',
         'pago-nube': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#2B3445"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="7" fill="#00C48C" text-anchor="middle">PagoNube</text></svg>',
+        'pagonube': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#2B3445"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="7" fill="#00C48C" text-anchor="middle">PagoNube</text></svg>',
         'pago-facil': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#FFF200"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#003B7A" text-anchor="middle">Pago Fácil</text></svg>',
+        'pagofacil': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#FFF200"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#003B7A" text-anchor="middle">Pago Fácil</text></svg>',
         'rapipago': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#0039A6"/><text x="18" y="15" font-family="sans-serif" font-weight="bold" font-size="8" fill="#FFDD00" text-anchor="middle">Rapipago</text></svg>',
         'transferencia': '<svg viewBox="0 0 36 24" width="100%" height="100%"><rect width="36" height="24" rx="3" fill="#10B981"/><path d="M18 6l-6 4h12l-6-4zm-5 5v5h2v-5h-2zm4 0v5h2v-5h-2zm4 0v5h2v-5h-2zm-9 6v2h12v-2H12z" fill="#FFF"/></svg>'
       };
 
       var itemBorderCss = activarBordeTarjeta ? "border: 1px solid " + colorBordeTarjeta + " !important;" : "border: none !important;";
-      var filterCss = modoColorIconos === "grayscale" ? "filter: grayscale(100%) !important;" : "";
+      var filterCss = modoColorIconos === "grayscale" || modoColorIconos === "monochrome" ? "filter: grayscale(100%) !important;" : "";
 
-      for (var i = 0; i < metodosActivos.length; i++) {
-        var key = metodosActivos[i];
-        if (defaultLogos[key]) {
-          html += '<div style="width: ' + anchoTarjeta + 'px !important; height: ' + altoTarjeta + 'px !important; border-radius: ' + borderRadiusTarjeta + 'px !important; background-color: ' + fondoTarjeta + ' !important; ' + itemBorderCss + ' display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; box-sizing: border-box !important; ' + filterCss + '">' + defaultLogos[key] + '</div>';
+      if (Array.isArray(metodosActivos)) {
+        for (var i = 0; i < metodosActivos.length; i++) {
+          var mItem = metodosActivos[i];
+          var key = typeof mItem === "string" ? mItem : (mItem.id || "");
+          var isEnabled = typeof mItem === "object" ? (mItem.enabled !== false) : true;
+
+          if (isEnabled) {
+            if (typeof mItem === "object" && mItem.customLogo) {
+              html += '<div style="width: ' + anchoTarjeta + 'px !important; height: ' + altoTarjeta + 'px !important; border-radius: ' + borderRadiusTarjeta + 'px !important; background-color: ' + fondoTarjeta + ' !important; ' + itemBorderCss + ' display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; box-sizing: border-box !important; padding: 2px !important; ' + filterCss + '"><img src="' + mItem.customLogo + '" alt="' + (mItem.name || 'Medio de pago') + '" style="max-width: 100% !important; max-height: 100% !important; object-fit: contain !important;" /></div>';
+            } else if (defaultLogos[key]) {
+              html += '<div style="width: ' + anchoTarjeta + 'px !important; height: ' + altoTarjeta + 'px !important; border-radius: ' + borderRadiusTarjeta + 'px !important; background-color: ' + fondoTarjeta + ' !important; ' + itemBorderCss + ' display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; box-sizing: border-box !important; ' + filterCss + '">' + defaultLogos[key] + '</div>';
+            }
+          }
         }
       }
 
@@ -15361,5 +15378,5 @@ function renderMediosPago(w) {
       window.console.warn("[Nevux] renderMediosPago error:", err);
     }
   }
-        }
+      }
 })(); 
