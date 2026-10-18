@@ -1,559 +1,1057 @@
 "use client";
 
-import React from "react";
-
 interface WidgetPreviewProps {
-  slug?: string;
-  widgetSlug?: string;
+  slug: string;
 }
 
-export default function WidgetPreview({ slug, widgetSlug }: WidgetPreviewProps) {
-  const activeSlug = (slug || widgetSlug || "").trim().toLowerCase();
+/* ═══════════════════════════════════════════
+   PREVIEWS DE LOS WIDGETS ACTIVOS
+   ═══════════════════════════════════════════ */
 
-  switch (activeSlug) {
-    case "barra-descuento":
-      return <BarraDescuentoPreview />;
-    case "envio-gratis":
-      return <EnvioGratisPreview />;
-    case "temporizador":
-      return <TemporizadorPreview />;
-    case "contador-stock":
-      return <ContadorStockPreview />;
-    case "notificacion-compras":
-      return <NotificacionComprasPreview />;
-    case "resenas-estrellas":
-      return <ResenasEstrellasPreview />;
-    case "popups":
-      return <PopupsPreview />;
-    case "sticky-add-to-cart":
-    case "barra-accion":
-      return <StickyAddToCartPreview />;
-    case "whatsapp-chat":
-      return <WhatsappChatPreview />;
-    case "faq-acordeon":
-      return <FaqAcordeonPreview />;
-    case "banner-promocional":
-      return <BannerPromocionalPreview />;
-    case "alerta-stock":
-    case "alerta-inventario":
-      return <AlertaStockPreview />;
-    case "tabla-talles":
-      return <TablaTallesPreview />;
-    case "comparador-productos":
-      return <ComparadorProductosPreview />;
-    case "cupon-descuento":
-      return <CuponDescuentoPreview />;
-    case "video-producto":
-      return <VideoProductoPreview />;
-    case "sellos-confianza":
-      return <SellosConfianzaPreview />;
-    case "selector-moneda":
-      return <SelectorMonedaPreview />;
-    case "calculadora-envio":
-      return <CalculadoraEnvioPreview />;
-    case "ruleta-descuentos":
-      return <RuletaDescuentosPreview />;
-    case "carrusel-marcas":
-      return <CarruselMarcasPreview />;
-    case "galeria-instagram":
-      return <GaleriaInstagramPreview />;
-    case "audio-producto":
-      return <AudioProductoPreview />;
-    case "vista-360":
-      return <Vista360Preview />;
-    case "previsualizador-3d":
-      return <Previsualizador3DPreview />;
-    case "asistente-talles-ai":
-      return <AsistenteTallesAIPreview />;
-    case "recomendador-personalizado":
-      return <RecomendadorPersonalizadoPreview />;
-    case "caja-suscripcion":
-      return <CajaSuscripcionPreview />;
-    case "compras-juntas":
-      return <ComprasJuntasPreview />;
-    case "tienda-regalos":
-      return <TiendaRegalosPreview />;
-    case "social-proof-vivo":
-      return <SocialProofVivoPreview />;
-    case "badge-garantia":
-      return <BadgeGarantiaPreview />;
-    case "badge-efectivo":
-      return <BadgeEfectivoPreview />;
-    case "barra-progreso-envio":
-      return <BarraProgresoEnvioPreview />;
-    case "cronometro-oferta":
-      return <CronometroOfertaPreview />;
-    case "verificador-codigo-postal":
-      return <VerificadorCodigoPostalPreview />;
-    case "banner-rotativo":
-      return <BannerRotativoPreview />;
-    case "banner-superior":
-    case "banner-anuncios-top":
-      return <BannerAnunciosTopPreview />;
-    case "combos-descuento":
-    case "bundle-promociones":
-      return <CombosDescuentoPreview />;
-    case "regalo-por-compra":
-      return <RegaloPorCompraPreview />;
-    case "wishlist-guardados":
-      return <WishlistGuardadosPreview />;
-    case "share-social":
-      return <ShareSocialPreview />;
-    case "notificacion-envio-hoy":
-      return <NotificacionEnvioHoyPreview />;
-    case "calculadora-cuotas":
-    case "barra-cuotas-sin-interes":
-      return <CalculadoraCuotasPreview />;
-    case "popups-inteligente":
-      return <PopupsInteligentePreview />;
-    case "upsell-carrito":
-      return <UpsellCarritoPreview />;
-    case "cross-sell":
-      return <CrossSellPreview />;
-    case "productos-complementarios":
-      return <ProductosComplementariosPreview />;
-    case "medios-pago":
-      return <MediosPagoPreview />;
-    default:
-      return <GenericWidgetPreview slug={activeSlug} />;
-  }
-}
-
-function GenericWidgetPreview({ slug }: { slug: string }) {
-  const formattedName = slug
-    ? slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-    : "Widget Preview";
+function MediosPagoPreview() {
+  const logos = [
+    "https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg",
+    "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg",
+    "https://http2.mlstatic.com/frontend-assets/mp-web-navigation/ui-navigation/6.6.95/mercadopago/logo__large.png",
+    "https://play-lh.googleusercontent.com/J0Wj6c3qJj1nkPtlyNVmLHhR0yygQ9yJIAVKQg7E3bHCUmJd9NwRJJBz9x9h8qV1kw",
+    "https://cdn-icons-png.flaticon.com/512/2830/2830284.png"
+  ];
 
   return (
-    <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "8px", padding: "8px 10px", width: "94%", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <span style={{ fontSize: "12px" }}>✨</span>
-        <span style={{ fontSize: "8.5px", fontWeight: 800, color: "#111827" }}>{formattedName}</span>
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>💳 MEDIOS DE PAGO</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          CONFIANZA
+        </span>
       </div>
-      <span style={{ fontSize: "7px", background: "#ecfdf5", color: "#059669", padding: "2px 5px", borderRadius: "4px", fontWeight: 700 }}>
-        Nevux
-      </span>
+
+      <div style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827", textAlign: "center" }}>
+        Medios de pago
+      </div>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "3px", justifyContent: "center", padding: "2px 0" }}>
+        {logos.map((url, idx) => (
+          <div
+            key={idx}
+            style={{
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
+              borderRadius: "4px",
+              width: "24px",
+              height: "15px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "2px"
+            }}
+          >
+            <img src={url} alt="logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "3px", color: "#10B981", fontSize: "6px", fontWeight: 700 }}>
+        <span>🔒</span>
+        <span>Pago 100% seguro</span>
+      </div>
     </div>
   );
 }
 
 function BarraDescuentoPreview() {
   return (
-    <div style={{ background: "#10B981", color: "#ffffff", padding: "8px 12px", textAlign: "center", fontSize: "11px", fontWeight: 700, borderRadius: "6px", width: "100%", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
-      🔥 ¡15% OFF en tu primera compra con el cupón NEVUX15!
-    </div>
-  );
-}
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎟️ BARRA DE DESCUENTO</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          STICKY
+        </span>
+      </div>
 
-function EnvioGratisPreview() {
-  return (
-    <div style={{ background: "#ecfdf5", border: "1px dashed #10B981", color: "#065f46", padding: "8px 12px", borderRadius: "6px", fontSize: "10px", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontWeight: 600 }}>
-      <span>🚚</span> ¡Envío gratis alcanzado!
-    </div>
-  );
-}
-
-function TemporizadorPreview() {
-  return (
-    <div style={{ background: "#111827", color: "#ffffff", padding: "8px 12px", borderRadius: "6px", fontSize: "10px", width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <span style={{ fontWeight: 600 }}>La oferta termina en:</span>
-      <span style={{ background: "#10B981", color: "#ffffff", padding: "2px 6px", borderRadius: "4px", fontFamily: "monospace", fontWeight: 800 }}>02:45:12</span>
-    </div>
-  );
-}
-
-function ContadorStockPreview() {
-  return (
-    <div style={{ background: "#fef2f2", color: "#991b1b", padding: "6px 10px", borderRadius: "6px", fontSize: "10px", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
-      <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#ef4444" }}></span>
-      ¡Casi agotado! Solo quedan 3 unidades
-    </div>
-  );
-}
-
-function NotificacionComprasPreview() {
-  return (
-    <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", padding: "8px 12px", borderRadius: "8px", fontSize: "10px", display: "flex", alignItems: "center", gap: "10px", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-      <span style={{ fontSize: "16px" }}>🛍️</span>
-      <div>
-        <div style={{ fontWeight: 700, color: "#111827" }}>María S. de Buenos Aires</div>
-        <div style={{ color: "#6b7280", fontSize: "9px" }}>Compró un producto hace 3 min</div>
+      <div style={{ background: "#1e1e1e", borderRadius: "6px", padding: "6px 8px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "4px", color: "#ffffff" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px", flex: 1, minWidth: 0 }}>
+          <span style={{ fontSize: "6px", fontWeight: 700, color: "#ffffff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            15% OFF en tu compra
+          </span>
+          <div style={{ background: "#ffffff", color: "#1e1e1e", border: "1px dashed #1e1e1e", borderRadius: "3px", padding: "1px 3px", fontSize: "5.5px", fontWeight: 900, whiteSpace: "nowrap" }}>
+            CUPON15
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "3px", flexShrink: 0 }}>
+          <div style={{ background: "#ef4444", color: "#ffffff", fontSize: "5px", fontWeight: 800, padding: "1px 3px", borderRadius: "3px" }}>
+            02h 30m
+          </div>
+          <span style={{ fontSize: "6px", opacity: 0.6 }}>✕</span>
+        </div>
       </div>
     </div>
   );
 }
 
-function ResenasEstrellasPreview() {
+function CajaEstadisticasPreview() {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "#fbbf24", fontWeight: 700 }}>
-      ★★★★★ <span style={{ color: "#374151", fontSize: "10px", fontWeight: 500 }}>(48 reseñas)</span>
-    </div>
-  );
-}
-
-function PopupsPreview() {
-  return (
-    <div style={{ background: "#ffffff", border: "2px solid #10B981", padding: "12px", borderRadius: "10px", textAlign: "center", width: "90%", boxShadow: "0 10px 15px rgba(0,0,0,0.1)" }}>
-      <div style={{ fontSize: "12px", fontWeight: 800, color: "#111827" }}>¡Obtené 10% OFF!</div>
-      <div style={{ fontSize: "9px", color: "#6b7280", margin: "4px 0 8px" }}>Suscribite a nuestro boletín</div>
-      <div style={{ background: "#10B981", color: "#fff", padding: "6px", borderRadius: "4px", fontSize: "10px", fontWeight: 700 }}>QUIERO MI DESCUENTO</div>
-    </div>
-  );
-}
-
-function StickyAddToCartPreview() {
-  return (
-    <div style={{ background: "#ffffff", borderTop: "2px solid #10B981", padding: "8px 12px", width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 -2px 10px rgba(0,0,0,0.05)" }}>
-      <span style={{ fontSize: "10px", fontWeight: 700, color: "#111827" }}>Producto Demo</span>
-      <div style={{ background: "#10B981", color: "#ffffff", padding: "6px 12px", borderRadius: "6px", fontSize: "10px", fontWeight: 700 }}>Agregar $12.500</div>
-    </div>
-  );
-}
-
-function WhatsappChatPreview() {
-  return (
-    <div style={{ background: "#25d366", color: "#ffffff", padding: "8px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
-      <span>💬</span> ¿Necesitás ayuda?
-    </div>
-  );
-}
-
-function FaqAcordeonPreview() {
-  return (
-    <div style={{ width: "95%", display: "flex", flexDirection: "column", gap: "4px" }}>
-      <div style={{ background: "#f9fafb", border: "1px solid #e5e7eb", padding: "6px 8px", borderRadius: "4px", fontSize: "9px", fontWeight: 700, display: "flex", justifyContent: "space-between" }}>
-        <span>¿Cuáles son las formas de pago?</span>
-        <span>+</span>
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📊 CAJA DE ESTADÍSTICAS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          NÚMEROS
+        </span>
       </div>
-      <div style={{ background: "#f9fafb", border: "1px solid #e5e7eb", padding: "6px 8px", borderRadius: "4px", fontSize: "9px", fontWeight: 700, display: "flex", justifyContent: "space-between" }}>
-        <span>¿Hacen envíos a todo el país?</span>
-        <span>+</span>
+
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1px", textAlign: "center" }}>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#111827" }}>Nuestros números</span>
+        <span style={{ fontSize: "5.5px", color: "#6b7280" }}>Lo que nos respalda</span>
+      </div>
+
+      <div style={{ display: "flex", gap: "4px", justifyContent: "center", padding: "2px 0" }}>
+        {[
+          { icon: "📦", number: "+1.500", label: "Pedidos" },
+          { icon: "⭐", number: "4.9", label: "Rating" },
+          { icon: "😊", number: "98%", label: "Clientes" },
+        ].map((item, idx) => (
+          <div
+            key={idx}
+            style={{
+              flex: 1,
+              background: "#f9fafb",
+              border: "1px solid #e5e7eb",
+              borderRadius: "6px",
+              padding: "5px 3px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "2px",
+              minWidth: 0,
+            }}
+          >
+            <span style={{ fontSize: "10px", lineHeight: 1 }}>{item.icon}</span>
+            <span style={{ fontSize: "8px", fontWeight: 900, color: "#111827", lineHeight: 1.1 }}>{item.number}</span>
+            <span style={{ fontSize: "5px", fontWeight: 700, color: "#6b7280", textAlign: "center", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>{item.label}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-function BannerPromocionalPreview() {
+function CarruselResenasPreview() {
   return (
-    <div style={{ background: "linear-gradient(90deg, #10B981, #059669)", color: "#fff", padding: "10px", borderRadius: "8px", width: "95%", textAlign: "center" }}>
-      <div style={{ fontSize: "11px", fontWeight: 800 }}>NUEVA COLECCIÓN</div>
-      <div style={{ fontSize: "9px", opacity: 0.9 }}>Hasta 30% OFF en seleccionados</div>
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎠 CARRUSEL DE RESEÑAS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          SLIDER
+        </span>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1px", textAlign: "center" }}>
+        <span style={{ fontSize: "8px", color: "#f5a623", lineHeight: 1 }}>★★★★★</span>
+        <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827" }}>Lo que dicen nuestros clientes</span>
+      </div>
+
+      <div style={{ display: "flex", gap: "4px", overflow: "hidden", padding: "2px 0" }}>
+        {[
+          { name: "Camila R.", text: "La calidad superó mis expectativas..." },
+          { name: "Gonzalo M.", text: "Excelente atención e impecable..." },
+        ].map((item, idx) => (
+          <div
+            key={idx}
+            style={{
+              flex: 1,
+              background: "#f9fafb",
+              border: "1px solid #e5e7eb",
+              borderRadius: "6px",
+              padding: "4px 5px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "2px",
+              minWidth: 0,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: "6px", fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.name}</span>
+              <span style={{ fontSize: "5px", color: "#10B981" }}>✓</span>
+            </div>
+            <div style={{ fontSize: "5px", color: "#f5b301", lineHeight: 1 }}>★★★★★</div>
+            <div style={{ fontSize: "4.5px", color: "#6b7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.text}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-function AlertaStockPreview() {
+function ConjuntoProductosPreview() {
   return (
-    <div style={{ background: "#fef2f2", border: "1px solid #fecaca", padding: "6px 10px", borderRadius: "4px", fontSize: "9px", color: "#991b1b", fontWeight: 700, width: "92%" }}>
-      ⚠️ Quedan pocas unidades en inventario
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>👗 CONJUNTO DE PRODUCTOS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          LOOK
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: "6px", alignItems: "stretch", background: "#f9fafb", padding: "5px", borderRadius: "6px", border: "1px solid #e5e7eb" }}>
+        <div style={{ width: "38px", borderRadius: "4px", background: "#111827", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", flexShrink: 0 }}>
+          👗
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827" }}>Look verano</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "5.5px", color: "#374151", background: "#ffffff", padding: "1px 3px", borderRadius: "2px" }}>
+              <span>Remera B&W</span>
+              <span style={{ fontWeight: 700 }}>$1.500</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "5.5px", color: "#374151", background: "#ffffff", padding: "1px 3px", borderRadius: "2px" }}>
+              <span>Pantalón Jean</span>
+              <span style={{ fontWeight: 700 }}>$2.000</span>
+            </div>
+          </div>
+          <div style={{ background: "#111827", color: "#ffffff", borderRadius: "4px", padding: "2px", fontSize: "5.5px", fontWeight: 800, textAlign: "center", marginTop: "1px" }}>
+            Comprar look · $3.500
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AlertaInventarioPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🔥 ALERTA DE INVENTARIO</span>
+        <span style={{ background: "#fef2f2", color: "#ef4444", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #fca5a5" }}>
+          STOCK
+        </span>
+      </div>
+
+      <div style={{ background: "#fff5f5", border: "1px solid #fecaca", borderRadius: "6px", padding: "6px 8px", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
+        <span style={{ fontSize: "10px" }}>🔥</span>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#ef4444" }}>
+          Apurate, quedan <strong style={{ fontWeight: 900 }}>3</strong> disponibles
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function NotificacionesFlotantesPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🔔 NOTIFICACIONES FLOTANTES</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          TOAST
+        </span>
+      </div>
+
+      <div style={{ background: "#111827", borderRadius: "8px", padding: "6px 8px", display: "flex", alignItems: "flex-start", gap: "6px", color: "#ffffff" }}>
+        <div style={{ width: "16px", height: "16px", borderRadius: "4px", background: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "8px", flexShrink: 0 }}>🎉</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1px", flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981", lineHeight: 1.1 }}>¡Oferta especial!</div>
+          <div style={{ fontSize: "5px", color: "#d1d5db", lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Comprá hoy y obtené 20% OFF</div>
+        </div>
+        <span style={{ fontSize: "6px", opacity: 0.5 }}>✕</span>
+      </div>
+    </div>
+  );
+}
+
+function PopupPromocionalPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎁 POP-UP PROMOCIONAL</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          POPUP
+        </span>
+      </div>
+
+      <div style={{ background: "#111827", borderRadius: "6px", padding: "6px", display: "flex", flexDirection: "column", alignItems: "center", gap: "3px" }}>
+        <div style={{ fontSize: "7px", fontWeight: 900, color: "#10B981" }}>¡Oferta especial!</div>
+        <div style={{ fontSize: "5.5px", color: "#ffffff", opacity: 0.9 }}>Aprovechá esta promoción exclusiva</div>
+        <div style={{ display: "flex", gap: "2px", margin: "2px 0" }}>
+          <div style={{ background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: "5px", fontWeight: 800, padding: "1px 3px", borderRadius: "2px" }}>06h</div>
+          <div style={{ background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: "5px", fontWeight: 800, padding: "1px 3px", borderRadius: "2px" }}>30m</div>
+          <div style={{ background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: "5px", fontWeight: 800, padding: "1px 3px", borderRadius: "2px" }}>12s</div>
+        </div>
+        <div style={{ background: "#10B981", color: "#ffffff", borderRadius: "4px", padding: "3px 8px", fontSize: "6px", fontWeight: 800, textTransform: "uppercase" }}>
+          ¡Quiero aprovechar!
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RaspaGanaPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎟️ RASPÁ Y GANÁ</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          POPUP
+        </span>
+      </div>
+
+      <div style={{ background: "#111827", borderRadius: "6px", padding: "6px", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+        <div style={{ fontSize: "7px", fontWeight: 900, color: "#10B981" }}>Raspá y ganá</div>
+        <div style={{ background: "#F59E0B", color: "#ffffff", borderRadius: "4px", padding: "4px 10px", fontSize: "6.5px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          RASPÁ ACÁ
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BotonWhatsappPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>💬 BOTÓN DE WHATSAPP</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          CHAT
+        </span>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", padding: "4px 0", position: "relative" }}>
+        <div style={{ background: "#f3f4f6", border: "1px solid #e5e7eb", borderRadius: "8px", padding: "4px 6px", marginRight: "6px", maxWidth: "70%" }}>
+          <div style={{ fontSize: "5.5px", fontWeight: 800, color: "#111827" }}>Luana</div>
+          <div style={{ fontSize: "5px", color: "#6b7280" }}>Hola, ¿cómo podemos ayudarte?</div>
+        </div>
+        <div style={{ position: "relative", width: "26px", height: "26px", borderRadius: "50%", background: "#25D366", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "12px", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }}>
+          💬
+          <div style={{ position: "absolute", top: "0px", right: "0px", width: "6px", height: "6px", borderRadius: "50%", background: "#E53E3E", border: "1px solid #ffffff" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VideoFlotantePreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎬 VIDEO FLOTANTE</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          REELS
+        </span>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "4px 0" }}>
+        <div style={{ position: "relative", width: "38px", height: "38px", borderRadius: "50%", background: "#111827", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", boxShadow: "0 4px 10px rgba(0,0,0,0.2)" }}>
+          <span style={{ fontSize: "11px", marginLeft: "1px" }}>▶</span>
+          <div style={{ position: "absolute", top: "-2px", left: "-2px", width: "11px", height: "11px", borderRadius: "50%", background: "#191919", border: "1px solid #ffffff", color: "#ffffff", fontSize: "6.5px", fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ComparadorMarcaPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>⚖️ COMPARADOR DE MARCA</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          CONFIANZA
+        </span>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "3px", padding: "2px 0" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1fr", gap: "4px", fontSize: "6px", fontWeight: 800, textAlign: "center", alignItems: "center" }}>
+          <div style={{ textAlign: "left", color: "#6b7280" }}>Ventaja</div>
+          <div style={{ background: "#111827", color: "#ffffff", borderRadius: "4px 4px 0 0", padding: "2px 0", fontSize: "5.5px" }}>Nosotros</div>
+          <div style={{ color: "#9ca3af", padding: "2px 0", fontSize: "5.5px" }}>Otros</div>
+        </div>
+        {[
+          { text: "Dolor solucionado", us: true, others: false },
+          { text: "Envío express AMBA", us: true, others: false },
+          { text: "Garantía total 60 días", us: true, others: true },
+        ].map((item, i) => (
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1fr", gap: "4px", fontSize: "5.5px", alignItems: "center", borderTop: "1px solid #f3f4f6", padding: "2px 0" }}>
+            <div style={{ fontWeight: 700, color: "#374151", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{item.text}</div>
+            <div style={{ background: "#111827", color: "#10B981", textAlign: "center", fontWeight: 900, padding: "1px 0" }}>✓</div>
+            <div style={{ textAlign: "center", color: item.others ? "#10B981" : "#d1d5db", fontWeight: 800 }}>{item.others ? "✓" : "✕"}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ColumnasImagenesTextoPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎴 COLUMNAS IMÁGENES Y TEXTO</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          GRILLA
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: "4px", justifyContent: "center", padding: "2px 0" }}>
+        {[1, 2, 3].map((item) => (
+          <div
+            key={item}
+            style={{
+              flex: 1,
+              background: "#f9fafb",
+              border: "1px solid #e5e7eb",
+              borderRadius: "6px",
+              padding: "4px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "3px",
+            }}
+          >
+            <div style={{ width: "100%", aspectRatio: "1 / 1", borderRadius: "4px", background: "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "8px" }}>
+              🖼️
+            </div>
+            <div style={{ width: "80%", height: "3px", background: "#111827", borderRadius: "1px" }} />
+            <div style={{ width: "60%", height: "2.5px", background: "#9ca3af", borderRadius: "1px" }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ImagenesTextosPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🖼️ IMÁGENES Y TEXTOS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          ALTERNADO
+        </span>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f9fafb", padding: "4px 6px", borderRadius: "6px", border: "1px solid #f3f4f6" }}>
+        <div style={{ width: "22px", height: "22px", borderRadius: "4px", background: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "10px", flexShrink: 0 }}>
+          🖼️
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
+          <div style={{ width: "35px", height: "3.5px", background: "#111827", borderRadius: "2px" }} />
+          <div style={{ width: "55px", height: "3px", background: "#9ca3af", borderRadius: "1px" }} />
+        </div>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#ffffff", padding: "4px 6px", borderRadius: "6px", border: "1px solid #e5e7eb" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
+          <div style={{ width: "35px", height: "3.5px", background: "#111827", borderRadius: "2px" }} />
+          <div style={{ width: "55px", height: "3px", background: "#9ca3af", borderRadius: "1px" }} />
+        </div>
+        <div style={{ width: "22px", height: "22px", borderRadius: "4px", background: "#111827", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "10px", flexShrink: 0 }}>
+          ✨
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PestanasInformacionPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📑 PESTAÑAS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          TABS
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: "0px", borderBottom: "1.5px solid #e5e7eb" }}>
+        <div style={{ background: "#10B981", color: "#ffffff", fontSize: "5.5px", fontWeight: 800, padding: "3px 7px", borderRadius: "4px 4px 0 0", marginBottom: "-1.5px" }}>
+          📋 Descripción
+        </div>
+        <div style={{ background: "transparent", color: "#9ca3af", fontSize: "5.5px", fontWeight: 700, padding: "3px 7px", borderRadius: "4px 4px 0 0" }}>
+          📏 Talles
+        </div>
+        <div style={{ background: "transparent", color: "#9ca3af", fontSize: "5.5px", fontWeight: 700, padding: "3px 7px", borderRadius: "4px 4px 0 0" }}>
+          🚚 Envío
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "3px", padding: "4px 2px 2px 2px" }}>
+        <div style={{ width: "85%", height: "3.5px", background: "#e5e7eb", borderRadius: "2px" }} />
+        <div style={{ width: "70%", height: "3.5px", background: "#f3f4f6", borderRadius: "2px" }} />
+        <div style={{ width: "55%", height: "3.5px", background: "#f3f4f6", borderRadius: "2px" }} />
+      </div>
+    </div>
+  );
+}
+
+function InformacionEnvioPreview() {
+  return (
+    <div
+      style={{
+        background: "#d9f5e4",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+        color: "#1f6b4e",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "center", gap: "4px" }}>
+        <span style={{ background: "#1f6b4e", color: "#ffffff", fontSize: "5.5px", fontWeight: 800, padding: "1px 5px", borderRadius: "999px" }}>
+          AMBA
+        </span>
+        <span style={{ background: "rgba(255,255,255,0.6)", color: "#1f6b4e", fontSize: "5.5px", fontWeight: 800, padding: "1px 5px", borderRadius: "999px" }}>
+          Resto del país
+        </span>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "2px", textAlign: "center", marginTop: "2px" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <span style={{ fontSize: "10px" }}>📦</span>
+          <span style={{ fontSize: "6px", fontWeight: 800 }}>Compra</span>
+          <span style={{ fontSize: "5.5px", opacity: 0.8 }}>Hoy</span>
+        </div>
+        <div style={{ width: "12px", height: "1px", background: "#1f6b4e", opacity: 0.4 }} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <span style={{ fontSize: "10px" }}>🚚</span>
+          <span style={{ fontSize: "6px", fontWeight: 800 }}>Envío</span>
+          <span style={{ fontSize: "5.5px", opacity: 0.8 }}>Mañana</span>
+        </div>
+        <div style={{ width: "12px", height: "1px", background: "#1f6b4e", opacity: 0.4 }} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <span style={{ fontSize: "10px" }}>📍</span>
+          <span style={{ fontSize: "6px", fontWeight: 800 }}>Entrega</span>
+          <span style={{ fontSize: "5.5px", opacity: 0.8 }}>17 oct</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PasosPreview() {
+  return (
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📍 PASOS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>TIMELINE</span>
+      </div>
+      <div style={{ position: "relative", paddingLeft: "12px", display: "flex", flexDirection: "column", gap: "6px", padding: "2px 0" }}>
+        <div style={{ position: "absolute", left: "4px", top: "2px", bottom: "2px", width: "1px", background: "#10B981" }} />
+        {[1, 2].map((i) => (
+          <div key={i} style={{ position: "relative", display: "flex", flexDirection: "column", gap: "2px" }}>
+            <div style={{ position: "absolute", left: "-10px", top: "0px", width: "5px", height: "5px", borderRadius: "50%", background: "#ffffff", border: "1px solid #10B981" }} />
+            <div style={{ width: "25px", height: "4px", background: "#111827", borderRadius: "2px" }} />
+            <div style={{ width: "45px", height: "3px", background: "#e5e7eb", borderRadius: "1px" }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TextoLibrePreview() {
+  return (
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📝 TEXTO LIBRE</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>FORMATO</span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "3px", padding: "2px 0" }}>
+        <div style={{ fontSize: "7px", fontWeight: 800, color: "#111827" }}>Título del bloque</div>
+        <div style={{ fontSize: "5.5px", color: "#6b7280", lineHeight: 1.2 }}>Párrafo con texto enriquecido, listas, viñetas y enlaces personalizados...</div>
+      </div>
+    </div>
+  );
+}
+
+function VideoTextoPreview() {
+  return (
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎥 VIDEO Y TEXTO</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>EXPLICATIVO</span>
+      </div>
+      <div style={{ display: "flex", gap: "6px", alignItems: "center", padding: "2px 0" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "2px" }}>
+          <div style={{ fontSize: "7px", fontWeight: 800, color: "#111827" }}>Conocé el producto</div>
+          <div style={{ fontSize: "5.5px", color: "#6b7280", lineHeight: 1.1 }}>Mirá este breve video explicativo...</div>
+        </div>
+        <div style={{ width: "42px", height: "28px", borderRadius: "6px", background: "#111827", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "10px", flexShrink: 0, boxShadow: "0 2px 4px rgba(0,0,0,0.15)" }}>▶</div>
+      </div>
+    </div>
+  );
+}
+
+function SliderImagenesPreview() {
+  return (
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🖼️ SLIDER DE IMÁGENES</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>CARRUSEL</span>
+      </div>
+      <div style={{ display: "flex", gap: "5px", overflow: "hidden", padding: "2px 0", justifyContent: "center" }}>
+        {[1, 2, 3].map((item) => (
+          <div key={item} style={{ width: "34px", height: "38px", borderRadius: "6px", background: item === 1 ? "#f3f4f6" : item === 2 ? "#ecfdf5" : "#e5e7eb", border: item === 2 ? "1px solid #10B981" : "1px solid #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", flexShrink: 0 }}>
+            {item === 1 ? "🧴" : item === 2 ? "✨" : "🌿"}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CajaContactoPreview() {
+  return (
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", flexShrink: 0 }}>👨‍💼</div>
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", lineHeight: 1.1 }}>¿Tenés alguna pregunta?</div>
+          <div style={{ fontSize: "5.5px", color: "#6b7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: "2px" }}>Podés escribirle a nuestros especialistas...</div>
+        </div>
+      </div>
+      <div style={{ background: "#111827", color: "#ffffff", borderRadius: "12px", padding: "3px 8px", fontSize: "6px", fontWeight: 800, alignSelf: "flex-start", marginLeft: "32px" }}>Contactanos</div>
+    </div>
+  );
+}
+
+function CajaOpinionesPreview() {
+  return (
+    <div style={{ background: "#f7f7f7", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "4px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1px solid #cccccc" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "#374151", color: "#ffffff", fontSize: "7px", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>R</div>
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#333333", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>rodrigo lázaro</span>
+            <div style={{ display: "flex", gap: "2px", fontSize: "5.5px", color: "#f5b301" }}>★★★★★</div>
+          </div>
+        </div>
+        <span style={{ fontSize: "6px", color: "#6b7280", opacity: 0.7 }}>‹ ›</span>
+      </div>
+      <div style={{ fontSize: "5.5px", color: "#555555", lineHeight: 1.2, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>Me encantó el producto, cumple con mis expectativas</div>
+    </div>
+  );
+}
+
+function ProbadorVirtualPreview() {
+  return (
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📷 PROBADOR VIRTUAL</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>CÁMARA</span>
+      </div>
+      <div style={{ display: "flex", justifyContent: "center", padding: "4px 0" }}>
+        <div style={{ background: "#111827", color: "#ffffff", borderRadius: "20px", padding: "4px 12px", fontSize: "7px", fontWeight: 800, display: "flex", alignItems: "center", gap: "4px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+          <span>📷</span>
+          <span>Probador virtual</span>
+        </div>
+      </div>
     </div>
   );
 }
 
 function TablaTallesPreview() {
   return (
-    <div style={{ border: "1px solid #e5e7eb", borderRadius: "6px", padding: "6px", width: "95%", background: "#fff" }}>
-      <div style={{ fontSize: "9px", fontWeight: 700, marginBottom: "4px", color: "#111827" }}>Guía de Talles (cm)</div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "2px", fontSize: "8px", textAlign: "center", background: "#f3f4f6", padding: "2px", borderRadius: "3px" }}>
-        <span>Talle</span><span>Pecho</span><span>Largo</span>
-        <span>S</span><span>90-95</span><span>68</span>
-        <span>M</span><span>96-102</span><span>70</span>
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📏 TABLA DE TALLES</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>MODAL</span>
+      </div>
+      <div style={{ display: "flex", justifyContent: "center", padding: "4px 0" }}>
+        <div style={{ background: "#111827", color: "#ffffff", borderRadius: "20px", padding: "4px 12px", fontSize: "7px", fontWeight: 800, display: "flex", alignItems: "center", gap: "4px", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+          <span>📏</span>
+          <span>Tabla de talles</span>
+        </div>
       </div>
     </div>
   );
 }
 
-function ComparadorProductosPreview() {
+function BeneficiosPreview() {
   return (
-    <div style={{ border: "1px solid #e5e7eb", padding: "8px", borderRadius: "6px", width: "95%", background: "#fff", fontSize: "9px" }}>
-      <div style={{ fontWeight: 700, color: "#10B981" }}>Comparación rápida</div>
-      <div style={{ color: "#6b7280", marginTop: "2px" }}>Modelo A vs Modelo B</div>
-    </div>
-  );
-}
-
-function CuponDescuentoPreview() {
-  return (
-    <div style={{ border: "1.5px dashed #10B981", background: "#ecfdf5", padding: "8px 12px", borderRadius: "6px", width: "90%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <div>
-        <div style={{ fontSize: "8px", color: "#065f46", fontWeight: 600 }}>CUPÓN DE REGALO</div>
-        <div style={{ fontSize: "11px", fontWeight: 900, color: "#047857" }}>BIENVENIDA10</div>
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🛡️ BENEFICIOS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>CONFIANZA</span>
       </div>
-      <span style={{ fontSize: "8px", background: "#10B981", color: "#fff", padding: "3px 6px", borderRadius: "3px", fontWeight: 700 }}>Copiar</span>
-    </div>
-  );
-}
-
-function VideoProductoPreview() {
-  return (
-    <div style={{ background: "#111827", color: "#fff", width: "95%", height: "50px", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontSize: "10px", fontWeight: 600 }}>
-      <span>▶</span> Video del producto
-    </div>
-  );
-}
-
-function SellosConfianzaPreview() {
-  return (
-    <div style={{ display: "flex", gap: "8px", fontSize: "9px", color: "#4b5563", fontWeight: 600 }}>
-      <span>🔒 Compra Segura</span>
-      <span>⚡ Envío Rápido</span>
-      <span>💳 Cuotas</span>
-    </div>
-  );
-}
-
-function SelectorMonedaPreview() {
-  return (
-    <div style={{ border: "1px solid #d1d5db", padding: "4px 8px", borderRadius: "4px", fontSize: "9px", background: "#fff", fontWeight: 700 }}>
-      🌐 ARS ($) / USD ($)
-    </div>
-  );
-}
-
-function CalculadoraEnvioPreview() {
-  return (
-    <div style={{ border: "1px solid #e5e7eb", padding: "8px", borderRadius: "6px", width: "95%", background: "#fff" }}>
-      <div style={{ fontSize: "9px", fontWeight: 700, color: "#111827" }}>Calcular envío</div>
-      <div style={{ display: "flex", gap: "4px", marginTop: "4px" }}>
-        <div style={{ border: "1px solid #d1d5db", borderRadius: "3px", padding: "2px 4px", fontSize: "8px", flex: 1, color: "#9ca3af" }}>Tu CP</div>
-        <div style={{ background: "#10B981", color: "#fff", padding: "2px 6px", borderRadius: "3px", fontSize: "8px", fontWeight: 700 }}>OK</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "2px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+          <span style={{ fontSize: "9px" }}>🚚</span>
+          <span style={{ fontSize: "6.5px", color: "#374151" }}>Envío <strong>gratis</strong> a todo el país</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+          <span style={{ fontSize: "9px" }}>💳</span>
+          <span style={{ fontSize: "6.5px", color: "#374151" }}>Hasta <strong>6 cuotas sin interés</strong></span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+          <span style={{ fontSize: "9px" }}>🛡️</span>
+          <span style={{ fontSize: "6.5px", color: "#374151" }}>Compra <strong>100% protegida</strong></span>
+        </div>
       </div>
     </div>
   );
 }
 
-function RuletaDescuentosPreview() {
+function ComparadorAntesDespuesPreview() {
   return (
-    <div style={{ background: "#10B981", color: "#fff", borderRadius: "50%", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
-      🎰
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🖼️ ANTES Y DESPUÉS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>SLIDER</span>
+      </div>
+      <div style={{ position: "relative", width: "100%", height: "44px", borderRadius: "6px", overflow: "hidden", border: "1px solid #e5e7eb", display: "flex" }}>
+        <div style={{ width: "50%", height: "100%", background: "#9ca3af", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "7px", fontWeight: 800, position: "relative" }}>
+          <span style={{ position: "absolute", top: "3px", left: "4px", fontSize: "5px", background: "rgba(0,0,0,0.5)", padding: "1px 3px", borderRadius: "2px" }}>ANTES</span>
+          📷
+        </div>
+        <div style={{ width: "50%", height: "100%", background: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "7px", fontWeight: 800, position: "relative" }}>
+          <span style={{ position: "absolute", top: "3px", right: "4px", fontSize: "5px", background: "rgba(0,0,0,0.5)", padding: "1px 3px", borderRadius: "2px" }}>DESPUÉS</span>
+          ✨
+        </div>
+        <div style={{ position: "absolute", top: 0, bottom: 0, left: "50%", width: "2px", background: "#ffffff", transform: "translateX(-50%)", boxShadow: "0 0 4px rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#ffffff", color: "#111827", fontSize: "6px", fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}>↔</div>
+        </div>
+      </div>
     </div>
   );
 }
 
-function CarruselMarcasPreview() {
+function BannerSuperiorPreview() {
   return (
-    <div style={{ display: "flex", gap: "10px", opacity: 0.6, fontSize: "9px", fontWeight: 800 }}>
-      <span>BRAND 1</span><span>BRAND 2</span><span>BRAND 3</span>
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📢 BANNER SUPERIOR</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>ANUNCIO</span>
+      </div>
+      <div style={{ background: "#1e1e1e", color: "#ffffff", borderRadius: "6px", padding: "4px 8px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "4px" }}>
+        <span style={{ fontSize: "6px", fontWeight: 600, flex: 1, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>¡Oferta especial hoy! 🎉</span>
+        <span style={{ background: "#ffffff", color: "#000000", fontSize: "5.5px", fontWeight: 800, padding: "2px 5px", borderRadius: "3px" }}>Ver ofertas</span>
+      </div>
     </div>
   );
 }
 
-function GaleriaInstagramPreview() {
+function PreguntasFrecuentesPreview() {
   return (
-    <div style={{ display: "flex", gap: "4px" }}>
-      <div style={{ background: "#e5e7eb", width: "24px", height: "24px", borderRadius: "4px" }}></div>
-      <div style={{ background: "#e5e7eb", width: "24px", height: "24px", borderRadius: "4px" }}></div>
-      <div style={{ background: "#e5e7eb", width: "24px", height: "24px", borderRadius: "4px" }}></div>
-    </div>
-  );
-}
-
-function AudioProductoPreview() {
-  return (
-    <div style={{ background: "#f3f4f6", border: "1px solid #e5e7eb", padding: "4px 8px", borderRadius: "20px", fontSize: "9px", display: "flex", alignItems: "center", gap: "6px", fontWeight: 600 }}>
-      <span>🔊</span> Escuchar demo de voz
-    </div>
-  );
-}
-
-function Vista360Preview() {
-  return (
-    <div style={{ border: "1px solid #10B981", background: "#ecfdf5", padding: "4px 8px", borderRadius: "4px", fontSize: "9px", color: "#047857", fontWeight: 700, display: "flex", alignItems: "center", gap: "4px" }}>
-      <span>🔄</span> Vista 360° Interactiva
-    </div>
-  );
-}
-
-function Previsualizador3DPreview() {
-  return (
-    <div style={{ background: "#111827", color: "#fff", padding: "6px 10px", borderRadius: "6px", fontSize: "9px", fontWeight: 700, display: "flex", alignItems: "center", gap: "4px" }}>
-      <span>📦</span> Ver en Realidad Aumentada 3D
-    </div>
-  );
-}
-
-function AsistenteTallesAIPreview() {
-  return (
-    <div style={{ background: "linear-gradient(90deg, #ecfdf5, #d1fae5)", border: "1px solid #10B981", padding: "6px 8px", borderRadius: "6px", fontSize: "8.5px", color: "#065f46", fontWeight: 700, display: "flex", alignItems: "center", gap: "4px" }}>
-      <span>🤖</span> Recomendador de talle con IA
-    </div>
-  );
-}
-
-function RecomendadorPersonalizadoPreview() {
-  return (
-    <div style={{ border: "1px solid #e5e7eb", padding: "6px", borderRadius: "6px", width: "95%", background: "#fff" }}>
-      <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#111827" }}>Recomendado para vos</div>
-      <div style={{ fontSize: "7.5px", color: "#6b7280" }}>Basado en tu navegación</div>
-    </div>
-  );
-}
-
-function CajaSuscripcionPreview() {
-  return (
-    <div style={{ border: "1.5px solid #10B981", padding: "8px", borderRadius: "6px", width: "90%", background: "#fff" }}>
-      <div style={{ fontSize: "9px", fontWeight: 800, color: "#10B981" }}>Suscripción Mensual -15%</div>
-      <div style={{ fontSize: "8px", color: "#4b5563" }}>Recibilos automáticamente cada mes</div>
-    </div>
-  );
-}
-
-function ComprasJuntasPreview() {
-  return (
-    <div style={{ border: "1px solid #e5e7eb", padding: "6px", borderRadius: "6px", width: "95%", background: "#fff" }}>
-      <div style={{ fontSize: "8.5px", fontWeight 800, color: "#111827" }}>Frecuentemente comprados juntos</div>
-      <div style={{ fontSize: "7.5px", color: "#10B981", fontWeight: 700 }}>Ahorrás 10% llevando ambos</div>
-    </div>
-  );
-}
-
-function TiendaRegalosPreview() {
-  return (
-    <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", padding: "6px", borderRadius: "6px", width: "90%", fontSize: "8.5px", color: "#047857", fontWeight: 700, textAlign: "center" }}>
-      🎁 ¡Agregá una caja de regalo por $500!
-    </div>
-  );
-}
-
-function SocialProofVivoPreview() {
-  return (
-    <div style={{ background: "#111827", color: "#fff", padding: "4px 8px", borderRadius: "12px", fontSize: "8.5px", fontWeight: 700, display: "flex", alignItems: "center", gap: "4px" }}>
-      <span style={{ width: "6px", height: "6px", background: "#10B981", borderRadius: "50%" }}></span> 14 personas viendo esto ahora
-    </div>
-  );
-}
-
-function BadgeGarantiaPreview() {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "8.5px", fontWeight: 700, color: "#374151" }}>
-      <span style={{ color: "#10B981", fontSize: "12px" }}>🛡️</span> Garantía oficial de 12 meses
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>❓ PREGUNTAS FRECUENTES</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>FAQ</span>
+      </div>
+      <div style={{ background: "#f9fafb", border: "1px solid #f3f4f6", borderRadius: "6px", padding: "4px 6px", display: "flex", flexDirection: "column", gap: "2px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "6.5px", fontWeight: 800, color: "#111827" }}>
+          <span>🚚 ¿Cuánto demora el envío?</span>
+          <span style={{ fontSize: "7px", opacity: 0.6 }}>▲</span>
+        </div>
+        <div style={{ fontSize: "5.5px", color: "#6b7280", lineHeight: 1.1 }}>Despachamos dentro de las 24 a 48 hs...</div>
+      </div>
+      <div style={{ background: "#f9fafb", border: "1px solid #f3f4f6", borderRadius: "6px", padding: "4px 6px", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "6.5px", fontWeight: 700, color: "#374151" }}>
+        <span>💳 ¿Qué medios de pago aceptan?</span>
+        <span style={{ fontSize: "7px", opacity: 0.6 }}>▼</span>
+      </div>
     </div>
   );
 }
 
 function BadgeEfectivoPreview() {
   return (
-    <div style={{ background: "#ecfdf5", border: "1px solid #10B981", padding: "6px 10px", borderRadius: "6px", fontSize: "8.5px", color: "#065f46", fontWeight: 700, display: "flex", alignItems: "center", gap: "4px" }}>
-      <span>💵</span> 10% OFF pagando en Efectivo / Transferencia
-    </div>
-  );
-}
-
-function BarraProgresoEnvioPreview() {
-  return (
-    <div style={{ width: "90%", display: "flex", flexDirection: "column", gap: "2px" }}>
-      <div style={{ fontSize: "8px", fontWeight: 700, color: "#374151" }}>Faltan $3.500 para Envío Gratis</div>
-      <div style={{ width: "100%", height: "6px", background: "#e5e7eb", borderRadius: "3px", overflow: "hidden" }}>
-        <div style={{ width: "70%", height: "100%", background: "#10B981" }}></div>
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>💵 BADGE DE EFECTIVO</span>
+        <span style={{ background: "#ef4444", color: "#ffffff", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px" }}>OFERTA</span>
+      </div>
+      <div style={{ background: "#f3f4f6", borderRadius: "6px", padding: "4px 8px", display: "flex", alignItems: "center", gap: "4px", fontSize: "7px", fontWeight: 700, color: "#111827" }}>
+        <span style={{ fontSize: "9px" }}>💵</span>
+        <span>10% de descuento pagando en efectivo</span>
       </div>
     </div>
   );
 }
 
-function CronometroOfertaPreview() {
+function MensajeGarantiaPreview() {
   return (
-    <div style={{ background: "#ef4444", color: "#fff", padding: "4px 8px", borderRadius: "4px", fontSize: "8.5px", fontWeight: 800, display: "flex", gap: "4px" }}>
-      <span>⏳ Oferta relámpago:</span> <span>05:30</span>
+    <div style={{ background: "#fff9f3", border: "1.5px solid #e7dec8", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)" }}>
+      <div style={{ width: "26px", height: "26px", borderRadius: "6px", background: "rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", flexShrink: 0 }}>🛡️</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: 0, flex: 1 }}>
+        <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", lineHeight: 1.1 }}>Garantía de 60 días</div>
+        <div style={{ fontSize: "6px", color: "#4b5563", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Devolución 100% garantizada</div>
+      </div>
     </div>
   );
 }
 
-function VerificadorCodigoPostalPreview() {
+function BarraAccionPreview() {
   return (
-    <div style={{ border: "1px solid #e5e7eb", padding: "6px", borderRadius: "4px", width: "90%", fontSize: "8px", background: "#fff" }}>
-      <span style={{ fontWeight: 700 }}>📍 Ingresá tu CP para ver fecha de entrega</span>
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>💳 BARRA DE ACCIÓN</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>STICKY</span>
+      </div>
+      <div style={{ background: "#333333", borderRadius: "6px", padding: "4px 8px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "6px", color: "#ffffff" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", flex: 1, minWidth: 0 }}>
+          <div style={{ width: "16px", height: "16px", borderRadius: "4px", background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "9px" }}>💼</div>
+          <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+            <span style={{ fontSize: "6.5px", fontWeight: 700, color: "#ffffff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Billetera Compacta</span>
+            <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>$ 10.000</span>
+          </div>
+        </div>
+        <div style={{ background: "#007bff", color: "#ffffff", borderRadius: "12px", padding: "3px 8px", fontSize: "6px", fontWeight: 800, flexShrink: 0 }}>Agregar al carrito</div>
+      </div>
     </div>
   );
 }
 
-function BannerRotativoPreview() {
+function SliderVideosPreview() {
   return (
-    <div style={{ background: "#111827", color: "#fff", padding: "6px", width: "95%", borderRadius: "4px", textAlign: "center", fontSize: "8.5px", fontWeight: 700 }}>
-      ◀ Banner 1 de 3 ▶
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎬 SLIDER DE VIDEOS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>REELS</span>
+      </div>
+      <div style={{ display: "flex", gap: "5px", justifyContent: "center", padding: "2px 0" }}>
+        {[1, 2, 3].map((item) => (
+          <div key={item} style={{ width: "28px", height: "44px", borderRadius: "6px", background: item === 1 ? "#10B981" : item === 2 ? "#111827" : "#374151", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
+            <div style={{ fontSize: "10px", color: "#ffffff" }}>▶</div>
+            <div style={{ position: "absolute", bottom: "2px", width: "80%", height: "3px", background: "rgba(255,255,255,0.7)", borderRadius: "2px" }} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-function CombosDescuentoPreview() {
+function BundleCantidadPreview() {
   return (
-    <div style={{ border: "1px solid #10B981", background: "#ecfdf5", padding: "6px", borderRadius: "6px", width: "90%", fontSize: "8.5px", color: "#065f46", fontWeight: 700 }}>
-      🔥 Combo 2x1 en productos seleccionados
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📦 BUNDLE DE CANTIDAD</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>-15% MAX</span>
+      </div>
+      <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "6px", padding: "3px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ width: "7px", height: "7px", borderRadius: "50%", border: "1.5px solid #d1d5db" }} />
+          <span style={{ fontSize: "7px", fontWeight: 700, color: "#111827" }}>Lleva 1</span>
+        </div>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#6b7280" }}>$ 35.600</span>
+      </div>
+      <div style={{ background: "#ecfdf5", border: "1.5px solid #10B981", borderRadius: "6px", padding: "3px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ width: "7px", height: "7px", borderRadius: "50%", border: "2px solid #10B981", background: "#10B981" }} />
+          <span style={{ fontSize: "7px", fontWeight: 900, color: "#111827" }}>Lleva 2</span>
+          <span style={{ background: "#ef4444", color: "#ffffff", fontSize: "5px", fontWeight: 800, padding: "1px 3px", borderRadius: "3px" }}>MÁS VENDIDO</span>
+        </div>
+        <span style={{ fontSize: "7px", fontWeight: 900, color: "#10B981" }}>$ 65.504</span>
+      </div>
+      <div style={{ background: "#111827", color: "#ffffff", borderRadius: "6px", padding: "4px", fontSize: "7px", fontWeight: 800, textAlign: "center", marginTop: "2px" }}>Agregar al carrito</div>
     </div>
   );
 }
 
-function RegaloPorCompraPreview() {
+function PackComplementariosPreview() {
   return (
-    <div style={{ border: "1px dashed #10B981", padding: "6px", borderRadius: "6px", width: "90%", fontSize: "8.5px", color: "#047857", fontWeight: 700, textAlign: "center" }}>
-      🎁 ¡Llevando 2 productos te regalamos un accesorio!
-    </div>
-  );
-}
-
-function WishlistGuardadosPreview() {
-  return (
-    <div style={{ border: "1px solid #e5e7eb", padding: "4px 8px", borderRadius: "20px", fontSize: "8.5px", fontWeight: 700, color: "#374151", display: "flex", alignItems: "center", gap: "4px" }}>
-      <span style={{ color: "#ef4444" }}>♥</span> Guardar en Favoritos
-    </div>
-  );
-}
-
-function ShareSocialPreview() {
-  return (
-    <div style={{ display: "flex", gap: "6px", fontSize: "8px", fontWeight: 700, color: "#6b7280" }}>
-      <span>Compartir:</span> <span>Facebook</span> • <span>WhatsApp</span> • <span>X</span>
-    </div>
-  );
-}
-
-function NotificacionEnvioHoyPreview() {
-  return (
-    <div style={{ background: "#ecfdf5", border: "1px solid #10B981", padding: "5px 8px", borderRadius: "4px", fontSize: "8.5px", color: "#047857", fontWeight: 700 }}>
-      ⚡ Comprá en las próximas 2hs y recibilo HOY
-    </div>
-  );
-}
-
-function BannerAnunciosTopPreview() {
-  return (
-    <div style={{ background: "#111827", color: "#fff", padding: "4px 8px", width: "100%", textAlign: "center", fontSize: "8px", fontWeight: 700 }}>
-      📢 ENVIOS GRATIS A TODO EL PAIS EN COMPRAS MAYORES A $30.000
-    </div>
-  );
-}
-
-function CalculadoraCuotasPreview() {
-  return (
-    <div style={{ border: "1px solid #e5e7eb", padding: "6px", borderRadius: "6px", width: "90%", fontSize: "8px", background: "#fff" }}>
-      <div style={{ fontWeight: 800, color: "#111827" }}>Calculá tus cuotas</div>
-      <div style={{ color: "#10B981", fontWeight: 700 }}>Hasta 6 cuotas de $2.083 sin interés</div>
-    </div>
-  );
-}
-
-function PopupsInteligentePreview() {
-  return (
-    <div style={{ border: "2px solid #10B981", background: "#fff", padding: "8px", borderRadius: "8px", width: "85%", textAlign: "center", fontSize: "8.5px" }}>
-      <div style={{ fontWeight: 800, color: "#111827" }}>¿Te vas sin comprar?</div>
-      <div style={{ color: "#10B981", fontWeight: 700, marginTop: "2px" }}>Usá el cupón VOLVE5 para un 5% extra</div>
-    </div>
-  );
-}
-
-function UpsellCarritoPreview() {
-  return (
-    <div style={{ border: "1px solid #e5e7eb", padding: "6px", borderRadius: "6px", width: "95%", background: "#fff" }}>
-      <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#111827" }}>Sumá a tu carrito</div>
-      <div style={{ fontSize: "7.5px", color: "#6b7280" }}>Funda protectora con 20% OFF</div>
-    </div>
-  );
-}
-
-function CrossSellPreview() {
-  return (
-    <div style={{ border: "1px solid #e5e7eb", padding: "6px", borderRadius: "6px", width: "95%", background: "#fff" }}>
-      <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#111827" }}>También te puede interesar</div>
-      <div style={{ fontSize: "7.5px", color: "#6b7280" }}>Productos relacionados con tu búsqueda</div>
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #10B981" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📦 PACK COMPLEMENTARIOS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>-15% OFF</span>
+      </div>
+      <div style={{ background: "#ecfdf5", border: "1px solid #10B981", borderRadius: "6px", padding: "3px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#10B981", color: "#fff", fontSize: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>✓</div>
+          <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827" }}>Producto principal</span>
+        </div>
+        <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>$ 25.000</span>
+      </div>
+      <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "6px", padding: "3px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#10B981", color: "#fff", fontSize: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>✓</div>
+          <span style={{ fontSize: "6.5px", fontWeight: 700, color: "#111827" }}>+ Complemento</span>
+        </div>
+        <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>+$ 10.000</span>
+      </div>
+      <div style={{ background: "#111827", color: "#ffffff", borderRadius: "6px", padding: "4px", fontSize: "7px", fontWeight: 800, textAlign: "center", marginTop: "2px" }}>Agregar pack · $ 29.750</div>
     </div>
   );
 }
@@ -565,45 +1063,391 @@ function ProductosComplementariosPreview() {
         <div style={{ fontSize: "7.5px", fontWeight: 900, color: "#111827", display: "flex", alignItems: "center", gap: "3px" }}>
           <span>🎁</span> PRODUCTOS COMPLEMENTARIOS
         </div>
-        <span style={{ fontSize: "6.5px", background: "#ecfdf5", color: "#059669", padding: "1px 4px", borderRadius: "3px", fontWeight: 700 }}>
-          Comprá juntos
-        </span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "4px", border: "1px solid #a7f3d0" }}>-15% EXTRA</span>
       </div>
-      <div style={{ fontSize: "6.5px", color: "#6b7280" }}>
-        Llevá este producto y sumá el accesorio recomendado con descuento.
+      <div style={{ background: "#f9fafb", border: "1px solid #f3f4f6", borderRadius: "6px", padding: "4px 6px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "4px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", flex: 1, minWidth: 0 }}>
+          <div style={{ width: "18px", height: "18px", borderRadius: "4px", background: "#10B981", color: "#ffffff", fontSize: "10px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>🎧</div>
+          <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+            <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Funda de Auriculares</span>
+            <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>$ 12.000</span>
+          </div>
+        </div>
+        <div style={{ background: "#111827", color: "#ffffff", borderRadius: "4px", padding: "2px 5px", fontSize: "6px", fontWeight: 800, flexShrink: 0 }}>+ Agregar</div>
+      </div>
+      <div style={{ background: "#f9fafb", border: "1px solid #f3f4f6", borderRadius: "6px", padding: "4px 6px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "4px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", flex: 1, minWidth: 0 }}>
+          <div style={{ width: "18px", height: "18px", borderRadius: "4px", background: "#111827", color: "#ffffff", fontSize: "10px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>🔌</div>
+          <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+            <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Cargador Rápido 20W</span>
+            <span style={{ fontSize: "6.5px", fontWeight 900, color: "#10B981" }}>$ 18.500</span>
+          </div>
+        </div>
+        <div style={{ background: "#111827", color: "#ffffff", borderRadius: "4px", padding: "2px 5px", fontSize: "6px", fontWeight: 800, flexShrink: 0 }}>+ Agregar</div>
       </div>
     </div>
   );
 }
 
-function MediosPagoPreview() {
+function BarraCuotasPreview() {
   return (
-    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "94%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)", border: "1.5px solid #10B981" }}>
+    <div style={{ background: "#111827", borderRadius: "10px", padding: "8px 12px", width: "92%", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)", border: "1.5px solid #10B981", color: "#ffffff" }}>
+      <span style={{ fontSize: "12px" }}>💳</span>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#ffffff", textAlign: "center" }}>
+        3 cuotas sin interés de <strong style={{ color: "#10B981" }}>$11.666</strong>
+      </div>
+    </div>
+  );
+}
+
+function BarraEnvioGratisPreview() {
+  return (
+    <div style={{ background: "#111827", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "6px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)", border: "1.5px solid #10B981", color: "#ffffff" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "6px" }}>
+        <span style={{ fontSize: "11px" }}>🚚</span>
+        <div style={{ fontSize: "7px", fontWeight: 800, color: "#ffffff", flex: 1, textAlign: "center" }}>
+          Te faltan <strong style={{ color: "#10B981" }}>$20.000</strong> para ENVÍO GRATIS
+        </div>
+      </div>
+      <div style={{ width: "100%", height: "5px", background: "rgba(255, 255, 255, 0.2)", borderRadius: "999px", overflow: "hidden" }}>
+        <div style={{ width: "65%", height: "100%", background: "#10B981", borderRadius: "999px" }} />
+      </div>
+    </div>
+  );
+}
+
+function PopupConversionPreview() {
+  return (
+    <div style={{ background: "rgba(17, 24, 39, 0.75)", borderRadius: "10px", padding: "6px", width: "92%", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)" }}>
+      <div style={{ background: "#ffffff", borderRadius: "8px", padding: "8px 10px", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", position: "relative" }}>
+        <div style={{ position: "absolute", top: "4px", right: "6px", fontSize: "7px", opacity: 0.4, fontWeight: 800 }}>✕</div>
+        <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", textAlign: "center" }}>Antes de que te vayas 🎰</div>
+        <div style={{ fontSize: "6px", color: "#6b7280", textAlign: "center", lineHeight: 1.1 }}>¡Girás y te llevás un descuento exclusivo!</div>
+        <div style={{ background: "#10B981", color: "#ffffff", borderRadius: "6px", padding: "4px 8px", fontSize: "6.5px", fontWeight: 800, width: "100%", textAlign: "center", marginTop: "2px" }}>Quiero mi descuento</div>
+      </div>
+    </div>
+  );
+}
+
+function BundlePromocionesPreview() {
+  return (
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #e5e7eb" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827" }}>Elegí tu pack en promo</div>
+      <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "6px", padding: "4px 6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ width: "10px", height: "10px", borderRadius: "50%", border: "1.5px solid #10B981", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#10B981" }} />
+          </div>
+          <span style={{ fontSize: "7px", fontWeight: 800, color: "#111827" }}>Lleva 2 paga 1</span>
+          <span style={{ background: "#fef2f2", color: "#ef4444", fontSize: "5.5px", fontWeight: 800, padding: "1px 3px", borderRadius: "3px" }}>-50%</span>
+        </div>
+        <span style={{ fontSize: "7px", fontWeight: 900, color: "#10B981" }}>$10.000</span>
+      </div>
+      <div style={{ background: "#10B981", color: "#ffffff", borderRadius: "6px", padding: "4px", fontSize: "7px", fontWeight: 800, textAlign: "center" }}>Sumalo al carrito</div>
+    </div>
+  );
+}
+
+function InfoDespachoPreview() {
+  return (
+    <div style={{ background: "#10B981", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)", color: "#ffffff" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "6px", flex: 1 }}>
+        <span style={{ fontSize: "11px" }}>📦</span>
+        <div style={{ fontSize: "7px", fontWeight: 800, lineHeight: 1.2 }}>Despachamos <strong>HOY</strong></div>
+      </div>
+      <div style={{ background: "rgba(255, 255, 255, 0.25)", borderRadius: "6px", padding: "3px 6px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <span style={{ fontSize: "5px", textTransform: "uppercase", fontWeight: 700, opacity: 0.9 }}>Te quedan</span>
+        <span style={{ fontSize: "8px", fontWeight: 900, fontFamily: "monospace" }}>2h 15m</span>
+      </div>
+    </div>
+  );
+}
+
+function CuentaRegresivaPreview() {
+  return (
+    <div style={{ background: "linear-gradient(135deg, #10B981, #059669)", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)", color: "#ffffff" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, textAlign: "center" }}>¡Oferta por tiempo limitado!</div>
+      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+        {["00", "29", "58"].map((num, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            {i > 0 && <span style={{ fontSize: "9px", fontWeight: 900 }}>:</span>}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={{ background: "rgba(0,0,0,0.2)", borderRadius: "4px", padding: "2px 5px", fontSize: "9px", fontWeight: 900, fontFamily: "monospace" }}>{num}</div>
+              <span style={{ fontSize: "5px", textTransform: "uppercase", opacity: 0.8, marginTop: "1px", fontWeight: 700 }}>
+                {i === 0 ? "Horas" : i === 1 ? "Min" : "Seg"}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function UrgenciaStockPreview() {
+  return (
+    <div style={{ background: "#111827", borderRadius: "10px", padding: "8px 12px", width: "92%", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)", border: "1.5px solid #10B981", color: "#ffffff" }}>
+      <span style={{ fontSize: "12px" }}>⚠️</span>
+      <div style={{ fontSize: "8px", fontWeight: 900, color: "#10B981", letterSpacing: "0.02em" }}>Últimas 3 unidades disponibles!</div>
+    </div>
+  );
+}
+
+function ResenasDestacadasPreview() {
+  return (
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #e5e7eb" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ fontSize: "7.5px", fontWeight: 900, color: "#111827", display: "flex", alignItems: "center", gap: "3px" }}>
-          <span>💳</span> MEDIOS DE PAGO Y CUOTAS
+        <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+          <span style={{ fontSize: "9px" }}>⭐⭐⭐⭐⭐</span>
+          <span style={{ fontSize: "7.5px", fontWeight: 900, color: "#111827" }}>4.8</span>
+          <span style={{ fontSize: "6.5px", color: "#6b7280" }}>(36)</span>
         </div>
-        <span style={{ fontSize: "6.5px", background: "#ecfdf5", color: "#059669", padding: "1px 4px", borderRadius: "3px", fontWeight: 700 }}>
-          🔒 Pago seguro
-        </span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "6px", fontWeight: 800, padding: "2px 5px", borderRadius: "999px", border: "1px solid #a7f3d0" }}>✓ Verificadas</span>
       </div>
-      <div style={{ fontSize: "6.5px", color: "#059669", fontWeight: 800 }}>
-        ⚡ Hasta 3 cuotas sin interés
-      </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "3px", marginTop: "2px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "3px", border: "1px solid #e5e7eb", borderRadius: "4px", padding: "2px 4px", background: "#fff" }}>
-          <span style={{ fontSize: "8px", fontWeight: 800, color: "#1434CB" }}>VISA</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "3px", border: "1px solid #e5e7eb", borderRadius: "4px", padding: "2px 4px", background: "#fff" }}>
-          <span style={{ fontSize: "8px", fontWeight: 800, color: "#EB001B" }}>MC</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "3px", border: "1px solid #e5e7eb", borderRadius: "4px", padding: "2px 4px", background: "#fff" }}>
-          <span style={{ fontSize: "8px", fontWeight: 800, color: "#009EE3" }}>MP</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "3px", border: "1px solid #e5e7eb", borderRadius: "4px", padding: "2px 4px", background: "#fff" }}>
-          <span style={{ fontSize: "8px", fontWeight: 800, color: "#00E599" }}>MODO</span>
+      <div style={{ background: "#f9fafb", border: "1px solid #f3f4f6", borderRadius: "6px", padding: "5px 7px", display: "flex", alignItems: "center", gap: "6px" }}>
+        <div style={{ width: "18px", height: "18px", borderRadius: "50%", background: "#10B981", color: "#ffffff", fontSize: "7px", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>LR</div>
+        <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+          <div style={{ fontSize: "7px", fontWeight: 800, color: "#111827", lineHeight: 1.1 }}>Excelente producto</div>
+          <div style={{ fontSize: "5.5px", color: "#6b7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>El material es impecable, super recomendado!</div>
         </div>
       </div>
     </div>
   );
-      }
+}
+
+function ContadorVendidosPreview() {
+  return (
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "5px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #e5e7eb" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🔥 ALTA DEMANDA</span>
+        <span style={{ fontSize: "6.5px", color: "#ef4444", fontWeight: 800, display: "flex", alignItems: "center", gap: "2px" }}>
+          <span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#ef4444" }} />
+          EN VIVO
+        </span>
+      </div>
+      <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: "6px", padding: "5px 8px", display: "flex", alignItems: "center", gap: "5px" }}>
+        <span style={{ fontSize: "10px" }}>🔥</span>
+        <div style={{ fontSize: "7px", color: "#065f46", lineHeight: 1.2 }}>
+          <strong style={{ fontWeight: 900, color: "#059669" }}>247 unidades</strong> vendidas en 24hs
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EdicionLimitadaPreview() {
+  return (
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #e5e7eb", position: "relative", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div style={{ width: "28px", height: "28px", borderRadius: "6px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>👟</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+          <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827" }}>Edición Especial</div>
+          <div style={{ fontSize: "7px", fontWeight: 900, color: "#10B981" }}>$ 89.990</div>
+        </div>
+      </div>
+      <div style={{ background: "#111827", color: "#F59E0B", border: "1px dashed #F59E0B", borderRadius: "50%", width: "32px", height: "32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", transform: "rotate(-8deg)", boxShadow: "0 2px 6px rgba(0,0,0,0.2)", flexShrink: 0 }}>
+        <span style={{ fontSize: "5px", fontWeight: 900, lineHeight: 1, letterSpacing: "0.02em" }}>EDICIÓN</span>
+        <span style={{ fontSize: "5px", fontWeight: 900, lineHeight: 1, letterSpacing: "0.02em" }}>LIMITADA</span>
+      </div>
+    </div>
+  );
+}
+
+function CalculadoraAhorroPreview() {
+  return (
+    <div style={{ background: "#ecfdf5", border: "1.5px solid #10B981", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+        <span style={{ fontSize: "6px", fontWeight: 900, letterSpacing: "0.04em", color: "#059669", textTransform: "uppercase" }}>AHORRO EXCLUSIVO</span>
+        <div style={{ fontSize: "7.5px", fontWeight: 700, color: "#065f46", lineHeight: 1.2 }}>
+          🎉 ¡Ahorrás <strong style={{ fontSize: "8.5px", fontWeight: 900, color: "#059669" }}>$ 14.500</strong> hoy!
+        </div>
+      </div>
+      <div style={{ width: "22px", height: "22px", borderRadius: "50%", background: "#10B981", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", fontWeight: 900, flexShrink: 0 }}>%</div>
+    </div>
+  );
+}
+
+function HorarioAtencionPreview() {
+  return (
+    <div style={{ background: "#ffffff", border: "1.5px solid #e5e7eb", borderRadius: "10px", padding: "8px 10px", width: "92%", display: "flex", flexDirection: "column", gap: "6px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <span style={{ fontSize: "11px" }}>⏰</span>
+          <span style={{ fontSize: "8px", fontWeight: 800, color: "#111827" }}>HORARIO DE ATENCIÓN</span>
+        </div>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "6.5px", fontWeight: 900, padding: "1.5px 5px", borderRadius: "999px", display: "inline-flex", alignItems: "center", gap: "2px" }}>
+          <span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#10B981" }} />
+          ABIERTO
+        </span>
+      </div>
+      <div style={{ background: "#f9fafb", border: "1px solid #f3f4f6", borderRadius: "6px", padding: "5px 7px", display: "flex", flexDirection: "column", gap: "2px" }}>
+        <div style={{ fontSize: "7px", fontWeight: 700, color: "#111827" }}>Lun a Vie: 09:00 a 18:00 hs</div>
+        <div style={{ fontSize: "6px", color: "#6b7280" }}>¡Estamos online para responder tus dudas!</div>
+      </div>
+    </div>
+  );
+}
+
+function MarqueeNovedadesPreview() {
+  return (
+    <div style={{ background: "#ffffff", borderRadius: "10px", padding: "8px 6px", width: "94%", display: "flex", flexDirection: "column", gap: "6px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)", border: "1.5px solid #e5e7eb" }}>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#000000", textAlign: "center", letterSpacing: "0.02em" }}>MARQUEE DE NOVEDADES</div>
+      <div style={{ background: "#111827", borderRadius: "6px", padding: "6px 8px", overflow: "hidden", display: "flex", alignItems: "center", gap: "8px", whiteSpace: "nowrap" }}>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#10B981" }}>✨ NUEVOS INGRESOS</span>
+        <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#ffffff" }}>🔥 MÁS VENDIDOS</span>
+        <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
+        <span style={{ fontSize: "7px", fontWeight 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
+      </div>
+      <div style={{ display: "flex", justifyContent: "center", gap: "3px" }}>
+        <div style={{ width: "12px", height: "2px", background: "#10B981", borderRadius: "2px" }} />
+        <div style={{ width: "4px", height: "2px", background: "#e5e7eb", borderRadius: "2px" }} />
+        <div style={{ width: "4px", height: "2px", background: "#e5e7eb", borderRadius: "2px" }} />
+      </div>
+    </div>
+  );
+}
+
+function DefaultPreview() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+      <svg width="48" height="48" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="20" width="24" height="24" rx="3" fill="#ffffff" stroke="#000000" strokeWidth="1.5" />
+        <rect x="20" y="14" width="28" height="28" rx="3" fill="#f3f4f6" stroke="#000000" strokeWidth="1.5" />
+        <rect x="32" y="26" width="24" height="24" rx="3" fill="#10B981" stroke="#000000" strokeWidth="1.5" />
+        <circle cx="52" cy="18" r="10" fill="#000000" stroke="#ffffff" strokeWidth="2" />
+        <text x="52" y="22" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="800" fontFamily="system-ui, -apple-system, sans-serif">%</text>
+      </svg>
+      <div style={{ fontSize: "9px", color: "#000000", opacity: 0.5, fontWeight: 700 }}>Vista previa</div>
+    </div>
+  );
+}
+
+function renderPreview(slug: string) {
+  switch (slug) {
+    case "medios-pago":
+      return <MediosPagoPreview />;
+    case "barra-descuento":
+      return <BarraDescuentoPreview />;
+    case "caja-estadisticas":
+      return <CajaEstadisticasPreview />;
+    case "carrusel-resenas":
+      return <CarruselResenasPreview />;
+    case "conjunto-productos":
+      return <ConjuntoProductosPreview />;
+    case "alerta-inventario":
+      return <AlertaInventarioPreview />;
+    case "notificaciones-flotantes":
+      return <NotificacionesFlotantesPreview />;
+    case "popup-promocional":
+      return <PopupPromocionalPreview />;
+    case "raspa-gana":
+      return <RaspaGanaPreview />;
+    case "boton-whatsapp":
+      return <BotonWhatsappPreview />;
+    case "video-flotante":
+      return <VideoFlotantePreview />;
+    case "comparador-marca":
+      return <ComparadorMarcaPreview />;
+    case "columnas-imagenes-texto":
+      return <ColumnasImagenesTextoPreview />;
+    case "imagenes-textos":
+      return <ImagenesTextosPreview />;
+    case "pestanas-informacion":
+      return <PestanasInformacionPreview />;
+    case "informacion-envio":
+      return <InformacionEnvioPreview />;
+    case "pasos":
+      return <PasosPreview />;
+    case "texto-libre":
+      return <TextoLibrePreview />;
+    case "video-texto":
+      return <VideoTextoPreview />;
+    case "slider-imagenes":
+      return <SliderImagenesPreview />;
+    case "caja-contacto":
+      return <CajaContactoPreview />;
+    case "caja-opiniones":
+      return <CajaOpinionesPreview />;
+    case "probador-virtual":
+      return <ProbadorVirtualPreview />;
+    case "tabla-talles":
+      return <TablaTallesPreview />;
+    case "beneficios":
+      return <BeneficiosPreview />;
+    case "comparador-antes-despues":
+      return <ComparadorAntesDespuesPreview />;
+    case "banner-superior":
+      return <BannerSuperiorPreview />;
+    case "preguntas-frecuentes":
+      return <PreguntasFrecuentesPreview />;
+    case "badge-efectivo":
+      return <BadgeEfectivoPreview />;
+    case "mensaje-garantia":
+      return <MensajeGarantiaPreview />;
+    case "barra-accion":
+      return <BarraAccionPreview />;
+    case "slider-videos":
+      return <SliderVideosPreview />;
+    case "bundle-cantidad":
+      return <BundleCantidadPreview />;
+    case "pack-complementarios":
+      return <PackComplementariosPreview />;
+    case "productos-complementarios":
+      return <ProductosComplementariosPreview />;
+    case "barra-cuotas":
+      return <BarraCuotasPreview />;
+    case "barra-envio-gratis":
+      return <BarraEnvioGratisPreview />;
+    case "popup-conversion":
+      return <PopupConversionPreview />;
+    case "bundle-promociones":
+      return <BundlePromocionesPreview />;
+    case "info-despacho":
+      return <InfoDespachoPreview />;
+    case "cuenta-regresiva":
+      return <CuentaRegresivaPreview />;
+    case "urgencia-stock":
+      return <UrgenciaStockPreview />;
+    case "resenas-destacadas":
+      return <ResenasDestacadasPreview />;
+    case "contador-vendidos":
+      return <ContadorVendidosPreview />;
+    case "edicion-limitada":
+      return <EdicionLimitadaPreview />;
+    case "calculadora-ahorro":
+      return <CalculadoraAhorroPreview />;
+    case "horario-atencion":
+      return <HorarioAtencionPreview />;
+    case "marquee-novedades":
+      return <MarqueeNovedadesPreview />;
+    default:
+      return <DefaultPreview />;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL (Export Default)
+   ═══════════════════════════════════════════ */
+
+export default function WidgetPreview({ slug }: WidgetPreviewProps) {
+  return (
+    <div
+      style={{
+        width: "100%",
+        aspectRatio: "16 / 10",
+        background: "#ffffff",
+        border: "1px solid #f3f4f6",
+        borderRadius: "12px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "0.85rem",
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      {renderPreview(slug)}
+    </div>
+  );
+                   }
