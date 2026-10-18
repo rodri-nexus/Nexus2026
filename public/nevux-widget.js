@@ -14965,8 +14965,11 @@ function renderBarraDescuento(w) {
     var mostrarContador = cfg.mostrarContador !== false;
     var horasContador = parseInt(cfg.horasContador, 10) || 2;
     var minutosContador = parseInt(cfg.minutosContador, 10) || 45;
-    var posicion = cfg.posicion || "arriba";
+    var posicion = (cfg.posicion || "arriba").toString().toLowerCase();
     var mostrarCerrar = cfg.mostrarCerrar !== false;
+
+    // Evaluar posición arriba o abajo (soporta 'arriba', 'top', 'fixed-top', 'header')
+    var isTop = (posicion === "arriba" || posicion === "top" || posicion === "fixed-top" || posicion === "header");
 
     var colorFondo = cfg.colorFondo || "#111827";
     var paddingVertical = cfg.paddingVertical !== undefined ? parseInt(cfg.paddingVertical, 10) : 12;
@@ -14999,7 +15002,7 @@ function renderBarraDescuento(w) {
     if (estiloBordeCupon === "punteado") borderStyleCss = "2px dashed " + textoCuponColor;
     else if (estiloBordeCupon === "solido") borderStyleCss = "2px solid " + textoCuponColor;
 
-    var isTop = posicion === "arriba";
+    var positionStyle = isTop ? "top: 0 !important; bottom: auto !important;" : "bottom: 0 !important; top: auto !important;";
 
     var inject = function() {
       if (document.getElementById(uniqueId)) return;
@@ -15007,7 +15010,7 @@ function renderBarraDescuento(w) {
       var container = document.createElement("div");
       container.id = uniqueId;
       container.setAttribute("data-nevux-widget", "barra-descuento");
-      container.style.cssText = "position: fixed !important; left: 0 !important; right: 0 !important; width: 100% !important; z-index: 999999 !important; font-family: system-ui, -apple-system, sans-serif !important; box-sizing: border-box !important; " + (isTop ? "top: 0 !important;" : "bottom: 0 !important;");
+      container.style.cssText = "position: fixed !important; left: 0 !important; right: 0 !important; width: 100% !important; z-index: 999999 !important; font-family: system-ui, -apple-system, sans-serif !important; box-sizing: border-box !important; " + positionStyle;
 
       var cssStyle = '<style>' +
         'html body #' + uniqueId + ' .nvx-bar-inner {' +
@@ -15195,5 +15198,5 @@ function renderBarraDescuento(w) {
       window.console.warn("[Nevux] renderBarraDescuento error:", err);
     }
   }
-        }
+}
 })(); 
