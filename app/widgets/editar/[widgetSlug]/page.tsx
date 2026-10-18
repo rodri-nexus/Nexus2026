@@ -47,6 +47,7 @@ import ConjuntoProductosEditor from '@/components/widgets/editors/ConjuntoProduc
 import CarruselResenasEditor from '@/components/widgets/editors/CarruselResenasEditor';
 import CajaEstadisticasEditor from '@/components/widgets/editors/CajaEstadisticasEditor';
 import BarraDescuentoEditor from '@/components/widgets/editors/BarraDescuentoEditor';
+import MediosPagoEditor from '@/components/widgets/editors/MediosPagoEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -153,6 +154,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: MEDIOS DE PAGO
+  if (params.widgetSlug === 'medios-pago') {
+    return <MediosPagoEditor {...editorProps} />;
+  }
 
   // WIDGET: BARRA DE DESCUENTO
   if (params.widgetSlug === 'barra-descuento') {
@@ -402,4 +408,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-  }
+    }
