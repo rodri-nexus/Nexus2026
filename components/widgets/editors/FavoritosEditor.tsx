@@ -1,52 +1,76 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase-browser";
 
 interface FavoritosEditorProps {
+  widgetDefinition?: any;
+  existingWidget?: any;
+  targetType?: any;
+  productId?: any;
+  categoryId?: any;
+  storeId?: any;
   initialConfig?: any;
-  onSave: (config: any) => Promise<void> | void;
+  onSave?: (config: any) => Promise<void> | void;
   saving?: boolean;
 }
 
 export default function FavoritosEditor({
-  initialConfig = {},
+  widgetDefinition,
+  existingWidget,
+  targetType = "all",
+  productId = null,
+  categoryId = null,
+  storeId,
+  initialConfig,
   onSave,
-  saving = false,
-}: FavoritosEditorProps) {
+  saving: externalSaving = false,
+}: FavoritosEditorProps): React.ReactElement {
+  const router = useRouter();
+  const supabase = createClient();
+
+  const config = existingWidget?.config || initialConfig || {};
+
   const [activeTab, setActiveTab] = useState<"general" | "ubicacion" | "estilos">("general");
 
-  const [iconType, setIconType] = useState(initialConfig.iconType || "heart");
-  const [modalTitle, setModalTitle] = useState(initialConfig.modalTitle || "Mis favoritos");
+  const [iconType, setIconType] = useState(config.iconType || "heart");
+  const [modalTitle, setModalTitle] = useState(config.modalTitle || "Mis favoritos");
   const [showInGrids, setShowInGrids] = useState(
-    initialConfig.showInGrids !== undefined ? initialConfig.showInGrids : true
+    config.showInGrids !== undefined ? config.showInGrids : true
   );
 
   const [badgePositionImage, setBadgePositionImage] = useState(
-    initialConfig.badgePositionImage || "top-right"
+    config.badgePositionImage || "top-right"
   );
   const [floatingPosition, setFloatingPosition] = useState(
-    initialConfig.floatingPosition || "bottom-left"
+    config.floatingPosition || "bottom-left"
   );
 
-  const [accentColor, setAccentColor] = useState(initialConfig.accentColor || "#e11d48");
-  const [bgColor, setBgColor] = useState(initialConfig.bgColor || "#ffffff");
+  const [accentColor, setAccentColor] = useState(config.accentColor || "#e11d48");
+  const [bgColor, setBgColor] = useState(config.bgColor || "#ffffff");
   const [hasShadow, setHasShadow] = useState(
-    initialConfig.hasShadow !== undefined ? initialConfig.hasShadow : true
+    config.hasShadow !== undefined ? config.hasShadow : true
   );
-  const [borderRadius, setBorderRadius] = useState(initialConfig.borderRadius || "50%");
+  const [borderRadius, setBorderRadius] = useState(config.borderRadius || "50%");
   const [floatingButtonSize, setFloatingButtonSize] = useState(
-    initialConfig.floatingButtonSize || "55px"
+    config.floatingButtonSize || "55px"
   );
   const [floatingIconSize, setFloatingIconSize] = useState(
-    initialConfig.floatingIconSize || "24px"
+    config.floatingIconSize || "24px"
   );
   const [showAddToCart, setShowAddToCart] = useState(
-    initialConfig.showAddToCart !== undefined ? initialConfig.showAddToCart : true
+    config.showAddToCart !== undefined ? config.showAddToCart : true
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isActive, setIsActive] = useState(
+    existingWidget ? existingWidget.is_active : true
+  );
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
+    const newConfig = {
       iconType,
       modalTitle,
       showInGrids,
@@ -59,8 +83,50 @@ export default function FavoritosEditor({
       floatingButtonSize,
       floatingIconSize,
       showAddToCart,
-    });
+    };
+
+    if (onSave) {
+      await onSave(newConfig);
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) throw new Error("Usuario no autenticado");
+
+      const payload: any = {
+        user_id: user.id,
+        store_id: storeId,
+        widget_slug: "favoritos",
+        is_active: isActive,
+        target_type: targetType,
+        target_product_id: productId,
+        target_category_id: categoryId,
+        config: newConfig,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (existingWidget?.id) {
+        payload.id = existingWidget.id;
+      }
+
+      const { error } = await supabase.from("widgets").upsert(payload);
+      if (error) throw error;
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err: any) {
+      alert("Error al guardar: " + (err.message || "Error desconocido"));
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  const isBtnSaving = externalSaving || isSaving;
 
   return (
     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -322,11 +388,22 @@ export default function FavoritosEditor({
         </div>
       )}
 
+      {/* ESTADO DEL WIDGET */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f9fafb", padding: "0.85rem", borderRadius: "8px", border: "1px solid #e5e7eb" }}>
+        <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111827" }}>Widget activo</span>
+        <input
+          type="checkbox"
+          checked={isActive}
+          onChange={(e) => setIsActive(e.target.checked)}
+          style={{ width: "18px", height: "18px", cursor: "pointer" }}
+        />
+      </div>
+
       {/* BOTÓN GUARDAR FULL WIDTH ABAJO VERDE #10B981 */}
-      <div style={{ marginTop: "1rem" }}>
+      <div style={{ marginTop: "0.5rem" }}>
         <button
           type="submit"
-          disabled={saving}
+          disabled={isBtnSaving}
           style={{
             width: "100%",
             padding: "0.85rem",
@@ -336,14 +413,14 @@ export default function FavoritosEditor({
             fontWeight: 800,
             border: "none",
             borderRadius: "8px",
-            cursor: saving ? "not-allowed" : "pointer",
-            opacity: saving ? 0.7 : 1,
+            cursor: isBtnSaving ? "not-allowed" : "pointer",
+            opacity: isBtnSaving ? 0.7 : 1,
             boxShadow: "0 4px 12px rgba(16, 185, 129, 0.25)",
           }}
         >
-          {saving ? "Guardando..." : "Guardar cambios"}
+          {isBtnSaving ? "Guardando..." : "Guardar cambios"}
         </button>
       </div>
     </form>
   );
-            }
+  }
