@@ -18,6 +18,22 @@ interface MediosPagoEditorProps {
   isSaving?: boolean;
 }
 
+const PAYMENT_LOGOS: Record<string, string> = {
+  visa: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg",
+  mastercard: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg",
+  amex: "https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg",
+  cabal: "https://logodownload.org/wp-content/uploads/2019/08/cabal-logo.png",
+  naranjax: "https://seeklogo.com/images/N/naranja-x-logo-3F8D4EA1A2-seeklogo.com.png",
+  mercadopago: "https://http2.mlstatic.com/frontend-assets/mp-web-navigation/ui-navigation/6.6.95/mercadopago/logo__large.png",
+  modo: "https://play-lh.googleusercontent.com/J0Wj6c3qJj1nkPtlyNVmLHhR0yygQ9yJIAVKQg7E3bHCUmJd9NwRJJBz9x9h8qV1kw",
+  uala: "https://play-lh.googleusercontent.com/4U3iCKRkZZlmL0b-cEgqcL3kY8iQcOIJVY0_f8OZbb1A7G5sWVvjVOxTfbTBuRaxbYE",
+  gocuotas: "https://gocuotas.com/_next/static/media/logo-gocuotas.5a8e8b89.svg",
+  pagonube: "https://d26lpennugtm8s.cloudfront.net/stores/001/204/661/themes/common/logo-820429116-1667238090-5c4e4e3a4c0a5c0f9c5d4e3a4c0a5c0f1667238090-320-0.png",
+  pagofacil: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Pago_F%C3%A1cil_logo.svg/1200px-Pago_F%C3%A1cil_logo.svg.png",
+  rapipago: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Logo_de_Rapipago.svg/1200px-Logo_de_Rapipago.svg.png",
+  transferencia: "https://cdn-icons-png.flaticon.com/512/2830/2830284.png"
+};
+
 const DEFAULT_METHODS = [
   { id: "visa", name: "Visa" },
   { id: "mastercard", name: "Mastercard" },
@@ -129,7 +145,7 @@ export default function MediosPagoEditor({
     savedCfg.colorBordeContainer || "#E5E7EB"
   );
 
-  const [colorMensaje, setColorMensaje] = useState<string>(savedCfg.colorMensaje || "#333333");
+  const [colorMensaje, setColorMensaje] = useState<string>(savedCfg.colorMensaje || "#111827");
   const [tamanoMensaje, setTamanoMensaje] = useState<number>(savedCfg.tamanoMensaje || 15);
   const [estiloMensaje, setEstiloMensaje] = useState<"normal" | "resaltado">(savedCfg.estiloMensaje || "resaltado");
 
@@ -145,9 +161,9 @@ export default function MediosPagoEditor({
   const [activarBordeTarjeta, setActivarBordeTarjeta] = useState<boolean>(savedCfg.activarBordeTarjeta !== false);
   const [colorBordeTarjeta, setColorBordeTarjeta] = useState<string>(savedCfg.colorBordeTarjeta || "#E5E7EB");
 
-  const [colorTextoSeguro, setColorTextoSeguro] = useState<string>(savedCfg.colorTextoSeguro || "#555555");
-  const [colorIconoCandado, setColorIconoCandado] = useState<string>(savedCfg.colorIconoCandado || "#16A34A");
-  const [colorTextoCuotas, setColorTextoCuotas] = useState<string>(savedCfg.colorTextoCuotas || "#16A34A");
+  const [colorTextoSeguro, setColorTextoSeguro] = useState<string>(savedCfg.colorTextoSeguro || "#374151");
+  const [colorIconoCandado, setColorIconoCandado] = useState<string>(savedCfg.colorIconoCandado || "#10B981");
+  const [colorTextoCuotas, setColorTextoCuotas] = useState<string>(savedCfg.colorTextoCuotas || "#10B981");
   const [tamanoTextoSeguro, setTamanoTextoSeguro] = useState<number>(savedCfg.tamanoTextoSeguro || 13);
   const [estiloTextoSeguro, setEstiloTextoSeguro] = useState<"normal" | "resaltado">(
     savedCfg.estiloTextoSeguro || "normal"
@@ -208,14 +224,14 @@ export default function MediosPagoEditor({
       setColorIconoCandado("#EF4444");
       setColorTextoCuotas("#EF4444");
     } else if (themeKey === "cyber-monday") {
-      setColorFondo("#EFF6FF");
-      setColorMensaje("#1E40AF");
-      setColorBordeContainer("#BFDBFE");
+      setColorFondo("#ECFDF5");
+      setColorMensaje("#065F46");
+      setColorBordeContainer("#A7F3D0");
       setFondoTarjeta("#ffffff");
-      setColorBordeTarjeta("#93C5FD");
-      setColorTextoSeguro("#1E3A8A");
-      setColorIconoCandado("#3B82F6");
-      setColorTextoCuotas("#3B82F6");
+      setColorBordeTarjeta("#6EE7B7");
+      setColorTextoSeguro("#064E3B");
+      setColorIconoCandado("#10B981");
+      setColorTextoCuotas("#10B981");
     } else if (themeKey === "navidad") {
       setColorFondo("#ECFDF5");
       setColorMensaje("#065F46");
@@ -235,14 +251,14 @@ export default function MediosPagoEditor({
       setColorIconoCandado("#EC4899");
       setColorTextoCuotas("#EC4899");
     } else if (themeKey === "dia-padre-madre") {
-      setColorFondo("#EEF2FF");
-      setColorMensaje("#3730A3");
-      setColorBordeContainer("#C7D2FE");
+      setColorFondo("#F0FDF4");
+      setColorMensaje("#166534");
+      setColorBordeContainer("#BBF7D0");
       setFondoTarjeta("#ffffff");
-      setColorBordeTarjeta("#818CF8");
-      setColorTextoSeguro("#312E81");
-      setColorIconoCandado("#6366F1");
-      setColorTextoCuotas("#6366F1");
+      setColorBordeTarjeta("#86EFAC");
+      setColorTextoSeguro("#14532D");
+      setColorIconoCandado("#22C55E");
+      setColorTextoCuotas("#22C55E");
     } else if (themeKey === "liquidacion") {
       setColorFondo("#FEF2F2");
       setColorMensaje("#991B1B");
@@ -254,13 +270,13 @@ export default function MediosPagoEditor({
       setColorTextoCuotas("#DC2626");
     } else {
       setColorFondo("#ffffff");
-      setColorMensaje("#333333");
+      setColorMensaje("#111827");
       setColorBordeContainer("#E5E7EB");
       setFondoTarjeta("#ffffff");
       setColorBordeTarjeta("#E5E7EB");
-      setColorTextoSeguro("#555555");
-      setColorIconoCandado("#16A34A");
-      setColorTextoCuotas("#16A34A");
+      setColorTextoSeguro("#374151");
+      setColorIconoCandado("#10B981");
+      setColorTextoCuotas("#10B981");
     }
   };
 
@@ -308,6 +324,17 @@ export default function MediosPagoEditor({
     ...customLogos.map((c) => ({ id: c.id, name: c.name }))
   ];
 
+  const getLogoUrl = (methodId: string): string | null => {
+    if (PAYMENT_LOGOS[methodId]) return PAYMENT_LOGOS[methodId];
+    const custom = customLogos.find((c) => c.id === methodId);
+    return custom ? custom.url : null;
+  };
+
+  // Preview JSX
+  const previewMsgWeight = estiloMensaje === "resaltado" ? 700 : 400;
+  const previewAlignCss = alineacion === "center" ? "center" : "flex-start";
+  const previewTextAlign = alineacion === "center" ? "center" : "left";
+
   return (
     <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", maxWidth: "900px", margin: "0 auto", padding: "16px" }}>
       {/* Header */}
@@ -322,7 +349,7 @@ export default function MediosPagoEditor({
           onClick={handleSave}
           disabled={isSaving}
           style={{
-            backgroundColor: "#2563EB",
+            backgroundColor: "#10B981",
             color: "#ffffff",
             border: "none",
             borderRadius: "6px",
@@ -336,6 +363,77 @@ export default function MediosPagoEditor({
         </button>
       </div>
 
+      {/* VISTA PREVIA */}
+      <div style={{ marginBottom: "24px", border: "1px dashed #10B981", borderRadius: "8px", padding: "16px", backgroundColor: "#F0FDF4" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "12px" }}>
+          <span style={{ fontSize: "11px", fontWeight: 700, color: "#065F46", backgroundColor: "#A7F3D0", padding: "2px 8px", borderRadius: "10px" }}>VISTA PREVIA</span>
+          <span style={{ fontSize: "11px", color: "#6B7280" }}>Así se verá en tu tienda</span>
+        </div>
+
+        <div style={{
+          fontFamily: "system-ui, -apple-system, sans-serif",
+          padding: `${paddingContainer}px`,
+          backgroundColor: colorFondo,
+          borderRadius: `${borderRadiusContainer}px`,
+          border: activarBordeContainer ? `1px solid ${colorBordeContainer}` : "none",
+          boxSizing: "border-box",
+          textAlign: previewTextAlign
+        }}>
+          {mensaje && (
+            <div style={{ color: colorMensaje, fontSize: `${tamanoMensaje}px`, fontWeight: previewMsgWeight, marginBottom: "12px", lineHeight: 1.3 }}>
+              {mensaje}
+            </div>
+          )}
+
+          <div style={{ display: "flex", flexWrap: "wrap", gap: `${separacionTarjetas}px`, alignItems: "center", justifyContent: previewAlignCss, marginBottom: "12px" }}>
+            {metodosActivos.map((methodId) => {
+              const method = allAvailableMethods.find((m) => m.id === methodId);
+              if (!method) return null;
+              const logoUrl = getLogoUrl(methodId);
+              return (
+                <div key={methodId} style={{
+                  width: `${anchoTarjeta}px`,
+                  height: `${altoTarjeta}px`,
+                  borderRadius: `${borderRadiusTarjeta}px`,
+                  backgroundColor: fondoTarjeta,
+                  border: activarBordeTarjeta ? `1px solid ${colorBordeTarjeta}` : "none",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                  boxSizing: "border-box",
+                  padding: "4px",
+                  filter: modoColorIconos === "grayscale" ? "grayscale(100%)" : "none"
+                }}>
+                  {logoUrl ? (
+                    <img src={logoUrl} alt={method.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+                  ) : (
+                    <span style={{ fontSize: "10px", color: "#9CA3AF" }}>{method.name}</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {(mostrarSelloSeguro || mostrarCuotasSinInteres) && (
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px", justifyContent: previewAlignCss, marginTop: "8px" }}>
+              {mostrarCuotasSinInteres && textoCuotasSinInteres && (
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: colorTextoCuotas, fontSize: `${tamanoTextoSeguro}px`, fontWeight: 600 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  <span>{textoCuotasSinInteres}</span>
+                </div>
+              )}
+              {mostrarSelloSeguro && textoSelloSeguro && (
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: colorTextoSeguro, fontSize: `${tamanoTextoSeguro}px`, fontWeight: 500 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colorIconoCandado} strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <span>{textoSelloSeguro}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Tabs */}
       <div style={{ display: "flex", gap: "4px", borderBottom: "1px solid #E5E7EB", marginBottom: "20px" }}>
         <button
@@ -343,9 +441,9 @@ export default function MediosPagoEditor({
           style={{
             padding: "8px 16px",
             border: "none",
-            borderBottom: activeTab === "general" ? "2px solid #2563EB" : "2px solid transparent",
+            borderBottom: activeTab === "general" ? "2px solid #10B981" : "2px solid transparent",
             backgroundColor: "transparent",
-            color: activeTab === "general" ? "#2563EB" : "#4B5563",
+            color: activeTab === "general" ? "#065F46" : "#4B5563",
             fontWeight: activeTab === "general" ? 700 : 500,
             cursor: "pointer"
           }}
@@ -357,9 +455,9 @@ export default function MediosPagoEditor({
           style={{
             padding: "8px 16px",
             border: "none",
-            borderBottom: activeTab === "ubicacion" ? "2px solid #2563EB" : "2px solid transparent",
+            borderBottom: activeTab === "ubicacion" ? "2px solid #10B981" : "2px solid transparent",
             backgroundColor: "transparent",
-            color: activeTab === "ubicacion" ? "#2563EB" : "#4B5563",
+            color: activeTab === "ubicacion" ? "#065F46" : "#4B5563",
             fontWeight: activeTab === "ubicacion" ? 700 : 500,
             cursor: "pointer"
           }}
@@ -371,9 +469,9 @@ export default function MediosPagoEditor({
           style={{
             padding: "8px 16px",
             border: "none",
-            borderBottom: activeTab === "estilos" ? "2px solid #2563EB" : "2px solid transparent",
+            borderBottom: activeTab === "estilos" ? "2px solid #10B981" : "2px solid transparent",
             backgroundColor: "transparent",
-            color: activeTab === "estilos" ? "#2563EB" : "#4B5563",
+            color: activeTab === "estilos" ? "#065F46" : "#4B5563",
             fontWeight: activeTab === "estilos" ? 700 : 500,
             cursor: "pointer"
           }}
@@ -385,9 +483,9 @@ export default function MediosPagoEditor({
           style={{
             padding: "8px 16px",
             border: "none",
-            borderBottom: activeTab === "campanas" ? "2px solid #2563EB" : "2px solid transparent",
+            borderBottom: activeTab === "campanas" ? "2px solid #10B981" : "2px solid transparent",
             backgroundColor: "transparent",
-            color: activeTab === "campanas" ? "#2563EB" : "#4B5563",
+            color: activeTab === "campanas" ? "#065F46" : "#4B5563",
             fontWeight: activeTab === "campanas" ? 700 : 500,
             cursor: "pointer"
           }}
@@ -428,30 +526,40 @@ export default function MediosPagoEditor({
               Hacé clic para activar o desactivar cada método.
             </p>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "8px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: "8px" }}>
               {allAvailableMethods.map((m) => {
                 const isActive = metodosActivos.includes(m.id);
+                const logoUrl = getLogoUrl(m.id);
                 return (
                   <button
                     key={m.id}
                     type="button"
                     onClick={() => toggleMethod(m.id)}
                     style={{
-                      padding: "8px",
+                      padding: "8px 10px",
                       borderRadius: "6px",
-                      border: isActive ? "2px solid #2563EB" : "1px solid #D1D5DB",
-                      backgroundColor: isActive ? "#EFF6FF" : "#ffffff",
-                      color: isActive ? "#1E40AF" : "#4B5563",
-                      fontWeight: isActive ? 700 : 400,
+                      border: isActive ? "2px solid #10B981" : "1px solid #D1D5DB",
+                      backgroundColor: isActive ? "#ECFDF5" : "#ffffff",
+                      color: isActive ? "#065F46" : "#374151",
+                      fontWeight: isActive ? 700 : 500,
                       fontSize: "12px",
                       cursor: "pointer",
-                      textAlign: "center",
-                      position: "relative"
+                      textAlign: "left",
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      minHeight: "42px"
                     }}
                   >
-                    {m.name}
+                    {logoUrl ? (
+                      <img src={logoUrl} alt={m.name} style={{ width: "28px", height: "20px", objectFit: "contain", flexShrink: 0 }} />
+                    ) : (
+                      <div style={{ width: "28px", height: "20px", backgroundColor: "#F3F4F6", borderRadius: "3px", flexShrink: 0 }} />
+                    )}
+                    <span style={{ flex: 1 }}>{m.name}</span>
                     {isActive && (
-                      <span style={{ position: "absolute", top: "2px", right: "4px", fontSize: "10px", color: "#2563EB" }}>✓</span>
+                      <span style={{ fontSize: "12px", color: "#10B981", fontWeight: 700 }}>✓</span>
                     )}
                   </button>
                 );
@@ -561,7 +669,7 @@ export default function MediosPagoEditor({
             </label>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px", borderRadius: "6px", border: posicion === "before-description" ? "2px solid #2563EB" : "1px solid #D1D5DB", backgroundColor: posicion === "before-description" ? "#EFF6FF" : "#ffffff", cursor: "pointer" }}>
+              <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px", borderRadius: "6px", border: posicion === "before-description" ? "2px solid #10B981" : "1px solid #D1D5DB", backgroundColor: posicion === "before-description" ? "#ECFDF5" : "#ffffff", cursor: "pointer" }}>
                 <input
                   type="radio"
                   name="posicion"
@@ -575,7 +683,7 @@ export default function MediosPagoEditor({
                 </div>
               </label>
 
-              <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px", borderRadius: "6px", border: posicion === "before-add-to-cart" ? "2px solid #2563EB" : "1px solid #D1D5DB", backgroundColor: posicion === "before-add-to-cart" ? "#EFF6FF" : "#ffffff", cursor: "pointer" }}>
+              <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px", borderRadius: "6px", border: posicion === "before-add-to-cart" ? "2px solid #10B981" : "1px solid #D1D5DB", backgroundColor: posicion === "before-add-to-cart" ? "#ECFDF5" : "#ffffff", cursor: "pointer" }}>
                 <input
                   type="radio"
                   name="posicion"
@@ -609,9 +717,9 @@ export default function MediosPagoEditor({
                   flex: 1,
                   padding: "8px",
                   borderRadius: "6px",
-                  border: alineacion === "center" ? "2px solid #2563EB" : "1px solid #D1D5DB",
-                  backgroundColor: alineacion === "center" ? "#EFF6FF" : "#ffffff",
-                  color: alineacion === "center" ? "#1E40AF" : "#374151",
+                  border: alineacion === "center" ? "2px solid #10B981" : "1px solid #D1D5DB",
+                  backgroundColor: alineacion === "center" ? "#ECFDF5" : "#ffffff",
+                  color: alineacion === "center" ? "#065F46" : "#374151",
                   fontWeight: 600,
                   fontSize: "13px",
                   cursor: "pointer"
@@ -626,9 +734,9 @@ export default function MediosPagoEditor({
                   flex: 1,
                   padding: "8px",
                   borderRadius: "6px",
-                  border: alineacion === "left" ? "2px solid #2563EB" : "1px solid #D1D5DB",
-                  backgroundColor: alineacion === "left" ? "#EFF6FF" : "#ffffff",
-                  color: alineacion === "left" ? "#1E40AF" : "#374151",
+                  border: alineacion === "left" ? "2px solid #10B981" : "1px solid #D1D5DB",
+                  backgroundColor: alineacion === "left" ? "#ECFDF5" : "#ffffff",
+                  color: alineacion === "left" ? "#065F46" : "#374151",
                   fontWeight: 600,
                   fontSize: "13px",
                   cursor: "pointer"
@@ -749,8 +857,9 @@ export default function MediosPagoEditor({
                     flex: 1,
                     padding: "6px",
                     borderRadius: "4px",
-                    border: modoColorIconos === "original" ? "2px solid #2563EB" : "1px solid #D1D5DB",
-                    backgroundColor: modoColorIconos === "original" ? "#EFF6FF" : "#ffffff",
+                    border: modoColorIconos === "original" ? "2px solid #10B981" : "1px solid #D1D5DB",
+                    backgroundColor: modoColorIconos === "original" ? "#ECFDF5" : "#ffffff",
+                    color: modoColorIconos === "original" ? "#065F46" : "#374151",
                     fontSize: "12px",
                     fontWeight: 600,
                     cursor: "pointer"
@@ -765,8 +874,9 @@ export default function MediosPagoEditor({
                     flex: 1,
                     padding: "6px",
                     borderRadius: "4px",
-                    border: modoColorIconos === "grayscale" ? "2px solid #2563EB" : "1px solid #D1D5DB",
-                    backgroundColor: modoColorIconos === "grayscale" ? "#EFF6FF" : "#ffffff",
+                    border: modoColorIconos === "grayscale" ? "2px solid #10B981" : "1px solid #D1D5DB",
+                    backgroundColor: modoColorIconos === "grayscale" ? "#ECFDF5" : "#ffffff",
+                    color: modoColorIconos === "grayscale" ? "#065F46" : "#374151",
                     fontSize: "12px",
                     fontWeight: 600,
                     cursor: "pointer"
@@ -892,10 +1002,10 @@ export default function MediosPagoEditor({
               { key: "none", label: "Ninguno", bg: "#F3F4F6", text: "#1F2937" },
               { key: "black-friday", label: "Black Friday", bg: "#111827", text: "#F59E0B" },
               { key: "hot-sale", label: "Hot Sale", bg: "#EF4444", text: "#ffffff" },
-              { key: "cyber-monday", label: "Cyber Monday", bg: "#1E3A8A", text: "#ffffff" },
+              { key: "cyber-monday", label: "Cyber Monday", bg: "#10B981", text: "#ffffff" },
               { key: "navidad", label: "Navidad", bg: "#064E3B", text: "#ffffff" },
               { key: "san-valentin", label: "San Valentín", bg: "#831843", text: "#ffffff" },
-              { key: "dia-padre-madre", label: "Día Especial", bg: "#312E81", text: "#ffffff" },
+              { key: "dia-padre-madre", label: "Día Especial", bg: "#166534", text: "#ffffff" },
               { key: "liquidacion", label: "Liquidación", bg: "#7F1D1D", text: "#ffffff" }
             ].map((preset) => (
               <button
@@ -905,7 +1015,7 @@ export default function MediosPagoEditor({
                 style={{
                   padding: "10px",
                   borderRadius: "6px",
-                  border: campaignTheme === preset.key ? "2px solid #2563EB" : "1px solid #D1D5DB",
+                  border: campaignTheme === preset.key ? "2px solid #10B981" : "1px solid #D1D5DB",
                   backgroundColor: preset.bg,
                   color: preset.text,
                   fontWeight: 700,
