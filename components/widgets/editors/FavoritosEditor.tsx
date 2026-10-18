@@ -4,29 +4,19 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 
-interface FavoritosEditorProps {
-  widgetDefinition?: any;
-  existingWidget?: any;
-  targetType?: any;
-  productId?: any;
-  categoryId?: any;
-  storeId?: any;
-  initialConfig?: any;
-  onSave?: (config: any) => Promise<void> | void;
-  saving?: boolean;
-}
+export default function FavoritosEditor(props: any) {
+  const {
+    widgetDefinition,
+    existingWidget,
+    targetType = "all",
+    productId = null,
+    categoryId = null,
+    storeId,
+    initialConfig,
+    onSave,
+    saving: externalSaving = false,
+  } = props;
 
-export default function FavoritosEditor({
-  widgetDefinition,
-  existingWidget,
-  targetType = "all",
-  productId = null,
-  categoryId = null,
-  storeId,
-  initialConfig,
-  onSave,
-  saving: externalSaving = false,
-}: FavoritosEditorProps): React.ReactElement {
   const router = useRouter();
   const supabase = createClient();
 
@@ -423,4 +413,4 @@ export default function FavoritosEditor({
       </div>
     </form>
   );
-  }
+      }
