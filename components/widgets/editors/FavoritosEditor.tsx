@@ -3,50 +3,67 @@
 import { useState } from "react";
 
 interface FavoritosEditorProps {
+  widgetDefinition?: any;
+  existingWidget?: any;
+  targetType?: "all" | "product" | "category";
+  productId?: number | null;
+  categoryId?: string | null;
+  storeId?: number;
   initialConfig?: any;
-  onSave: (config: any) => Promise<void> | void;
+  onSave?: (config: any) => Promise<void> | void;
   saving?: boolean;
 }
 
 export default function FavoritosEditor({
+  widgetDefinition,
+  existingWidget,
+  targetType = "all",
+  productId = null,
+  categoryId = null,
+  storeId,
   initialConfig = {},
   onSave,
   saving = false,
 }: FavoritosEditorProps) {
+  const config = existingWidget?.config || initialConfig || {};
+
   const [activeTab, setActiveTab] = useState<"general" | "ubicacion" | "estilos">("general");
 
-  const [iconType, setIconType] = useState(initialConfig.iconType || "heart");
-  const [modalTitle, setModalTitle] = useState(initialConfig.modalTitle || "Mis favoritos");
+  const [iconType, setIconType] = useState(config.iconType || "heart");
+  const [modalTitle, setModalTitle] = useState(config.modalTitle || "Mis favoritos");
   const [showInGrids, setShowInGrids] = useState(
-    initialConfig.showInGrids !== undefined ? initialConfig.showInGrids : true
+    config.showInGrids !== undefined ? config.showInGrids : true
   );
 
   const [badgePositionImage, setBadgePositionImage] = useState(
-    initialConfig.badgePositionImage || "top-right"
+    config.badgePositionImage || "top-right"
   );
   const [floatingPosition, setFloatingPosition] = useState(
-    initialConfig.floatingPosition || "bottom-left"
+    config.floatingPosition || "bottom-left"
   );
 
-  const [accentColor, setAccentColor] = useState(initialConfig.accentColor || "#e11d48");
-  const [bgColor, setBgColor] = useState(initialConfig.bgColor || "#ffffff");
+  const [accentColor, setAccentColor] = useState(config.accentColor || "#e11d48");
+  const [bgColor, setBgColor] = useState(config.bgColor || "#ffffff");
   const [hasShadow, setHasShadow] = useState(
-    initialConfig.hasShadow !== undefined ? initialConfig.hasShadow : true
+    config.hasShadow !== undefined ? config.hasShadow : true
   );
-  const [borderRadius, setBorderRadius] = useState(initialConfig.borderRadius || "50%");
+  const [borderRadius, setBorderRadius] = useState(config.borderRadius || "50%");
   const [floatingButtonSize, setFloatingButtonSize] = useState(
-    initialConfig.floatingButtonSize || "55px"
+    config.floatingButtonSize || "55px"
   );
   const [floatingIconSize, setFloatingIconSize] = useState(
-    initialConfig.floatingIconSize || "24px"
+    config.floatingIconSize || "24px"
   );
   const [showAddToCart, setShowAddToCart] = useState(
-    initialConfig.showAddToCart !== undefined ? initialConfig.showAddToCart : true
+    config.showAddToCart !== undefined ? config.showAddToCart : true
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [localSaving, setLocalSaving] = useState(false);
+  const isSaving = saving || localSaving;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
+    const configToSave = {
       iconType,
       modalTitle,
       showInGrids,
@@ -59,7 +76,40 @@ export default function FavoritosEditor({
       floatingButtonSize,
       floatingIconSize,
       showAddToCart,
-    });
+    };
+
+    if (onSave) {
+      await onSave(configToSave);
+      return;
+    }
+
+    setLocalSaving(true);
+    try {
+      const res = await fetch("/api/widgets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: existingWidget?.id || null,
+          store_id: storeId,
+          widget_slug: widgetDefinition?.slug || "favoritos",
+          config: configToSave,
+          target_type: targetType,
+          target_product_id: productId,
+          target_category_id: categoryId,
+          is_active: existingWidget?.is_active ?? true,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Error al guardar el widget");
+      }
+
+      alert("¡Favoritos guardado con éxito!");
+    } catch (err: any) {
+      alert(err.message || "Error al guardar los cambios.");
+    } finally {
+      setLocalSaving(false);
+    }
   };
 
   return (
@@ -326,7 +376,7 @@ export default function FavoritosEditor({
       <div style={{ marginTop: "1rem" }}>
         <button
           type="submit"
-          disabled={saving}
+          disabled={isSaving}
           style={{
             width: "100%",
             padding: "0.85rem",
@@ -336,14 +386,14 @@ export default function FavoritosEditor({
             fontWeight: 800,
             border: "none",
             borderRadius: "8px",
-            cursor: saving ? "not-allowed" : "pointer",
-            opacity: saving ? 0.7 : 1,
+            cursor: isSaving ? "not-allowed" : "pointer",
+            opacity: isSaving ? 0.7 : 1,
             boxShadow: "0 4px 12px rgba(16, 185, 129, 0.25)",
           }}
         >
-          {saving ? "Guardando..." : "Guardar cambios"}
+          {isSaving ? "Guardando..." : "Guardar cambios"}
         </button>
       </div>
     </form>
   );
-}
+  }
