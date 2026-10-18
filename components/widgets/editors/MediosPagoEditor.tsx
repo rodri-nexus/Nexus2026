@@ -1,1040 +1,1056 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import NevuxLogo from "@/app/components/landing/NevuxLogo";
-import CentroAyuda from "@/app/dashboard/components/CentroAyuda";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
+
+/* ═══════════════════════════════════════════
+   TIPOS
+═══════════════════════════════════════════ */
+interface WidgetDef {
+  id: string | number;
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  icon: string;
+}
+
+interface ExWidget {
+  id: string | number;
+  config: any;
+  is_active: boolean;
+  target_type: string;
+  target_product_id: number | null;
+}
+
+interface CustomLogoItem {
+  id: string;
+  name: string;
+  url: string;
+}
+
+export interface CfgMediosPago {
+  title: string;
+  showInstallmentMessage: boolean;
+  installmentText: string;
+  showSecureBadge: boolean;
+  secureBadgeText: string;
+  activeMethods: string[];
+  customLogos: CustomLogoItem[];
+  position: 'before-description' | 'before-add-to-cart';
+  alignment: 'left' | 'center' | 'right';
+  bgColor: string;
+  textColor: string;
+  accentColor: string;
+  modoColorIconos: 'original' | 'grayscale';
+  cardSize: 'sm' | 'md' | 'lg';
+  campaignTheme: string;
+}
 
 interface MediosPagoEditorProps {
-  widgetDefinition?: any;
-  existingWidget?: any;
-  storeId?: string | number;
+  widgetDefinition: WidgetDef;
+  existingWidget: ExWidget | null;
+  targetType: 'product' | 'all';
+  productId?: number | null;
+  storeId: string | number;
   initialConfig?: any;
-  widgetId?: string;
-  targetType?: string;
-  targetProductId?: string | number | null;
-  productId?: string | number | null;
-  categoryId?: string | null;
-  onSave?: (config: any) => Promise<void> | void;
+  widgetId?: string | number;
+  categoryId?: string;
+  onSave?: (config: any) => void;
   isSaving?: boolean;
 }
 
-const PAYMENT_LOGOS: Record<string, string> = {
-  visa: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg",
-  mastercard: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg",
-  amex: "https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg",
-  cabal: "https://logodownload.org/wp-content/uploads/2019/08/cabal-logo.png",
-  naranjax: "https://seeklogo.com/images/N/naranja-x-logo-3F8D4EA1A2-seeklogo.com.png",
-  mercadopago: "https://http2.mlstatic.com/frontend-assets/mp-web-navigation/ui-navigation/6.6.95/mercadopago/logo__large.png",
-  modo: "https://play-lh.googleusercontent.com/J0Wj6c3qJj1nkPtlyNVmLHhR0yygQ9yJIAVKQg7E3bHCUmJd9NwRJJBz9x9h8qV1kw",
-  uala: "https://play-lh.googleusercontent.com/4U3iCKRkZZlmL0b-cEgqcL3kY8iQcOIJVY0_f8OZbb1A7G5sWVvjVOxTfbTBuRaxbYE",
-  gocuotas: "https://gocuotas.com/_next/static/media/logo-gocuotas.5a8e8b89.svg",
-  pagonube: "https://d26lpennugtm8s.cloudfront.net/stores/001/204/661/themes/common/logo-820429116-1667238090-5c4e4e3a4c0a5c0f9c5d4e3a4c0a5c0f1667238090-320-0.png",
-  pagofacil: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Pago_F%C3%A1cil_logo.svg/1200px-Pago_F%C3%A1cil_logo.svg.png",
-  rapipago: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Logo_de_Rapipago.svg/1200px-Logo_de_Rapipago.svg.png",
-  transferencia: "https://cdn-icons-png.flaticon.com/512/2830/2830284.png"
-};
-
+/* ═══════════════════════════════════════════
+   CONFIG POR DEFECTO Y MÉTODOS ESTÁNDAR
+═══════════════════════════════════════════ */
 const DEFAULT_METHODS = [
-  { id: "visa", name: "Visa" },
-  { id: "mastercard", name: "Mastercard" },
-  { id: "amex", name: "American Express" },
-  { id: "cabal", name: "Cabal" },
-  { id: "naranjax", name: "Naranja X" },
-  { id: "mercadopago", name: "Mercado Pago" },
-  { id: "modo", name: "MODO" },
-  { id: "uala", name: "Ualá" },
-  { id: "gocuotas", name: "Go Cuotas" },
-  { id: "pagonube", name: "Pago Nube" },
-  { id: "pagofacil", name: "Pago Fácil" },
-  { id: "rapipago", name: "Rapipago" },
-  { id: "transferencia", name: "Transferencia" }
+  { id: 'visa', name: 'Visa' },
+  { id: 'mastercard', name: 'Mastercard' },
+  { id: 'amex', name: 'American Express' },
+  { id: 'cabal', name: 'Cabal' },
+  { id: 'naranjax', name: 'Naranja X' },
+  { id: 'mercadopago', name: 'Mercado Pago' },
+  { id: 'modo', name: 'MODO' },
+  { id: 'uala', name: 'Ualá' },
+  { id: 'gocuotas', name: 'Go Cuotas' },
+  { id: 'pagonube', name: 'Pago Nube' },
+  { id: 'pagofacil', name: 'Pago Fácil' },
+  { id: 'rapipago', name: 'Rapipago' },
+  { id: 'transferencia', name: 'Transferencia' },
 ];
 
-const compressImage = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-        const maxDim = 300;
-        if (width > maxDim || height > maxDim) {
-          if (width > height) {
-            height = Math.round((height * maxDim) / width);
-            width = maxDim;
-          } else {
-            width = Math.round((width * maxDim) / height);
-            height = maxDim;
-          }
-        }
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL("image/png", 0.9));
-        } else {
-          resolve(e.target?.result as string);
-        }
-      };
-      img.onerror = () => reject("Error al cargar la imagen");
-      img.src = e.target?.result as string;
-    };
-    reader.onerror = () => reject("Error al leer el archivo");
-    reader.readAsDataURL(file);
-  });
+const DEF: CfgMediosPago = {
+  title: 'MEDIOS DE PAGO Y CUOTAS',
+  showInstallmentMessage: true,
+  installmentText: 'Hasta 3 cuotas sin interés',
+  showSecureBadge: true,
+  secureBadgeText: 'Pago 100% seguro',
+  activeMethods: [
+    'visa',
+    'mastercard',
+    'amex',
+    'naranjax',
+    'mercadopago',
+    'modo',
+    'uala',
+    'transferencia',
+  ],
+  customLogos: [],
+  position: 'before-description',
+  alignment: 'center',
+  bgColor: '#ffffff',
+  textColor: '#111827',
+  accentColor: '#10B981',
+  modoColorIconos: 'original',
+  cardSize: 'md',
+  campaignTheme: 'none',
 };
 
-export default function MediosPagoEditor({
-  widgetDefinition,
-  existingWidget,
-  storeId,
-  initialConfig,
-  widgetId,
-  targetType,
-  targetProductId,
-  productId,
-  categoryId,
-  onSave,
-  isSaving = false
-}: MediosPagoEditorProps) {
-  const savedCfg = initialConfig || existingWidget?.config || {};
+const THEME_FX: Record<string, { bg: string; text: string; accent: string; border: string }> = {
+  'black-friday': { bg: '#111827', text: '#ffffff', accent: '#F59E0B', border: '1px solid #374151' },
+  'hot-sale': { bg: '#0F172A', text: '#ffffff', accent: '#EF4444', border: '1px solid #1E293B' },
+  'cyber-monday': { bg: '#090D16', text: '#ffffff', accent: '#3B82F6', border: '1px solid #1E3A8A' },
+  'navidad': { bg: '#064E3B', text: '#ffffff', accent: '#EF4444', border: '1px solid #047857' },
+  'san-valentin': { bg: '#FFF1F2', text: '#831843', accent: '#F43F5E', border: '1px solid #FECDD3' },
+  'dia-padre-madre': { bg: '#EEF2FF', text: '#312E81', accent: '#6366F1', border: '1px solid #C7D2FE' },
+  'liquidacion': { bg: '#FEF2F2', text: '#7F1D1D', accent: '#F59E0B', border: '1px solid #FECACA' },
+};
 
-  const [activeTab, setActiveTab] = useState<"general" | "ubicacion" | "estilos" | "campanas">("general");
+/* ═══════════════════════════════════════════
+   COMPONENTES AUXILIARES Y LOGOS SVG INLINE
+═══════════════════════════════════════════ */
+const IconStore = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
+    <line x1="2" y1="7" x2="22" y2="7"/>
+    <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
+    <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5"/>
+  </svg>
+);
 
-  const [mensaje, setMensaje] = useState<string>(savedCfg.mensaje !== undefined ? savedCfg.mensaje : "Medios de pago");
-  const [metodosActivos, setMetodosActivos] = useState<string[]>(
-    savedCfg.metodosActivos || ["visa", "mastercard", "amex", "mercadopago", "modo", "transferencia"]
-  );
-  const [customLogos, setCustomLogos] = useState<Array<{ id: string; name: string; url: string }>>(
-    savedCfg.customLogos || []
-  );
+const PaymentLogoSVG = ({ id, mode = 'original' }: { id: string; mode?: 'original' | 'grayscale' }) => {
+  const isGray = mode === 'grayscale';
+  const filterStyle = isGray ? { filter: 'grayscale(100%) opacity(0.85)' } : {};
 
-  const [mostrarSelloSeguro, setMostrarSelloSeguro] = useState<boolean>(
-    savedCfg.mostrarSelloSeguro !== false
-  );
-  const [textoSelloSeguro, setTextoSelloSeguro] = useState<string>(
-    savedCfg.textoSelloSeguro !== undefined ? savedCfg.textoSelloSeguro : "Pago 100% seguro"
-  );
-
-  const [mostrarCuotasSinInteres, setMostrarCuotasSinInteres] = useState<boolean>(
-    savedCfg.mostrarCuotasSinInteres === true
-  );
-  const [textoCuotasSinInteres, setTextoCuotasSinInteres] = useState<string>(
-    savedCfg.textoCuotasSinInteres || "3 cuotas sin interés"
-  );
-
-  const [posicion, setPosicion] = useState<"before-description" | "before-add-to-cart">(
-    savedCfg.posicion || "before-description"
-  );
-
-  const [alineacion, setAlineacion] = useState<"center" | "left">(savedCfg.alineacion || "center");
-  const [colorFondo, setColorFondo] = useState<string>(savedCfg.colorFondo || "#ffffff");
-  const [paddingContainer, setPaddingContainer] = useState<number>(
-    savedCfg.paddingContainer !== undefined ? savedCfg.paddingContainer : 12
-  );
-  const [borderRadiusContainer, setBorderRadiusContainer] = useState<number>(
-    savedCfg.borderRadiusContainer !== undefined ? savedCfg.borderRadiusContainer : 8
-  );
-  const [activarBordeContainer, setActivarBordeContainer] = useState<boolean>(
-    savedCfg.activarBordeContainer === true
-  );
-  const [colorBordeContainer, setColorBordeContainer] = useState<string>(
-    savedCfg.colorBordeContainer || "#E5E7EB"
-  );
-
-  const [colorMensaje, setColorMensaje] = useState<string>(savedCfg.colorMensaje || "#111827");
-  const [tamanoMensaje, setTamanoMensaje] = useState<number>(savedCfg.tamanoMensaje || 15);
-  const [estiloMensaje, setEstiloMensaje] = useState<"normal" | "resaltado">(savedCfg.estiloMensaje || "resaltado");
-
-  const [modoColorIconos, setModoColorIconos] = useState<"original" | "grayscale">(
-    savedCfg.modoColorIconos || "original"
-  );
-  const [tamanoImagenes, setTamanoImagenes] = useState<number>(savedCfg.tamanoImagenes || 22);
-  const [separacionTarjetas, setSeparacionTarjetas] = useState<number>(savedCfg.separacionTarjetas || 6);
-  const [anchoTarjeta, setAnchoTarjeta] = useState<number>(savedCfg.anchoTarjeta || 56);
-  const [altoTarjeta, setAltoTarjeta] = useState<number>(savedCfg.altoTarjeta || 36);
-  const [borderRadiusTarjeta, setBorderRadiusTarjeta] = useState<number>(savedCfg.borderRadiusTarjeta || 6);
-  const [fondoTarjeta, setFondoTarjeta] = useState<string>(savedCfg.fondoTarjeta || "#ffffff");
-  const [activarBordeTarjeta, setActivarBordeTarjeta] = useState<boolean>(savedCfg.activarBordeTarjeta !== false);
-  const [colorBordeTarjeta, setColorBordeTarjeta] = useState<string>(savedCfg.colorBordeTarjeta || "#E5E7EB");
-
-  const [colorTextoSeguro, setColorTextoSeguro] = useState<string>(savedCfg.colorTextoSeguro || "#374151");
-  const [colorIconoCandado, setColorIconoCandado] = useState<string>(savedCfg.colorIconoCandado || "#10B981");
-  const [colorTextoCuotas, setColorTextoCuotas] = useState<string>(savedCfg.colorTextoCuotas || "#10B981");
-  const [tamanoTextoSeguro, setTamanoTextoSeguro] = useState<number>(savedCfg.tamanoTextoSeguro || 13);
-  const [estiloTextoSeguro, setEstiloTextoSeguro] = useState<"normal" | "resaltado">(
-    savedCfg.estiloTextoSeguro || "normal"
-  );
-
-  const [campaignTheme, setCampaignTheme] = useState<string>(savedCfg.campaignTheme || "none");
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-
-  const toggleMethod = (methodId: string) => {
-    if (metodosActivos.includes(methodId)) {
-      setMetodosActivos(metodosActivos.filter((m) => m !== methodId));
-    } else {
-      setMetodosActivos([...metodosActivos, methodId]);
-    }
+  const logoMap: Record<string, React.ReactNode> = {
+    visa: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#1A1F71" />
+        <path d="M14.5 16.5L16.6 6.8H19.5L17.4 16.5H14.5ZM24.4 7C23.8 6.8 22.9 6.5 21.8 6.5C18.9 6.5 16.9 8 16.9 10.1C16.9 11.7 18.3 12.6 19.4 13.1C20.5 13.6 20.9 14 20.9 14.5C20.9 15.3 19.9 15.6 19 15.6C17.7 15.6 16.9 15.3 16.2 14.9L15.7 17.2C16.5 17.6 17.8 17.9 19.2 17.9C22.3 17.9 24.3 16.4 24.3 14.1C24.3 12.1 22.4 11.3 21.2 10.7C20.4 10.3 20 10 20 9.5C20 9 20.6 8.6 21.6 8.6C22.6 8.6 23.4 8.8 24 9.1L24.4 7ZM30.4 16.5H33L30.7 6.8H28.3C27.7 6.8 27.2 7.1 27 7.6L23 16.5H26L26.6 14.8H30L30.4 16.5ZM27.4 12.6L28.8 8.8L29.6 12.6H27.4ZM13.2 6.8L10.4 13.4L10.1 11.9C9.6 10.2 8.1 8.3 6.3 7.4L8.8 16.5H11.8L16.2 6.8H13.2Z" fill="#F7B600" />
+      </svg>
+    ),
+    mastercard: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#111827" />
+        <circle cx="15" cy="12" r="7" fill="#EB001B" />
+        <circle cx="23" cy="12" r="7" fill="#F79E1B" fillOpacity="0.9" />
+      </svg>
+    ),
+    amex: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#006FCF" />
+        <text x="5" y="16" fill="#FFFFFF" fontSize="10" fontWeight="900" fontFamily="sans-serif">AMEX</text>
+      </svg>
+    ),
+    cabal: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#003865" />
+        <circle cx="13" cy="12" r="5" fill="#E30613" />
+        <circle cx="21" cy="12" r="5" fill="#009639" />
+        <circle cx="25" cy="12" r="3" fill="#0072CE" />
+      </svg>
+    ),
+    naranjax: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#FF6B00" />
+        <text x="6" y="16" fill="#FFFFFF" fontSize="11" fontWeight="900" fontFamily="sans-serif">NX</text>
+      </svg>
+    ),
+    mercadopago: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#009EE3" />
+        <path d="M11 12C11 9.8 12.8 8 15 8C17.2 8 19 9.8 19 12M19 12C19 14.2 20.8 16 23 16C25.2 16 27 14.2 27 12" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" />
+      </svg>
+    ),
+    modo: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#432483" />
+        <text x="4" y="16" fill="#FFFFFF" fontSize="10" fontWeight="900" fontFamily="sans-serif">modo</text>
+      </svg>
+    ),
+    uala: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#FF3B5C" />
+        <text x="8" y="16" fill="#FFFFFF" fontSize="11" fontWeight="900" fontFamily="sans-serif">ualá</text>
+      </svg>
+    ),
+    gocuotas: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#00D084" />
+        <text x="6" y="16" fill="#FFFFFF" fontSize="9" fontWeight="900" fontFamily="sans-serif">GO!</text>
+      </svg>
+    ),
+    pagonube: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#2B6CB0" />
+        <path d="M12 15C10.5 15 9.5 14 9.5 12.5C9.5 11 10.8 9.8 12.2 10C13 8.8 14.5 8 16 8C18.2 8 20 9.8 20 12C21 12 22 13 22 14.2C22 15.5 21 16 19.5 16H12Z" fill="#FFFFFF" />
+      </svg>
+    ),
+    pagofacil: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#FFE800" />
+        <text x="4" y="16" fill="#003865" fontSize="10" fontWeight="900" fontFamily="sans-serif">PAGO</text>
+      </svg>
+    ),
+    rapipago: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#FFCC00" />
+        <text x="5" y="16" fill="#002D62" fontSize="10" fontWeight="900" fontFamily="sans-serif">Rapi</text>
+      </svg>
+    ),
+    transferencia: (
+      <svg width="38" height="24" viewBox="0 0 38 24" fill="none" style={filterStyle}>
+        <rect width="38" height="24" rx="4" fill="#10B981" />
+        <path d="M9 17V16H29V17H9ZM10 14V10H12V14H10ZM15 14V10H17V14H15ZM20 14V10H22V14H20ZM25 14V10H27V14H25ZM19 7L29 9V8L19 6L9 8V9L19 7Z" fill="#FFFFFF" />
+      </svg>
+    ),
   };
 
-  const handleCustomLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    setIsUploading(true);
-    try {
-      const file = files[0];
-      const base64 = await compressImage(file);
-      const newId = "custom-" + Date.now();
-      const newCustom = { id: newId, name: file.name.replace(/\.[^/.]+$/, ""), url: base64 };
-      setCustomLogos([...customLogos, newCustom]);
-      setMetodosActivos([...metodosActivos, newId]);
-    } catch (err) {
-      alert("No se pudo procesar la imagen.");
-    } finally {
-      setIsUploading(false);
-    }
+  return logoMap[id] || (
+    <div style={{
+      width: 38, height: 24, borderRadius: 4, background: '#374151',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: '#fff', fontSize: 9, fontWeight: 700
+    }}>
+      {id.slice(0, 3).toUpperCase()}
+    </div>
+  );
+};
+
+function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
+  return (
+    <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
+      {children}
+      {required && <span style={{ color: '#10B981', marginLeft: 4 }}>*</span>}
+    </label>
+  );
+}
+
+function FieldHelper({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{ fontSize: 12, color: '#6b7280', marginTop: 6, marginBottom: 0, lineHeight: 1.4 }}>
+      {children}
+    </p>
+  );
+}
+
+function TextInput({
+  value, onChange, placeholder, type = 'text',
+}: {
+  value: string | number; onChange: (v: string) => void; placeholder?: string; type?: string;
+}) {
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      style={{
+        width: '100%', padding: '12px 14px', fontSize: 14,
+        border: '1.5px solid #e5e7eb', borderRadius: 10,
+        background: '#ffffff', color: '#000000', outline: 'none',
+        boxSizing: 'border-box', fontFamily: 'inherit',
+        transition: 'border-color 0.2s',
+      }}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
+      onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
+    />
+  );
+}
+
+function ColorPickerField({
+  value, onChange,
+}: {
+  value: string; onChange: (v: string) => void;
+}) {
+  const handleClick = () => {
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.value = value.startsWith('#') && value.length >= 7 ? value : '#000000';
+    input.onchange = (e) => onChange((e.target as HTMLInputElement).value);
+    input.click();
+  };
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
+      <div
+        onClick={handleClick}
+        style={{
+          width: 38, height: 38, borderRadius: 8,
+          background: value, border: '1.5px solid #e5e7eb',
+          cursor: 'pointer', flexShrink: 0,
+        }}
+      />
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          const v = e.target.value;
+          onChange(v.startsWith('#') ? v : '#' + v);
+        }}
+        style={{
+          flex: 1, minWidth: 0,
+          padding: '9px 10px', fontSize: 13,
+          border: '1.5px solid #e5e7eb', borderRadius: 8,
+          background: '#ffffff', color: '#000000', outline: 'none',
+          fontFamily: 'monospace', boxSizing: 'border-box',
+        }}
+      />
+    </div>
+  );
+}
+
+function ToggleSwitch({
+  checked, onChange, activeColor = '#10B981'
+}: {
+  checked: boolean; onChange: (v: boolean) => void; activeColor?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      style={{
+        width: 48, height: 26, borderRadius: 999,
+        background: checked ? activeColor : '#e5e7eb',
+        border: 'none', cursor: 'pointer', padding: 3,
+        display: 'flex', alignItems: 'center',
+        transition: 'background-color 0.2s',
+        flexShrink: 0,
+      }}
+    >
+      <div
+        style={{
+          width: 20, height: 20, borderRadius: '50%',
+          background: '#ffffff',
+          transform: checked ? 'translateX(22px)' : 'translateX(0px)',
+          transition: 'transform 0.2s',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+        }}
+      />
+    </button>
+  );
+}
+
+function parseCfg(raw: Record<string, unknown> | undefined): CfgMediosPago {
+  if (!raw) return { ...DEF };
+  return {
+    title: raw.title !== undefined ? String(raw.title) : DEF.title,
+    showInstallmentMessage: typeof raw.showInstallmentMessage === 'boolean' ? raw.showInstallmentMessage : DEF.showInstallmentMessage,
+    installmentText: raw.installmentText !== undefined ? String(raw.installmentText) : DEF.installmentText,
+    showSecureBadge: typeof raw.showSecureBadge === 'boolean' ? raw.showSecureBadge : DEF.showSecureBadge,
+    secureBadgeText: raw.secureBadgeText !== undefined ? String(raw.secureBadgeText) : DEF.secureBadgeText,
+    activeMethods: Array.isArray(raw.activeMethods) ? (raw.activeMethods as string[]) : DEF.activeMethods,
+    customLogos: Array.isArray(raw.customLogos) ? (raw.customLogos as CustomLogoItem[]) : DEF.customLogos,
+    position: (raw.position as CfgMediosPago['position']) || DEF.position,
+    alignment: (raw.alignment as CfgMediosPago['alignment']) || DEF.alignment,
+    bgColor: (raw.bgColor as string) || DEF.bgColor,
+    textColor: (raw.textColor as string) || DEF.textColor,
+    accentColor: (raw.accentColor as string) || DEF.accentColor,
+    modoColorIconos: (raw.modoColorIconos as CfgMediosPago['modoColorIconos']) || DEF.modoColorIconos,
+    cardSize: (raw.cardSize as CfgMediosPago['cardSize']) || DEF.cardSize,
+    campaignTheme: (raw.campaignTheme as string) || 'none',
+  };
+}
+
+/* ═══════════════════════════════════════════
+   EDITOR PRINCIPAL
+═══════════════════════════════════════════ */
+export default function MediosPagoEditor({
+  widgetDefinition: wd,
+  existingWidget: ew,
+  targetType,
+  productId,
+  storeId,
+  initialConfig,
+  onSave,
+  isSaving,
+}: MediosPagoEditorProps) {
+  const router = useRouter();
+
+  const [cfg, setCfg] = useState<CfgMediosPago>(() => parseCfg(ew?.config || initialConfig));
+  const [tab, setTab] = useState<'gen' | 'ubicacion' | 'style' | 'dates'>('gen');
+  const [saving, setSaving] = useState(false);
+  const [ok, setOk] = useState(false);
+  const [err, setErr] = useState('');
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  const isForAll = targetType === 'all';
+  const scopeLabel = isForAll ? 'General' : 'Producto';
+
+  useEffect(() => {
+    setOk(false);
+    setErr('');
+  }, [cfg]);
+
+  const set = <K extends keyof CfgMediosPago>(k: K, v: CfgMediosPago[K]) =>
+    setCfg((p) => ({ ...p, [k]: v }));
+
+  const setCustomColor = (key: keyof CfgMediosPago, val: string) => {
+    setCfg((prev) => ({
+      ...prev,
+      [key]: val,
+      campaignTheme: 'none',
+    }));
+  };
+
+  const toggleMethod = (methodId: string) => {
+    setCfg((prev) => {
+      const exists = prev.activeMethods.includes(methodId);
+      return {
+        ...prev,
+        activeMethods: exists
+          ? prev.activeMethods.filter((m) => m !== methodId)
+          : [...prev.activeMethods, methodId],
+      };
+    });
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const maxW = 120;
+        const maxH = 80;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxW) {
+          height = Math.round((height * maxW) / width);
+          width = maxW;
+        }
+        if (height > maxH) {
+          width = Math.round((width * maxH) / height);
+          height = maxH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+        }
+        const base64 = canvas.toDataURL('image/png', 0.85);
+        const newLogo: CustomLogoItem = {
+          id: 'custom-' + Date.now(),
+          name: file.name.replace(/\.[^/.]+$/, ''),
+          url: base64,
+        };
+
+        setCfg((prev) => ({
+          ...prev,
+          customLogos: [...prev.customLogos, newLogo],
+        }));
+        setUploadingLogo(false);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   };
 
   const removeCustomLogo = (id: string) => {
-    setCustomLogos(customLogos.filter((c) => c.id !== id));
-    setMetodosActivos(metodosActivos.filter((m) => m !== id));
+    setCfg((prev) => ({
+      ...prev,
+      customLogos: prev.customLogos.filter((l) => l.id !== id),
+    }));
   };
 
-  const handleCampaignPreset = (themeKey: string) => {
-    setCampaignTheme(themeKey);
-    if (themeKey === "black-friday") {
-      setColorFondo("#111827");
-      setColorMensaje("#ffffff");
-      setColorBordeContainer("#374151");
-      setFondoTarjeta("#1F2937");
-      setColorBordeTarjeta("#4B5563");
-      setColorTextoSeguro("#D1D5DB");
-      setColorIconoCandado("#F59E0B");
-      setColorTextoCuotas("#F59E0B");
-    } else if (themeKey === "hot-sale") {
-      setColorFondo("#FFF5F5");
-      setColorMensaje("#991B1B");
-      setColorBordeContainer("#FECACA");
-      setFondoTarjeta("#ffffff");
-      setColorBordeTarjeta("#FCA5A5");
-      setColorTextoSeguro("#7F1D1D");
-      setColorIconoCandado("#EF4444");
-      setColorTextoCuotas("#EF4444");
-    } else if (themeKey === "cyber-monday") {
-      setColorFondo("#ECFDF5");
-      setColorMensaje("#065F46");
-      setColorBordeContainer("#A7F3D0");
-      setFondoTarjeta("#ffffff");
-      setColorBordeTarjeta("#6EE7B7");
-      setColorTextoSeguro("#064E3B");
-      setColorIconoCandado("#10B981");
-      setColorTextoCuotas("#10B981");
-    } else if (themeKey === "navidad") {
-      setColorFondo("#ECFDF5");
-      setColorMensaje("#065F46");
-      setColorBordeContainer("#A7F3D0");
-      setFondoTarjeta("#ffffff");
-      setColorBordeTarjeta("#6EE7B7");
-      setColorTextoSeguro("#064E3B");
-      setColorIconoCandado("#10B981");
-      setColorTextoCuotas("#10B981");
-    } else if (themeKey === "san-valentin") {
-      setColorFondo("#FDF2F8");
-      setColorMensaje("#9D174D");
-      setColorBordeContainer("#FBCFE8");
-      setFondoTarjeta("#ffffff");
-      setColorBordeTarjeta("#F472B6");
-      setColorTextoSeguro("#831843");
-      setColorIconoCandado("#EC4899");
-      setColorTextoCuotas("#EC4899");
-    } else if (themeKey === "dia-padre-madre") {
-      setColorFondo("#F0FDF4");
-      setColorMensaje("#166534");
-      setColorBordeContainer("#BBF7D0");
-      setFondoTarjeta("#ffffff");
-      setColorBordeTarjeta("#86EFAC");
-      setColorTextoSeguro("#14532D");
-      setColorIconoCandado("#22C55E");
-      setColorTextoCuotas("#22C55E");
-    } else if (themeKey === "liquidacion") {
-      setColorFondo("#FEF2F2");
-      setColorMensaje("#991B1B");
-      setColorBordeContainer("#FCA5A5");
-      setFondoTarjeta("#ffffff");
-      setColorBordeTarjeta("#EF4444");
-      setColorTextoSeguro("#7F1D1D");
-      setColorIconoCandado("#DC2626");
-      setColorTextoCuotas("#DC2626");
-    } else {
-      setColorFondo("#ffffff");
-      setColorMensaje("#111827");
-      setColorBordeContainer("#E5E7EB");
-      setFondoTarjeta("#ffffff");
-      setColorBordeTarjeta("#E5E7EB");
-      setColorTextoSeguro("#374151");
-      setColorIconoCandado("#10B981");
-      setColorTextoCuotas("#10B981");
+  const applyPreset = (slug: string) => {
+    if (slug === 'none') {
+      setCfg((prev) => ({
+        ...prev,
+        campaignTheme: 'none',
+        bgColor: DEF.bgColor,
+        textColor: DEF.textColor,
+        accentColor: DEF.accentColor,
+      }));
+      return;
+    }
+    const p = THEME_FX[slug];
+    if (p) {
+      setCfg((prev) => ({
+        ...prev,
+        campaignTheme: slug,
+        bgColor: p.bg,
+        textColor: p.text,
+        accentColor: p.accent,
+      }));
     }
   };
 
-  const handleSave = () => {
-    if (!onSave) return;
-    const finalConfig = {
-      mensaje,
-      metodosActivos,
-      customLogos,
-      mostrarSelloSeguro,
-      textoSelloSeguro,
-      mostrarCuotasSinInteres,
-      textoCuotasSinInteres,
-      posicion,
-      alineacion,
-      colorFondo,
-      paddingContainer,
-      borderRadiusContainer,
-      activarBordeContainer,
-      colorBordeContainer,
-      colorMensaje,
-      tamanoMensaje,
-      estiloMensaje,
-      modoColorIconos,
-      tamanoImagenes,
-      separacionTarjetas,
-      anchoTarjeta,
-      altoTarjeta,
-      borderRadiusTarjeta,
-      fondoTarjeta,
-      activarBordeTarjeta,
-      colorBordeTarjeta,
-      colorTextoSeguro,
-      colorIconoCandado,
-      colorTextoCuotas,
-      tamanoTextoSeguro,
-      estiloTextoSeguro,
-      campaignTheme
-    };
-    onSave(finalConfig);
+  const save = async () => {
+    if (onSave) {
+      onSave(cfg);
+      return;
+    }
+
+    setSaving(true);
+    setOk(false);
+    setErr('');
+
+    try {
+      const body = {
+        id: ew?.id ?? null,
+        store_id: storeId,
+        widget_slug: wd.slug,
+        config: cfg,
+        target_type: targetType,
+        target_product_id: productId,
+        is_active: true,
+      };
+      const res = await fetch('/api/widgets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error('Error al guardar');
+      setOk(true);
+      router.push('/widgets');
+    } catch {
+      setErr('No se pudo guardar. Reintentá.');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const allAvailableMethods = [
-    ...DEFAULT_METHODS,
-    ...customLogos.map((c) => ({ id: c.id, name: c.name }))
+  const getPreviewStyles = () => {
+    const theme = cfg.campaignTheme && cfg.campaignTheme !== 'none' ? THEME_FX[cfg.campaignTheme] : null;
+    let bg = cfg.bgColor;
+    let text = cfg.textColor;
+    let accent = cfg.accentColor;
+    let border = '1px solid #e5e7eb';
+
+    if (theme) {
+      bg = theme.bg;
+      text = theme.text;
+      accent = theme.accent;
+      border = theme.border;
+    }
+
+    return { bg, text, accent, border };
+  };
+
+  const ps = getPreviewStyles();
+
+  const CAMPAIGN_PRESETS = [
+    { id: 'none', label: 'Diseño Normal / Personalizado', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Diseño.' },
+    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo oscuro elegante con acento dorado.' },
+    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Nocturno con acentos rojo fuego.' },
+    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Azul cibernético con detalles resplandecientes.' },
+    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino con rojo navideño.' },
+    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Fondo suave rosa con texto y detalles pasión.' },
+    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Fondo índigo claro con texto profundo.' },
+    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Tonos cálidos con acentos ámbar.' },
   ];
 
-  const getLogoUrl = (methodId: string): string | null => {
-    if (PAYMENT_LOGOS[methodId]) return PAYMENT_LOGOS[methodId];
-    const custom = customLogos.find((c) => c.id === methodId);
-    return custom ? custom.url : null;
-  };
-
-  // Preview JSX
-  const previewMsgWeight = estiloMensaje === "resaltado" ? 700 : 400;
-  const previewAlignCss = alineacion === "center" ? "center" : "flex-start";
-  const previewTextAlign = alineacion === "center" ? "center" : "left";
-
   return (
-    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", maxWidth: "900px", margin: "0 auto", padding: "16px" }}>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px", borderBottom: "1px solid #E5E7EB", paddingBottom: "12px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <NevuxLogo size="small" />
-          <h2 style={{ fontSize: "20px", fontWeight: 700, margin: 0, color: "#111827" }}>
-            Métodos de pago
-          </h2>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+
+      {/* HEADER STICKY */}
+      <div style={{
+        background: '#ffffff', borderBottom: '1px solid #e5e7eb',
+        padding: '14px 20px', display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 20,
+      }}>
+        <NevuxLogo size="medium" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: '50%',
+            background: '#000000', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            fontSize: 13, fontWeight: 700, color: '#ffffff',
+          }}>
+            RL
+          </div>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          style={{
-            backgroundColor: "#10B981",
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "6px",
-            padding: "8px 16px",
-            fontWeight: 600,
-            cursor: isSaving ? "not-allowed" : "pointer",
-            opacity: isSaving ? 0.7 : 1
-          }}
-        >
-          {isSaving ? "Guardando..." : "Guardar widget"}
-        </button>
       </div>
 
-      {/* VISTA PREVIA */}
-      <div style={{ marginBottom: "24px", border: "1px dashed #10B981", borderRadius: "8px", padding: "16px", backgroundColor: "#F0FDF4" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "12px" }}>
-          <span style={{ fontSize: "11px", fontWeight: 700, color: "#065F46", backgroundColor: "#A7F3D0", padding: "2px 8px", borderRadius: "10px" }}>VISTA PREVIA</span>
-          <span style={{ fontSize: "11px", color: "#6B7280" }}>Así se verá en tu tienda</span>
-        </div>
+      {/* MAIN */}
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
+
+        {isForAll ? (
+          <div style={{
+            background: '#10B981', color: '#ffffff',
+            borderRadius: 999, padding: '8px 14px',
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            marginBottom: 20, fontSize: 14, fontWeight: 700,
+          }}>
+            <IconStore />
+            <span>Todos los productos</span>
+          </div>
+        ) : (
+          <div style={{
+            background: '#ffffff', border: '1px solid #e5e7eb',
+            borderRadius: 10, padding: '8px 14px',
+            display: 'inline-flex', alignItems: 'center', gap: 10,
+            marginBottom: 20, fontSize: 14, fontWeight: 700, color: '#000000',
+          }}>
+            <span style={{ fontSize: 18 }}>🛍</span>
+            <span>NEVUX Widget</span>
+          </div>
+        )}
+
+        <h1 style={{
+          fontSize: 26, fontWeight: 800, color: '#000000',
+          margin: '0 0 20px', lineHeight: 1.2,
+        }}>
+          {ew ? 'Editar widget: ' : 'Nuevo widget: '}
+          {wd.name} ({scopeLabel})
+        </h1>
 
         <div style={{
-          fontFamily: "system-ui, -apple-system, sans-serif",
-          padding: `${paddingContainer}px`,
-          backgroundColor: colorFondo,
-          borderRadius: `${borderRadiusContainer}px`,
-          border: activarBordeContainer ? `1px solid ${colorBordeContainer}` : "none",
-          boxSizing: "border-box",
-          textAlign: previewTextAlign
+          background: '#ffffff', border: '1px solid #e5e7eb',
+          borderRadius: 16, padding: 20, marginBottom: 20,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }}>
-          {mensaje && (
-            <div style={{ color: colorMensaje, fontSize: `${tamanoMensaje}px`, fontWeight: previewMsgWeight, marginBottom: "12px", lineHeight: 1.3 }}>
-              {mensaje}
-            </div>
-          )}
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: `${separacionTarjetas}px`, alignItems: "center", justifyContent: previewAlignCss, marginBottom: "12px" }}>
-            {metodosActivos.map((methodId) => {
-              const method = allAvailableMethods.find((m) => m.id === methodId);
-              if (!method) return null;
-              const logoUrl = getLogoUrl(methodId);
-              return (
-                <div key={methodId} style={{
-                  width: `${anchoTarjeta}px`,
-                  height: `${altoTarjeta}px`,
-                  borderRadius: `${borderRadiusTarjeta}px`,
-                  backgroundColor: fondoTarjeta,
-                  border: activarBordeTarjeta ? `1px solid ${colorBordeTarjeta}` : "none",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  overflow: "hidden",
-                  boxSizing: "border-box",
-                  padding: "4px",
-                  filter: modoColorIconos === "grayscale" ? "grayscale(100%)" : "none"
+          {/* PREVIEW GRANDE EN VIVO */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>
+              VISTA PREVIA EN VIVO (Muestra {cfg.activeMethods.length + cfg.customLogos.length} medios configurados)
+            </div>
+
+            <div
+              style={{
+                background: ps.bg,
+                border: ps.border,
+                borderRadius: 16,
+                padding: '20px',
+                color: ps.text,
+                transition: 'all 0.3s ease',
+                textAlign: cfg.alignment,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: cfg.alignment === 'center' ? 'center' : cfg.alignment === 'right' ? 'flex-end' : 'flex-start', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+                {cfg.title && (
+                  <span style={{ fontSize: 14, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                    {cfg.title}
+                  </span>
+                )}
+                {cfg.showSecureBadge && (
+                  <span style={{
+                    background: ps.accent, color: '#ffffff',
+                    fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 999,
+                    display: 'inline-flex', alignItems: 'center', gap: 4
+                  }}>
+                    🔒 {cfg.secureBadgeText}
+                  </span>
+                )}
+              </div>
+
+              {cfg.showInstallmentMessage && (
+                <div style={{
+                  background: 'rgba(16,185,129,0.1)', color: ps.accent,
+                  border: `1px solid ${ps.accent}`, borderRadius: 8,
+                  padding: '8px 12px', fontSize: 12, fontWeight: 800,
+                  marginBottom: 14, display: 'inline-block'
                 }}>
-                  {logoUrl ? (
-                    <img src={logoUrl} alt={method.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
-                  ) : (
-                    <span style={{ fontSize: "10px", color: "#9CA3AF" }}>{method.name}</span>
-                  )}
+                  💳 {cfg.installmentText}
                 </div>
+              )}
+
+              {/* LOGOS RECTÁNGULOS DE PAGO */}
+              <div style={{
+                display: 'flex', flexWrap: 'wrap', gap: 8,
+                justifyContent: cfg.alignment === 'center' ? 'center' : cfg.alignment === 'right' ? 'flex-end' : 'flex-start',
+                marginTop: 6
+              }}>
+                {cfg.activeMethods.map((mId) => (
+                  <div key={mId} style={{
+                    borderRadius: 6, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}>
+                    <PaymentLogoSVG id={mId} mode={cfg.modoColorIconos} />
+                  </div>
+                ))}
+                {cfg.customLogos.map((logo) => (
+                  <div key={logo.id} style={{
+                    width: 38, height: 24, borderRadius: 6, overflow: 'hidden',
+                    border: '1px solid #e5e7eb', background: '#fff',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}>
+                    <img src={logo.url} alt={logo.name} style={{ width: '100%', height: '100%', objectFit: 'contain', filter: cfg.modoColorIconos === 'grayscale' ? 'grayscale(100%)' : 'none' }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div style={{
+            display: 'flex', borderBottom: '1px solid #e5e7eb',
+            marginBottom: 24, overflowX: 'auto',
+          }}>
+            {(
+              [
+                ['gen', 'General'],
+                ['ubicacion', 'Ubicación'],
+                ['style', 'Diseño'],
+                ['dates', '🔥 Eventos'],
+              ] as const
+            ).map(([k, l]) => {
+              const act = tab === k;
+              return (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setTab(k)}
+                  style={{
+                    flex: 1, padding: '14px 12px', background: 'none',
+                    border: 'none', borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
+                    color: act ? '#10B981' : '#000000',
+                    opacity: act ? 1 : 0.6,
+                    fontSize: 14, fontWeight: act ? 700 : 500,
+                    cursor: 'pointer', fontFamily: 'inherit',
+                    whiteSpace: 'nowrap', transition: 'all 0.2s',
+                  }}
+                >
+                  {l}
+                </button>
               );
             })}
           </div>
 
-          {(mostrarSelloSeguro || mostrarCuotasSinInteres) && (
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px", justifyContent: previewAlignCss, marginTop: "8px" }}>
-              {mostrarCuotasSinInteres && textoCuotasSinInteres && (
-                <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: colorTextoCuotas, fontSize: `${tamanoTextoSeguro}px`, fontWeight: 600 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                  <span>{textoCuotasSinInteres}</span>
+          {/* TAB GENERAL */}
+          {tab === 'gen' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <FieldLabel>Título del widget</FieldLabel>
+                  <TextInput
+                    value={cfg.title}
+                    onChange={(v) => set('title', v)}
+                    placeholder="MEDIOS DE PAGO Y CUOTAS"
+                  />
+                  <FieldHelper>Texto que encabeza la sección de pagos.</FieldHelper>
                 </div>
-              )}
-              {mostrarSelloSeguro && textoSelloSeguro && (
-                <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: colorTextoSeguro, fontSize: `${tamanoTextoSeguro}px`, fontWeight: 500 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={colorIconoCandado} strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  <span>{textoSelloSeguro}</span>
+                <div>
+                  <FieldLabel>Mensaje de Cuotas</FieldLabel>
+                  <TextInput
+                    value={cfg.installmentText}
+                    onChange={(v) => set('installmentText', v)}
+                    placeholder="Hasta 3 cuotas sin interés"
+                  />
+                  <FieldHelper>Destaca una promoción importante de tu tienda.</FieldHelper>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+              </div>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", gap: "4px", borderBottom: "1px solid #E5E7EB", marginBottom: "20px" }}>
-        <button
-          onClick={() => setActiveTab("general")}
-          style={{
-            padding: "8px 16px",
-            border: "none",
-            borderBottom: activeTab === "general" ? "2px solid #10B981" : "2px solid transparent",
-            backgroundColor: "transparent",
-            color: activeTab === "general" ? "#065F46" : "#4B5563",
-            fontWeight: activeTab === "general" ? 700 : 500,
-            cursor: "pointer"
-          }}
-        >
-          General
-        </button>
-        <button
-          onClick={() => setActiveTab("ubicacion")}
-          style={{
-            padding: "8px 16px",
-            border: "none",
-            borderBottom: activeTab === "ubicacion" ? "2px solid #10B981" : "2px solid transparent",
-            backgroundColor: "transparent",
-            color: activeTab === "ubicacion" ? "#065F46" : "#4B5563",
-            fontWeight: activeTab === "ubicacion" ? 700 : 500,
-            cursor: "pointer"
-          }}
-        >
-          Ubicación
-        </button>
-        <button
-          onClick={() => setActiveTab("estilos")}
-          style={{
-            padding: "8px 16px",
-            border: "none",
-            borderBottom: activeTab === "estilos" ? "2px solid #10B981" : "2px solid transparent",
-            backgroundColor: "transparent",
-            color: activeTab === "estilos" ? "#065F46" : "#4B5563",
-            fontWeight: activeTab === "estilos" ? 700 : 500,
-            cursor: "pointer"
-          }}
-        >
-          Estilos
-        </button>
-        <button
-          onClick={() => setActiveTab("campanas")}
-          style={{
-            padding: "8px 16px",
-            border: "none",
-            borderBottom: activeTab === "campanas" ? "2px solid #10B981" : "2px solid transparent",
-            backgroundColor: "transparent",
-            color: activeTab === "campanas" ? "#065F46" : "#4B5563",
-            fontWeight: activeTab === "campanas" ? 700 : 500,
-            cursor: "pointer"
-          }}
-        >
-          Fechas Especiales
-        </button>
-      </div>
+              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#000000' }}>🔒 Sello de Pago Seguro</div>
+                    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Muestra una distinción de confianza para reducir abandonos de carrito.</div>
+                  </div>
+                  <ToggleSwitch checked={cfg.showSecureBadge} onChange={(v) => set('showSecureBadge', v)} />
+                </div>
+                {cfg.showSecureBadge && (
+                  <TextInput
+                    value={cfg.secureBadgeText}
+                    onChange={(v) => set('secureBadgeText', v)}
+                    placeholder="Pago 100% seguro"
+                  />
+                )}
+              </div>
 
-      {/* TAB GENERAL */}
-      {activeTab === "general" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Mensaje */}
-          <div style={{ backgroundColor: "#F9FAFB", padding: "16px", borderRadius: "8px", border: "1px solid #E5E7EB" }}>
-            <label style={{ display: "block", fontWeight: 600, fontSize: "14px", color: "#374151", marginBottom: "6px" }}>
-              Mensaje (opcional)
-            </label>
-            <input
-              type="text"
-              value={mensaje}
-              onChange={(e) => setMensaje(e.target.value)}
-              placeholder="Medios de pago"
-              style={{
-                width: "100%",
-                padding: "8px 12px",
-                borderRadius: "6px",
-                border: "1px solid #D1D5DB",
-                fontSize: "14px"
-              }}
-            />
-          </div>
+              {/* SELECCIÓN DE MEDIOS DE PAGO */}
+              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 20 }}>
+                <FieldLabel>Medios de Pago Disponibles</FieldLabel>
+                <FieldHelper>Seleccioná las tarjetas y servicios de pago que aceptás en tu negocio.</FieldHelper>
 
-          {/* Grid de Métodos de Pago */}
-          <div style={{ backgroundColor: "#F9FAFB", padding: "16px", borderRadius: "8px", border: "1px solid #E5E7EB" }}>
-            <label style={{ display: "block", fontWeight: 600, fontSize: "14px", color: "#374151", marginBottom: "4px" }}>
-              Métodos de pago
-            </label>
-            <p style={{ fontSize: "13px", color: "#6B7280", margin: "0 0 12px 0" }}>
-              Hacé clic para activar o desactivar cada método.
-            </p>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: "8px" }}>
-              {allAvailableMethods.map((m) => {
-                const isActive = metodosActivos.includes(m.id);
-                const logoUrl = getLogoUrl(m.id);
-                return (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => toggleMethod(m.id)}
-                    style={{
-                      padding: "8px 10px",
-                      borderRadius: "6px",
-                      border: isActive ? "2px solid #10B981" : "1px solid #D1D5DB",
-                      backgroundColor: isActive ? "#ECFDF5" : "#ffffff",
-                      color: isActive ? "#065F46" : "#374151",
-                      fontWeight: isActive ? 700 : 500,
-                      fontSize: "12px",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      position: "relative",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      minHeight: "42px"
-                    }}
-                  >
-                    {logoUrl ? (
-                      <img src={logoUrl} alt={m.name} style={{ width: "28px", height: "20px", objectFit: "contain", flexShrink: 0 }} />
-                    ) : (
-                      <div style={{ width: "28px", height: "20px", backgroundColor: "#F3F4F6", borderRadius: "3px", flexShrink: 0 }} />
-                    )}
-                    <span style={{ flex: 1 }}>{m.name}</span>
-                    {isActive && (
-                      <span style={{ fontSize: "12px", color: "#10B981", fontWeight: 700 }}>✓</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Subir logo propio */}
-            <div style={{ marginTop: "16px", paddingTop: "12px", borderTop: "1px solid #E5E7EB" }}>
-              <label style={{ display: "inline-block", backgroundColor: "#ffffff", border: "1px solid #D1D5DB", padding: "6px 12px", borderRadius: "6px", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
-                {isUploading ? "Cargando..." : "Subir logo propio"}
-                <input type="file" accept="image/*" onChange={handleCustomLogoUpload} disabled={isUploading} style={{ display: "none" }} />
-              </label>
-              <p style={{ fontSize: "11px", color: "#9CA3AF", margin: "4px 0 0 0" }}>
-                PNG, JPG o WEBP (máx 3MB). Recomendado: fondo transparente.
-              </p>
-
-              {customLogos.length > 0 && (
-                <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "6px" }}>
-                  {customLogos.map((c) => (
-                    <div key={c.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "#ffffff", padding: "6px 10px", borderRadius: "4px", border: "1px solid #E5E7EB" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <img src={c.url} alt={c.name} style={{ maxHeight: "20px", maxWidth: "40px", objectFit: "contain" }} />
-                        <span style={{ fontSize: "12px", color: "#374151" }}>{c.name}</span>
+                <div style={{
+                  display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                  gap: 12, marginTop: 14
+                }}>
+                  {DEFAULT_METHODS.map((m) => {
+                    const isChecked = cfg.activeMethods.includes(m.id);
+                    return (
+                      <div
+                        key={m.id}
+                        onClick={() => toggleMethod(m.id)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 10,
+                          padding: '10px 12px', borderRadius: 10,
+                          border: isChecked ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                          background: isChecked ? '#ECFDF5' : '#ffffff',
+                          cursor: 'pointer', transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <PaymentLogoSVG id={m.id} />
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#111827', flex: 1 }}>
+                          {m.name}
+                        </span>
+                        <div style={{
+                          width: 20, height: 20, borderRadius: '50%',
+                          background: isChecked ? '#10B981' : 'transparent',
+                          border: isChecked ? 'none' : '2px solid #d1d5db',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: '#ffffff', fontSize: 11, fontWeight: 900
+                        }}>
+                          {isChecked && '✓'}
+                        </div>
                       </div>
-                      <button type="button" onClick={() => removeCustomLogo(c.id)} style={{ border: "none", background: "none", color: "#EF4444", cursor: "pointer", fontSize: "14px" }}>✕</button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* LOGOS PERSONALIZADOS */}
+              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 20 }}>
+                <FieldLabel>Subir Logos Propios / Adicionales</FieldLabel>
+                <FieldHelper>Agregá otros medios regionales o sellos propios (formato PNG/SVG recomendado).</FieldHelper>
+
+                <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                  <label style={{
+                    background: '#10B981', color: '#ffffff', padding: '9px 16px',
+                    borderRadius: 8, fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                    display: 'inline-flex', alignItems: 'center', gap: 6
+                  }}>
+                    {uploadingLogo ? 'Cargando...' : '+ Subir Logo'}
+                    <input type="file" accept="image/*" onChange={handleFileUpload} disabled={uploadingLogo} style={{ display: 'none' }} />
+                  </label>
+
+                  {cfg.customLogos.map((l) => (
+                    <div key={l.id} style={{
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      padding: '6px 10px', background: '#ffffff', border: '1px solid #e5e7eb',
+                      borderRadius: 8
+                    }}>
+                      <img src={l.url} alt={l.name} style={{ width: 28, height: 20, objectFit: 'contain' }} />
+                      <span style={{ fontSize: 12, fontWeight: 700 }}>{l.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeCustomLogo(l.id)}
+                        style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: 14, fontWeight: 800, cursor: 'pointer', padding: 2 }}
+                      >
+                        ✕
+                      </button>
                     </div>
                   ))}
                 </div>
-              )}
+              </div>
+
             </div>
-          </div>
+          )}
 
-          {/* Sello de Pago Seguro */}
-          <div style={{ backgroundColor: "#F9FAFB", padding: "16px", borderRadius: "8px", border: "1px solid #E5E7EB" }}>
-            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontWeight: 600, fontSize: "14px", color: "#374151" }}>
-              <input
-                type="checkbox"
-                checked={mostrarSelloSeguro}
-                onChange={(e) => setMostrarSelloSeguro(e.target.checked)}
-              />
-              Mostrar sello de pago seguro
-            </label>
-            <p style={{ fontSize: "13px", color: "#6B7280", margin: "2px 0 10px 24px" }}>
-              Agrega un texto con un candado debajo de los logos.
-            </p>
+          {/* TAB UBICACIÓN */}
+          {tab === 'ubicacion' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ background: '#ffffff', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
+                <FieldLabel>Posición en la ficha de producto</FieldLabel>
+                <FieldHelper>Elegí en qué sector exacto de la página del producto aparecerá el bloque.</FieldHelper>
 
-            {mostrarSelloSeguro && (
-              <div style={{ marginLeft: "24px" }}>
-                <input
-                  type="text"
-                  value={textoSelloSeguro}
-                  onChange={(e) => setTextoSelloSeguro(e.target.value)}
-                  placeholder="Pago 100% seguro"
-                  style={{
-                    width: "100%",
-                    padding: "8px 12px",
-                    borderRadius: "6px",
-                    border: "1px solid #D1D5DB",
-                    fontSize: "14px"
-                  }}
-                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 14 }}>
+                  {[
+                    { id: 'before-description', label: 'Antes de la descripción', desc: 'Ubicado arriba de la solapa de descripción del producto.' },
+                    { id: 'before-add-to-cart', label: 'Antes del botón Agregar al Carrito', desc: 'Justo arriba del botón de compra para acelerar la conversión.' },
+                  ].map((pos) => (
+                    <label
+                      key={pos.id}
+                      onClick={() => set('position', pos.id as any)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '12px 14px', borderRadius: 10,
+                        border: cfg.position === pos.id ? '2px solid #10B981' : '1px solid #e5e7eb',
+                        background: cfg.position === pos.id ? '#ECFDF5' : '#ffffff',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="position"
+                        value={pos.id}
+                        checked={cfg.position === pos.id}
+                        onChange={() => {}}
+                        style={{ accentColor: '#10B981', width: 18, height: 18 }}
+                      />
+                      <div>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#111827', display: 'block' }}>{pos.label}</span>
+                        <span style={{ fontSize: 12, color: '#6b7280' }}>{pos.desc}</span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB DISEÑO Y COLORES */}
+          {tab === 'style' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <FieldLabel>Alineación del contenido</FieldLabel>
+                  <select
+                    value={cfg.alignment}
+                    onChange={(e) => set('alignment', e.target.value as any)}
+                    style={{
+                      width: '100%', padding: '12px 14px', fontSize: 14,
+                      border: '1.5px solid #e5e7eb', borderRadius: 10,
+                      background: '#ffffff', color: '#000000', outline: 'none'
+                    }}
+                  >
+                    <option value="center">Centrado</option>
+                    <option value="left">Izquierda</option>
+                    <option value="right">Derecha</option>
+                  </select>
+                </div>
+
+                <div>
+                  <FieldLabel>Modo de Color de Iconos</FieldLabel>
+                  <select
+                    value={cfg.modoColorIconos}
+                    onChange={(e) => set('modoColorIconos', e.target.value as any)}
+                    style={{
+                      width: '100%', padding: '12px 14px', fontSize: 14,
+                      border: '1.5px solid #e5e7eb', borderRadius: 10,
+                      background: '#ffffff', color: '#000000', outline: 'none'
+                    }}
+                  >
+                    <option value="original">Colores Originales</option>
+                    <option value="grayscale">Escala de Grises / Monocromo</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 20 }}>
+                <FieldLabel>Paleta de Colores Personalizada</FieldLabel>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginTop: 12 }}>
+                  <div>
+                    <FieldLabel>Fondo del Bloque</FieldLabel>
+                    <ColorPickerField value={cfg.bgColor} onChange={(v) => setCustomColor('bgColor', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Texto Principal</FieldLabel>
+                    <ColorPickerField value={cfg.textColor} onChange={(v) => setCustomColor('textColor', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Color de Acento / Sello</FieldLabel>
+                    <ColorPickerField value={cfg.accentColor} onChange={(v) => setCustomColor('accentColor', v)} />
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB FECHAS ESPECIALES */}
+          {tab === 'dates' && (
+            <div>
+              <div style={{ marginBottom: 20 }}>
+                <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
+                <FieldHelper>
+                  Elegí una campaña: los colores del bloque, texto e insignias se adaptarán automáticamente al evento.
+                </FieldHelper>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {CAMPAIGN_PRESETS.map((preset) => {
+                  const isSelected = cfg.campaignTheme === preset.id;
+                  return (
+                    <div
+                      key={preset.id}
+                      onClick={() => applyPreset(preset.id)}
+                      style={{
+                        background: '#ffffff',
+                        border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                        borderRadius: 12,
+                        padding: '16px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 16,
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          {preset.label}
+                          {isSelected && (
+                            <span style={{
+                              background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
+                              padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
+                            }}>
+                              ACTIVO
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
+                          {preset.desc}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* MENSAJES DE ESTADO */}
+          <div style={{ marginTop: 20 }}>
+            {ok && (
+              <div style={{
+                background: '#ecfdf5', border: '1px solid #10B981',
+                borderRadius: 10, padding: '10px 16px',
+                fontSize: 13, fontWeight: 700, color: '#059669',
+              }}>
+                ✅ Widget guardado correctamente
+              </div>
+            )}
+            {err && (
+              <div style={{
+                background: '#fef2f2', border: '1px solid #fca5a5',
+                borderRadius: 10, padding: '10px 16px',
+                fontSize: 13, fontWeight: 700, color: '#dc2626',
+              }}>
+                ❌ {err}
               </div>
             )}
           </div>
 
-          {/* Cuotas sin Interés */}
-          <div style={{ backgroundColor: "#F9FAFB", padding: "16px", borderRadius: "8px", border: "1px solid #E5E7EB" }}>
-            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontWeight: 600, fontSize: "14px", color: "#374151" }}>
-              <input
-                type="checkbox"
-                checked={mostrarCuotasSinInteres}
-                onChange={(e) => setMostrarCuotasSinInteres(e.target.checked)}
-              />
-              Mostrar cuotas sin interés
-            </label>
-            <p style={{ fontSize: "13px", color: "#6B7280", margin: "2px 0 10px 24px" }}>
-              Agrega un mensaje destacado con el beneficio de cuotas.
-            </p>
-
-            {mostrarCuotasSinInteres && (
-              <div style={{ marginLeft: "24px" }}>
-                <input
-                  type="text"
-                  value={textoCuotasSinInteres}
-                  onChange={(e) => setTextoCuotasSinInteres(e.target.value)}
-                  placeholder="3 cuotas sin interés"
-                  style={{
-                    width: "100%",
-                    padding: "8px 12px",
-                    borderRadius: "6px",
-                    border: "1px solid #D1D5DB",
-                    fontSize: "14px"
-                  }}
-                />
-              </div>
-            )}
+          {/* BOTÓN AL FINAL DEL BLOQUE */}
+          <div style={{ marginTop: 32, display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              onClick={save}
+              disabled={saving || isSaving}
+              style={{
+                padding: '14px 40px', borderRadius: 999,
+                border: 'none',
+                background: (saving || isSaving) ? '#9ca3af' : '#10B981',
+                color: '#fff', fontSize: 15, fontWeight: 800,
+                cursor: (saving || isSaving) ? 'wait' : 'pointer',
+                transition: 'all 0.2s',
+                width: '100%',
+              }}
+            >
+              {(saving || isSaving) ? 'Guardando...' : ew ? 'Actualizar Widget' : 'Crear Widget'}
+            </button>
           </div>
         </div>
-      )}
 
-      {/* TAB UBICACIÓN */}
-      {activeTab === "ubicacion" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <div style={{ backgroundColor: "#F9FAFB", padding: "16px", borderRadius: "8px", border: "1px solid #E5E7EB" }}>
-            <label style={{ display: "block", fontWeight: 600, fontSize: "14px", color: "#374151", marginBottom: "12px" }}>
-              Posición del widget en la página de producto
-            </label>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px", borderRadius: "6px", border: posicion === "before-description" ? "2px solid #10B981" : "1px solid #D1D5DB", backgroundColor: posicion === "before-description" ? "#ECFDF5" : "#ffffff", cursor: "pointer" }}>
-                <input
-                  type="radio"
-                  name="posicion"
-                  checked={posicion === "before-description"}
-                  onChange={() => setPosicion("before-description")}
-                  style={{ marginTop: "2px" }}
-                />
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: "14px", color: "#111827" }}>Antes de la descripción</div>
-                  <div style={{ fontSize: "12px", color: "#6B7280" }}>Se muestra debajo del formulario de compra, justo antes de la descripción.</div>
-                </div>
-              </label>
-
-              <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "12px", borderRadius: "6px", border: posicion === "before-add-to-cart" ? "2px solid #10B981" : "1px solid #D1D5DB", backgroundColor: posicion === "before-add-to-cart" ? "#ECFDF5" : "#ffffff", cursor: "pointer" }}>
-                <input
-                  type="radio"
-                  name="posicion"
-                  checked={posicion === "before-add-to-cart"}
-                  onChange={() => setPosicion("before-add-to-cart")}
-                  style={{ marginTop: "2px" }}
-                />
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: "14px", color: "#111827" }}>Antes del botón de agregar al carrito</div>
-                  <div style={{ fontSize: "12px", color: "#6B7280" }}>Se muestra debajo del precio, inmediatamente antes del botón principal.</div>
-                </div>
-              </label>
-            </div>
-          </div>
+        <div style={{ marginTop: 40, width: '100%' }}>
+          <CentroAyuda />
         </div>
-      )}
-
-      {/* TAB ESTILOS */}
-      {activeTab === "estilos" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Alineación */}
-          <div style={{ backgroundColor: "#F9FAFB", padding: "16px", borderRadius: "8px", border: "1px solid #E5E7EB" }}>
-            <label style={{ display: "block", fontWeight: 600, fontSize: "14px", color: "#374151", marginBottom: "8px" }}>
-              Alineación
-            </label>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <button
-                type="button"
-                onClick={() => setAlineacion("center")}
-                style={{
-                  flex: 1,
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: alineacion === "center" ? "2px solid #10B981" : "1px solid #D1D5DB",
-                  backgroundColor: alineacion === "center" ? "#ECFDF5" : "#ffffff",
-                  color: alineacion === "center" ? "#065F46" : "#374151",
-                  fontWeight: 600,
-                  fontSize: "13px",
-                  cursor: "pointer"
-                }}
-              >
-                Centrado
-              </button>
-              <button
-                type="button"
-                onClick={() => setAlineacion("left")}
-                style={{
-                  flex: 1,
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: alineacion === "left" ? "2px solid #10B981" : "1px solid #D1D5DB",
-                  backgroundColor: alineacion === "left" ? "#ECFDF5" : "#ffffff",
-                  color: alineacion === "left" ? "#065F46" : "#374151",
-                  fontWeight: 600,
-                  fontSize: "13px",
-                  cursor: "pointer"
-                }}
-              >
-                A la izquierda
-              </button>
-            </div>
-          </div>
-
-          {/* Contenedor */}
-          <div style={{ backgroundColor: "#F9FAFB", padding: "16px", borderRadius: "8px", border: "1px solid #E5E7EB" }}>
-            <h4 style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 700, color: "#111827" }}>Contenedor</h4>
-            
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Color de fondo</label>
-                <input
-                  type="color"
-                  value={colorFondo === "transparent" ? "#ffffff" : colorFondo}
-                  onChange={(e) => setColorFondo(e.target.value)}
-                  style={{ width: "100%", height: "36px", border: "1px solid #D1D5DB", borderRadius: "4px", cursor: "pointer" }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Padding ({paddingContainer}px)</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="40"
-                  value={paddingContainer}
-                  onChange={(e) => setPaddingContainer(parseInt(e.target.value, 10))}
-                  style={{ width: "100%" }}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Bordes redondeados ({borderRadiusContainer}px)</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="30"
-                  value={borderRadiusContainer}
-                  onChange={(e) => setBorderRadiusContainer(parseInt(e.target.value, 10))}
-                  style={{ width: "100%" }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>
-                  <input type="checkbox" checked={activarBordeContainer} onChange={(e) => setActivarBordeContainer(e.target.checked)} />
-                  Activar borde
-                </label>
-                {activarBordeContainer && (
-                  <input
-                    type="color"
-                    value={colorBordeContainer}
-                    onChange={(e) => setColorBordeContainer(e.target.value)}
-                    style={{ width: "100%", height: "36px", border: "1px solid #D1D5DB", borderRadius: "4px", cursor: "pointer" }}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Mensaje */}
-          <div style={{ backgroundColor: "#F9FAFB", padding: "16px", borderRadius: "8px", border: "1px solid #E5E7EB" }}>
-            <h4 style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 700, color: "#111827" }}>Mensaje</h4>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Color texto</label>
-                <input
-                  type="color"
-                  value={colorMensaje}
-                  onChange={(e) => setColorMensaje(e.target.value)}
-                  style={{ width: "100%", height: "36px", border: "1px solid #D1D5DB", borderRadius: "4px", cursor: "pointer" }}
-                />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Tamaño ({tamanoMensaje}px)</label>
-                <input
-                  type="number"
-                  min="10"
-                  max="30"
-                  value={tamanoMensaje}
-                  onChange={(e) => setTamanoMensaje(parseInt(e.target.value, 10) || 14)}
-                  style={{ width: "100%", padding: "6px", border: "1px solid #D1D5DB", borderRadius: "4px" }}
-                />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Estilo</label>
-                <select
-                  value={estiloMensaje}
-                  onChange={(e) => setEstiloMensaje(e.target.value as any)}
-                  style={{ width: "100%", padding: "6px", border: "1px solid #D1D5DB", borderRadius: "4px" }}
-                >
-                  <option value="normal">Normal</option>
-                  <option value="resaltado">Resaltado</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Logos y Tarjetas */}
-          <div style={{ backgroundColor: "#F9FAFB", padding: "16px", borderRadius: "8px", border: "1px solid #E5E7EB" }}>
-            <h4 style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 700, color: "#111827" }}>Logos y tarjetas</h4>
-            
-            <div style={{ marginBottom: "12px" }}>
-              <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Color de los íconos</label>
-              <div style={{ display: "flex", gap: "10px" }}>
-                <button
-                  type="button"
-                  onClick={() => setModoColorIconos("original")}
-                  style={{
-                    flex: 1,
-                    padding: "6px",
-                    borderRadius: "4px",
-                    border: modoColorIconos === "original" ? "2px solid #10B981" : "1px solid #D1D5DB",
-                    backgroundColor: modoColorIconos === "original" ? "#ECFDF5" : "#ffffff",
-                    color: modoColorIconos === "original" ? "#065F46" : "#374151",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    cursor: "pointer"
-                  }}
-                >
-                  Original
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setModoColorIconos("grayscale")}
-                  style={{
-                    flex: 1,
-                    padding: "6px",
-                    borderRadius: "4px",
-                    border: modoColorIconos === "grayscale" ? "2px solid #10B981" : "1px solid #D1D5DB",
-                    backgroundColor: modoColorIconos === "grayscale" ? "#ECFDF5" : "#ffffff",
-                    color: modoColorIconos === "grayscale" ? "#065F46" : "#374151",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    cursor: "pointer"
-                  }}
-                >
-                  Blanco y negro
-                </button>
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Ancho tarjeta ({anchoTarjeta}px)</label>
-                <input
-                  type="range"
-                  min="30"
-                  max="120"
-                  value={anchoTarjeta}
-                  onChange={(e) => setAnchoTarjeta(parseInt(e.target.value, 10))}
-                  style={{ width: "100%" }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Alto tarjeta ({altoTarjeta}px)</label>
-                <input
-                  type="range"
-                  min="20"
-                  max="80"
-                  value={altoTarjeta}
-                  onChange={(e) => setAltoTarjeta(parseInt(e.target.value, 10))}
-                  style={{ width: "100%" }}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Fondo tarjeta</label>
-                <input
-                  type="color"
-                  value={fondoTarjeta}
-                  onChange={(e) => setFondoTarjeta(e.target.value)}
-                  style={{ width: "100%", height: "36px", border: "1px solid #D1D5DB", borderRadius: "4px", cursor: "pointer" }}
-                />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Borde redondeado ({borderRadiusTarjeta}px)</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="20"
-                  value={borderRadiusTarjeta}
-                  onChange={(e) => setBorderRadiusTarjeta(parseInt(e.target.value, 10))}
-                  style={{ width: "100%" }}
-                />
-              </div>
-              <div>
-                <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>
-                  <input type="checkbox" checked={activarBordeTarjeta} onChange={(e) => setActivarBordeTarjeta(e.target.checked)} />
-                  Borde tarjeta
-                </label>
-                {activarBordeTarjeta && (
-                  <input
-                    type="color"
-                    value={colorBordeTarjeta}
-                    onChange={(e) => setColorBordeTarjeta(e.target.value)}
-                    style={{ width: "100%", height: "36px", border: "1px solid #D1D5DB", borderRadius: "4px", cursor: "pointer" }}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Pago seguro y cuotas */}
-          <div style={{ backgroundColor: "#F9FAFB", padding: "16px", borderRadius: "8px", border: "1px solid #E5E7EB" }}>
-            <h4 style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 700, color: "#111827" }}>Pago seguro y cuotas</h4>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Color texto seguro</label>
-                <input
-                  type="color"
-                  value={colorTextoSeguro}
-                  onChange={(e) => setColorTextoSeguro(e.target.value)}
-                  style={{ width: "100%", height: "36px", border: "1px solid #D1D5DB", borderRadius: "4px", cursor: "pointer" }}
-                />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Color candado</label>
-                <input
-                  type="color"
-                  value={colorIconoCandado}
-                  onChange={(e) => setColorIconoCandado(e.target.value)}
-                  style={{ width: "100%", height: "36px", border: "1px solid #D1D5DB", borderRadius: "4px", cursor: "pointer" }}
-                />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", color: "#4B5563", marginBottom: "4px" }}>Color cuotas</label>
-                <input
-                  type="color"
-                  value={colorTextoCuotas}
-                  onChange={(e) => setColorTextoCuotas(e.target.value)}
-                  style={{ width: "100%", height: "36px", border: "1px solid #D1D5DB", borderRadius: "4px", cursor: "pointer" }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB FECHAS ESPECIALES */}
-      {activeTab === "campanas" && (
-        <div style={{ backgroundColor: "#F9FAFB", padding: "16px", borderRadius: "8px", border: "1px solid #E5E7EB" }}>
-          <h4 style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 700, color: "#111827" }}>
-            Presets de Fechas Especiales
-          </h4>
-          <p style={{ fontSize: "13px", color: "#6B7280", marginBottom: "16px" }}>
-            Selecciona una temática para adaptar automáticamente los colores de las tarjetas y sellos.
-          </p>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "10px" }}>
-            {[
-              { key: "none", label: "Ninguno", bg: "#F3F4F6", text: "#1F2937" },
-              { key: "black-friday", label: "Black Friday", bg: "#111827", text: "#F59E0B" },
-              { key: "hot-sale", label: "Hot Sale", bg: "#EF4444", text: "#ffffff" },
-              { key: "cyber-monday", label: "Cyber Monday", bg: "#10B981", text: "#ffffff" },
-              { key: "navidad", label: "Navidad", bg: "#064E3B", text: "#ffffff" },
-              { key: "san-valentin", label: "San Valentín", bg: "#831843", text: "#ffffff" },
-              { key: "dia-padre-madre", label: "Día Especial", bg: "#166534", text: "#ffffff" },
-              { key: "liquidacion", label: "Liquidación", bg: "#7F1D1D", text: "#ffffff" }
-            ].map((preset) => (
-              <button
-                key={preset.key}
-                type="button"
-                onClick={() => handleCampaignPreset(preset.key)}
-                style={{
-                  padding: "10px",
-                  borderRadius: "6px",
-                  border: campaignTheme === preset.key ? "2px solid #10B981" : "1px solid #D1D5DB",
-                  backgroundColor: preset.bg,
-                  color: preset.text,
-                  fontWeight: 700,
-                  fontSize: "12px",
-                  cursor: "pointer",
-                  textAlign: "center"
-                }}
-              >
-                {preset.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Centro de Ayuda */}
-      <div style={{ marginTop: "30px" }}>
-        <CentroAyuda />
       </div>
+
     </div>
   );
-}
+  }
