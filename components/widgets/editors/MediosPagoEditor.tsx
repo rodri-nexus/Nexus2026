@@ -11,9 +11,9 @@ interface MediosPagoEditorProps {
   initialConfig?: any;
   widgetId?: string;
   targetType?: string;
-  targetProductId?: string;
-  productId?: string;
-  categoryId?: string;
+  targetProductId?: string | number | null;
+  productId?: string | number | null;
+  categoryId?: string | null;
   onSave?: (config: any) => Promise<void> | void;
   isSaving?: boolean;
 }
@@ -927,4 +927,4 @@ export default function MediosPagoEditor({
       </div>
     </div>
   );
-    }
+}
