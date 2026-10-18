@@ -15386,8 +15386,8 @@ function renderMediosPago(w) {
     }
   }
       }
-                     /* ═══════════════════════════════════════════
-   WIDGET #49: FAVORITOS (v398)
+/* ═══════════════════════════════════════════
+   WIDGET #49: FAVORITOS (v399)
    ═══════════════════════════════════════════ */
 function renderFavoritos(w) {
   try {
@@ -15401,7 +15401,7 @@ function renderFavoritos(w) {
 
     /* ===== KEYS REALES DEL EDITOR ===== */
     var iconType = cfg.iconType || "heart";
-    var modalTitle = cfg.modalTitle !== undefined ? String(cfg.modalTitle) : "Mis Favoritos";
+    var modalTitle = cfg.modalTitle !== undefined ? String(cfg.modalTitle) : "Mis favoritos";
     var showInGrids = cfg.showInGrids !== false;
     var badgePositionImage = cfg.badgePositionImage || "top-right";
     var floatingPosition = cfg.floatingPosition || "bottom-right";
@@ -15457,6 +15457,7 @@ function renderFavoritos(w) {
       } else {
         favs.push({
           id: String(item.id),
+          variantId: String(item.variantId || item.id),
           name: item.name || "Producto",
           price: item.price || "",
           image: item.image || "",
@@ -15488,10 +15489,10 @@ function renderFavoritos(w) {
     }
 
     function badgePosCss() {
-      if (badgePositionImage === "top-left") return "top:8px;left:8px;";
-      if (badgePositionImage === "bottom-left") return "bottom:8px;left:8px;";
-      if (badgePositionImage === "bottom-right") return "bottom:8px;right:8px;";
-      return "top:8px;right:8px;";
+      if (badgePositionImage === "top-left") return "top:10px;left:10px;";
+      if (badgePositionImage === "bottom-left") return "bottom:10px;left:10px;";
+      if (badgePositionImage === "bottom-right") return "bottom:10px;right:10px;";
+      return "top:10px;right:10px;";
     }
 
     function floatingPosCss() {
@@ -15519,6 +15520,7 @@ function renderFavoritos(w) {
       if (!id) return null;
       return {
         id: String(id),
+        variantId: String(id),
         name: nameEl ? (nameEl.textContent || "").trim() : "Producto",
         price: priceEl ? (priceEl.textContent || "").trim() : "",
         image: imgEl ? (imgEl.getAttribute("src") || imgEl.getAttribute("data-src") || "") : "",
@@ -15529,18 +15531,22 @@ function renderFavoritos(w) {
     function extractCurrentProduct() {
       var nameEl = document.querySelector("h1.js-product-name, h1[itemprop='name'], h1.product-title, h1");
       var priceEl = document.querySelector(".js-price-display, [itemprop='price'], .product-price, #price_display");
-      var imgEl = document.querySelector(".js-product-image img, .product-image img, [data-store='product-image'] img, meta[property='og:image']");
-      var id =
-        (window.LS && window.LS.product && (window.LS.product.id || window.LS.product.id_product)) ||
-        (document.querySelector("[data-product-id]") && document.querySelector("[data-product-id]").getAttribute("data-product-id")) ||
-        (document.querySelector("input[name='add_to_cart']") && document.querySelector("input[name='add_to_cart']").value) ||
-        window.location.pathname;
+      var imgEl = document.querySelector(".js-product-image img, .product-image img, [data-store='product-image'] img, meta[property='og:image'], .product-gallery img");
+      var variantInput = document.querySelector("input[name='add_to_cart']");
+      var variantId = variantInput ? variantInput.value : "";
+
+      var id = (window.LS && window.LS.product && (window.LS.product.id || window.LS.product.id_product)) ||
+               variantId ||
+               (document.querySelector("[data-product-id]") && document.querySelector("[data-product-id]").getAttribute("data-product-id")) ||
+               window.location.pathname;
+
       var image = "";
       if (imgEl) {
         image = imgEl.getAttribute("content") || imgEl.getAttribute("src") || imgEl.getAttribute("data-src") || "";
       }
       return {
         id: String(id || window.location.pathname),
+        variantId: String(variantId || id || window.location.pathname),
         name: nameEl ? (nameEl.textContent || "").trim() : "Producto",
         price: priceEl ? (priceEl.textContent || "").trim() : "",
         image: image,
@@ -15556,7 +15562,7 @@ function renderFavoritos(w) {
       btn.setAttribute("aria-label", "Favorito");
       var filled = isFav(item.id);
       btn.innerHTML = iconSvg(filled, size || 16, filled ? accentColor : "#6B7280");
-      btn.style.cssText = "position:absolute !important;" + badgePosCss() + "width:34px !important;height:34px !important;border-radius:50% !important;background:#ffffff !important;border:none !important;box-shadow:0 2px 6px rgba(0,0,0,0.15) !important;display:flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;z-index:20 !important;padding:0 !important;line-height:1 !important;";
+      btn.style.cssText = "position:absolute !important;" + badgePosCss() + "width:34px !important;height:34px !important;border-radius:50% !important;background:#ffffff !important;border:none !important;box-shadow:0 2px 8px rgba(0,0,0,0.18) !important;display:flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;z-index:25 !important;padding:0 !important;line-height:1 !important;transition:transform 0.15s ease !important;";
       btn.addEventListener("click", function (ev) {
         ev.preventDefault();
         ev.stopPropagation();
@@ -15566,11 +15572,11 @@ function renderFavoritos(w) {
     }
 
     function injectBadges() {
-      var pageType = typeof detectPageType === "function" ? detectPageType() : "";
-
-      /* Producto actual */
-      if (pageType === "product") {
-        var galleries = document.querySelectorAll(".js-product-image, .product-image, [data-store='product-image'], .product-gallery, .js-product-gallery");
+      /* Ficha de producto (PDP) amplia para Tiendanube */
+      var galleries = document.querySelectorAll(
+        ".js-product-slides, .js-product-gallery, .product-image, [data-store='product-image'], [data-store='product-gallery'], .product-gallery, .product-gallery__image, .swiper-slide-active, .js-swiper-product-page, .js-product-slide, .gallery-image, .js-product-image"
+      );
+      if (galleries.length > 0) {
         var product = extractCurrentProduct();
         for (var g = 0; g < galleries.length; g++) {
           var gal = galleries[g];
@@ -15584,16 +15590,14 @@ function renderFavoritos(w) {
       /* Grillas */
       if (showInGrids) {
         var cards = document.querySelectorAll(
-          ".js-item-product, .item-product, .product-item, [data-product-id], .js-product-container .item, .product-grid .item, li.item, article.product"
+          ".js-item-product, .item-product, .product-item, [data-product-id], .js-product-container .item, .product-grid .item, li.item, article.product, .js-item-container"
         );
         for (var i = 0; i < cards.length; i++) {
           var card = cards[i];
           if (card.querySelector(".nvx-fav-badge")) continue;
           var item = extractProductFromCard(card);
           if (!item) continue;
-          var imgWrap =
-            card.querySelector(".js-item-image, .item-image, .product-image, figure, .image-container, a") ||
-            card;
+          var imgWrap = card.querySelector(".js-item-image, .item-image, .product-image, figure, .image-container, a") || card;
           var cs2 = window.getComputedStyle(imgWrap);
           if (cs2.position === "static") imgWrap.style.position = "relative";
           imgWrap.appendChild(makeBadgeButton(item, 16));
@@ -15610,6 +15614,78 @@ function renderFavoritos(w) {
       }
     }
 
+    function addToCartSingle(item, btnEl) {
+      var targetId = item.variantId || item.id;
+      if (!targetId || targetId.indexOf('/') !== -1) {
+        if (item.url) window.location.href = item.url;
+        return;
+      }
+      if (btnEl) {
+        btnEl.disabled = true;
+        btnEl.innerHTML = "⏳";
+      }
+      var formData = new FormData();
+      formData.append("add_to_cart", targetId);
+      formData.append("quantity", "1");
+
+      fetch("/carrito/agregar/", {
+        method: "POST",
+        body: formData,
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      }).then(function () {
+        if (btnEl) {
+          btnEl.style.background = "#10B981";
+          btnEl.innerHTML = "✓";
+          setTimeout(function () {
+            btnEl.disabled = false;
+            btnEl.style.background = accentColor;
+            btnEl.innerHTML = "+";
+          }, 1500);
+        }
+        if (typeof nvxTrack === "function") {
+          try { nvxTrack("favoritos", "add_to_cart_click", { product_id: item.id }); } catch (e) {}
+        }
+      }).catch(function () {
+        if (item.url) window.location.href = item.url;
+      });
+    }
+
+    function addAllToCart() {
+      var favs = getFavs();
+      if (!favs.length) return;
+      var btn = document.getElementById(uniqueId + "-add-all");
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Agregando...";
+      }
+      var idx = 0;
+      function next() {
+        if (idx >= favs.length) {
+          window.location.href = "/carrito";
+          return;
+        }
+        var f = favs[idx++];
+        var tid = f.variantId || f.id;
+        if (tid && tid.indexOf('/') === -1) {
+          var formData = new FormData();
+          formData.append("add_to_cart", tid);
+          formData.append("quantity", "1");
+          fetch("/carrito/agregar/", {
+            method: "POST",
+            body: formData,
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+          }).then(function () {
+            next();
+          }).catch(function () {
+            next();
+          });
+        } else {
+          next();
+        }
+      }
+      next();
+    }
+
     function updateUI() {
       var favs = getFavs();
       var countEl = document.getElementById(uniqueId + "-count");
@@ -15617,6 +15693,12 @@ function renderFavoritos(w) {
         countEl.textContent = String(favs.length);
         countEl.style.display = favs.length > 0 ? "flex" : "none";
       }
+
+      var addAllBtn = document.getElementById(uniqueId + "-add-all");
+      if (addAllBtn) {
+        addAllBtn.style.display = (showAddToCart && favs.length > 0) ? "inline-flex" : "none";
+      }
+
       var listEl = document.getElementById(uniqueId + "-list");
       if (listEl) renderList(listEl, favs);
       updateBadgesState();
@@ -15624,25 +15706,28 @@ function renderFavoritos(w) {
 
     function renderList(listEl, favs) {
       if (!favs.length) {
-        listEl.innerHTML = '<div style="padding:20px 12px !important;text-align:center !important;color:#6B7280 !important;font-size:13px !important;">Todavía no guardaste productos.</div>';
+        listEl.innerHTML = '<div style="padding:32px 16px !important;text-align:center !important;color:#6B7280 !important;font-size:13px !important;font-weight:500 !important;">Todavía no guardaste productos.</div>';
         return;
       }
       var html = "";
       for (var i = 0; i < favs.length; i++) {
         var f = favs[i];
-        html += '<div style="display:flex !important;gap:10px !important;align-items:center !important;background:#f9fafb !important;padding:8px !important;border-radius:8px !important;margin-bottom:8px !important;">';
-        html += '<div style="width:44px !important;height:44px !important;border-radius:6px !important;overflow:hidden !important;background:#e5e7eb !important;flex-shrink:0 !important;">';
+        html += '<div style="display:flex !important;gap:12px !important;align-items:center !important;background:#f9fafb !important;padding:10px !important;border-radius:10px !important;margin-bottom:8px !important;border:1px solid #f3f4f6 !important;">';
+        html += '<div style="width:50px !important;height:50px !important;border-radius:8px !important;overflow:hidden !important;background:#e5e7eb !important;flex-shrink:0 !important;">';
         if (f.image) {
           html += '<img src="' + f.image + '" alt="" style="width:100% !important;height:100% !important;object-fit:cover !important;" />';
         }
         html += '</div>';
         html += '<div style="flex:1 !important;min-width:0 !important;">';
-        html += '<a href="' + (f.url || "#") + '" style="font-size:12px !important;font-weight:700 !important;color:#111827 !important;text-decoration:none !important;display:block !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;">' + (f.name || "Producto") + '</a>';
+        html += '<a href="' + (f.url || "#") + '" style="font-size:13px !important;font-weight:700 !important;color:#111827 !important;text-decoration:none !important;display:-webkit-box !important;-webkit-line-clamp:2 !important;-webkit-box-orient:vertical !important;overflow:hidden !important;line-height:1.2 !important;">' + (f.name || "Producto") + '</a>';
         if (f.price) {
-          html += '<div style="font-size:12px !important;font-weight:800 !important;color:' + accentColor + ' !important;margin-top:2px !important;">' + f.price + '</div>';
+          html += '<div style="font-size:12px !important;font-weight:800 !important;color:' + accentColor + ' !important;margin-top:4px !important;">' + f.price + '</div>';
         }
         html += '</div>';
-        html += '<button type="button" class="nvx-fav-remove" data-id="' + f.id + '" style="background:none !important;border:none !important;color:#ef4444 !important;font-size:16px !important;font-weight:800 !important;cursor:pointer !important;padding:4px !important;line-height:1 !important;" aria-label="Quitar">✕</button>';
+        if (showAddToCart) {
+          html += '<button type="button" class="nvx-fav-atc" data-idx="' + i + '" style="width:32px !important;height:32px !important;border-radius:50% !important;background:' + accentColor + ' !important;color:#ffffff !important;border:none !important;font-size:16px !important;font-weight:800 !important;cursor:pointer !important;display:flex !important;align-items:center !important;justify-content:center !important;flex-shrink:0 !important;line-height:1 !important;" aria-label="Agregar al carrito">+</button>';
+        }
+        html += '<button type="button" class="nvx-fav-remove" data-id="' + f.id + '" style="background:none !important;border:none !important;color:#9ca3af !important;font-size:16px !important;font-weight:700 !important;cursor:pointer !important;padding:4px !important;line-height:1 !important;margin-left:2px !important;" aria-label="Quitar">✕</button>';
         html += '</div>';
       }
       listEl.innerHTML = html;
@@ -15651,9 +15736,22 @@ function renderFavoritos(w) {
       for (var r = 0; r < removes.length; r++) {
         removes[r].addEventListener("click", function (ev) {
           var id = ev.currentTarget.getAttribute("data-id");
-          var next = getFavs().filter(function (x) { return String(x.id) !== String(id); });
-          setFavs(next);
+          var nextFavs = getFavs().filter(function (x) { return String(x.id) !== String(id); });
+          setFavs(nextFavs);
         });
+      }
+
+      if (showAddToCart) {
+        var atcBtns = listEl.querySelectorAll(".nvx-fav-atc");
+        for (var a = 0; a < atcBtns.length; a++) {
+          atcBtns[a].addEventListener("click", function (ev) {
+            var idx = parseInt(ev.currentTarget.getAttribute("data-idx"), 10);
+            var items = getFavs();
+            if (items[idx]) {
+              addToCartSingle(items[idx], ev.currentTarget);
+            }
+          });
+        }
       }
     }
 
@@ -15693,64 +15791,58 @@ function renderFavoritos(w) {
       fab.setAttribute("aria-label", modalTitle);
       fab.style.cssText = floatingPosCss() + "width:" + btnSizeCss + " !important;height:" + btnSizeCss + " !important;border-radius:50% !important;background:" + bgColor + " !important;border:1px solid #e5e7eb !important;box-shadow:" + (hasShadow ? "0 8px 24px rgba(0,0,0,0.18)" : "none") + " !important;display:flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;padding:0 !important;";
       fab.innerHTML = iconSvg(true, iconSizeNum, accentColor) +
-        '<span id="' + uniqueId + '-count" style="display:none;position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:999px;background:' + accentColor + ';color:#fff;font-size:10px;font-weight:900;align-items:center;justify-content:center;padding:0 4px;box-sizing:border-box;">0</span>';
-      fab.style.position = "fixed";
+        '<span id="' + uniqueId + '-count" style="display:none;position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:999px;background:' + accentColor + ';color:#ffffff;font-size:11px;font-weight:800;align-items:center;justify-content:center;padding:0 4px;box-sizing:border-box;border:2px solid #ffffff;">0</span>';
       fab.addEventListener("click", function (ev) {
         ev.preventDefault();
         openPanel();
       });
 
-      /* Panel */
+      /* Panel Estilo Wigy */
       var panel = document.createElement("div");
       panel.id = uniqueId + "-panel";
-      panel.style.cssText = "display:none !important;position:fixed !important;top:50% !important;left:50% !important;transform:translate(-50%,-50%) !important;width:min(360px,calc(100vw - 32px)) !important;max-height:min(520px,calc(100vh - 40px)) !important;background:" + bgColor + " !important;border-radius:" + brCss + " !important;box-shadow:" + shadowCss + " !important;border:1px solid #e5e7eb !important;z-index:99999 !important;flex-direction:column !important;overflow:hidden !important;font-family:system-ui,-apple-system,sans-serif !important;";
+      panel.style.cssText = "display:none !important;position:fixed !important;top:50% !important;left:50% !important;transform:translate(-50%,-50%) !important;width:min(380px,calc(100vw - 32px)) !important;max-height:min(540px,calc(100vh - 40px)) !important;background:" + bgColor + " !important;border-radius:" + brCss + " !important;box-shadow:" + shadowCss + " !important;border:1px solid #e5e7eb !important;z-index:99999 !important;flex-direction:column !important;overflow:hidden !important;font-family:system-ui,-apple-system,sans-serif !important;";
 
       var header = document.createElement("div");
       header.style.cssText = "display:flex !important;align-items:center !important;justify-content:space-between !important;padding:14px 16px !important;border-bottom:1px solid #f3f4f6 !important;";
-      header.innerHTML =
-        '<div style="display:flex !important;align-items:center !important;gap:8px !important;">' +
-          iconSvg(true, 18, accentColor) +
-          '<span style="font-size:15px !important;font-weight:800 !important;color:#111827 !important;">' + modalTitle + '</span>' +
-        '</div>' +
-        '<button type="button" id="' + uniqueId + '-close" style="background:none !important;border:none !important;font-size:18px !important;font-weight:800 !important;color:#6B7280 !important;cursor:pointer !important;line-height:1 !important;" aria-label="Cerrar">✕</button>';
+      
+      var headerLeft = document.createElement("div");
+      headerLeft.style.cssText = "display:flex !important;align-items:center !important;gap:8px !important;";
+      headerLeft.innerHTML = iconSvg(true, 18, accentColor) + '<span style="font-size:15px !important;font-weight:800 !important;color:#111827 !important;">' + modalTitle + '</span>';
+
+      var headerRight = document.createElement("div");
+      headerRight.style.cssText = "display:flex !important;align-items:center !important;gap:8px !important;";
+
+      var addAllBtn = document.createElement("button");
+      addAllBtn.type = "button";
+      addAllBtn.id = uniqueId + "-add-all";
+      addAllBtn.style.cssText = "display:none !important;align-items:center !important;gap:4px !important;padding:6px 12px !important;border-radius:8px !important;background:" + accentColor + " !important;color:#ffffff !important;font-size:12px !important;font-weight:700 !important;border:none !important;cursor:pointer !important;";
+      addAllBtn.innerHTML = '🛍 Agregar todos';
+      addAllBtn.addEventListener("click", addAllToCart);
+
+      var closeBtn = document.createElement("button");
+      closeBtn.type = "button";
+      closeBtn.id = uniqueId + "-close";
+      closeBtn.style.cssText = "background:none !important;border:none !important;font-size:18px !important;font-weight:800 !important;color:#6B7280 !important;cursor:pointer !important;line-height:1 !important;padding:4px !important;";
+      closeBtn.textContent = "✕";
+      closeBtn.addEventListener("click", closePanel);
+
+      headerRight.appendChild(addAllBtn);
+      headerRight.appendChild(closeBtn);
+
+      header.appendChild(headerLeft);
+      header.appendChild(headerRight);
 
       var list = document.createElement("div");
       list.id = uniqueId + "-list";
-      list.style.cssText = "padding:12px 16px !important;overflow:auto !important;flex:1 !important;";
-
-      var footer = document.createElement("div");
-      footer.style.cssText = "padding:12px 16px 16px !important;border-top:1px solid #f3f4f6 !important;";
-
-      if (showAddToCart) {
-        var atcBtn = document.createElement("button");
-        atcBtn.type = "button";
-        atcBtn.textContent = "Agregar al carrito";
-        atcBtn.style.cssText = "width:100% !important;padding:12px 16px !important;border:none !important;border-radius:10px !important;background:" + accentColor + " !important;color:#ffffff !important;font-size:14px !important;font-weight:800 !important;cursor:pointer !important;";
-        atcBtn.addEventListener("click", function () {
-          var favs = getFavs();
-          if (!favs.length) return;
-          /* Abre el primer favorito; el carrito multi-item depende del theme de TN */
-          if (favs[0].url) {
-            window.location.href = favs[0].url;
-          }
-          if (typeof nvxTrack === "function") {
-            try { nvxTrack("favoritos", "add_to_cart_click", { count: favs.length }); } catch (e) {}
-          }
-        });
-        footer.appendChild(atcBtn);
-      }
+      list.style.cssText = "padding:12px 16px !important;overflow-y:auto !important;flex:1 !important;";
 
       panel.appendChild(header);
       panel.appendChild(list);
-      panel.appendChild(footer);
 
       root.appendChild(overlay);
       root.appendChild(fab);
       root.appendChild(panel);
       document.body.appendChild(root);
-
-      var closeBtn = document.getElementById(uniqueId + "-close");
-      if (closeBtn) closeBtn.addEventListener("click", closePanel);
     }
 
     /* ===== BOOT ===== */
@@ -15778,5 +15870,5 @@ function renderFavoritos(w) {
       window.console.warn("[Nevux] renderFavoritos error:", err);
     }
   }
-                       }
+      }
 })(); 
