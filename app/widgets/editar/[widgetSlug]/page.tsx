@@ -1,417 +1,426 @@
-import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase-server';
-import FavoritosEditor from '@/components/widgets/editors/FavoritosEditor';
-import BannerSuperiorEditor from '@/components/widgets/editors/BannerSuperiorEditor';
-import PreguntasFrecuentesEditor from '@/components/widgets/editors/PreguntasFrecuentesEditor';
-import ProductosComplementariosEditor from '@/components/widgets/editors/ProductosComplementariosEditor';
-import BarraCuotasEditor from '@/components/widgets/editors/BarraCuotasEditor';
-import BarraEnvioGratisEditor from '@/components/widgets/editors/BarraEnvioGratisEditor';
-import MarqueeNovedadesEditor from '@/components/widgets/editors/MarqueeNovedadesEditor';
-import HorarioAtencionEditor from '@/components/widgets/editors/HorarioAtencionEditor';
-import CalculadoraAhorroEditor from '@/components/widgets/editors/CalculadoraAhorroEditor';
-import EdicionLimitadaEditor from '@/components/widgets/editors/EdicionLimitadaEditor';
-import ContadorVendidosEditor from '@/components/widgets/editors/ContadorVendidosEditor';
-import CuentaRegresivaEditor from '@/components/widgets/editors/CuentaRegresivaEditor';
-import InfoDespachoEditor from '@/components/widgets/editors/InfoDespachoEditor';
-import UrgenciaStockEditor from '@/components/widgets/editors/UrgenciaStockEditor';
-import ResenasDestacadasEditor from '@/components/widgets/editors/ResenasDestacadasEditor';
-import BundlePromocionesEditor from '@/components/widgets/editors/BundlePromocionesEditor';
-import PopupConversionEditor from '@/components/widgets/editors/PopupConversionEditor';
-import BundleCantidadEditor from '@/components/widgets/editors/BundleCantidadEditor';
-import SliderVideosEditor from '@/components/widgets/editors/SliderVideosEditor';
-import BarraAccionEditor from '@/components/widgets/editors/BarraAccionEditor';
-import MensajeGarantiaEditor from '@/components/widgets/editors/MensajeGarantiaEditor';
-import BadgeEfectivoEditor from '@/components/widgets/editors/BadgeEfectivoEditor';
-import PackComplementariosEditor from '@/components/widgets/editors/PackComplementariosEditor';
-import ComparadorAntesDespuesEditor from '@/components/widgets/editors/ComparadorAntesDespuesEditor';
-import BeneficiosEditor from '@/components/widgets/editors/BeneficiosEditor';
-import TablaTallesEditor from '@/components/widgets/editors/TablaTallesEditor';
-import ProbadorVirtualEditor from '@/components/widgets/editors/ProbadorVirtualEditor';
-import CajaOpinionesEditor from '@/components/widgets/editors/CajaOpinionesEditor';
-import CajaContactoEditor from '@/components/widgets/editors/CajaContactoEditor';
-import SliderImagenesEditor from '@/components/widgets/editors/SliderImagenesEditor';
-import VideoTextoEditor from '@/components/widgets/editors/VideoTextoEditor';
-import TextoLibreEditor from '@/components/widgets/editors/TextoLibreEditor';
-import PasosEditor from '@/components/widgets/editors/PasosEditor';
-import InformacionEnvioEditor from '@/components/widgets/editors/InformacionEnvioEditor';
-import PestanasInformacionEditor from '@/components/widgets/editors/PestanasInformacionEditor';
-import ImagenesTextosEditor from '@/components/widgets/editors/ImagenesTextosEditor';
-import ColumnasImagenesTextoEditor from '@/components/widgets/editors/ColumnasImagenesTextoEditor';
-import ComparadorMarcaEditor from '@/components/widgets/editors/ComparadorMarcaEditor';
-import VideoFlotanteEditor from '@/components/widgets/editors/VideoFlotanteEditor';
-import BotonWhatsappEditor from '@/components/widgets/editors/BotonWhatsappEditor';
-import RaspaGanaEditor from '@/components/widgets/editors/RaspaGanaEditor';
-import PopupPromocionalEditor from '@/components/widgets/editors/PopupPromocionalEditor';
-import NotificacionesFlotantesEditor from '@/components/widgets/editors/NotificacionesFlotantesEditor';
-import AlertaInventarioEditor from '@/components/widgets/editors/AlertaInventarioEditor';
-import ConjuntoProductosEditor from '@/components/widgets/editors/ConjuntoProductosEditor';
-import CarruselResenasEditor from '@/components/widgets/editors/CarruselResenasEditor';
-import CajaEstadisticasEditor from '@/components/widgets/editors/CajaEstadisticasEditor';
-import BarraDescuentoEditor from '@/components/widgets/editors/BarraDescuentoEditor';
-import MediosPagoEditor from '@/components/widgets/editors/MediosPagoEditor';
+"use client";
 
-interface PageProps {
-  params: { widgetSlug: string };
-  searchParams: { product?: string; category?: string; target?: string };
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase-browser";
+
+interface FavoritosEditorProps {
+  widgetDefinition?: any;
+  existingWidget?: any;
+  targetType?: "all" | "product" | "category";
+  productId?: number | null;
+  categoryId?: string | null;
+  storeId?: string;
+  initialConfig?: any;
+  onSave?: (config: any) => Promise<void> | void;
+  saving?: boolean;
 }
 
-export default async function EditWidgetPage({ params, searchParams }: PageProps) {
+export default function FavoritosEditor({
+  widgetDefinition,
+  existingWidget,
+  targetType = "all",
+  productId = null,
+  categoryId = null,
+  storeId,
+  initialConfig,
+  onSave,
+  saving: externalSaving = false,
+}: FavoritosEditorProps) {
+  const router = useRouter();
   const supabase = createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const config = existingWidget?.config || initialConfig || {};
 
-  if (!user) redirect('/login');
+  const [activeTab, setActiveTab] = useState<"general" | "ubicacion" | "estilos">("general");
 
-  // 🚨 REDIRECCIÓN INTELIGENTE: HERRAMIENTAS PRO / SOCIAL PROOF
-  if (params.widgetSlug === 'social-proof') {
-    redirect('/dashboard/social-proof');
-  }
+  const [iconType, setIconType] = useState(config.iconType || "heart");
+  const [modalTitle, setModalTitle] = useState(config.modalTitle || "Mis favoritos");
+  const [showInGrids, setShowInGrids] = useState(
+    config.showInGrids !== undefined ? config.showInGrids : true
+  );
 
-  const { data: store } = await supabase
-    .from('stores')
-    .select('store_id')
-    .eq('user_id', user.id)
-    .eq('is_active', true)
-    .single();
+  const [badgePositionImage, setBadgePositionImage] = useState(
+    config.badgePositionImage || "top-right"
+  );
+  const [floatingPosition, setFloatingPosition] = useState(
+    config.floatingPosition || "bottom-left"
+  );
 
-  if (!store) redirect('/dashboard');
+  const [accentColor, setAccentColor] = useState(config.accentColor || "#e11d48");
+  const [bgColor, setBgColor] = useState(config.bgColor || "#ffffff");
+  const [hasShadow, setHasShadow] = useState(
+    config.hasShadow !== undefined ? config.hasShadow : true
+  );
+  const [borderRadius, setBorderRadius] = useState(config.borderRadius || "50%");
+  const [floatingButtonSize, setFloatingButtonSize] = useState(
+    config.floatingButtonSize || "55px"
+  );
+  const [floatingIconSize, setFloatingIconSize] = useState(
+    config.floatingIconSize || "24px"
+  );
+  const [showAddToCart, setShowAddToCart] = useState(
+    config.showAddToCart !== undefined ? config.showAddToCart : true
+  );
 
-  const { data: widgetDef } = await supabase
-    .from('widget_definitions')
-    .select('id, slug, name, description, category, icon')
-    .eq('slug', params.widgetSlug)
-    .single();
+  const [isActive, setIsActive] = useState(
+    existingWidget ? existingWidget.is_active : true
+  );
+  const [isSaving, setIsSaving] = useState(false);
 
-  if (!widgetDef) redirect('/dashboard');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const newConfig = {
+      iconType,
+      modalTitle,
+      showInGrids,
+      badgePositionImage,
+      floatingPosition,
+      accentColor,
+      bgColor,
+      hasShadow,
+      borderRadius,
+      floatingButtonSize,
+      floatingIconSize,
+      showAddToCart,
+    };
 
-  const rawCategoryId = searchParams.category || (searchParams.target === 'category' ? searchParams.category : null) || null;
-  const categoryId = rawCategoryId ? String(rawCategoryId).trim() : null;
-  const productId = searchParams.product ? parseInt(searchParams.product, 10) : null;
-
-  let targetType = 'all';
-  if (categoryId || searchParams.target === 'category') {
-    targetType = 'category';
-  } else if (productId) {
-    targetType = 'product';
-  }
-
-  // Consulta ordenada por actualización más reciente
-  let existingQuery = supabase
-    .from('widgets')
-    .select('id, config, is_active, target_type, target_product_id, target_category_id')
-    .eq('user_id', user.id)
-    .eq('store_id', store.store_id)
-    .eq('widget_slug', params.widgetSlug)
-    .order('updated_at', { ascending: false });
-
-  if (targetType === 'category' && categoryId) {
-    existingQuery = existingQuery
-      .eq('target_type', 'category')
-      .or(`target_category_id.eq.${categoryId},config->>category_id.eq.${categoryId}`);
-  } else if (targetType === 'product' && productId) {
-    existingQuery = existingQuery
-      .eq('target_type', 'product')
-      .eq('target_product_id', productId);
-  } else {
-    existingQuery = existingQuery.eq('target_type', 'all');
-  }
-
-  const { data: existingWidgets } = await existingQuery;
-  let existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
-
-  // Inyectar category_id en la config si es tipo categoría
-  if (targetType === 'category' && categoryId) {
-    if (existingWidget) {
-      existingWidget = {
-        ...existingWidget,
-        target_type: 'category',
-        target_category_id: categoryId,
-        config: {
-          ...(existingWidget.config || {}),
-          category_id: categoryId,
-        },
-      };
-    } else {
-      existingWidget = {
-        id: null as any,
-        is_active: true,
-        target_type: 'category',
-        target_product_id: null,
-        target_category_id: categoryId,
-        config: {
-          category_id: categoryId,
-        },
-      } as any;
+    if (onSave) {
+      await onSave(newConfig);
+      return;
     }
-  }
 
-  const editorProps = {
-    widgetDefinition: widgetDef,
-    existingWidget: existingWidget,
-    targetType: targetType as any,
-    productId: productId,
-    categoryId: categoryId,
-    storeId: store.store_id,
+    setIsSaving(true);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) throw new Error("Usuario no autenticado");
+
+      const payload: any = {
+        user_id: user.id,
+        store_id: storeId,
+        widget_slug: "favoritos",
+        is_active: isActive,
+        target_type: targetType,
+        target_product_id: productId,
+        target_category_id: categoryId,
+        config: newConfig,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (existingWidget?.id) {
+        payload.id = existingWidget.id;
+      }
+
+      const { error } = await supabase.from("widgets").upsert(payload);
+      if (error) throw error;
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err: any) {
+      alert("Error al guardar: " + (err.message || "Error desconocido"));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  // WIDGET: FAVORITOS
-  if (params.widgetSlug === 'favoritos') {
-    return <FavoritosEditor {...editorProps} />;
-  }
-
-  // WIDGET: MEDIOS DE PAGO
-  if (params.widgetSlug === 'medios-pago') {
-    return <MediosPagoEditor {...editorProps} />;
-  }
-
-  // WIDGET: BARRA DE DESCUENTO
-  if (params.widgetSlug === 'barra-descuento') {
-    return <BarraDescuentoEditor {...editorProps} />;
-  }
-
-  // WIDGET: CAJA DE ESTADÍSTICAS
-  if (params.widgetSlug === 'caja-estadisticas') {
-    return <CajaEstadisticasEditor {...editorProps} />;
-  }
-
-  // WIDGET: CARRUSEL DE RESEÑAS
-  if (params.widgetSlug === 'carrusel-resenas') {
-    return <CarruselResenasEditor {...editorProps} />;
-  }
-
-  // WIDGET: CONJUNTO DE PRODUCTOS (LOOKS)
-  if (params.widgetSlug === 'conjunto-productos') {
-    return <ConjuntoProductosEditor {...editorProps} />;
-  }
-
-  // WIDGET: ALERTA DE INVENTARIO
-  if (params.widgetSlug === 'alerta-inventario') {
-    return <AlertaInventarioEditor {...editorProps} />;
-  }
-
-  // WIDGET: NOTIFICACIONES FLOTANTES
-  if (params.widgetSlug === 'notificaciones-flotantes') {
-    return <NotificacionesFlotantesEditor {...editorProps} />;
-  }
-
-  // WIDGET: POPUP PROMOCIONAL
-  if (params.widgetSlug === 'popup-promocional') {
-    return <PopupPromocionalEditor {...editorProps} />;
-  }
-
-  // WIDGET: RASPÁ Y GANÁ
-  if (params.widgetSlug === 'raspa-gana') {
-    return <RaspaGanaEditor {...editorProps} />;
-  }
-
-  // WIDGET: BOTÓN DE WHATSAPP
-  if (params.widgetSlug === 'boton-whatsapp') {
-    return <BotonWhatsappEditor {...editorProps} />;
-  }
-
-  // WIDGET: VIDEO FLOTANTE
-  if (params.widgetSlug === 'video-flotante') {
-    return <VideoFlotanteEditor {...editorProps} />;
-  }
-
-  // WIDGET: COMPARADOR DE MARCA
-  if (params.widgetSlug === 'comparador-marca') {
-    return <ComparadorMarcaEditor {...editorProps} />;
-  }
-
-  // WIDGET: COLUMNAS DE IMÁGENES Y TEXTO
-  if (params.widgetSlug === 'columnas-imagenes-texto') {
-    return <ColumnasImagenesTextoEditor {...editorProps} />;
-  }
-
-  // WIDGET: IMÁGENES Y TEXTOS
-  if (params.widgetSlug === 'imagenes-textos') {
-    return <ImagenesTextosEditor {...editorProps} />;
-  }
-
-  // WIDGET: PESTAÑAS DE INFORMACIÓN
-  if (params.widgetSlug === 'pestanas-informacion') {
-    return <PestanasInformacionEditor {...editorProps} />;
-  }
-
-  // WIDGET: INFORMACIÓN DE ENVÍO
-  if (params.widgetSlug === 'informacion-envio') {
-    return <InformacionEnvioEditor {...editorProps} />;
-  }
-
-  // WIDGET: PASOS
-  if (params.widgetSlug === 'pasos') {
-    return <PasosEditor {...editorProps} />;
-  }
-
-  // WIDGET: TEXTO LIBRE
-  if (params.widgetSlug === 'texto-libre') {
-    return <TextoLibreEditor {...editorProps} />;
-  }
-
-  // WIDGET: VIDEO Y TEXTO
-  if (params.widgetSlug === 'video-texto') {
-    return <VideoTextoEditor {...editorProps} />;
-  }
-
-  // WIDGET: SLIDER DE IMÁGENES
-  if (params.widgetSlug === 'slider-imagenes') {
-    return <SliderImagenesEditor {...editorProps} />;
-  }
-
-  // WIDGET: CAJA DE CONTACTO
-  if (params.widgetSlug === 'caja-contacto') {
-    return <CajaContactoEditor {...editorProps} />;
-  }
-
-  // WIDGET: CAJA DE OPINIONES
-  if (params.widgetSlug === 'caja-opiniones') {
-    return <CajaOpinionesEditor {...editorProps} />;
-  }
-
-  // WIDGET: PROBADOR VIRTUAL
-  if (params.widgetSlug === 'probador-virtual') {
-    return <ProbadorVirtualEditor {...editorProps} />;
-  }
-
-  // WIDGET: TABLA DE TALLES
-  if (params.widgetSlug === 'tabla-talles') {
-    return <TablaTallesEditor {...editorProps} />;
-  }
-
-  // WIDGET: BENEFICIOS
-  if (params.widgetSlug === 'beneficios') {
-    return <BeneficiosEditor {...editorProps} />;
-  }
-
-  // WIDGET: COMPARADOR ANTES Y DESPUÉS
-  if (params.widgetSlug === 'comparador-antes-despues') {
-    return <ComparadorAntesDespuesEditor {...editorProps} />;
-  }
-
-  // WIDGET: BANNER SUPERIOR
-  if (params.widgetSlug === 'banner-superior') {
-    return <BannerSuperiorEditor {...editorProps} />;
-  }
-
-  // WIDGET: PREGUNTAS FRECUENTES
-  if (params.widgetSlug === 'preguntas-frecuentes') {
-    return <PreguntasFrecuentesEditor {...editorProps} />;
-  }
-
-  // WIDGET: BADGE DE EFECTIVO
-  if (params.widgetSlug === 'badge-efectivo') {
-    return <BadgeEfectivoEditor {...editorProps} />;
-  }
-
-  // WIDGET: MENSAJE DE GARANTÍA
-  if (params.widgetSlug === 'mensaje-garantia') {
-    return <MensajeGarantiaEditor {...editorProps} />;
-  }
-
-  // WIDGET: BARRA DE ACCIÓN
-  if (params.widgetSlug === 'barra-accion') {
-    return <BarraAccionEditor {...editorProps} />;
-  }
-
-  // WIDGET: SLIDER DE VIDEOS
-  if (params.widgetSlug === 'slider-videos') {
-    return <SliderVideosEditor {...editorProps} />;
-  }
-
-  // WIDGET: BUNDLE DE CANTIDAD
-  if (params.widgetSlug === 'bundle-cantidad') {
-    return <BundleCantidadEditor {...editorProps} />;
-  }
-
-  // WIDGET: PACK COMPLEMENTARIOS
-  if (params.widgetSlug === 'pack-complementarios') {
-    return <PackComplementariosEditor {...editorProps} />;
-  }
-
-  // WIDGET: PRODUCTOS COMPLEMENTARIOS
-  if (params.widgetSlug === 'productos-complementarios') {
-    return <ProductosComplementariosEditor {...editorProps} />;
-  }
-
-  // WIDGET: BARRA DE CUOTAS SIN INTERÉS
-  if (params.widgetSlug === 'barra-cuotas') {
-    return <BarraCuotasEditor {...editorProps} />;
-  }
-
-  // WIDGET: BARRA DE ENVÍO GRATIS
-  if (params.widgetSlug === 'barra-envio-gratis') {
-    return <BarraEnvioGratisEditor {...editorProps} />;
-  }
-
-  // WIDGET: POPUP DE CONVERSIÓN
-  if (params.widgetSlug === 'popup-conversion') {
-    return <PopupConversionEditor {...editorProps} />;
-  }
-
-  // WIDGET: BUNDLE PROMOCIONES
-  if (params.widgetSlug === 'bundle-promociones') {
-    return <BundlePromocionesEditor {...editorProps} />;
-  }
-
-  // WIDGET: RESEÑAS DESTACADAS
-  if (params.widgetSlug === 'resenas-destacadas') {
-    return <ResenasDestacadasEditor {...editorProps} />;
-  }
-
-  // WIDGET: URGENCIA DE STOCK
-  if (params.widgetSlug === 'urgencia-stock') {
-    return <UrgenciaStockEditor {...editorProps} />;
-  }
-
-  // WIDGET: INFORMACIÓN DE DESPACHO
-  if (params.widgetSlug === 'info-despacho') {
-    return <InfoDespachoEditor {...editorProps} />;
-  }
-
-  // WIDGET: CUENTA REGRESIVA
-  if (params.widgetSlug === 'cuenta-regresiva') {
-    return <CuentaRegresivaEditor {...editorProps} />;
-  }
-
-  // WIDGET: CONTADOR DE VENDIDOS
-  if (params.widgetSlug === 'contador-vendidos') {
-    return <ContadorVendidosEditor {...editorProps} />;
-  }
-
-  // WIDGET: STICKER EDICIÓN LIMITADA
-  if (params.widgetSlug === 'edicion-limitada') {
-    return <EdicionLimitadaEditor {...editorProps} />;
-  }
-
-  // WIDGET: CALCULADORA DE AHORRO
-  if (params.widgetSlug === 'calculadora-ahorro') {
-    return <CalculadoraAhorroEditor {...editorProps} />;
-  }
-
-  // WIDGET: HORARIO DE ATENCIÓN
-  if (params.widgetSlug === 'horario-atencion') {
-    return <HorarioAtencionEditor {...editorProps} />;
-  }
-
-  // WIDGET: MARQUEE DE NOVEDADES
-  if (params.widgetSlug === 'marquee-novedades') {
-    return <MarqueeNovedadesEditor {...editorProps} />;
-  }
+  const isBtnSaving = externalSaving || isSaving;
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', padding: 40 }}>
-      <div style={{ background: '#fff', borderRadius: 16, padding: 40, textAlign: 'center', maxWidth: 500, border: '1px solid #e5e7eb' }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>🚧</div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
-          Editor de &quot;{widgetDef.name}&quot;
-        </h1>
-        <p style={{ color: '#6b7280', fontSize: 15 }}>
-          Este editor está en desarrollo. Próximamente podrás configurar este widget.
-        </p>
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      {/* PESTAÑAS */}
+      <div style={{ display: "flex", borderBottom: "1px solid #e5e7eb", gap: "0.5rem" }}>
+        {[
+          { id: "general", label: "General" },
+          { id: "ubicacion", label: "Ubicación" },
+          { id: "estilos", label: "Estilos" },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id as any)}
+            style={{
+              padding: "0.5rem 1rem",
+              fontSize: "0.875rem",
+              fontWeight: 700,
+              background: "transparent",
+              border: "none",
+              borderBottom: activeTab === tab.id ? "2px solid #10B981" : "2px solid transparent",
+              color: activeTab === tab.id ? "#10B981" : "#6b7280",
+              cursor: "pointer",
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
-    </div>
+
+      {/* CONTENIDO TAB GENERAL */}
+      {activeTab === "general" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+          <div>
+            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.5rem", color: "#111827" }}>
+              Ícono del botón
+            </label>
+            <div style={{ display: "flex", gap: "1rem" }}>
+              {[
+                { id: "heart", label: "♡ Corazón" },
+                { id: "star", label: "☆ Estrella" },
+                { id: "bookmark", label: "🔖 Marcador" },
+              ].map((opt) => (
+                <label key={opt.id} style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.875rem", cursor: "pointer", color: "#374151" }}>
+                  <input
+                    type="radio"
+                    name="iconType"
+                    checked={iconType === opt.id}
+                    onChange={() => setIconType(opt.id)}
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.35rem", color: "#111827" }}>
+              Título del modal
+            </label>
+            <input
+              type="text"
+              value={modalTitle}
+              onChange={(e) => setModalTitle(e.target.value)}
+              placeholder="Mis favoritos"
+              style={{
+                width: "100%",
+                padding: "0.6rem 0.75rem",
+                borderRadius: "8px",
+                border: "1px solid #d1d5db",
+                fontSize: "0.875rem",
+              }}
+            />
+            <span style={{ fontSize: "0.75rem", color: "#6b7280", marginTop: "0.25rem", display: "block" }}>
+              Título que aparece en el panel con los productos guardados.
+            </span>
+          </div>
+
+          <div style={{ background: "#f9fafb", padding: "0.85rem", borderRadius: "8px", border: "1px solid #e5e7eb" }}>
+            <label style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={showInGrids}
+                onChange={(e) => setShowInGrids(e.target.checked)}
+                style={{ marginTop: "0.2rem" }}
+              />
+              <div>
+                <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111827", display: "block" }}>
+                  Mostrar botón de favoritos en productos de home y categorías
+                </span>
+                <span style={{ fontSize: "0.75rem", color: "#6b7280", display: "block", marginTop: "0.15rem" }}>
+                  Inyecta el botón sobre la imagen de cada producto en las grillas de la tienda.
+                </span>
+              </div>
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* CONTENIDO TAB UBICACIÓN */}
+      {activeTab === "ubicacion" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+          <div>
+            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.5rem", color: "#111827" }}>
+              Posición del botón sobre la imagen del producto
+            </label>
+            <select
+              value={badgePositionImage}
+              onChange={(e) => setBadgePositionImage(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "0.6rem 0.75rem",
+                borderRadius: "8px",
+                border: "1px solid #d1d5db",
+                fontSize: "0.875rem",
+              }}
+            >
+              <option value="top-right">Arriba a la derecha</option>
+              <option value="top-left">Arriba a la izquierda</option>
+              <option value="bottom-right">Abajo a la derecha</option>
+              <option value="bottom-left">Abajo a la izquierda</option>
+            </select>
+          </div>
+
+          <div>
+            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.5rem", color: "#111827" }}>
+              Posición del botón flotante de la tienda
+            </label>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              {[
+                { id: "bottom-left", label: "Abajo a la izquierda" },
+                { id: "bottom-right", label: "Abajo a la derecha" },
+                { id: "top-left", label: "Arriba a la izquierda" },
+                { id: "top-right", label: "Arriba a la derecha" },
+                { id: "center-left", label: "Al centro a la izquierda" },
+                { id: "center-right", label: "Al centro a la derecha" },
+              ].map((opt) => (
+                <label key={opt.id} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", background: floatingPosition === opt.id ? "#ecfdf5" : "#f9fafb", border: "1px solid", borderColor: floatingPosition === opt.id ? "#10B981" : "#e5e7eb", borderRadius: "6px", cursor: "pointer", fontSize: "0.875rem", fontWeight: 600 }}>
+                  <input
+                    type="radio"
+                    name="floatingPosition"
+                    checked={floatingPosition === opt.id}
+                    onChange={() => setFloatingPosition(opt.id)}
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CONTENIDO TAB ESTILOS */}
+      {activeTab === "estilos" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.35rem", color: "#111827" }}>
+                Color del ícono / acento
+              </label>
+              <input
+                type="color"
+                value={accentColor}
+                onChange={(e) => setAccentColor(e.target.value)}
+                style={{ width: "100%", height: "40px", borderRadius: "6px", border: "1px solid #d1d5db", cursor: "pointer" }}
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.35rem", color: "#111827" }}>
+                Fondo del botón
+              </label>
+              <input
+                type="color"
+                value={bgColor}
+                onChange={(e) => setBgColor(e.target.value)}
+                style={{ width: "100%", height: "40px", borderRadius: "6px", border: "1px solid #d1d5db", cursor: "pointer" }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.5rem", color: "#111827" }}>
+              Sombra del botón
+            </label>
+            <div style={{ display: "flex", gap: "1rem" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.875rem", cursor: "pointer" }}>
+                <input type="radio" name="hasShadow" checked={hasShadow === true} onChange={() => setHasShadow(true)} /> Con sombra
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.875rem", cursor: "pointer" }}>
+                <input type="radio" name="hasShadow" checked={hasShadow === false} onChange={() => setHasShadow(false)} /> Sin sombra
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.35rem", color: "#111827" }}>
+              Borde del botón
+            </label>
+            <select
+              value={borderRadius}
+              onChange={(e) => setBorderRadius(e.target.value)}
+              style={{ width: "100%", padding: "0.6rem 0.75rem", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "0.875rem" }}
+            >
+              <option value="50%">Circular (50%)</option>
+              <option value="8px">Redondeado (8px)</option>
+              <option value="0px">Cuadrado (0px)</option>
+            </select>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.35rem", color: "#111827" }}>
+                Tamaño del botón flotante
+              </label>
+              <select
+                value={floatingButtonSize}
+                onChange={(e) => setFloatingButtonSize(e.target.value)}
+                style={{ width: "100%", padding: "0.6rem 0.75rem", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "0.875rem" }}
+              >
+                <option value="55px">Grande (55px)</option>
+                <option value="45px">Mediano (45px)</option>
+                <option value="35px">Pequeño (35px)</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.35rem", color: "#111827" }}>
+                Tamaño del ícono flotante
+              </label>
+              <select
+                value={floatingIconSize}
+                onChange={(e) => setFloatingIconSize(e.target.value)}
+                style={{ width: "100%", padding: "0.6rem 0.75rem", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "0.875rem" }}
+              >
+                <option value="24px">Grande (24px)</option>
+                <option value="20px">Mediano (20px)</option>
+                <option value="16px">Pequeño (16px)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={{ background: "#f9fafb", padding: "0.85rem", borderRadius: "8px", border: "1px solid #e5e7eb" }}>
+            <label style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={showAddToCart}
+                onChange={(e) => setShowAddToCart(e.target.checked)}
+                style={{ marginTop: "0.2rem" }}
+              />
+              <div>
+                <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111827", display: "block" }}>
+                  Mostrar botones de agregar al carrito
+                </span>
+                <span style={{ fontSize: "0.75rem", color: "#6b7280", display: "block", marginTop: "0.15rem" }}>
+                  Muestra el botón "+" y "Agregar todos" en el panel de favoritos para agregar productos al carrito directamente.
+                </span>
+              </div>
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* ESTADO DEL WIDGET */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f9fafb", padding: "0.85rem", borderRadius: "8px", border: "1px solid #e5e7eb" }}>
+        <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111827" }}>Widget activo</span>
+        <input
+          type="checkbox"
+          checked={isActive}
+          onChange={(e) => setIsActive(e.target.checked)}
+          style={{ width: "18px", height: "18px", cursor: "pointer" }}
+        />
+      </div>
+
+      {/* BOTÓN GUARDAR FULL WIDTH ABAJO VERDE #10B981 */}
+      <div style={{ marginTop: "0.5rem" }}>
+        <button
+          type="submit"
+          disabled={isBtnSaving}
+          style={{
+            width: "100%",
+            padding: "0.85rem",
+            background: "#10B981",
+            color: "#ffffff",
+            fontSize: "1rem",
+            fontWeight: 800,
+            border: "none",
+            borderRadius: "8px",
+            cursor: isBtnSaving ? "not-allowed" : "pointer",
+            opacity: isBtnSaving ? 0.7 : 1,
+            boxShadow: "0 4px 12px rgba(16, 185, 129, 0.25)",
+          }}
+        >
+          {isBtnSaving ? "Guardando..." : "Guardar cambios"}
+        </button>
+      </div>
+    </form>
   );
-          }
+}
