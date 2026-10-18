@@ -1844,6 +1844,7 @@
             if (w.widget_slug === "caja-estadisticas") renderCajaEstadisticas(w);
             if (w.widget_slug === "barra-descuento") renderBarraDescuento(w);
             if (w.widget_slug === "medios-pago") renderMediosPago(w);
+            if (w.widget_slug === "favoritos") renderFavoritos(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -15385,4 +15386,397 @@ function renderMediosPago(w) {
     }
   }
       }
+                     /* ═══════════════════════════════════════════
+   WIDGET #49: FAVORITOS (v398)
+   ═══════════════════════════════════════════ */
+function renderFavoritos(w) {
+  try {
+    var cfg = w.config || {};
+    if (typeof cfg === "string") {
+      try { cfg = JSON.parse(cfg); } catch (e) { cfg = {}; }
+    }
+
+    var uniqueId = "nvx-favoritos-" + (w.id || "global");
+    if (document.getElementById(uniqueId + "-root")) return;
+
+    /* ===== KEYS REALES DEL EDITOR ===== */
+    var iconType = cfg.iconType || "heart";
+    var modalTitle = cfg.modalTitle !== undefined ? String(cfg.modalTitle) : "Mis Favoritos";
+    var showInGrids = cfg.showInGrids !== false;
+    var badgePositionImage = cfg.badgePositionImage || "top-right";
+    var floatingPosition = cfg.floatingPosition || "bottom-right";
+    var accentColor = cfg.accentColor || "#10B981";
+    var bgColor = cfg.bgColor || "#ffffff";
+    var hasShadow = cfg.hasShadow !== false;
+    var borderRadius = cfg.borderRadius !== undefined ? cfg.borderRadius : 12;
+    var floatingButtonSize = cfg.floatingButtonSize !== undefined ? cfg.floatingButtonSize : 50;
+    var floatingIconSize = cfg.floatingIconSize !== undefined ? cfg.floatingIconSize : 22;
+    var showAddToCart = cfg.showAddToCart !== false;
+
+    var brCss = (typeof borderRadius === "number") ? (borderRadius + "px") : String(borderRadius);
+    var btnSizeCss = (typeof floatingButtonSize === "number") ? (floatingButtonSize + "px") : String(floatingButtonSize);
+    var iconSizeNum = (typeof floatingIconSize === "number") ? floatingIconSize : parseInt(String(floatingIconSize), 10) || 22;
+    var shadowCss = hasShadow ? "0 10px 25px rgba(0,0,0,0.15)" : "none";
+
+    var STORAGE_KEY = "nvx_favoritos_" + (w.store_id || w.storeId || "default");
+
+    function getFavs() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        var arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function setFavs(arr) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(arr || []));
+      } catch (e) {}
+      updateUI();
+    }
+
+    function isFav(id) {
+      var favs = getFavs();
+      for (var i = 0; i < favs.length; i++) {
+        if (String(favs[i].id) === String(id)) return true;
+      }
+      return false;
+    }
+
+    function toggleFav(item) {
+      if (!item || !item.id) return;
+      var favs = getFavs();
+      var found = -1;
+      for (var i = 0; i < favs.length; i++) {
+        if (String(favs[i].id) === String(item.id)) { found = i; break; }
+      }
+      if (found >= 0) {
+        favs.splice(found, 1);
+      } else {
+        favs.push({
+          id: String(item.id),
+          name: item.name || "Producto",
+          price: item.price || "",
+          image: item.image || "",
+          url: item.url || window.location.href
+        });
+      }
+      setFavs(favs);
+      if (typeof nvxTrack === "function") {
+        try { nvxTrack("favoritos", found >= 0 ? "remove" : "add", { product_id: item.id }); } catch (e) {}
+      }
+    }
+
+    function iconSvg(filled, size, color) {
+      var s = size || 20;
+      var c = color || accentColor;
+      if (iconType === "star") {
+        return filled
+          ? '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="' + c + '" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+          : '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="' + c + '" stroke-width="2" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+      }
+      if (iconType === "bookmark") {
+        return filled
+          ? '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="' + c + '" xmlns="http://www.w3.org/2000/svg"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>'
+          : '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="' + c + '" stroke-width="2" xmlns="http://www.w3.org/2000/svg"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+      }
+      return filled
+        ? '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="' + c + '" xmlns="http://www.w3.org/2000/svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
+        : '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="' + c + '" stroke-width="2" xmlns="http://www.w3.org/2000/svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+    }
+
+    function badgePosCss() {
+      if (badgePositionImage === "top-left") return "top:8px;left:8px;";
+      if (badgePositionImage === "bottom-left") return "bottom:8px;left:8px;";
+      if (badgePositionImage === "bottom-right") return "bottom:8px;right:8px;";
+      return "top:8px;right:8px;";
+    }
+
+    function floatingPosCss() {
+      var base = "position:fixed !important;z-index:99990 !important;";
+      if (floatingPosition === "bottom-left") return base + "bottom:20px;left:20px;";
+      if (floatingPosition === "top-right") return base + "top:20px;right:20px;";
+      if (floatingPosition === "top-left") return base + "top:20px;left:20px;";
+      if (floatingPosition === "mid-right" || floatingPosition === "center-right") return base + "top:50%;right:20px;transform:translateY(-50%);";
+      if (floatingPosition === "mid-left" || floatingPosition === "center-left") return base + "top:50%;left:20px;transform:translateY(-50%);";
+      return base + "bottom:20px;right:20px;";
+    }
+
+    function extractProductFromCard(card) {
+      if (!card) return null;
+      var link = card.querySelector("a[href*='/productos/'], a[href*='/products/'], a.item-link, a.js-item-link, a[itemprop='url']") || card.closest("a") || card.querySelector("a");
+      var href = link ? (link.getAttribute("href") || "") : "";
+      var nameEl = card.querySelector(".item-name, .js-item-name, [itemprop='name'], .product-title, h2, h3");
+      var priceEl = card.querySelector(".item-price, .js-price-display, [itemprop='price'], .price, .product-price");
+      var imgEl = card.querySelector("img");
+      var id = card.getAttribute("data-product-id") ||
+               card.getAttribute("data-productid") ||
+               (card.id ? String(card.id).replace(/\D/g, "") : "") ||
+               href;
+      if (!id && href) id = href;
+      if (!id) return null;
+      return {
+        id: String(id),
+        name: nameEl ? (nameEl.textContent || "").trim() : "Producto",
+        price: priceEl ? (priceEl.textContent || "").trim() : "",
+        image: imgEl ? (imgEl.getAttribute("src") || imgEl.getAttribute("data-src") || "") : "",
+        url: href || window.location.href
+      };
+    }
+
+    function extractCurrentProduct() {
+      var nameEl = document.querySelector("h1.js-product-name, h1[itemprop='name'], h1.product-title, h1");
+      var priceEl = document.querySelector(".js-price-display, [itemprop='price'], .product-price, #price_display");
+      var imgEl = document.querySelector(".js-product-image img, .product-image img, [data-store='product-image'] img, meta[property='og:image']");
+      var id =
+        (window.LS && window.LS.product && (window.LS.product.id || window.LS.product.id_product)) ||
+        (document.querySelector("[data-product-id]") && document.querySelector("[data-product-id]").getAttribute("data-product-id")) ||
+        (document.querySelector("input[name='add_to_cart']") && document.querySelector("input[name='add_to_cart']").value) ||
+        window.location.pathname;
+      var image = "";
+      if (imgEl) {
+        image = imgEl.getAttribute("content") || imgEl.getAttribute("src") || imgEl.getAttribute("data-src") || "";
+      }
+      return {
+        id: String(id || window.location.pathname),
+        name: nameEl ? (nameEl.textContent || "").trim() : "Producto",
+        price: priceEl ? (priceEl.textContent || "").trim() : "",
+        image: image,
+        url: window.location.href
+      };
+    }
+
+    function makeBadgeButton(item, size) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "nvx-fav-badge";
+      btn.setAttribute("data-nvx-fav-id", String(item.id));
+      btn.setAttribute("aria-label", "Favorito");
+      var filled = isFav(item.id);
+      btn.innerHTML = iconSvg(filled, size || 16, filled ? accentColor : "#6B7280");
+      btn.style.cssText = "position:absolute !important;" + badgePosCss() + "width:34px !important;height:34px !important;border-radius:50% !important;background:#ffffff !important;border:none !important;box-shadow:0 2px 6px rgba(0,0,0,0.15) !important;display:flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;z-index:20 !important;padding:0 !important;line-height:1 !important;";
+      btn.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        toggleFav(item);
+      });
+      return btn;
+    }
+
+    function injectBadges() {
+      var pageType = typeof detectPageType === "function" ? detectPageType() : "";
+
+      /* Producto actual */
+      if (pageType === "product") {
+        var galleries = document.querySelectorAll(".js-product-image, .product-image, [data-store='product-image'], .product-gallery, .js-product-gallery");
+        var product = extractCurrentProduct();
+        for (var g = 0; g < galleries.length; g++) {
+          var gal = galleries[g];
+          if (gal.querySelector(".nvx-fav-badge")) continue;
+          var cs = window.getComputedStyle(gal);
+          if (cs.position === "static") gal.style.position = "relative";
+          gal.appendChild(makeBadgeButton(product, 18));
+        }
+      }
+
+      /* Grillas */
+      if (showInGrids) {
+        var cards = document.querySelectorAll(
+          ".js-item-product, .item-product, .product-item, [data-product-id], .js-product-container .item, .product-grid .item, li.item, article.product"
+        );
+        for (var i = 0; i < cards.length; i++) {
+          var card = cards[i];
+          if (card.querySelector(".nvx-fav-badge")) continue;
+          var item = extractProductFromCard(card);
+          if (!item) continue;
+          var imgWrap =
+            card.querySelector(".js-item-image, .item-image, .product-image, figure, .image-container, a") ||
+            card;
+          var cs2 = window.getComputedStyle(imgWrap);
+          if (cs2.position === "static") imgWrap.style.position = "relative";
+          imgWrap.appendChild(makeBadgeButton(item, 16));
+        }
+      }
+    }
+
+    function updateBadgesState() {
+      var badges = document.querySelectorAll(".nvx-fav-badge");
+      for (var i = 0; i < badges.length; i++) {
+        var id = badges[i].getAttribute("data-nvx-fav-id");
+        var filled = isFav(id);
+        badges[i].innerHTML = iconSvg(filled, 16, filled ? accentColor : "#6B7280");
+      }
+    }
+
+    function updateUI() {
+      var favs = getFavs();
+      var countEl = document.getElementById(uniqueId + "-count");
+      if (countEl) {
+        countEl.textContent = String(favs.length);
+        countEl.style.display = favs.length > 0 ? "flex" : "none";
+      }
+      var listEl = document.getElementById(uniqueId + "-list");
+      if (listEl) renderList(listEl, favs);
+      updateBadgesState();
+    }
+
+    function renderList(listEl, favs) {
+      if (!favs.length) {
+        listEl.innerHTML = '<div style="padding:20px 12px !important;text-align:center !important;color:#6B7280 !important;font-size:13px !important;">Todavía no guardaste productos.</div>';
+        return;
+      }
+      var html = "";
+      for (var i = 0; i < favs.length; i++) {
+        var f = favs[i];
+        html += '<div style="display:flex !important;gap:10px !important;align-items:center !important;background:#f9fafb !important;padding:8px !important;border-radius:8px !important;margin-bottom:8px !important;">';
+        html += '<div style="width:44px !important;height:44px !important;border-radius:6px !important;overflow:hidden !important;background:#e5e7eb !important;flex-shrink:0 !important;">';
+        if (f.image) {
+          html += '<img src="' + f.image + '" alt="" style="width:100% !important;height:100% !important;object-fit:cover !important;" />';
+        }
+        html += '</div>';
+        html += '<div style="flex:1 !important;min-width:0 !important;">';
+        html += '<a href="' + (f.url || "#") + '" style="font-size:12px !important;font-weight:700 !important;color:#111827 !important;text-decoration:none !important;display:block !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;">' + (f.name || "Producto") + '</a>';
+        if (f.price) {
+          html += '<div style="font-size:12px !important;font-weight:800 !important;color:' + accentColor + ' !important;margin-top:2px !important;">' + f.price + '</div>';
+        }
+        html += '</div>';
+        html += '<button type="button" class="nvx-fav-remove" data-id="' + f.id + '" style="background:none !important;border:none !important;color:#ef4444 !important;font-size:16px !important;font-weight:800 !important;cursor:pointer !important;padding:4px !important;line-height:1 !important;" aria-label="Quitar">✕</button>';
+        html += '</div>';
+      }
+      listEl.innerHTML = html;
+
+      var removes = listEl.querySelectorAll(".nvx-fav-remove");
+      for (var r = 0; r < removes.length; r++) {
+        removes[r].addEventListener("click", function (ev) {
+          var id = ev.currentTarget.getAttribute("data-id");
+          var next = getFavs().filter(function (x) { return String(x.id) !== String(id); });
+          setFavs(next);
+        });
+      }
+    }
+
+    function openPanel() {
+      var panel = document.getElementById(uniqueId + "-panel");
+      var overlay = document.getElementById(uniqueId + "-overlay");
+      if (panel) panel.style.display = "flex";
+      if (overlay) overlay.style.display = "block";
+      updateUI();
+      if (typeof nvxTrack === "function") {
+        try { nvxTrack("favoritos", "open_panel", { count: getFavs().length }); } catch (e) {}
+      }
+    }
+
+    function closePanel() {
+      var panel = document.getElementById(uniqueId + "-panel");
+      var overlay = document.getElementById(uniqueId + "-overlay");
+      if (panel) panel.style.display = "none";
+      if (overlay) overlay.style.display = "none";
+    }
+
+    function buildRoot() {
+      var root = document.createElement("div");
+      root.id = uniqueId + "-root";
+      root.setAttribute("data-nevux-widget", "favoritos");
+
+      /* Overlay */
+      var overlay = document.createElement("div");
+      overlay.id = uniqueId + "-overlay";
+      overlay.style.cssText = "display:none !important;position:fixed !important;inset:0 !important;background:rgba(17,24,39,0.45) !important;z-index:99998 !important;";
+      overlay.addEventListener("click", closePanel);
+
+      /* Floating button */
+      var fab = document.createElement("button");
+      fab.type = "button";
+      fab.id = uniqueId + "-fab";
+      fab.setAttribute("aria-label", modalTitle);
+      fab.style.cssText = floatingPosCss() + "width:" + btnSizeCss + " !important;height:" + btnSizeCss + " !important;border-radius:50% !important;background:" + bgColor + " !important;border:1px solid #e5e7eb !important;box-shadow:" + (hasShadow ? "0 8px 24px rgba(0,0,0,0.18)" : "none") + " !important;display:flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;padding:0 !important;";
+      fab.innerHTML = iconSvg(true, iconSizeNum, accentColor) +
+        '<span id="' + uniqueId + '-count" style="display:none;position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:999px;background:' + accentColor + ';color:#fff;font-size:10px;font-weight:900;align-items:center;justify-content:center;padding:0 4px;box-sizing:border-box;">0</span>';
+      fab.style.position = "fixed";
+      fab.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        openPanel();
+      });
+
+      /* Panel */
+      var panel = document.createElement("div");
+      panel.id = uniqueId + "-panel";
+      panel.style.cssText = "display:none !important;position:fixed !important;top:50% !important;left:50% !important;transform:translate(-50%,-50%) !important;width:min(360px,calc(100vw - 32px)) !important;max-height:min(520px,calc(100vh - 40px)) !important;background:" + bgColor + " !important;border-radius:" + brCss + " !important;box-shadow:" + shadowCss + " !important;border:1px solid #e5e7eb !important;z-index:99999 !important;flex-direction:column !important;overflow:hidden !important;font-family:system-ui,-apple-system,sans-serif !important;";
+
+      var header = document.createElement("div");
+      header.style.cssText = "display:flex !important;align-items:center !important;justify-content:space-between !important;padding:14px 16px !important;border-bottom:1px solid #f3f4f6 !important;";
+      header.innerHTML =
+        '<div style="display:flex !important;align-items:center !important;gap:8px !important;">' +
+          iconSvg(true, 18, accentColor) +
+          '<span style="font-size:15px !important;font-weight:800 !important;color:#111827 !important;">' + modalTitle + '</span>' +
+        '</div>' +
+        '<button type="button" id="' + uniqueId + '-close" style="background:none !important;border:none !important;font-size:18px !important;font-weight:800 !important;color:#6B7280 !important;cursor:pointer !important;line-height:1 !important;" aria-label="Cerrar">✕</button>';
+
+      var list = document.createElement("div");
+      list.id = uniqueId + "-list";
+      list.style.cssText = "padding:12px 16px !important;overflow:auto !important;flex:1 !important;";
+
+      var footer = document.createElement("div");
+      footer.style.cssText = "padding:12px 16px 16px !important;border-top:1px solid #f3f4f6 !important;";
+
+      if (showAddToCart) {
+        var atcBtn = document.createElement("button");
+        atcBtn.type = "button";
+        atcBtn.textContent = "Agregar al carrito";
+        atcBtn.style.cssText = "width:100% !important;padding:12px 16px !important;border:none !important;border-radius:10px !important;background:" + accentColor + " !important;color:#ffffff !important;font-size:14px !important;font-weight:800 !important;cursor:pointer !important;";
+        atcBtn.addEventListener("click", function () {
+          var favs = getFavs();
+          if (!favs.length) return;
+          /* Abre el primer favorito; el carrito multi-item depende del theme de TN */
+          if (favs[0].url) {
+            window.location.href = favs[0].url;
+          }
+          if (typeof nvxTrack === "function") {
+            try { nvxTrack("favoritos", "add_to_cart_click", { count: favs.length }); } catch (e) {}
+          }
+        });
+        footer.appendChild(atcBtn);
+      }
+
+      panel.appendChild(header);
+      panel.appendChild(list);
+      panel.appendChild(footer);
+
+      root.appendChild(overlay);
+      root.appendChild(fab);
+      root.appendChild(panel);
+      document.body.appendChild(root);
+
+      var closeBtn = document.getElementById(uniqueId + "-close");
+      if (closeBtn) closeBtn.addEventListener("click", closePanel);
+    }
+
+    /* ===== BOOT ===== */
+    buildRoot();
+    injectBadges();
+    updateUI();
+
+    setTimeout(function () { injectBadges(); updateUI(); }, 600);
+    setTimeout(function () { injectBadges(); updateUI(); }, 1600);
+
+    /* Re-scan en grillas lazy */
+    try {
+      var mo = new MutationObserver(function () {
+        injectBadges();
+      });
+      mo.observe(document.body, { childList: true, subtree: true });
+    } catch (e) {}
+
+    if (typeof nvxTrack === "function") {
+      try { nvxTrack("favoritos", "render", { showInGrids: showInGrids, floatingPosition: floatingPosition }); } catch (e) {}
+    }
+
+  } catch (err) {
+    if (window.console && window.console.warn) {
+      window.console.warn("[Nevux] renderFavoritos error:", err);
+    }
+  }
+                       }
 })(); 
