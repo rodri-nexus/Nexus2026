@@ -9,6 +9,14 @@ interface WidgetPreviewProps {
    ═══════════════════════════════════════════ */
 
 function MediosPagoPreview() {
+  const logos = [
+    "https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg",
+    "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg",
+    "https://http2.mlstatic.com/frontend-assets/mp-web-navigation/ui-navigation/6.6.95/mercadopago/logo__large.png",
+    "https://play-lh.googleusercontent.com/J0Wj6c3qJj1nkPtlyNVmLHhR0yygQ9yJIAVKQg7E3bHCUmJd9NwRJJBz9x9h8qV1kw",
+    "https://cdn-icons-png.flaticon.com/512/2830/2830284.png"
+  ];
+
   return (
     <div
       style={{
@@ -34,27 +42,28 @@ function MediosPagoPreview() {
         Medios de pago
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "3px", padding: "2px 0" }}>
-        {["VISA", "MC", "AMEX", "MP", "MODO", "TRANSF"].map((brand, idx) => (
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "3px", justifyContent: "center", padding: "2px 0" }}>
+        {logos.map((url, idx) => (
           <div
             key={idx}
             style={{
               background: "#ffffff",
               border: "1px solid #e5e7eb",
               borderRadius: "4px",
-              padding: "3px 0",
-              fontSize: "5.5px",
-              fontWeight: 900,
-              color: "#374151",
-              textAlign: "center"
+              width: "24px",
+              height: "15px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "2px"
             }}
           >
-            {brand}
+            <img src={url} alt="logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
           </div>
         ))}
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "3px", color: "#16A34A", fontSize: "6px", fontWeight: 700 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "3px", color: "#10B981", fontSize: "6px", fontWeight: 700 }}>
         <span>🔒</span>
         <span>Pago 100% seguro</span>
       </div>
@@ -1071,7 +1080,7 @@ function ProductosComplementariosPreview() {
           <div style={{ width: "18px", height: "18px", borderRadius: "4px", background: "#111827", color: "#ffffff", fontSize: "10px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>🔌</div>
           <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
             <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Cargador Rápido 20W</span>
-            <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>$ 18.500</span>
+            <span style={{ fontSize: "6.5px", fontWeight 900, color: "#10B981" }}>$ 18.500</span>
           </div>
         </div>
         <div style={{ background: "#111827", color: "#ffffff", borderRadius: "4px", padding: "2px 5px", fontSize: "6px", fontWeight: 800, flexShrink: 0 }}>+ Agregar</div>
@@ -1288,7 +1297,7 @@ function MarqueeNovedadesPreview() {
         <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
         <span style={{ fontSize: "7px", fontWeight: 800, color: "#ffffff" }}>🔥 MÁS VENDIDOS</span>
         <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
-        <span style={{ fontSize: "7px", fontWeight: 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
+        <span style={{ fontSize: "7px", fontWeight 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
       </div>
       <div style={{ display: "flex", justifyContent: "center", gap: "3px" }}>
         <div style={{ width: "12px", height: "2px", background: "#10B981", borderRadius: "2px" }} />
@@ -1441,4 +1450,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-        }
+      }
