@@ -1,399 +1,1318 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
-interface FavoritosEditorProps {
-  widgetDefinition?: any;
-  existingWidget?: any;
-  targetType?: "all" | "product" | "category";
-  productId?: number | null;
-  categoryId?: string | null;
-  storeId?: number;
-  initialConfig?: any;
-  onSave?: (config: any) => Promise<void> | void;
-  saving?: boolean;
+/* ═══════════════════════════════════════════
+   TIPOS
+═══════════════════════════════════════════ */
+interface WidgetDef {
+  id: string | number;
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  icon: string;
 }
 
-export default function FavoritosEditor({
-  widgetDefinition,
-  existingWidget,
-  targetType = "all",
-  productId = null,
-  categoryId = null,
-  storeId,
-  initialConfig = {},
-  onSave,
-  saving = false,
-}: FavoritosEditorProps) {
-  const config = existingWidget?.config || initialConfig || {};
+interface ExWidget {
+  id: string | number;
+  config: any;
+  is_active: boolean;
+  target_type: string;
+  target_product_id?: number | null;
+  target_category_id?: string | null;
+}
 
-  const [activeTab, setActiveTab] = useState<"general" | "ubicacion" | "estilos">("general");
+export interface CfgFavoritos {
+  iconType: 'heart' | 'star' | 'bookmark';
+  modalTitle: string;
+  showInGrids: boolean;
+  badgePositionImage: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
+  floatingPosition:
+    | 'bottom-left'
+    | 'bottom-right'
+    | 'top-left'
+    | 'top-right'
+    | 'center-left'
+    | 'center-right';
+  accentColor: string;
+  bgColor: string;
+  hasShadow: boolean;
+  borderRadius: '50%' | '8px' | '0px';
+  floatingButtonSize: '55px' | '45px' | '35px';
+  floatingIconSize: '24px' | '20px' | '16px';
+  showAddToCart: boolean;
+  campaignTheme: string;
+}
 
-  const [iconType, setIconType] = useState(config.iconType || "heart");
-  const [modalTitle, setModalTitle] = useState(config.modalTitle || "Mis favoritos");
-  const [showInGrids, setShowInGrids] = useState(
-    config.showInGrids !== undefined ? config.showInGrids : true
+interface FavoritosEditorProps {
+  widgetDefinition: WidgetDef;
+  existingWidget: ExWidget | null;
+  targetType: string;
+  productId?: number | null;
+  categoryId?: string | null;
+  storeId: string | number;
+  initialConfig?: any;
+  widgetId?: string | number | null;
+  onSave?: (config: any) => void;
+  isSaving?: boolean;
+}
+
+/* ═══════════════════════════════════════════
+   DEFAULTS + THEME_FX
+═══════════════════════════════════════════ */
+const DEF: CfgFavoritos = {
+  iconType: 'heart',
+  modalTitle: 'Mis favoritos',
+  showInGrids: true,
+  badgePositionImage: 'top-right',
+  floatingPosition: 'bottom-left',
+  accentColor: '#e11d48',
+  bgColor: '#ffffff',
+  hasShadow: true,
+  borderRadius: '50%',
+  floatingButtonSize: '55px',
+  floatingIconSize: '24px',
+  showAddToCart: true,
+  campaignTheme: 'none',
+};
+
+const THEME_FX: Record<string, { bg: string; text: string; accent: string; border: string }> = {
+  'black-friday': { bg: '#111827', text: '#ffffff', accent: '#F59E0B', border: '1px solid #374151' },
+  'hot-sale': { bg: '#0F172A', text: '#ffffff', accent: '#EF4444', border: '1px solid #1E293B' },
+  'cyber-monday': { bg: '#090D16', text: '#ffffff', accent: '#3B82F6', border: '1px solid #1E3A8A' },
+  'navidad': { bg: '#064E3B', text: '#ffffff', accent: '#EF4444', border: '1px solid #047857' },
+  'san-valentin': { bg: '#FFF1F2', text: '#831843', accent: '#F43F5E', border: '1px solid #FECDD3' },
+  'dia-padre-madre': { bg: '#EEF2FF', text: '#312E81', accent: '#6366F1', border: '1px solid #C7D2FE' },
+  'liquidacion': { bg: '#FEF2F2', text: '#7F1D1D', accent: '#F59E0B', border: '1px solid #FECACA' },
+};
+
+/* ═══════════════════════════════════════════
+   HELPERS UI
+═══════════════════════════════════════════ */
+const IconStore = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+    <line x1="2" y1="7" x2="22" y2="7" />
+    <path d="M22 7v3a2 2 0 0 1-4 0V7" />
+    <path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9" />
+    <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5" />
+  </svg>
+);
+
+function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
+  return (
+    <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
+      {children}
+      {required && <span style={{ color: '#10B981', marginLeft: 4 }}>*</span>}
+    </label>
   );
+}
 
-  const [badgePositionImage, setBadgePositionImage] = useState(
-    config.badgePositionImage || "top-right"
+function FieldHelper({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{ fontSize: 12, color: '#6b7280', marginTop: 6, marginBottom: 0, lineHeight: 1.4 }}>
+      {children}
+    </p>
   );
-  const [floatingPosition, setFloatingPosition] = useState(
-    config.floatingPosition || "bottom-left"
+}
+
+function TextInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      style={{
+        width: '100%',
+        padding: '12px 14px',
+        fontSize: 14,
+        border: '1.5px solid #e5e7eb',
+        borderRadius: 10,
+        background: '#ffffff',
+        color: '#000000',
+        outline: 'none',
+        boxSizing: 'border-box',
+        fontFamily: 'inherit',
+      }}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
+      onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
+    />
   );
+}
 
-  const [accentColor, setAccentColor] = useState(config.accentColor || "#e11d48");
-  const [bgColor, setBgColor] = useState(config.bgColor || "#ffffff");
-  const [hasShadow, setHasShadow] = useState(
-    config.hasShadow !== undefined ? config.hasShadow : true
-  );
-  const [borderRadius, setBorderRadius] = useState(config.borderRadius || "50%");
-  const [floatingButtonSize, setFloatingButtonSize] = useState(
-    config.floatingButtonSize || "55px"
-  );
-  const [floatingIconSize, setFloatingIconSize] = useState(
-    config.floatingIconSize || "24px"
-  );
-  const [showAddToCart, setShowAddToCart] = useState(
-    config.showAddToCart !== undefined ? config.showAddToCart : true
-  );
-
-  const [localSaving, setLocalSaving] = useState(false);
-  const isSaving = saving || localSaving;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const configToSave = {
-      iconType,
-      modalTitle,
-      showInGrids,
-      badgePositionImage,
-      floatingPosition,
-      accentColor,
-      bgColor,
-      hasShadow,
-      borderRadius,
-      floatingButtonSize,
-      floatingIconSize,
-      showAddToCart,
-    };
-
-    if (onSave) {
-      await onSave(configToSave);
-      return;
-    }
-
-    setLocalSaving(true);
-    try {
-      const res = await fetch("/api/widgets", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: existingWidget?.id || null,
-          store_id: storeId,
-          widget_slug: widgetDefinition?.slug || "favoritos",
-          config: configToSave,
-          target_type: targetType,
-          target_product_id: productId,
-          target_category_id: categoryId,
-          is_active: existingWidget?.is_active ?? true,
-        }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Error al guardar el widget");
-      }
-
-      alert("¡Favoritos guardado con éxito!");
-    } catch (err: any) {
-      alert(err.message || "Error al guardar los cambios.");
-    } finally {
-      setLocalSaving(false);
-    }
+function ColorPickerField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const handleClick = () => {
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.value = value.startsWith('#') && value.length >= 7 ? value : '#000000';
+    input.onchange = (e) => onChange((e.target as HTMLInputElement).value);
+    input.click();
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-      {/* PESTAÑAS */}
-      <div style={{ display: "flex", borderBottom: "1px solid #e5e7eb", gap: "0.5rem" }}>
-        {[
-          { id: "general", label: "General" },
-          { id: "ubicacion", label: "Ubicación" },
-          { id: "estilos", label: "Estilos" },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setActiveTab(tab.id as any)}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
+      <div
+        onClick={handleClick}
+        style={{
+          width: 38,
+          height: 38,
+          borderRadius: 8,
+          background: value,
+          border: '1.5px solid #e5e7eb',
+          cursor: 'pointer',
+          flexShrink: 0,
+        }}
+      />
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          const v = e.target.value;
+          onChange(v.startsWith('#') ? v : '#' + v);
+        }}
+        style={{
+          flex: 1,
+          minWidth: 0,
+          padding: '9px 10px',
+          fontSize: 13,
+          border: '1.5px solid #e5e7eb',
+          borderRadius: 8,
+          background: '#ffffff',
+          color: '#000000',
+          outline: 'none',
+          fontFamily: 'monospace',
+          boxSizing: 'border-box',
+        }}
+      />
+    </div>
+  );
+}
+
+function ToggleSwitch({
+  checked,
+  onChange,
+  activeColor = '#10B981',
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  activeColor?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      style={{
+        width: 48,
+        height: 26,
+        borderRadius: 999,
+        background: checked ? activeColor : '#e5e7eb',
+        border: 'none',
+        cursor: 'pointer',
+        padding: 3,
+        display: 'flex',
+        alignItems: 'center',
+        transition: 'background-color 0.2s',
+        flexShrink: 0,
+      }}
+    >
+      <div
+        style={{
+          width: 20,
+          height: 20,
+          borderRadius: '50%',
+          background: '#ffffff',
+          transform: checked ? 'translateX(22px)' : 'translateX(0px)',
+          transition: 'transform 0.2s',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+        }}
+      />
+    </button>
+  );
+}
+
+function FavIcon({
+  type,
+  color,
+  size = 22,
+  filled = false,
+}: {
+  type: CfgFavoritos['iconType'];
+  color: string;
+  size?: number;
+  filled?: boolean;
+}) {
+  if (type === 'star') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? color : 'none'} stroke={color} strokeWidth="2">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      </svg>
+    );
+  }
+  if (type === 'bookmark') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? color : 'none'} stroke={color} strokeWidth="2">
+        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+      </svg>
+    );
+  }
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? color : 'none'} stroke={color} strokeWidth="2">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+
+function parseCfg(raw: Record<string, unknown> | undefined): CfgFavoritos {
+  if (!raw) return { ...DEF };
+  return {
+    iconType: (raw.iconType as CfgFavoritos['iconType']) || DEF.iconType,
+    modalTitle: raw.modalTitle !== undefined ? String(raw.modalTitle) : DEF.modalTitle,
+    showInGrids: typeof raw.showInGrids === 'boolean' ? raw.showInGrids : DEF.showInGrids,
+    badgePositionImage: (raw.badgePositionImage as CfgFavoritos['badgePositionImage']) || DEF.badgePositionImage,
+    floatingPosition: (raw.floatingPosition as CfgFavoritos['floatingPosition']) || DEF.floatingPosition,
+    accentColor: (raw.accentColor as string) || DEF.accentColor,
+    bgColor: (raw.bgColor as string) || DEF.bgColor,
+    hasShadow: typeof raw.hasShadow === 'boolean' ? raw.hasShadow : DEF.hasShadow,
+    borderRadius: (raw.borderRadius as CfgFavoritos['borderRadius']) || DEF.borderRadius,
+    floatingButtonSize: (raw.floatingButtonSize as CfgFavoritos['floatingButtonSize']) || DEF.floatingButtonSize,
+    floatingIconSize: (raw.floatingIconSize as CfgFavoritos['floatingIconSize']) || DEF.floatingIconSize,
+    showAddToCart: typeof raw.showAddToCart === 'boolean' ? raw.showAddToCart : DEF.showAddToCart,
+    campaignTheme: (raw.campaignTheme as string) || 'none',
+  };
+}
+
+/* ═══════════════════════════════════════════
+   EDITOR PRINCIPAL
+═══════════════════════════════════════════ */
+export default function FavoritosEditor({
+  widgetDefinition: wd,
+  existingWidget: ew,
+  targetType,
+  productId,
+  categoryId,
+  storeId,
+  initialConfig,
+  onSave,
+  isSaving,
+}: FavoritosEditorProps) {
+  const router = useRouter();
+
+  const [cfg, setCfg] = useState<CfgFavoritos>(() => parseCfg(ew?.config || initialConfig));
+  const [isActive, setIsActive] = useState(ew?.is_active !== false);
+  const [tab, setTab] = useState<'gen' | 'ubicacion' | 'style' | 'dates'>('gen');
+  const [saving, setSaving] = useState(false);
+  const [ok, setOk] = useState(false);
+  const [err, setErr] = useState('');
+
+  const isForAll = targetType === 'all';
+  const scopeLabel = isForAll ? 'General' : 'Producto';
+
+  useEffect(() => {
+    setOk(false);
+    setErr('');
+  }, [cfg, isActive]);
+
+  const set = <K extends keyof CfgFavoritos>(k: K, v: CfgFavoritos[K]) =>
+    setCfg((p) => ({ ...p, [k]: v }));
+
+  const setCustomColor = (key: 'accentColor' | 'bgColor', val: string) => {
+    setCfg((prev) => ({
+      ...prev,
+      [key]: val,
+      campaignTheme: 'none',
+    }));
+  };
+
+  const applyPreset = (slug: string) => {
+    if (slug === 'none') {
+      setCfg((prev) => ({
+        ...prev,
+        campaignTheme: 'none',
+        accentColor: DEF.accentColor,
+        bgColor: DEF.bgColor,
+      }));
+      return;
+    }
+    const p = THEME_FX[slug];
+    if (p) {
+      setCfg((prev) => ({
+        ...prev,
+        campaignTheme: slug,
+        accentColor: p.accent,
+        bgColor: p.bg,
+      }));
+    }
+  };
+
+  const save = async () => {
+    if (onSave) {
+      onSave(cfg);
+      return;
+    }
+
+    setSaving(true);
+    setOk(false);
+    setErr('');
+
+    try {
+      const body = {
+        id: ew?.id ?? null,
+        store_id: storeId,
+        widget_slug: wd.slug,
+        config: cfg,
+        target_type: targetType,
+        target_product_id: productId ?? null,
+        target_category_id: categoryId ?? null,
+        is_active: isActive,
+      };
+      const res = await fetch('/api/widgets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error('Error al guardar');
+      setOk(true);
+      router.push('/widgets');
+    } catch {
+      setErr('No se pudo guardar. Reintentá.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const getPreviewStyles = () => {
+    const theme = cfg.campaignTheme && cfg.campaignTheme !== 'none' ? THEME_FX[cfg.campaignTheme] : null;
+    let accent = cfg.accentColor;
+    let bg = cfg.bgColor;
+    if (theme) {
+      accent = theme.accent;
+      bg = theme.bg === '#111827' || theme.bg === '#0F172A' || theme.bg === '#090D16' || theme.bg === '#064E3B'
+        ? '#ffffff'
+        : theme.bg;
+    }
+    return { accent, bg };
+  };
+
+  const ps = getPreviewStyles();
+
+  const badgePosStyle = (): React.CSSProperties => {
+    const base: React.CSSProperties = { position: 'absolute', zIndex: 2 };
+    switch (cfg.badgePositionImage) {
+      case 'top-left':
+        return { ...base, top: 10, left: 10 };
+      case 'bottom-right':
+        return { ...base, bottom: 10, right: 10 };
+      case 'bottom-left':
+        return { ...base, bottom: 10, left: 10 };
+      default:
+        return { ...base, top: 10, right: 10 };
+    }
+  };
+
+  const fabPosStyle = (): React.CSSProperties => {
+    const base: React.CSSProperties = { position: 'absolute', zIndex: 3 };
+    switch (cfg.floatingPosition) {
+      case 'bottom-right':
+        return { ...base, bottom: 14, right: 14 };
+      case 'top-left':
+        return { ...base, top: 14, left: 14 };
+      case 'top-right':
+        return { ...base, top: 14, right: 14 };
+      case 'center-left':
+        return { ...base, top: '50%', left: 14, transform: 'translateY(-50%)' };
+      case 'center-right':
+        return { ...base, top: '50%', right: 14, transform: 'translateY(-50%)' };
+      default:
+        return { ...base, bottom: 14, left: 14 };
+    }
+  };
+
+  const fabSize = parseInt(cfg.floatingButtonSize, 10) || 55;
+  const iconSize = parseInt(cfg.floatingIconSize, 10) || 24;
+
+  const CAMPAIGN_PRESETS = [
+    { id: 'none', label: 'Diseño Normal / Personalizado', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
+    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Acento dorado sobre fondo oscuro.' },
+    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Rojo fuego para urgencia.' },
+    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Azul cibernético.' },
+    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Rojo navideño con aire festivo.' },
+    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa pasión para fechas románticas.' },
+    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Índigo suave y elegante.' },
+    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Ámbar cálido de oferta.' },
+  ];
+
+  const floatingLabels: Record<CfgFavoritos['floatingPosition'], string> = {
+    'bottom-left': 'Abajo a la izquierda',
+    'bottom-right': 'Abajo a la derecha',
+    'top-left': 'Arriba a la izquierda',
+    'top-right': 'Arriba a la derecha',
+    'center-left': 'Al centro a la izquierda',
+    'center-right': 'Al centro a la derecha',
+  };
+
+  const floatingDescs: Record<CfgFavoritos['floatingPosition'], string> = {
+    'bottom-left': 'El botón aparece en la esquina inferior izquierda de la pantalla.',
+    'bottom-right': 'El botón aparece en la esquina inferior derecha de la pantalla.',
+    'top-left': 'El botón aparece en la esquina superior izquierda de la pantalla.',
+    'top-right': 'El botón aparece en la esquina superior derecha de la pantalla.',
+    'center-left': 'El botón aparece centrado verticalmente sobre el lado izquierdo de la pantalla.',
+    'center-right': 'El botón aparece centrado verticalmente sobre el lado derecho de la pantalla.',
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+      {/* HEADER STICKY */}
+      <div
+        style={{
+          background: '#ffffff',
+          borderBottom: '1px solid #e5e7eb',
+          padding: '14px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          position: 'sticky',
+          top: 0,
+          zIndex: 20,
+        }}
+      >
+        <NevuxLogo size="medium" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div
             style={{
-              padding: "0.5rem 1rem",
-              fontSize: "0.875rem",
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: '#000000',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 13,
               fontWeight: 700,
-              background: "transparent",
-              border: "none",
-              borderBottom: activeTab === tab.id ? "2px solid #10B981" : "2px solid transparent",
-              color: activeTab === tab.id ? "#10B981" : "#6b7280",
-              cursor: "pointer",
+              color: '#ffffff',
             }}
           >
-            {tab.label}
-          </button>
-        ))}
+            RL
+          </div>
+        </div>
       </div>
 
-      {/* CONTENIDO TAB GENERAL */}
-      {activeTab === "general" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <div>
-            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.5rem", color: "#111827" }}>
-              Ícono del botón
-            </label>
-            <div style={{ display: "flex", gap: "1rem" }}>
-              {[
-                { id: "heart", label: "♡ Corazón" },
-                { id: "star", label: "☆ Estrella" },
-                { id: "bookmark", label: "🔖 Marcador" },
-              ].map((opt) => (
-                <label key={opt.id} style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.875rem", cursor: "pointer", color: "#374151" }}>
-                  <input
-                    type="radio"
-                    name="iconType"
-                    checked={iconType === opt.id}
-                    onChange={() => setIconType(opt.id)}
-                  />
-                  {opt.label}
-                </label>
-              ))}
-            </div>
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
+        {isForAll ? (
+          <div
+            style={{
+              background: '#10B981',
+              color: '#ffffff',
+              borderRadius: 999,
+              padding: '8px 14px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 20,
+              fontSize: 14,
+              fontWeight: 700,
+            }}
+          >
+            <IconStore />
+            <span>Widget general para toda la tienda</span>
           </div>
-
-          <div>
-            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.35rem", color: "#111827" }}>
-              Título del modal
-            </label>
-            <input
-              type="text"
-              value={modalTitle}
-              onChange={(e) => setModalTitle(e.target.value)}
-              placeholder="Mis favoritos"
-              style={{
-                width: "100%",
-                padding: "0.6rem 0.75rem",
-                borderRadius: "8px",
-                border: "1px solid #d1d5db",
-                fontSize: "0.875rem",
-              }}
-            />
-            <span style={{ fontSize: "0.75rem", color: "#6b7280", marginTop: "0.25rem", display: "block" }}>
-              Título que aparece en el panel con los productos guardados.
-            </span>
+        ) : (
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid #e5e7eb',
+              borderRadius: 10,
+              padding: '8px 14px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              marginBottom: 20,
+              fontSize: 14,
+              fontWeight: 700,
+              color: '#000000',
+            }}
+          >
+            <span style={{ fontSize: 18 }}>🛍</span>
+            <span>NEVUX Widget</span>
           </div>
+        )}
 
-          <div style={{ background: "#f9fafb", padding: "0.85rem", borderRadius: "8px", border: "1px solid #e5e7eb" }}>
-            <label style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", cursor: "pointer" }}>
-              <input
-                type="checkbox"
-                checked={showInGrids}
-                onChange={(e) => setShowInGrids(e.target.checked)}
-                style={{ marginTop: "0.2rem" }}
-              />
-              <div>
-                <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111827", display: "block" }}>
-                  Mostrar botón de favoritos en productos de home y categorías
-                </span>
-                <span style={{ fontSize: "0.75rem", color: "#6b7280", display: "block", marginTop: "0.15rem" }}>
-                  Inyecta el botón sobre la imagen de cada producto en las grillas de la tienda.
-                </span>
-              </div>
-            </label>
-          </div>
-        </div>
-      )}
-
-      {/* CONTENIDO TAB UBICACIÓN */}
-      {activeTab === "ubicacion" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <div>
-            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.5rem", color: "#111827" }}>
-              Posición del botón sobre la imagen del producto
-            </label>
-            <select
-              value={badgePositionImage}
-              onChange={(e) => setBadgePositionImage(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "0.6rem 0.75rem",
-                borderRadius: "8px",
-                border: "1px solid #d1d5db",
-                fontSize: "0.875rem",
-              }}
-            >
-              <option value="top-right">Arriba a la derecha</option>
-              <option value="top-left">Arriba a la izquierda</option>
-              <option value="bottom-right">Abajo a la derecha</option>
-              <option value="bottom-left">Abajo a la izquierda</option>
-            </select>
-          </div>
-
-          <div>
-            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.5rem", color: "#111827" }}>
-              Posición del botón flotante de la tienda
-            </label>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              {[
-                { id: "bottom-left", label: "Abajo a la izquierda" },
-                { id: "bottom-right", label: "Abajo a la derecha" },
-                { id: "top-left", label: "Arriba a la izquierda" },
-                { id: "top-right", label: "Arriba a la derecha" },
-                { id: "center-left", label: "Al centro a la izquierda" },
-                { id: "center-right", label: "Al centro a la derecha" },
-              ].map((opt) => (
-                <label key={opt.id} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", background: floatingPosition === opt.id ? "#ecfdf5" : "#f9fafb", border: "1px solid", borderColor: floatingPosition === opt.id ? "#10B981" : "#e5e7eb", borderRadius: "6px", cursor: "pointer", fontSize: "0.875rem", fontWeight: 600 }}>
-                  <input
-                    type="radio"
-                    name="floatingPosition"
-                    checked={floatingPosition === opt.id}
-                    onChange={() => setFloatingPosition(opt.id)}
-                  />
-                  {opt.label}
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* CONTENIDO TAB ESTILOS */}
-      {activeTab === "estilos" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-            <div>
-              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.35rem", color: "#111827" }}>
-                Color del ícono / acento
-              </label>
-              <input
-                type="color"
-                value={accentColor}
-                onChange={(e) => setAccentColor(e.target.value)}
-                style={{ width: "100%", height: "40px", borderRadius: "6px", border: "1px solid #d1d5db", cursor: "pointer" }}
-              />
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.35rem", color: "#111827" }}>
-                Fondo del botón
-              </label>
-              <input
-                type="color"
-                value={bgColor}
-                onChange={(e) => setBgColor(e.target.value)}
-                style={{ width: "100%", height: "40px", borderRadius: "6px", border: "1px solid #d1d5db", cursor: "pointer" }}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.5rem", color: "#111827" }}>
-              Sombra del botón
-            </label>
-            <div style={{ display: "flex", gap: "1rem" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.875rem", cursor: "pointer" }}>
-                <input type="radio" name="hasShadow" checked={hasShadow === true} onChange={() => setHasShadow(true)} /> Con sombra
-              </label>
-              <label style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.875rem", cursor: "pointer" }}>
-                <input type="radio" name="hasShadow" checked={hasShadow === false} onChange={() => setHasShadow(false)} /> Sin sombra
-              </label>
-            </div>
-          </div>
-
-          <div>
-            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.35rem", color: "#111827" }}>
-              Borde del botón
-            </label>
-            <select
-              value={borderRadius}
-              onChange={(e) => setBorderRadius(e.target.value)}
-              style={{ width: "100%", padding: "0.6rem 0.75rem", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "0.875rem" }}
-            >
-              <option value="50%">Circular (50%)</option>
-              <option value="8px">Redondeado (8px)</option>
-              <option value="0px">Cuadrado (0px)</option>
-            </select>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-            <div>
-              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.35rem", color: "#111827" }}>
-                Tamaño del botón flotante
-              </label>
-              <select
-                value={floatingButtonSize}
-                onChange={(e) => setFloatingButtonSize(e.target.value)}
-                style={{ width: "100%", padding: "0.6rem 0.75rem", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "0.875rem" }}
-              >
-                <option value="55px">Grande (55px)</option>
-                <option value="45px">Mediano (45px)</option>
-                <option value="35px">Pequeño (35px)</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.35rem", color: "#111827" }}>
-                Tamaño del ícono flotante
-              </label>
-              <select
-                value={floatingIconSize}
-                onChange={(e) => setFloatingIconSize(e.target.value)}
-                style={{ width: "100%", padding: "0.6rem 0.75rem", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "0.875rem" }}
-              >
-                <option value="24px">Grande (24px)</option>
-                <option value="20px">Mediano (20px)</option>
-                <option value="16px">Pequeño (16px)</option>
-              </select>
-            </div>
-          </div>
-
-          <div style={{ background: "#f9fafb", padding: "0.85rem", borderRadius: "8px", border: "1px solid #e5e7eb" }}>
-            <label style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", cursor: "pointer" }}>
-              <input
-                type="checkbox"
-                checked={showAddToCart}
-                onChange={(e) => setShowAddToCart(e.target.checked)}
-                style={{ marginTop: "0.2rem" }}
-              />
-              <div>
-                <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "#111827", display: "block" }}>
-                  Mostrar botones de agregar al carrito
-                </span>
-                <span style={{ fontSize: "0.75rem", color: "#6b7280", display: "block", marginTop: "0.15rem" }}>
-                  Muestra el botón "+" y "Agregar todos" en el panel de favoritos para agregar productos al carrito directamente.
-                </span>
-              </div>
-            </label>
-          </div>
-        </div>
-      )}
-
-      {/* BOTÓN GUARDAR FULL WIDTH ABAJO VERDE #10B981 */}
-      <div style={{ marginTop: "1rem" }}>
-        <button
-          type="submit"
-          disabled={isSaving}
+        <h1
           style={{
-            width: "100%",
-            padding: "0.85rem",
-            background: "#10B981",
-            color: "#ffffff",
-            fontSize: "1rem",
+            fontSize: 26,
             fontWeight: 800,
-            border: "none",
-            borderRadius: "8px",
-            cursor: isSaving ? "not-allowed" : "pointer",
-            opacity: isSaving ? 0.7 : 1,
-            boxShadow: "0 4px 12px rgba(16, 185, 129, 0.25)",
+            color: '#000000',
+            margin: '0 0 20px',
+            lineHeight: 1.2,
           }}
         >
-          {isSaving ? "Guardando..." : "Guardar cambios"}
-        </button>
+          {ew ? 'Editar widget: ' : 'Nuevo widget: '}
+          {wd.name} ({scopeLabel})
+        </h1>
+
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderRadius: 16,
+            padding: 20,
+            marginBottom: 20,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          }}
+        >
+          {/* ─── PREVIEW EN VIVO ─── */}
+          <div style={{ marginBottom: 24 }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: '#9ca3af',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: 10,
+              }}
+            >
+              Vista previa en vivo
+            </div>
+
+            <div
+              style={{
+                background: '#f3f4f6',
+                border: '1px solid #e5e7eb',
+                borderRadius: 16,
+                padding: 16,
+                position: 'relative',
+                minHeight: 320,
+              }}
+            >
+              {/* Imagen producto + badge */}
+              <div
+                style={{
+                  background: '#e5e7eb',
+                  borderRadius: 12,
+                  height: 220,
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                }}
+              >
+                <div style={{ textAlign: 'center', color: '#9ca3af' }}>
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <path d="M21 15l-5-5L5 21" />
+                  </svg>
+                  <div style={{ fontSize: 12, marginTop: 6, fontWeight: 600 }}>Imagen del producto</div>
+                </div>
+
+                {/* Badge sobre imagen */}
+                <button
+                  type="button"
+                  style={{
+                    ...badgePosStyle(),
+                    width: 36,
+                    height: 36,
+                    borderRadius: cfg.borderRadius,
+                    background: ps.bg,
+                    border: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: cfg.hasShadow ? '0 4px 12px rgba(0,0,0,0.15)' : 'none',
+                    cursor: 'default',
+                  }}
+                >
+                  <FavIcon type={cfg.iconType} color={ps.accent} size={18} />
+                </button>
+              </div>
+
+              {/* FAB flotante con contador */}
+              <div style={fabPosStyle()}>
+                <div style={{ position: 'relative' }}>
+                  <button
+                    type="button"
+                    style={{
+                      width: fabSize,
+                      height: fabSize,
+                      borderRadius: cfg.borderRadius,
+                      background: ps.bg,
+                      border: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: cfg.hasShadow ? '0 8px 24px rgba(0,0,0,0.18)' : '0 1px 3px rgba(0,0,0,0.08)',
+                      cursor: 'default',
+                    }}
+                  >
+                    <FavIcon type={cfg.iconType} color={ps.accent} size={iconSize} />
+                  </button>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: -4,
+                      right: -4,
+                      minWidth: 20,
+                      height: 20,
+                      borderRadius: 999,
+                      background: ps.accent,
+                      color: '#ffffff',
+                      fontSize: 11,
+                      fontWeight: 800,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0 5px',
+                      border: '2px solid #fff',
+                    }}
+                  >
+                    3
+                  </span>
+                </div>
+              </div>
+
+              {/* Mini panel preview */}
+              <div
+                style={{
+                  marginTop: 14,
+                  background: '#ffffff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 12,
+                  padding: '12px 14px',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#111827' }}>
+                    {cfg.modalTitle || 'Mis favoritos'} (3)
+                  </div>
+                  <FavIcon type={cfg.iconType} color={ps.accent} size={16} filled />
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 8, background: '#e5e7eb' }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>Producto ejemplo</div>
+                    <div style={{ fontSize: 12, color: '#6b7280' }}>$12.500</div>
+                  </div>
+                  {cfg.showAddToCart && (
+                    <button
+                      type="button"
+                      style={{
+                        background: ps.accent,
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 8,
+                        padding: '6px 10px',
+                        fontSize: 12,
+                        fontWeight: 800,
+                        cursor: 'default',
+                      }}
+                    >
+                      + Carrito
+                    </button>
+                  )}
+                </div>
+                <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 10 }}>
+                  Botón flotante: {floatingLabels[cfg.floatingPosition]}
+                </div>
+              </div>
+            </div>
+
+            <p style={{ fontSize: 13, color: '#6b7280', marginTop: 12, lineHeight: 1.5 }}>
+              El botón de favoritos aparece sobre la imagen del producto. El panel flotante está visible en toda la tienda y muestra los productos guardados.
+            </p>
+          </div>
+
+          {/* TABS */}
+          <div
+            style={{
+              display: 'flex',
+              borderBottom: '1px solid #e5e7eb',
+              marginBottom: 24,
+              overflowX: 'auto',
+            }}
+          >
+            {(
+              [
+                ['gen', 'General'],
+                ['ubicacion', 'Ubicación'],
+                ['style', 'Estilos'],
+                ['dates', '🔥 Eventos'],
+              ] as const
+            ).map(([k, l]) => {
+              const act = tab === k;
+              return (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setTab(k)}
+                  style={{
+                    flex: 1,
+                    padding: '14px 12px',
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
+                    color: act ? '#10B981' : '#000000',
+                    opacity: act ? 1 : 0.6,
+                    fontSize: 14,
+                    fontWeight: act ? 700 : 500,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {l}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* TAB GENERAL */}
+          {tab === 'gen' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              <div>
+                <FieldLabel>Ícono del botón</FieldLabel>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+                  {(
+                    [
+                      { id: 'heart', label: 'Corazón' },
+                      { id: 'star', label: 'Estrella' },
+                      { id: 'bookmark', label: 'Marcador' },
+                    ] as const
+                  ).map((opt) => {
+                    const selected = cfg.iconType === opt.id;
+                    return (
+                      <label
+                        key={opt.id}
+                        onClick={() => set('iconType', opt.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '10px 14px',
+                          borderRadius: 10,
+                          border: selected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                          background: selected ? '#ECFDF5' : '#ffffff',
+                          cursor: 'pointer',
+                          fontSize: 14,
+                          fontWeight: 700,
+                          color: '#111827',
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="iconType"
+                          checked={selected}
+                          onChange={() => set('iconType', opt.id)}
+                          style={{ accentColor: '#10B981' }}
+                        />
+                        <FavIcon type={opt.id} color={selected ? '#10B981' : '#6b7280'} size={16} />
+                        {opt.label}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <FieldLabel>Título del modal</FieldLabel>
+                <TextInput
+                  value={cfg.modalTitle}
+                  onChange={(v) => set('modalTitle', v)}
+                  placeholder="Mis favoritos"
+                />
+                <FieldHelper>Título que aparece en el panel con los productos guardados.</FieldHelper>
+              </div>
+
+              <div
+                style={{
+                  background: '#f9fafb',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 12,
+                  padding: 16,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                  <input
+                    type="checkbox"
+                    checked={cfg.showInGrids}
+                    onChange={(e) => set('showInGrids', e.target.checked)}
+                    style={{ marginTop: 3, width: 18, height: 18, accentColor: '#10B981' }}
+                  />
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#111827' }}>
+                      Mostrar botón de favoritos en productos de home y categorías
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4, lineHeight: 1.45 }}>
+                      Inyecta el botón sobre la imagen de cada producto en las grillas de la tienda (home, categorías, productos relacionados).
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB UBICACIÓN */}
+          {tab === 'ubicacion' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              <div>
+                <FieldLabel>Posición del botón sobre la imagen</FieldLabel>
+                <FieldHelper>Esquina donde aparece el botón de favoritos sobre la imagen del producto.</FieldHelper>
+
+                {/* Selector visual 2x2 como Wigy */}
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 12, flexWrap: 'wrap' }}>
+                  <div
+                    style={{
+                      width: 72,
+                      height: 72,
+                      borderRadius: 12,
+                      border: '1.5px solid #e5e7eb',
+                      background: '#f9fafb',
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gridTemplateRows: '1fr 1fr',
+                      gap: 6,
+                      padding: 10,
+                    }}
+                  >
+                    {(
+                      [
+                        'top-left',
+                        'top-right',
+                        'bottom-left',
+                        'bottom-right',
+                      ] as const
+                    ).map((pos) => (
+                      <button
+                        key={pos}
+                        type="button"
+                        onClick={() => set('badgePositionImage', pos)}
+                        style={{
+                          border: 'none',
+                          borderRadius: '50%',
+                          background: cfg.badgePositionImage === pos ? '#10B981' : '#d1d5db',
+                          cursor: 'pointer',
+                          width: '100%',
+                          height: '100%',
+                        }}
+                        aria-label={pos}
+                      />
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>
+                    {cfg.badgePositionImage === 'top-right' && 'Arriba a la derecha'}
+                    {cfg.badgePositionImage === 'top-left' && 'Arriba a la izquierda'}
+                    {cfg.badgePositionImage === 'bottom-right' && 'Abajo a la derecha'}
+                    {cfg.badgePositionImage === 'bottom-left' && 'Abajo a la izquierda'}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <FieldLabel>Posición del botón flotante</FieldLabel>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
+                  {(
+                    [
+                      'bottom-left',
+                      'bottom-right',
+                      'top-left',
+                      'top-right',
+                      'center-left',
+                      'center-right',
+                    ] as const
+                  ).map((pos) => {
+                    const selected = cfg.floatingPosition === pos;
+                    return (
+                      <label
+                        key={pos}
+                        onClick={() => set('floatingPosition', pos)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: 12,
+                          padding: '14px 16px',
+                          borderRadius: 12,
+                          border: selected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                          background: selected ? '#ECFDF5' : '#ffffff',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="floatingPosition"
+                          checked={selected}
+                          onChange={() => set('floatingPosition', pos)}
+                          style={{ marginTop: 2, accentColor: '#10B981', width: 18, height: 18 }}
+                        />
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: '#111827' }}>
+                            {floatingLabels[pos]}
+                          </div>
+                          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2, lineHeight: 1.4 }}>
+                            {floatingDescs[pos]}
+                          </div>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB ESTILOS */}
+          {tab === 'style' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              {/* Colores */}
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1.5px solid #e5e7eb',
+                  borderRadius: 12,
+                  padding: 16,
+                }}
+              >
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 4 }}>
+                  🎨 Colores
+                </div>
+                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 14 }}>
+                  Acento del ícono, badge y fondo del botón.
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div>
+                    <FieldLabel>Color del ícono / acento</FieldLabel>
+                    <ColorPickerField value={cfg.accentColor} onChange={(v) => setCustomColor('accentColor', v)} />
+                    <FieldHelper>Corazón/estrella, badge y botones del modal.</FieldHelper>
+                  </div>
+                  <div>
+                    <FieldLabel>Color de fondo del botón</FieldLabel>
+                    <ColorPickerField value={cfg.bgColor} onChange={(v) => setCustomColor('bgColor', v)} />
+                    <FieldHelper>Fondo del botón de producto y flotante.</FieldHelper>
+                  </div>
+                </div>
+              </div>
+
+              {/* Forma y tamaño */}
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1.5px solid #e5e7eb',
+                  borderRadius: 12,
+                  padding: 16,
+                }}
+              >
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 4 }}>
+                  ▦ Forma y tamaño
+                </div>
+                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 14 }}>
+                  Sombra, borde y dimensiones del botón flotante.
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <FieldLabel>Sombra del botón</FieldLabel>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    {[
+                      { v: true, label: 'Con sombra' },
+                      { v: false, label: 'Sin sombra' },
+                    ].map((opt) => {
+                      const selected = cfg.hasShadow === opt.v;
+                      return (
+                        <button
+                          key={String(opt.v)}
+                          type="button"
+                          onClick={() => set('hasShadow', opt.v)}
+                          style={{
+                            padding: '12px',
+                            borderRadius: 10,
+                            border: selected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                            background: selected ? '#ECFDF5' : '#ffffff',
+                            cursor: 'pointer',
+                            fontSize: 13,
+                            fontWeight: 700,
+                            color: '#111827',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: 14,
+                              height: 14,
+                              borderRadius: 3,
+                              background: selected ? '#10B981' : '#d1d5db',
+                            }}
+                          />
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <FieldLabel>Borde del botón</FieldLabel>
+                  <select
+                    value={cfg.borderRadius}
+                    onChange={(e) => set('borderRadius', e.target.value as CfgFavoritos['borderRadius'])}
+                    style={{
+                      width: '100%',
+                      padding: '12px 14px',
+                      fontSize: 14,
+                      border: '1.5px solid #e5e7eb',
+                      borderRadius: 10,
+                      background: '#ffffff',
+                      color: '#000000',
+                      outline: 'none',
+                    }}
+                  >
+                    <option value="50%">Circular (50%)</option>
+                    <option value="8px">Redondeado (8px)</option>
+                    <option value="0px">Cuadrado (0px)</option>
+                  </select>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div>
+                    <FieldLabel>Tamaño del botón flotante</FieldLabel>
+                    <select
+                      value={cfg.floatingButtonSize}
+                      onChange={(e) =>
+                        set('floatingButtonSize', e.target.value as CfgFavoritos['floatingButtonSize'])
+                      }
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        fontSize: 14,
+                        border: '1.5px solid #e5e7eb',
+                        borderRadius: 10,
+                        background: '#ffffff',
+                        color: '#000000',
+                        outline: 'none',
+                      }}
+                    >
+                      <option value="55px">Grande (55px)</option>
+                      <option value="45px">Mediano (45px)</option>
+                      <option value="35px">Pequeño (35px)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <FieldLabel>Tamaño del ícono flotante</FieldLabel>
+                    <select
+                      value={cfg.floatingIconSize}
+                      onChange={(e) =>
+                        set('floatingIconSize', e.target.value as CfgFavoritos['floatingIconSize'])
+                      }
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        fontSize: 14,
+                        border: '1.5px solid #e5e7eb',
+                        borderRadius: 10,
+                        background: '#ffffff',
+                        color: '#000000',
+                        outline: 'none',
+                      }}
+                    >
+                      <option value="24px">Grande (24px)</option>
+                      <option value="20px">Mediano (20px)</option>
+                      <option value="16px">Pequeño (16px)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Carrito */}
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1.5px solid #e5e7eb',
+                  borderRadius: 12,
+                  padding: 16,
+                }}
+              >
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 4 }}>
+                  🛒 Carrito
+                </div>
+                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 14 }}>
+                  Opciones de agregar al carrito desde el panel.
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#111827' }}>
+                      Mostrar botones de agregar al carrito
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4, lineHeight: 1.45 }}>
+                      Muestra el botón &quot;+&quot; y &quot;Agregar todos&quot; en el panel de favoritos para agregar productos al carrito directamente.
+                    </div>
+                  </div>
+                  <ToggleSwitch checked={cfg.showAddToCart} onChange={(v) => set('showAddToCart', v)} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB EVENTOS */}
+          {tab === 'dates' && (
+            <div>
+              <div style={{ marginBottom: 20 }}>
+                <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
+                <FieldHelper>
+                  Elegí una campaña: el color de acento y el fondo del botón se adaptan automáticamente al evento.
+                </FieldHelper>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {CAMPAIGN_PRESETS.map((preset) => {
+                  const isSelected = cfg.campaignTheme === preset.id;
+                  return (
+                    <div
+                      key={preset.id}
+                      onClick={() => applyPreset(preset.id)}
+                      style={{
+                        background: '#ffffff',
+                        border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                        borderRadius: 12,
+                        padding: 16,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 16,
+                      }}
+                    >
+                      <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            fontSize: 15,
+                            fontWeight: 700,
+                            color: '#000000',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                          }}
+                        >
+                          {preset.label}
+                          {isSelected && (
+                            <span
+                              style={{
+                                background: '#ecfdf5',
+                                color: '#10B981',
+                                fontSize: 11,
+                                fontWeight: 800,
+                                padding: '2px 8px',
+                                borderRadius: 999,
+                                border: '1px solid #10B981',
+                              }}
+                            >
+                              ACTIVO
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
+                          {preset.desc}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Widget activo + mensajes */}
+          <div
+            style={{
+              marginTop: 28,
+              paddingTop: 20,
+              borderTop: '1px solid #e5e7eb',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <ToggleSwitch checked={isActive} onChange={setIsActive} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>Widget activo</span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 16 }}>
+            {ok && (
+              <div
+                style={{
+                  background: '#ecfdf5',
+                  border: '1px solid #10B981',
+                  borderRadius: 10,
+                  padding: '10px 16px',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: '#059669',
+                }}
+              >
+                ✅ Widget guardado correctamente
+              </div>
+            )}
+            {err && (
+              <div
+                style={{
+                  background: '#fef2f2',
+                  border: '1px solid #fca5a5',
+                  borderRadius: 10,
+                  padding: '10px 16px',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: '#dc2626',
+                }}
+              >
+                ❌ {err}
+              </div>
+            )}
+          </div>
+
+          {/* BOTÓN GUARDAR FULL WIDTH VERDE */}
+          <div style={{ marginTop: 24 }}>
+            <button
+              type="button"
+              onClick={save}
+              disabled={saving || isSaving}
+              style={{
+                width: '100%',
+                padding: '16px 24px',
+                borderRadius: 12,
+                border: 'none',
+                background: saving || isSaving ? '#9ca3af' : '#10B981',
+                color: '#ffffff',
+                fontSize: 16,
+                fontWeight: 800,
+                cursor: saving || isSaving ? 'wait' : 'pointer',
+                boxShadow: saving || isSaving ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.25)',
+              }}
+            >
+              {saving || isSaving ? 'Guardando...' : ew ? 'Actualizar Widget' : 'Crear Widget'}
+            </button>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 40, width: '100%' }}>
+          <CentroAyuda />
+        </div>
       </div>
-    </form>
+    </div>
   );
-  }
+    }
