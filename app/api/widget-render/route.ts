@@ -52,6 +52,7 @@ export async function GET(req: NextRequest) {
         socialProof: null,
         virtualSalesman: null,
         voiceSearch: null,
+        suscripcionStock: null,
         error: "Tienda no encontrada o inactiva",
       });
     }
@@ -76,6 +77,7 @@ export async function GET(req: NextRequest) {
         socialProof: null,
         virtualSalesman: null,
         voiceSearch: null,
+        suscripcionStock: null,
         trial_expired: true,
         message: "Período de prueba finalizado. Suscríbete para reactivar tus widgets.",
         ts: Date.now(),
@@ -121,7 +123,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 4. Inyectar handle y name de categoría a los widgets correspondientes
-    const allWidgets = (rawWidgets || []).map((w) => {
+    const allWidgets = (rawWidgets || []).map((w: any) => {
       if (w.target_type === "category" && w.target_category_id) {
         const meta = categoryMetaMap[String(w.target_category_id)];
         if (meta) {
@@ -207,11 +209,29 @@ export async function GET(req: NextRequest) {
       }
     } catch {}
 
+    // 8. Suscripción de Stock (Aviso de Stock)
+    let suscripcionStockData: Record<string, unknown> | null = null;
+    try {
+      const stockWidget = allWidgets.find((w: any) => w.widget_slug === "suscripcion-stock");
+      if (stockWidget) {
+        suscripcionStockData = {
+          is_active: stockWidget.is_active ?? true,
+          config: stockWidget.config || {},
+          target_type: stockWidget.target_type || "all",
+          target_product_id: stockWidget.target_product_id || null,
+          target_category_id: stockWidget.target_category_id || null,
+        };
+      }
+    } catch (eStock) {
+      console.error("[widget-render] Error obteniendo suscripcion stock:", eStock);
+    }
+
     return corsResponse({
       widgets: allWidgets,
       socialProof: socialProofData,
       virtualSalesman: virtualSalesmanData,
       voiceSearch: voiceSearchData,
+      suscripcionStock: suscripcionStockData,
       activeCampaign: null,
       ts: Date.now(),
     });
@@ -219,4 +239,4 @@ export async function GET(req: NextRequest) {
     const message = error instanceof Error ? error.message : "Error en render";
     return corsResponse({ error: message }, 500);
   }
-  }
+    }
