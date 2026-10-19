@@ -85,8 +85,8 @@ const DEF: CfgSuscripcionStock = {
   buttonText: 'Avisame cuando haya stock',
   emailPlaceholder: 'Tu email',
   successMessage: '¡Te avisamos cuando vuelva!',
-  emailSubject: '¡El producto que querías está disponible!',
-  emailBody: 'El producto {nombre} que querías volvió a tener stock. ¡Aprovechá antes de que se agote!',
+  emailSubject: '¡El producto {nombre} volvió a tener stock!',
+  emailBody: 'Hola!\n\nEl producto {nombre} que querías volvió a tener stock.\n\nPodés verlo y comprarlo directamente acá:\n{url}\n\n¡Aprovechá antes de que se vuelva a agotar!',
   notificationMode: 'all',
   buttonColor: '#000000',
   buttonTextColor: '#ffffff',
@@ -483,6 +483,28 @@ export default function SuscripcionStockEditor({
       setPreviewSuccess(false);
       setPreviewEmail('');
     }, 3000);
+  };
+
+  const handleNotifyUser = (sub: StockSubscriber) => {
+    const prodName = sub.product_name || 'producto';
+    const prodUrl = sub.product_url || '';
+
+    const subjectTemplate = cfg.emailSubject || DEF.emailSubject;
+    const bodyTemplate = cfg.emailBody || DEF.emailBody;
+
+    const subject = subjectTemplate
+      .replace(/\{nombre\}/gi, prodName)
+      .replace(/\{url\}/gi, prodUrl);
+
+    const body = bodyTemplate
+      .replace(/\{nombre\}/gi, prodName)
+      .replace(/\{url\}/gi, prodUrl);
+
+    const mailtoUrl = `mailto:${encodeURIComponent(sub.email)}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+
+    window.location.href = mailtoUrl;
   };
 
   const filteredSubscribers = subscribers.filter((sub) => {
@@ -1025,6 +1047,7 @@ export default function SuscripcionStockEditor({
                           <th style={{ padding: '12px 14px', fontWeight: 700, color: '#374151' }}>Email</th>
                           <th style={{ padding: '12px 14px', fontWeight: 700, color: '#374151' }}>Producto</th>
                           <th style={{ padding: '12px 14px', fontWeight: 700, color: '#374151' }}>Fecha</th>
+                          <th style={{ padding: '12px 14px', fontWeight: 700, color: '#374151', textAlign: 'right' }}>Acción</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1054,6 +1077,28 @@ export default function SuscripcionStockEditor({
                             </td>
                             <td style={{ padding: '12px 14px', color: '#6b7280', whiteSpace: 'nowrap' }}>
                               {sub.created_at ? new Date(sub.created_at).toLocaleString('es-AR') : '-'}
+                            </td>
+                            <td style={{ padding: '12px 14px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                              <button
+                                type="button"
+                                onClick={() => handleNotifyUser(sub)}
+                                style={{
+                                  padding: '6px 12px',
+                                  background: '#10B981',
+                                  color: '#ffffff',
+                                  border: 'none',
+                                  borderRadius: 8,
+                                  fontSize: 12,
+                                  fontWeight: 700,
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 4,
+                                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                                }}
+                              >
+                                ✉ Avisar
+                              </button>
                             </td>
                           </tr>
                         ))}
