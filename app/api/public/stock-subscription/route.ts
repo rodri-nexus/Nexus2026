@@ -1,108 +1,91 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  '';
+export const dynamic = "force-dynamic";
 
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
 };
 
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+function corsResponse(data: unknown, status = 200) {
+  return NextResponse.json(data, {
+    status,
+    headers: CORS_HEADERS,
+  });
 }
 
-export async function POST(req: Request) {
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: CORS_HEADERS,
+  });
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const storeId = searchParams.get("store_id");
+
+    if (!storeId) {
+      return corsResponse({ error: "Falta store_id", subscriptions: [] }, 400);
+    }
+
+    const cleanStoreId = String(storeId).trim();
+
+    const { data, error } = await supabaseAdmin
+      .from("stock_alert_subscriptions")
+      .select("*")
+      .eq("store_id", cleanStoreId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("[stock-subscription GET] Error:", error);
+      return corsResponse({ error: error.message, subscriptions: [] }, 500);
+    }
+
+    return corsResponse({ subscriptions: data || [] }, 200);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Error servidor";
+    console.error("[stock-subscription GET] Exception:", msg);
+    return corsResponse({ error: msg, subscriptions: [] }, 500);
+  }
+}
+
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { store_id, email, product_name, product_url } = body || {};
 
     if (!store_id || !email) {
-      return NextResponse.json(
-        { error: 'store_id y email son requeridos' },
-        { status: 400, headers: corsHeaders }
-      );
+      return corsResponse({ error: "Faltan store_id o email" }, 400);
     }
 
     const cleanEmail = String(email).trim().toLowerCase();
-    if (!cleanEmail.includes('@')) {
-      return NextResponse.json(
-        { error: 'Email inválido' },
-        { status: 400, headers: corsHeaders }
-      );
-    }
+    const cleanStoreId = String(store_id).trim();
 
-    const row = {
-      store_id: String(store_id),
-      email: cleanEmail,
-      product_name: product_name ? String(product_name) : '',
-      product_url: product_url ? String(product_url) : '',
-    };
-
-    const { data, error } = await supabase
-      .from('stock_alert_subscriptions')
-      .insert([row])
+    const { data, error } = await supabaseAdmin
+      .from("stock_alert_subscriptions")
+      .insert({
+        store_id: cleanStoreId,
+        email: cleanEmail,
+        product_name: product_name || "Producto",
+        product_url: product_url || "",
+      })
       .select()
-      .maybeSingle();
+      .single();
 
     if (error) {
-      console.error('stock_alert_subscriptions insert error:', error);
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500, headers: corsHeaders }
-      );
+      console.error("[stock-subscription POST] Error:", error);
+      return corsResponse({ error: error.message }, 500);
     }
 
-    return NextResponse.json({ success: true, data }, { headers: corsHeaders });
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: err?.message || 'Error del servidor' },
-      { status: 500, headers: corsHeaders }
-    );
+    return corsResponse({ success: true, data }, 200);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Error guardando suscripcion";
+    console.error("[stock-subscription POST] Exception:", msg);
+    return corsResponse({ error: msg }, 500);
   }
-}
-
-export async function GET(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const store_id = searchParams.get('store_id');
-
-    if (!store_id) {
-      return NextResponse.json(
-        { error: 'store_id es requerido' },
-        { status: 400, headers: corsHeaders }
-      );
     }
-
-    const { data, error } = await supabase
-      .from('stock_alert_subscriptions')
-      .select('*')
-      .eq('store_id', String(store_id))
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('stock_alert_subscriptions select error:', error);
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500, headers: corsHeaders }
-      );
-    }
-
-    return NextResponse.json(
-      { subscriptions: data || [] },
-      { headers: corsHeaders }
-    );
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: err?.message || 'Error del servidor' },
-      { status: 500, headers: corsHeaders }
-    );
-  }
-}
