@@ -15387,7 +15387,7 @@ function renderMediosPago(w) {
   }
       }
 /* ═══════════════════════════════════════════
-   WIDGET #49: FAVORITOS (v399)
+   WIDGET #49: FAVORITOS (v400 — PULIDO FINAL ESTILO WIGY)
    ═══════════════════════════════════════════ */
 function renderFavoritos(w) {
   try {
@@ -15405,18 +15405,19 @@ function renderFavoritos(w) {
     var showInGrids = cfg.showInGrids !== false;
     var badgePositionImage = cfg.badgePositionImage || "top-right";
     var floatingPosition = cfg.floatingPosition || "bottom-right";
-    var accentColor = cfg.accentColor || "#10B981";
+    var accentColor = cfg.accentColor || "#e11d48";
     var bgColor = cfg.bgColor || "#ffffff";
     var hasShadow = cfg.hasShadow !== false;
-    var borderRadius = cfg.borderRadius !== undefined ? cfg.borderRadius : 12;
-    var floatingButtonSize = cfg.floatingButtonSize !== undefined ? cfg.floatingButtonSize : 50;
-    var floatingIconSize = cfg.floatingIconSize !== undefined ? cfg.floatingIconSize : 22;
+    var borderRadius = cfg.borderRadius !== undefined ? cfg.borderRadius : "50%";
+    var floatingButtonSize = cfg.floatingButtonSize !== undefined ? cfg.floatingButtonSize : "55px";
+    var floatingIconSize = cfg.floatingIconSize !== undefined ? cfg.floatingIconSize : "24px";
     var showAddToCart = cfg.showAddToCart !== false;
 
     var brCss = (typeof borderRadius === "number") ? (borderRadius + "px") : String(borderRadius);
     var btnSizeCss = (typeof floatingButtonSize === "number") ? (floatingButtonSize + "px") : String(floatingButtonSize);
-    var iconSizeNum = (typeof floatingIconSize === "number") ? floatingIconSize : parseInt(String(floatingIconSize), 10) || 22;
-    var shadowCss = hasShadow ? "0 10px 25px rgba(0,0,0,0.15)" : "none";
+    var iconSizeNum = (typeof floatingIconSize === "number") ? floatingIconSize : (parseInt(String(floatingIconSize), 10) || 24);
+    var shadowFabCss = hasShadow ? "0 8px 24px rgba(0,0,0,0.18)" : "0 1px 3px rgba(0,0,0,0.08)";
+    var shadowPanelCss = "0 20px 50px rgba(0,0,0,0.25)";
 
     var STORAGE_KEY = "nvx_favoritos_" + (w.store_id || w.storeId || "default");
 
@@ -15496,13 +15497,14 @@ function renderFavoritos(w) {
     }
 
     function floatingPosCss() {
-      var base = "position:fixed !important;z-index:99990 !important;";
-      if (floatingPosition === "bottom-left") return base + "bottom:20px;left:20px;";
-      if (floatingPosition === "top-right") return base + "top:20px;right:20px;";
-      if (floatingPosition === "top-left") return base + "top:20px;left:20px;";
-      if (floatingPosition === "mid-right" || floatingPosition === "center-right") return base + "top:50%;right:20px;transform:translateY(-50%);";
-      if (floatingPosition === "mid-left" || floatingPosition === "center-left") return base + "top:50%;left:20px;transform:translateY(-50%);";
-      return base + "bottom:20px;right:20px;";
+      /* FAB FIJO AL BODY — z-index 99997 — SIEMPRE abajo-derecha por default */
+      var base = "position:fixed !important;z-index:99997 !important;";
+      if (floatingPosition === "bottom-left") return base + "bottom:20px !important;left:20px !important;right:auto !important;top:auto !important;";
+      if (floatingPosition === "top-right") return base + "top:20px !important;right:20px !important;left:auto !important;bottom:auto !important;";
+      if (floatingPosition === "top-left") return base + "top:20px !important;left:20px !important;right:auto !important;bottom:auto !important;";
+      if (floatingPosition === "mid-right" || floatingPosition === "center-right") return base + "top:50% !important;right:20px !important;left:auto !important;bottom:auto !important;transform:translateY(-50%) !important;";
+      if (floatingPosition === "mid-left" || floatingPosition === "center-left") return base + "top:50% !important;left:20px !important;right:auto !important;bottom:auto !important;transform:translateY(-50%) !important;";
+      return base + "bottom:20px !important;right:20px !important;left:auto !important;top:auto !important;";
     }
 
     function extractProductFromCard(card) {
@@ -15572,7 +15574,7 @@ function renderFavoritos(w) {
     }
 
     function injectBadges() {
-      /* Ficha de producto (PDP) amplia para Tiendanube */
+      /* Ficha de producto (PDP) */
       var galleries = document.querySelectorAll(
         ".js-product-slides, .js-product-gallery, .product-image, [data-store='product-image'], [data-store='product-gallery'], .product-gallery, .product-gallery__image, .swiper-slide-active, .js-swiper-product-page, .js-product-slide, .gallery-image, .js-product-image"
       );
@@ -15616,7 +15618,7 @@ function renderFavoritos(w) {
 
     function addToCartSingle(item, btnEl) {
       var targetId = item.variantId || item.id;
-      if (!targetId || targetId.indexOf('/') !== -1) {
+      if (!targetId || String(targetId).indexOf('/') !== -1) {
         if (item.url) window.location.href = item.url;
         return;
       }
@@ -15631,7 +15633,8 @@ function renderFavoritos(w) {
       fetch("/carrito/agregar/", {
         method: "POST",
         body: formData,
-        headers: { "X-Requested-With": "XMLHttpRequest" }
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+        credentials: "include"
       }).then(function () {
         if (btnEl) {
           btnEl.style.background = "#10B981";
@@ -15640,12 +15643,12 @@ function renderFavoritos(w) {
             btnEl.disabled = false;
             btnEl.style.background = accentColor;
             btnEl.innerHTML = "+";
-          }, 1500);
+          }, 1800);
         }
         if (typeof nvxTrack === "function") {
           try { nvxTrack("favoritos", "add_to_cart_click", { product_id: item.id }); } catch (e) {}
         }
-      }).catch(function () {
+      })["catch"](function () {
         if (item.url) window.location.href = item.url;
       });
     }
@@ -15656,7 +15659,8 @@ function renderFavoritos(w) {
       var btn = document.getElementById(uniqueId + "-add-all");
       if (btn) {
         btn.disabled = true;
-        btn.textContent = "Agregando...";
+        btn.innerHTML = "Agregando...";
+        btn.style.opacity = "0.7";
       }
       var idx = 0;
       function next() {
@@ -15666,17 +15670,18 @@ function renderFavoritos(w) {
         }
         var f = favs[idx++];
         var tid = f.variantId || f.id;
-        if (tid && tid.indexOf('/') === -1) {
+        if (tid && String(tid).indexOf('/') === -1) {
           var formData = new FormData();
           formData.append("add_to_cart", tid);
           formData.append("quantity", "1");
           fetch("/carrito/agregar/", {
             method: "POST",
             body: formData,
-            headers: { "X-Requested-With": "XMLHttpRequest" }
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            credentials: "include"
           }).then(function () {
             next();
-          }).catch(function () {
+          })["catch"](function () {
             next();
           });
         } else {
@@ -15706,28 +15711,28 @@ function renderFavoritos(w) {
 
     function renderList(listEl, favs) {
       if (!favs.length) {
-        listEl.innerHTML = '<div style="padding:32px 16px !important;text-align:center !important;color:#6B7280 !important;font-size:13px !important;font-weight:500 !important;">Todavía no guardaste productos.</div>';
+        listEl.innerHTML = '<div style="padding:40px 20px !important;text-align:center !important;color:#6B7280 !important;font-size:14px !important;font-weight:500 !important;">Todavía no guardaste productos.</div>';
         return;
       }
       var html = "";
       for (var i = 0; i < favs.length; i++) {
         var f = favs[i];
-        html += '<div style="display:flex !important;gap:12px !important;align-items:center !important;background:#f9fafb !important;padding:10px !important;border-radius:10px !important;margin-bottom:8px !important;border:1px solid #f3f4f6 !important;">';
-        html += '<div style="width:50px !important;height:50px !important;border-radius:8px !important;overflow:hidden !important;background:#e5e7eb !important;flex-shrink:0 !important;">';
+        html += '<div style="display:flex !important;gap:12px !important;align-items:center !important;background:#ffffff !important;padding:10px !important;border-radius:10px !important;margin-bottom:8px !important;border:1px solid #f3f4f6 !important;">';
+        html += '<div style="width:50px !important;height:50px !important;border-radius:8px !important;overflow:hidden !important;background:#f3f4f6 !important;flex-shrink:0 !important;">';
         if (f.image) {
-          html += '<img src="' + f.image + '" alt="" style="width:100% !important;height:100% !important;object-fit:cover !important;" />';
+          html += '<img src="' + f.image + '" alt="" style="width:100% !important;height:100% !important;object-fit:cover !important;display:block !important;" />';
         }
         html += '</div>';
         html += '<div style="flex:1 !important;min-width:0 !important;">';
-        html += '<a href="' + (f.url || "#") + '" style="font-size:13px !important;font-weight:700 !important;color:#111827 !important;text-decoration:none !important;display:-webkit-box !important;-webkit-line-clamp:2 !important;-webkit-box-orient:vertical !important;overflow:hidden !important;line-height:1.2 !important;">' + (f.name || "Producto") + '</a>';
+        html += '<a href="' + (f.url || "#") + '" style="font-size:13px !important;font-weight:700 !important;color:#111827 !important;text-decoration:none !important;display:-webkit-box !important;-webkit-line-clamp:2 !important;-webkit-box-orient:vertical !important;overflow:hidden !important;line-height:1.3 !important;">' + (f.name || "Producto") + '</a>';
         if (f.price) {
-          html += '<div style="font-size:12px !important;font-weight:800 !important;color:' + accentColor + ' !important;margin-top:4px !important;">' + f.price + '</div>';
+          html += '<div style="font-size:13px !important;font-weight:800 !important;color:' + accentColor + ' !important;margin-top:4px !important;">' + f.price + '</div>';
         }
         html += '</div>';
         if (showAddToCart) {
-          html += '<button type="button" class="nvx-fav-atc" data-idx="' + i + '" style="width:32px !important;height:32px !important;border-radius:50% !important;background:' + accentColor + ' !important;color:#ffffff !important;border:none !important;font-size:16px !important;font-weight:800 !important;cursor:pointer !important;display:flex !important;align-items:center !important;justify-content:center !important;flex-shrink:0 !important;line-height:1 !important;" aria-label="Agregar al carrito">+</button>';
+          html += '<button type="button" class="nvx-fav-atc" data-idx="' + i + '" style="width:34px !important;height:34px !important;border-radius:50% !important;background:' + accentColor + ' !important;color:#ffffff !important;border:none !important;font-size:18px !important;font-weight:800 !important;cursor:pointer !important;display:flex !important;align-items:center !important;justify-content:center !important;flex-shrink:0 !important;line-height:1 !important;padding:0 !important;" aria-label="Agregar al carrito">+</button>';
         }
-        html += '<button type="button" class="nvx-fav-remove" data-id="' + f.id + '" style="background:none !important;border:none !important;color:#9ca3af !important;font-size:16px !important;font-weight:700 !important;cursor:pointer !important;padding:4px !important;line-height:1 !important;margin-left:2px !important;" aria-label="Quitar">✕</button>';
+        html += '<button type="button" class="nvx-fav-remove" data-id="' + f.id + '" style="background:none !important;border:none !important;color:#9ca3af !important;font-size:16px !important;font-weight:700 !important;cursor:pointer !important;padding:4px 6px !important;line-height:1 !important;margin-left:2px !important;" aria-label="Quitar">✕</button>';
         html += '</div>';
       }
       listEl.innerHTML = html;
@@ -15774,74 +15779,79 @@ function renderFavoritos(w) {
     }
 
     function buildRoot() {
-      var root = document.createElement("div");
-      root.id = uniqueId + "-root";
-      root.setAttribute("data-nevux-widget", "favoritos");
-
-      /* Overlay */
+      /* ===== OVERLAY (pegado al body) ===== */
       var overlay = document.createElement("div");
       overlay.id = uniqueId + "-overlay";
-      overlay.style.cssText = "display:none !important;position:fixed !important;inset:0 !important;background:rgba(17,24,39,0.45) !important;z-index:99998 !important;";
+      overlay.style.cssText = "display:none;position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;background:rgba(17,24,39,0.5) !important;z-index:99996 !important;";
       overlay.addEventListener("click", closePanel);
+      document.body.appendChild(overlay);
 
-      /* Floating button */
+      /* ===== FAB FLOTANTE (pegado DIRECTO al body para que nada lo desacomode) ===== */
       var fab = document.createElement("button");
       fab.type = "button";
       fab.id = uniqueId + "-fab";
       fab.setAttribute("aria-label", modalTitle);
-      fab.style.cssText = floatingPosCss() + "width:" + btnSizeCss + " !important;height:" + btnSizeCss + " !important;border-radius:50% !important;background:" + bgColor + " !important;border:1px solid #e5e7eb !important;box-shadow:" + (hasShadow ? "0 8px 24px rgba(0,0,0,0.18)" : "none") + " !important;display:flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;padding:0 !important;";
-      fab.innerHTML = iconSvg(true, iconSizeNum, accentColor) +
-        '<span id="' + uniqueId + '-count" style="display:none;position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:999px;background:' + accentColor + ';color:#ffffff;font-size:11px;font-weight:800;align-items:center;justify-content:center;padding:0 4px;box-sizing:border-box;border:2px solid #ffffff;">0</span>';
+      fab.style.cssText = floatingPosCss() + "width:" + btnSizeCss + " !important;height:" + btnSizeCss + " !important;border-radius:" + brCss + " !important;background:" + bgColor + " !important;border:1px solid #e5e7eb !important;box-shadow:" + shadowFabCss + " !important;display:flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;padding:0 !important;margin:0 !important;";
+      fab.innerHTML = '<span style="display:flex;align-items:center;justify-content:center;position:relative;">' +
+        iconSvg(true, iconSizeNum, accentColor) +
+        '<span id="' + uniqueId + '-count" style="display:none;position:absolute;top:-10px;right:-10px;min-width:20px;height:20px;border-radius:999px;background:' + accentColor + ';color:#ffffff;font-size:11px;font-weight:800;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #ffffff;line-height:1;">0</span>' +
+        '</span>';
       fab.addEventListener("click", function (ev) {
         ev.preventDefault();
         openPanel();
       });
+      fab.setAttribute("data-nvx-fav-root", uniqueId);
+      document.body.appendChild(fab);
 
-      /* Panel Estilo Wigy */
+      /* ===== PANEL MODAL (pegado al body) ===== */
       var panel = document.createElement("div");
       panel.id = uniqueId + "-panel";
-      panel.style.cssText = "display:none !important;position:fixed !important;top:50% !important;left:50% !important;transform:translate(-50%,-50%) !important;width:min(380px,calc(100vw - 32px)) !important;max-height:min(540px,calc(100vh - 40px)) !important;background:" + bgColor + " !important;border-radius:" + brCss + " !important;box-shadow:" + shadowCss + " !important;border:1px solid #e5e7eb !important;z-index:99999 !important;flex-direction:column !important;overflow:hidden !important;font-family:system-ui,-apple-system,sans-serif !important;";
+      panel.style.cssText = "display:none;position:fixed !important;top:50% !important;left:50% !important;transform:translate(-50%,-50%) !important;width:min(380px,calc(100vw - 32px)) !important;max-height:min(560px,calc(100vh - 40px)) !important;background:#ffffff !important;border-radius:16px !important;box-shadow:" + shadowPanelCss + " !important;border:1px solid #e5e7eb !important;z-index:99998 !important;flex-direction:column !important;overflow:hidden !important;font-family:system-ui,-apple-system,sans-serif !important;";
 
+      /* HEADER WIGY-STYLE */
       var header = document.createElement("div");
-      header.style.cssText = "display:flex !important;align-items:center !important;justify-content:space-between !important;padding:14px 16px !important;border-bottom:1px solid #f3f4f6 !important;";
-      
+      header.style.cssText = "display:flex !important;align-items:center !important;justify-content:space-between !important;padding:14px 16px !important;border-bottom:1px solid #f3f4f6 !important;gap:8px !important;";
+
       var headerLeft = document.createElement("div");
-      headerLeft.style.cssText = "display:flex !important;align-items:center !important;gap:8px !important;";
-      headerLeft.innerHTML = iconSvg(true, 18, accentColor) + '<span style="font-size:15px !important;font-weight:800 !important;color:#111827 !important;">' + modalTitle + '</span>';
+      headerLeft.style.cssText = "display:flex !important;align-items:center !important;gap:8px !important;flex:1 !important;min-width:0 !important;";
+      headerLeft.innerHTML = iconSvg(true, 18, accentColor) + '<span style="font-size:15px !important;font-weight:800 !important;color:#111827 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;">' + modalTitle + '</span>';
 
       var headerRight = document.createElement("div");
-      headerRight.style.cssText = "display:flex !important;align-items:center !important;gap:8px !important;";
+      headerRight.style.cssText = "display:flex !important;align-items:center !important;gap:6px !important;flex-shrink:0 !important;";
 
       var addAllBtn = document.createElement("button");
       addAllBtn.type = "button";
       addAllBtn.id = uniqueId + "-add-all";
-      addAllBtn.style.cssText = "display:none !important;align-items:center !important;gap:4px !important;padding:6px 12px !important;border-radius:8px !important;background:" + accentColor + " !important;color:#ffffff !important;font-size:12px !important;font-weight:700 !important;border:none !important;cursor:pointer !important;";
+      addAllBtn.style.cssText = "display:none;align-items:center !important;gap:4px !important;padding:7px 11px !important;border-radius:8px !important;background:" + accentColor + " !important;color:#ffffff !important;font-size:12px !important;font-weight:700 !important;border:none !important;cursor:pointer !important;line-height:1 !important;white-space:nowrap !important;";
       addAllBtn.innerHTML = '🛍 Agregar todos';
       addAllBtn.addEventListener("click", addAllToCart);
 
       var closeBtn = document.createElement("button");
       closeBtn.type = "button";
       closeBtn.id = uniqueId + "-close";
-      closeBtn.style.cssText = "background:none !important;border:none !important;font-size:18px !important;font-weight:800 !important;color:#6B7280 !important;cursor:pointer !important;line-height:1 !important;padding:4px !important;";
-      closeBtn.textContent = "✕";
+      closeBtn.style.cssText = "background:none !important;border:none !important;font-size:20px !important;font-weight:800 !important;color:#6B7280 !important;cursor:pointer !important;line-height:1 !important;padding:4px 8px !important;";
+      closeBtn.innerHTML = "✕";
       closeBtn.addEventListener("click", closePanel);
 
       headerRight.appendChild(addAllBtn);
       headerRight.appendChild(closeBtn);
-
       header.appendChild(headerLeft);
       header.appendChild(headerRight);
 
+      /* LISTA */
       var list = document.createElement("div");
       list.id = uniqueId + "-list";
-      list.style.cssText = "padding:12px 16px !important;overflow-y:auto !important;flex:1 !important;";
+      list.style.cssText = "padding:12px 14px !important;overflow-y:auto !important;flex:1 !important;background:#fafafa !important;";
 
       panel.appendChild(header);
       panel.appendChild(list);
+      document.body.appendChild(panel);
 
-      root.appendChild(overlay);
-      root.appendChild(fab);
-      root.appendChild(panel);
+      /* ROOT marker (vacío, solo para flag anti-duplicado) */
+      var root = document.createElement("div");
+      root.id = uniqueId + "-root";
+      root.setAttribute("data-nevux-widget", "favoritos");
+      root.style.cssText = "display:none !important;";
       document.body.appendChild(root);
     }
 
@@ -15852,6 +15862,7 @@ function renderFavoritos(w) {
 
     setTimeout(function () { injectBadges(); updateUI(); }, 600);
     setTimeout(function () { injectBadges(); updateUI(); }, 1600);
+    setTimeout(function () { injectBadges(); updateUI(); }, 3200);
 
     /* Re-scan en grillas lazy */
     try {
@@ -15870,5 +15881,5 @@ function renderFavoritos(w) {
       window.console.warn("[Nevux] renderFavoritos error:", err);
     }
   }
-      }
+        }
 })(); 
