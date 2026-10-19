@@ -49,6 +49,7 @@ import CajaEstadisticasEditor from '@/components/widgets/editors/CajaEstadistica
 import BarraDescuentoEditor from '@/components/widgets/editors/BarraDescuentoEditor';
 import MediosPagoEditor from '@/components/widgets/editors/MediosPagoEditor';
 import FavoritosEditor from '@/components/widgets/editors/FavoritosEditor';
+import SuscripcionStockEditor from '@/components/widgets/editors/SuscripcionStockEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -155,6 +156,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: AVISO DE STOCK
+  if (params.widgetSlug === 'suscripcion-stock') {
+    return <SuscripcionStockEditor {...editorProps} />;
+  }
 
   // WIDGET: FAVORITOS
   if (params.widgetSlug === 'favoritos') {
@@ -414,4 +420,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-             }
+    }
