@@ -15387,7 +15387,7 @@ function renderMediosPago(w) {
   }
       }
 /* ═══════════════════════════════════════════
-   WIDGET #49: FAVORITOS (v401 — CIERRE AUTOMÁTICO + CARRITO OK)
+   WIDGET #49: FAVORITOS (v402 — FAB SIEMPRE FIJO ABAJO-DERECHA)
    ═══════════════════════════════════════════ */
 function renderFavoritos(w) {
   try {
@@ -15404,7 +15404,6 @@ function renderFavoritos(w) {
     var modalTitle = cfg.modalTitle !== undefined ? String(cfg.modalTitle) : "Mis favoritos";
     var showInGrids = cfg.showInGrids !== false;
     var badgePositionImage = cfg.badgePositionImage || "top-right";
-    var floatingPosition = cfg.floatingPosition || "bottom-right";
     var accentColor = cfg.accentColor || "#e11d48";
     var bgColor = cfg.bgColor || "#ffffff";
     var hasShadow = cfg.hasShadow !== false;
@@ -15496,14 +15495,9 @@ function renderFavoritos(w) {
       return "top:10px;right:10px;";
     }
 
+    /* ═══ FAB SIEMPRE FIJO ABAJO-DERECHA (v402) ═══ */
     function floatingPosCss() {
-      var base = "position:fixed !important;z-index:99997 !important;";
-      if (floatingPosition === "bottom-left") return base + "bottom:20px !important;left:20px !important;right:auto !important;top:auto !important;";
-      if (floatingPosition === "top-right") return base + "top:20px !important;right:20px !important;left:auto !important;bottom:auto !important;";
-      if (floatingPosition === "top-left") return base + "top:20px !important;left:20px !important;right:auto !important;bottom:auto !important;";
-      if (floatingPosition === "mid-right" || floatingPosition === "center-right") return base + "top:50% !important;right:20px !important;left:auto !important;bottom:auto !important;transform:translateY(-50%) !important;";
-      if (floatingPosition === "mid-left" || floatingPosition === "center-left") return base + "top:50% !important;left:20px !important;right:auto !important;bottom:auto !important;transform:translateY(-50%) !important;";
-      return base + "bottom:20px !important;right:20px !important;left:auto !important;top:auto !important;";
+      return "position:fixed !important;z-index:99997 !important;bottom:20px !important;right:20px !important;left:auto !important;top:auto !important;transform:none !important;";
     }
 
     function extractProductFromCard(card) {
@@ -15849,7 +15843,7 @@ function renderFavoritos(w) {
       overlay.addEventListener("click", closePanel);
       document.body.appendChild(overlay);
 
-      /* FAB FLOTANTE */
+      /* FAB FLOTANTE (siempre bottom-right en v402) */
       var fab = document.createElement("button");
       fab.type = "button";
       fab.id = uniqueId + "-fab";
@@ -15931,7 +15925,7 @@ function renderFavoritos(w) {
     } catch (e) {}
 
     if (typeof nvxTrack === "function") {
-      try { nvxTrack("favoritos", "render", { showInGrids: showInGrids, floatingPosition: floatingPosition }); } catch (e) {}
+      try { nvxTrack("favoritos", "render", { showInGrids: showInGrids, floatingPosition: "bottom-right" }); } catch (e) {}
     }
 
   } catch (err) {
@@ -15939,5 +15933,5 @@ function renderFavoritos(w) {
       window.console.warn("[Nevux] renderFavoritos error:", err);
     }
   }
-          }
+}
 })(); 
