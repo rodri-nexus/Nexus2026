@@ -2,8 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
+
+/* ═══════════════════════════════════════════
+   CLIENTE SUPABASE DIRECTO
+═══════════════════════════════════════════ */
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = (supabaseUrl && supabaseAnonKey) ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 /* ═══════════════════════════════════════════
    TIPOS
@@ -60,6 +68,15 @@ interface SuscripcionStockEditorProps {
   isSaving?: boolean;
 }
 
+interface StockSubscriber {
+  id: string;
+  store_id: string;
+  email: string;
+  product_name?: string;
+  product_url?: string;
+  created_at: string;
+}
+
 /* ═══════════════════════════════════════════
    DEFAULTS + THEME_FX
 ═══════════════════════════════════════════ */
@@ -109,7 +126,17 @@ const IconStore = () => (
 
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
+    <label
+      style={{
+        display: 'block',
+        fontSize: 14,
+        fontWeight: 700,
+        color: '#000000',
+        marginBottom: 8,
+        lineHeight: 1.3,
+        wordBreak: 'break-word',
+      }}
+    >
       {children}
       {required && <span style={{ color: '#10B981', marginLeft: 4 }}>*</span>}
     </label>
@@ -197,7 +224,7 @@ function ColorPickerField({ value, onChange }: { value: string; onChange: (v: st
   const handleClick = () => {
     const input = document.createElement('input');
     input.type = 'color';
-    input.value = value.startsWith('#') && value.length >= 7 ? value : '#000000';
+    input.value = value && value.startsWith('#') && value.length >= 7 ? value : '#000000';
     input.onchange = (e) => onChange((e.target as HTMLInputElement).value);
     input.click();
   };
@@ -210,7 +237,7 @@ function ColorPickerField({ value, onChange }: { value: string; onChange: (v: st
           width: 38,
           height: 38,
           borderRadius: 8,
-          background: value,
+          background: value || '#000000',
           border: '1.5px solid #e5e7eb',
           cursor: 'pointer',
           flexShrink: 0,
@@ -332,6 +359,11 @@ export default function SuscripcionStockEditor({
   const [previewEmail, setPreviewEmail] = useState('');
   const [previewSuccess, setPreviewSuccess] = useState(false);
 
+  // Lista de suscriptores recolectados
+  const [subscribers, setSubscribers] = useState<StockSubscriber[]>([]);
+  const [loadingSubscribers, setLoadingSubscribers] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
   const isForAll = targetType === 'all';
   const scopeLabel = isForAll ? 'General' : 'Producto';
 
@@ -339,6 +371,28 @@ export default function SuscripcionStockEditor({
     setOk(false);
     setErr('');
   }, [cfg, isActive]);
+
+  // Carga directa desde Supabase al entrar a la pestaña 'emails'
+  useEffect(() => {
+    if (tab === 'emails' && storeId && supabase) {
+      setLoadingSubscribers(true);
+      supabase
+        .from('stock_alert_subscriptions')
+        .select('*')
+        .eq('store_id', String(storeId))
+        .order('created_at', { ascending: false })
+        .then(({ data, error }) => {
+          if (!error && data) {
+            setSubscribers(data as StockSubscriber[]);
+          }
+          setLoadingSubscribers(false);
+        })
+        .catch((e) => {
+          console.error('Error al cargar suscriptores:', e);
+          setLoadingSubscribers(false);
+        });
+    }
+  }, [tab, storeId]);
 
   const set = <K extends keyof CfgSuscripcionStock>(k: K, v: CfgSuscripcionStock[K]) =>
     setCfg((p) => ({ ...p, [k]: v }));
@@ -425,6 +479,34 @@ export default function SuscripcionStockEditor({
       setPreviewSuccess(false);
       setPreviewEmail('');
     }, 3000);
+  };
+
+  const filteredSubscribers = subscribers.filter((sub) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      (sub.email && sub.email.toLowerCase().includes(q)) ||
+      (sub.product_name && sub.product_name.toLowerCase().includes(q))
+    );
+  });
+
+  const downloadCSV = () => {
+    if (subscribers.length === 0) return;
+    const headers = ['Email', 'Producto', 'URL Producto', 'Fecha de Registro'];
+    const rows = subscribers.map((s) => [
+      `"${s.email || ''}"`,
+      `"${(s.product_name || '').replace(/"/g, '""')}"`,
+      `"${s.product_url || ''}"`,
+      `"${s.created_at ? new Date(s.created_at).toLocaleString('es-AR') : ''}"`,
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `suscriptores_stock_${storeId || 'tienda'}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const CAMPAIGN_PRESETS = [
@@ -836,38 +918,146 @@ export default function SuscripcionStockEditor({
 
           {/* TAB EMAILS */}
           {tab === 'emails' && (
-            <div
-              style={{
-                textAlign: 'center',
-                padding: '40px 20px',
-                background: '#fafafa',
-                borderRadius: 12,
-                border: '1px dashed #d1d5db',
-              }}
-            >
-              <div style={{ fontSize: 36, marginBottom: 8, color: '#9ca3af' }}>✉️</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#374151', marginBottom: 6 }}>
-                Emails recolectados
-              </div>
-              <div style={{ fontSize: 13, color: '#6b7280', maxWidth: 320, margin: '0 auto 16px', lineHeight: 1.5 }}>
-                Los emails recolectados aparecerán aquí una vez que el widget esté creado y activado.
-              </div>
-              <button
-                type="button"
-                onClick={() => alert('No hay suscriptores aún.')}
+            <div>
+              <div
                 style={{
-                  padding: '10px 16px',
-                  background: '#374151',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: 8,
-                  fontSize: 13,
-                  fontWeight: 700,
-                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 16,
+                  gap: 12,
+                  flexWrap: 'wrap',
                 }}
               >
-                Descargar CSV
-              </button>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#111827' }}>
+                    Emails recolectados ({filteredSubscribers.length})
+                  </div>
+                  <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
+                    Clientes suscritos para recibir avisos de reposición de stock.
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={downloadCSV}
+                  disabled={subscribers.length === 0}
+                  style={{
+                    padding: '10px 16px',
+                    background: subscribers.length === 0 ? '#9ca3af' : '#10B981',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: subscribers.length === 0 ? 'not-allowed' : 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <span>📥</span> Exportar CSV
+                </button>
+              </div>
+
+              {subscribers.length > 0 && (
+                <div style={{ marginBottom: 16 }}>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Buscar por email o producto..."
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      fontSize: 13,
+                      border: '1.5px solid #e5e7eb',
+                      borderRadius: 8,
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+              )}
+
+              {loadingSubscribers ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#6b7280', fontSize: 14 }}>
+                  Cargando suscriptores desde Supabase...
+                </div>
+              ) : subscribers.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: 'center',
+                    padding: '40px 20px',
+                    background: '#fafafa',
+                    borderRadius: 12,
+                    border: '1px dashed #d1d5db',
+                  }}
+                >
+                  <div style={{ fontSize: 36, marginBottom: 8, color: '#9ca3af' }}>✉️</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#374151', marginBottom: 6 }}>
+                    Aún no hay suscriptores
+                  </div>
+                  <div style={{ fontSize: 13, color: '#6b7280', maxWidth: 320, margin: '0 auto', lineHeight: 1.5 }}>
+                    Cuando tus clientes se registren en productos sin stock, sus emails aparecerán aquí automáticamente.
+                  </div>
+                </div>
+              ) : filteredSubscribers.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '30px 20px', color: '#6b7280', fontSize: 13 }}>
+                  No se encontraron suscriptores que coincidan con &quot;{searchQuery}&quot;.
+                </div>
+              ) : (
+                <div
+                  style={{
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                    background: '#ffffff',
+                  }}
+                >
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13 }}>
+                      <thead>
+                        <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                          <th style={{ padding: '12px 14px', fontWeight: 700, color: '#374151' }}>Email</th>
+                          <th style={{ padding: '12px 14px', fontWeight: 700, color: '#374151' }}>Producto</th>
+                          <th style={{ padding: '12px 14px', fontWeight: 700, color: '#374151' }}>Fecha</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredSubscribers.map((sub, idx) => (
+                          <tr
+                            key={sub.id || idx}
+                            style={{
+                              borderBottom: idx === filteredSubscribers.length - 1 ? 'none' : '1px solid #f3f4f6',
+                            }}
+                          >
+                            <td style={{ padding: '12px 14px', fontWeight: 600, color: '#111827' }}>
+                              {sub.email}
+                            </td>
+                            <td style={{ padding: '12px 14px', color: '#4b5563' }}>
+                              {sub.product_url ? (
+                                <a
+                                  href={sub.product_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  style={{ color: '#10B981', textDecoration: 'underline' }}
+                                >
+                                  {sub.product_name || 'Ver Producto'}
+                                </a>
+                              ) : (
+                                sub.product_name || '-'
+                              )}
+                            </td>
+                            <td style={{ padding: '12px 14px', color: '#6b7280', whiteSpace: 'nowrap' }}>
+                              {sub.created_at ? new Date(sub.created_at).toLocaleString('es-AR') : '-'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -889,20 +1079,20 @@ export default function SuscripcionStockEditor({
                 <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 14 }}>
                   Personalizá los colores del botón, input y título.
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                  <div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color del botón</FieldLabel>
                     <ColorPickerField value={cfg.buttonColor} onChange={(v) => setCustomColor('buttonColor', v)} />
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color del texto del botón</FieldLabel>
                     <ColorPickerField value={cfg.buttonTextColor} onChange={(v) => setCustomColor('buttonTextColor', v)} />
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color del borde del input</FieldLabel>
                     <ColorPickerField value={cfg.inputBorderColor} onChange={(v) => setCustomColor('inputBorderColor', v)} />
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color del texto del título</FieldLabel>
                     <ColorPickerField value={cfg.titleTextColor} onChange={(v) => setCustomColor('titleTextColor', v)} />
                   </div>
@@ -925,8 +1115,8 @@ export default function SuscripcionStockEditor({
                   Tamaño y estilo del texto del título y del botón.
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-                  <div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 16 }}>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Tamaño de texto</FieldLabel>
                     <select
                       value={cfg.titleFontSize}
@@ -948,7 +1138,7 @@ export default function SuscripcionStockEditor({
                       <option value="18px">18 px</option>
                     </select>
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Estilo del texto</FieldLabel>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                       {([
@@ -980,8 +1170,8 @@ export default function SuscripcionStockEditor({
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                  <div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Tamaño de fuente del botón</FieldLabel>
                     <select
                       value={cfg.buttonFontSize}
@@ -1003,7 +1193,7 @@ export default function SuscripcionStockEditor({
                       <option value="18px">18 px</option>
                     </select>
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Estilo del texto del botón</FieldLabel>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                       {([
@@ -1234,4 +1424,4 @@ export default function SuscripcionStockEditor({
       </div>
     </div>
   );
-}
+   }
