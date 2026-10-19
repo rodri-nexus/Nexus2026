@@ -1403,6 +1403,45 @@ function MarqueeNovedadesPreview() {
   );
 }
 
+function SuscripcionStockPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🔔 AVISO DE STOCK</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          EMAIL
+        </span>
+      </div>
+
+      <div style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: "6px", padding: "6px 8px", display: "flex", flexDirection: "column", gap: "5px" }}>
+        <div style={{ fontSize: "7px", fontWeight: 800, color: "#111827", textAlign: "center" }}>
+          ¿Querés saber cuándo vuelve?
+        </div>
+        <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+          <div style={{ flex: 1, background: "#ffffff", border: "1px solid #d1d5db", borderRadius: "4px", padding: "3px 5px", fontSize: "5.5px", color: "#9ca3af" }}>
+            Tu email
+          </div>
+          <div style={{ background: "#10B981", color: "#ffffff", borderRadius: "4px", padding: "3px 6px", fontSize: "5.5px", fontWeight: 800, whiteSpace: "nowrap" }}>
+            Avisame
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DefaultPreview() {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px" }}>
@@ -1518,6 +1557,8 @@ function renderPreview(slug: string) {
       return <HorarioAtencionPreview />;
     case "marquee-novedades":
       return <MarqueeNovedadesPreview />;
+    case "suscripcion-stock":
+      return <SuscripcionStockPreview />;
     default:
       return <DefaultPreview />;
   }
@@ -1547,4 +1588,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-            }
+    }
