@@ -15936,7 +15936,7 @@ function renderFavoritos(w) {
   }
 }
 /* ═══════════════════════════════════════════
-   WIDGET #50: AVISO DE STOCK (v405 INTEGRADO)
+   WIDGET #50: AVISO DE STOCK (v406 FIX EMAIL)
    ═══════════════════════════════════════════ */
 function renderSuscripcionStock(w) {
   try {
@@ -15968,7 +15968,14 @@ function renderSuscripcionStock(w) {
     var btnBrCss = (typeof buttonBorderRadius === "number") ? (buttonBorderRadius + "px") : String(buttonBorderRadius);
     var inputBrCss = (typeof inputBorderRadius === "number") ? (inputBorderRadius + "px") : String(inputBorderRadius);
 
-    var targetStoreId = w.store_id || w.storeId || (window.LS && window.LS.store && window.LS.store.id) || "";
+    // Obtener store_id asegurado
+    var targetStoreId = "";
+    if (w && (w.store_id || w.storeId)) {
+      targetStoreId = String(w.store_id || w.storeId);
+    } else if (window.LS && window.LS.store && window.LS.store.id) {
+      targetStoreId = String(window.LS.store.id);
+    }
+
     var STORAGE_KEY = "nvx_stock_subs_" + (targetStoreId || "default");
     var mounted = false;
 
@@ -16162,7 +16169,7 @@ function renderSuscripcionStock(w) {
             btnEl.style.opacity = "0.6";
           }
 
-          // Guardar respaldo local
+          // Respaldo localStorage
           try {
             var raw = localStorage.getItem(STORAGE_KEY);
             var existing = raw ? JSON.parse(raw) : [];
@@ -16176,24 +16183,25 @@ function renderSuscripcionStock(w) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
           } catch (err) {}
 
-          // Envío HTTP directo al backend Nevux
+          // Envío directo a Nevux API
           fetch("https://nevux.ar/api/public/stock-subscription", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              store_id: String(targetStoreId),
+              store_id: targetStoreId,
               email: email,
               product_name: productName,
               product_url: productUrl
             })
           })
           .then(function (res) { return res.json(); })
-          .then(function () {
+          .then(function (resData) {
+            console.log("[Nevux Stock Sub] Respuesta:", resData);
             formEl.style.display = "none";
             if (successEl) successEl.style.display = "block";
           })
-          .catch(function () {
-            // Si falla el servidor por red, igual mostramos el éxito al usuario
+          .catch(function (errFetch) {
+            console.error("[Nevux Stock Sub] Error enviando:", errFetch);
             formEl.style.display = "none";
             if (successEl) successEl.style.display = "block";
           });
@@ -16212,7 +16220,7 @@ function renderSuscripcionStock(w) {
       return true;
     }
 
-    /* ===== BOOT + RETRIES (DOM lento / sin stock) ===== */
+    /* ===== BOOT + RETRIES ===== */
     buildAndMount();
     setTimeout(function () { buildAndMount(); }, 400);
     setTimeout(function () { buildAndMount(); }, 1200);
@@ -16232,5 +16240,5 @@ function renderSuscripcionStock(w) {
       window.console.warn("[Nevux] renderSuscripcionStock error:", err);
     }
   }
-          }
+                    }
 })(); 
