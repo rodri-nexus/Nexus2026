@@ -26,23 +26,28 @@ interface ExWidget {
   target_category_id?: string | null;
 }
 
-export interface CfgFavoritos {
-  iconType: 'heart' | 'star' | 'bookmark';
-  modalTitle: string;
-  showInGrids: boolean;
-  badgePositionImage: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
-  floatingPosition: 'bottom-right';
-  accentColor: string;
-  bgColor: string;
-  hasShadow: boolean;
-  borderRadius: '50%' | '8px' | '0px';
-  floatingButtonSize: '55px' | '45px' | '35px';
-  floatingIconSize: '24px' | '20px' | '16px';
-  showAddToCart: boolean;
+export interface CfgSuscripcionStock {
+  title: string;
+  buttonText: string;
+  emailPlaceholder: string;
+  successMessage: string;
+  emailSubject: string;
+  emailBody: string;
+  notificationMode: 'all' | 'fifo';
+  buttonColor: string;
+  buttonTextColor: string;
+  inputBorderColor: string;
+  titleTextColor: string;
+  titleFontSize: '12px' | '14px' | '16px' | '18px';
+  titleFontWeight: 'normal' | 'bold';
+  buttonFontSize: '12px' | '14px' | '16px' | '18px';
+  buttonFontWeight: 'normal' | 'bold';
+  buttonBorderRadius: number;
+  inputBorderRadius: number;
   campaignTheme: string;
 }
 
-interface FavoritosEditorProps {
+interface SuscripcionStockEditorProps {
   widgetDefinition: WidgetDef;
   existingWidget: ExWidget | null;
   targetType: string;
@@ -55,22 +60,37 @@ interface FavoritosEditorProps {
   isSaving?: boolean;
 }
 
+interface StockSubscriber {
+  id: string;
+  store_id: string;
+  email: string;
+  product_name?: string;
+  product_url?: string;
+  created_at: string;
+}
+
 /* ═══════════════════════════════════════════
    DEFAULTS + THEME_FX
 ═══════════════════════════════════════════ */
-const DEF: CfgFavoritos = {
-  iconType: 'heart',
-  modalTitle: 'Mis favoritos',
-  showInGrids: true,
-  badgePositionImage: 'top-right',
-  floatingPosition: 'bottom-right',
-  accentColor: '#e11d48',
-  bgColor: '#ffffff',
-  hasShadow: true,
-  borderRadius: '50%',
-  floatingButtonSize: '55px',
-  floatingIconSize: '24px',
-  showAddToCart: true,
+const DEF: CfgSuscripcionStock = {
+  title: '¿Querés saber cuándo vuelve?',
+  buttonText: 'Avisame cuando haya stock',
+  emailPlaceholder: 'Tu email',
+  successMessage: '¡Te avisamos cuando vuelva!',
+  emailSubject: '¡El producto que querías está disponible!',
+  emailBody:
+    'Hola! El producto {nombre} que estabas buscando ya volvió a tener stock.\n\nPodés verlo acá: {url}\n\n¡Aprovechá antes de que se agote!',
+  notificationMode: 'all',
+  buttonColor: '#000000',
+  buttonTextColor: '#ffffff',
+  inputBorderColor: '#cccccc',
+  titleTextColor: '#333333',
+  titleFontSize: '14px',
+  titleFontWeight: 'bold',
+  buttonFontSize: '14px',
+  buttonFontWeight: 'bold',
+  buttonBorderRadius: 4,
+  inputBorderRadius: 4,
   campaignTheme: 'none',
 };
 
@@ -99,7 +119,17 @@ const IconStore = () => (
 
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
+    <label
+      style={{
+        display: 'block',
+        fontSize: 14,
+        fontWeight: 700,
+        color: '#000000',
+        marginBottom: 8,
+        lineHeight: 1.3,
+        wordBreak: 'break-word',
+      }}
+    >
       {children}
       {required && <span style={{ color: '#10B981', marginLeft: 4 }}>*</span>}
     </label>
@@ -147,11 +177,47 @@ function TextInput({
   );
 }
 
+function TextArea({
+  value,
+  onChange,
+  placeholder,
+  rows = 3,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  rows?: number;
+}) {
+  return (
+    <textarea
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={rows}
+      style={{
+        width: '100%',
+        padding: '12px 14px',
+        fontSize: 14,
+        border: '1.5px solid #e5e7eb',
+        borderRadius: 10,
+        background: '#ffffff',
+        color: '#000000',
+        outline: 'none',
+        boxSizing: 'border-box',
+        fontFamily: 'inherit',
+        resize: 'vertical',
+      }}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
+      onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
+    />
+  );
+}
+
 function ColorPickerField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const handleClick = () => {
     const input = document.createElement('input');
     input.type = 'color';
-    input.value = value.startsWith('#') && value.length >= 7 ? value : '#000000';
+    input.value = value && value.startsWith('#') && value.length >= 7 ? value : '#000000';
     input.onchange = (e) => onChange((e.target as HTMLInputElement).value);
     input.click();
   };
@@ -164,7 +230,7 @@ function ColorPickerField({ value, onChange }: { value: string; onChange: (v: st
           width: 38,
           height: 38,
           borderRadius: 8,
-          background: value,
+          background: value || '#000000',
           border: '1.5px solid #e5e7eb',
           cursor: 'pointer',
           flexShrink: 0,
@@ -237,61 +303,40 @@ function ToggleSwitch({
   );
 }
 
-function FavIcon({
-  type,
-  color,
-  size = 22,
-  filled = false,
-}: {
-  type: CfgFavoritos['iconType'];
-  color: string;
-  size?: number;
-  filled?: boolean;
-}) {
-  if (type === 'star') {
-    return (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? color : 'none'} stroke={color} strokeWidth="2">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-      </svg>
-    );
-  }
-  if (type === 'bookmark') {
-    return (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? color : 'none'} stroke={color} strokeWidth="2">
-        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-      </svg>
-    );
-  }
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? color : 'none'} stroke={color} strokeWidth="2">
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-    </svg>
-  );
-}
-
-function parseCfg(raw: Record<string, unknown> | undefined): CfgFavoritos {
+function parseCfg(raw: Record<string, unknown> | undefined): CfgSuscripcionStock {
   if (!raw) return { ...DEF };
   return {
-    iconType: (raw.iconType as CfgFavoritos['iconType']) || DEF.iconType,
-    modalTitle: raw.modalTitle !== undefined ? String(raw.modalTitle) : DEF.modalTitle,
-    showInGrids: typeof raw.showInGrids === 'boolean' ? raw.showInGrids : DEF.showInGrids,
-    badgePositionImage: (raw.badgePositionImage as CfgFavoritos['badgePositionImage']) || DEF.badgePositionImage,
-    floatingPosition: 'bottom-right',
-    accentColor: (raw.accentColor as string) || DEF.accentColor,
-    bgColor: (raw.bgColor as string) || DEF.bgColor,
-    hasShadow: typeof raw.hasShadow === 'boolean' ? raw.hasShadow : DEF.hasShadow,
-    borderRadius: (raw.borderRadius as CfgFavoritos['borderRadius']) || DEF.borderRadius,
-    floatingButtonSize: (raw.floatingButtonSize as CfgFavoritos['floatingButtonSize']) || DEF.floatingButtonSize,
-    floatingIconSize: (raw.floatingIconSize as CfgFavoritos['floatingIconSize']) || DEF.floatingIconSize,
-    showAddToCart: typeof raw.showAddToCart === 'boolean' ? raw.showAddToCart : DEF.showAddToCart,
+    title: raw.title !== undefined ? String(raw.title) : DEF.title,
+    buttonText: raw.buttonText !== undefined ? String(raw.buttonText) : DEF.buttonText,
+    emailPlaceholder: raw.emailPlaceholder !== undefined ? String(raw.emailPlaceholder) : DEF.emailPlaceholder,
+    successMessage: raw.successMessage !== undefined ? String(raw.successMessage) : DEF.successMessage,
+    emailSubject: raw.emailSubject !== undefined ? String(raw.emailSubject) : DEF.emailSubject,
+    emailBody: raw.emailBody !== undefined ? String(raw.emailBody) : DEF.emailBody,
+    notificationMode: (raw.notificationMode as CfgSuscripcionStock['notificationMode']) || DEF.notificationMode,
+    buttonColor: (raw.buttonColor as string) || DEF.buttonColor,
+    buttonTextColor: (raw.buttonTextColor as string) || DEF.buttonTextColor,
+    inputBorderColor: (raw.inputBorderColor as string) || DEF.inputBorderColor,
+    titleTextColor: (raw.titleTextColor as string) || DEF.titleTextColor,
+    titleFontSize: (raw.titleFontSize as CfgSuscripcionStock['titleFontSize']) || DEF.titleFontSize,
+    titleFontWeight: (raw.titleFontWeight as CfgSuscripcionStock['titleFontWeight']) || DEF.titleFontWeight,
+    buttonFontSize: (raw.buttonFontSize as CfgSuscripcionStock['buttonFontSize']) || DEF.buttonFontSize,
+    buttonFontWeight: (raw.buttonFontWeight as CfgSuscripcionStock['buttonFontWeight']) || DEF.buttonFontWeight,
+    buttonBorderRadius: typeof raw.buttonBorderRadius === 'number' ? raw.buttonBorderRadius : DEF.buttonBorderRadius,
+    inputBorderRadius: typeof raw.inputBorderRadius === 'number' ? raw.inputBorderRadius : DEF.inputBorderRadius,
     campaignTheme: (raw.campaignTheme as string) || 'none',
   };
+}
+
+function applyTemplate(template: string, productName: string, productUrl: string) {
+  return String(template || '')
+    .replace(/\{nombre\}/gi, productName || 'producto')
+    .replace(/\{url\}/gi, productUrl || '');
 }
 
 /* ═══════════════════════════════════════════
    EDITOR PRINCIPAL
 ═══════════════════════════════════════════ */
-export default function FavoritosEditor({
+export default function SuscripcionStockEditor({
   widgetDefinition: wd,
   existingWidget: ew,
   targetType,
@@ -301,15 +346,22 @@ export default function FavoritosEditor({
   initialConfig,
   onSave,
   isSaving,
-}: FavoritosEditorProps) {
+}: SuscripcionStockEditorProps) {
   const router = useRouter();
 
-  const [cfg, setCfg] = useState<CfgFavoritos>(() => parseCfg(ew?.config || initialConfig));
+  const [cfg, setCfg] = useState<CfgSuscripcionStock>(() => parseCfg(ew?.config || initialConfig));
   const [isActive, setIsActive] = useState(ew?.is_active !== false);
-  const [tab, setTab] = useState<'gen' | 'ubicacion' | 'style' | 'dates'>('gen');
+  const [tab, setTab] = useState<'gen' | 'emails' | 'style' | 'dates'>('gen');
   const [saving, setSaving] = useState(false);
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState('');
+  const [previewEmail, setPreviewEmail] = useState('');
+  const [previewSuccess, setPreviewSuccess] = useState(false);
+
+  const [subscribers, setSubscribers] = useState<StockSubscriber[]>([]);
+  const [loadingSubscribers, setLoadingSubscribers] = useState(false);
+  const [subscribersError, setSubscribersError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const isForAll = targetType === 'all';
   const scopeLabel = isForAll ? 'General' : 'Producto';
@@ -319,10 +371,40 @@ export default function FavoritosEditor({
     setErr('');
   }, [cfg, isActive]);
 
-  const set = <K extends keyof CfgFavoritos>(k: K, v: CfgFavoritos[K]) =>
+  const loadSubscribers = async () => {
+    if (!storeId) return;
+    setLoadingSubscribers(true);
+    setSubscribersError('');
+    try {
+      const res = await fetch(`/api/public/stock-subscription?store_id=${encodeURIComponent(String(storeId))}`);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || 'No se pudieron cargar los emails');
+      }
+      setSubscribers(Array.isArray(data.subscriptions) ? data.subscriptions : []);
+    } catch (e: any) {
+      console.error(e);
+      setSubscribers([]);
+      setSubscribersError(e?.message || 'Error al cargar suscriptores');
+    } finally {
+      setLoadingSubscribers(false);
+    }
+  };
+
+  useEffect(() => {
+    if (tab === 'emails') {
+      loadSubscribers();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, storeId]);
+
+  const set = <K extends keyof CfgSuscripcionStock>(k: K, v: CfgSuscripcionStock[K]) =>
     setCfg((p) => ({ ...p, [k]: v }));
 
-  const setCustomColor = (key: 'accentColor' | 'bgColor', val: string) => {
+  const setCustomColor = (
+    key: 'buttonColor' | 'buttonTextColor' | 'inputBorderColor' | 'titleTextColor',
+    val: string
+  ) => {
     setCfg((prev) => ({
       ...prev,
       [key]: val,
@@ -335,8 +417,10 @@ export default function FavoritosEditor({
       setCfg((prev) => ({
         ...prev,
         campaignTheme: 'none',
-        accentColor: DEF.accentColor,
-        bgColor: DEF.bgColor,
+        buttonColor: DEF.buttonColor,
+        buttonTextColor: DEF.buttonTextColor,
+        inputBorderColor: DEF.inputBorderColor,
+        titleTextColor: DEF.titleTextColor,
       }));
       return;
     }
@@ -345,14 +429,16 @@ export default function FavoritosEditor({
       setCfg((prev) => ({
         ...prev,
         campaignTheme: slug,
-        accentColor: p.accent,
-        bgColor: p.bg,
+        buttonColor: p.accent,
+        buttonTextColor: p.text,
+        inputBorderColor: p.accent,
+        titleTextColor: p.accent,
       }));
     }
   };
 
   const save = async () => {
-    const finalCfg = { ...cfg, floatingPosition: 'bottom-right' as const };
+    const finalCfg = { ...cfg };
 
     if (onSave) {
       onSave(finalCfg);
@@ -389,37 +475,53 @@ export default function FavoritosEditor({
     }
   };
 
-  const getPreviewStyles = () => {
-    const theme = cfg.campaignTheme && cfg.campaignTheme !== 'none' ? THEME_FX[cfg.campaignTheme] : null;
-    let accent = cfg.accentColor;
-    let bg = cfg.bgColor;
-    if (theme) {
-      accent = theme.accent;
-      bg = theme.bg === '#111827' || theme.bg === '#0F172A' || theme.bg === '#090D16' || theme.bg === '#064E3B'
-        ? '#ffffff'
-        : theme.bg;
-    }
-    return { accent, bg };
+  const handlePreviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!previewEmail.trim()) return;
+    setPreviewSuccess(true);
+    setTimeout(() => {
+      setPreviewSuccess(false);
+      setPreviewEmail('');
+    }, 3000);
   };
 
-  const ps = getPreviewStyles();
+  const filteredSubscribers = subscribers.filter((sub) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      (sub.email && sub.email.toLowerCase().includes(q)) ||
+      (sub.product_name && sub.product_name.toLowerCase().includes(q))
+    );
+  });
 
-  const badgePosStyle = (): React.CSSProperties => {
-    const base: React.CSSProperties = { position: 'absolute', zIndex: 2 };
-    switch (cfg.badgePositionImage) {
-      case 'top-left':
-        return { ...base, top: 10, left: 10 };
-      case 'bottom-right':
-        return { ...base, bottom: 10, right: 10 };
-      case 'bottom-left':
-        return { ...base, bottom: 10, left: 10 };
-      default:
-        return { ...base, top: 10, right: 10 };
-    }
+  const openNotifyEmail = (sub: StockSubscriber) => {
+    const productName = sub.product_name || 'producto';
+    const productUrl = sub.product_url || '';
+    const subject = applyTemplate(cfg.emailSubject, productName, productUrl);
+    const body = applyTemplate(cfg.emailBody, productName, productUrl);
+    const mailto = `mailto:${encodeURIComponent(sub.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
   };
 
-  const fabSize = parseInt(cfg.floatingButtonSize, 10) || 55;
-  const iconSize = parseInt(cfg.floatingIconSize, 10) || 24;
+  const downloadCSV = () => {
+    if (subscribers.length === 0) return;
+    const headers = ['Email', 'Producto', 'URL Producto', 'Fecha de Registro'];
+    const rows = subscribers.map((s) => [
+      `"${s.email || ''}"`,
+      `"${(s.product_name || '').replace(/"/g, '""')}"`,
+      `"${s.product_url || ''}"`,
+      `"${s.created_at ? new Date(s.created_at).toLocaleString('es-AR') : ''}"`,
+    ]);
+    const csvContent =
+      'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `suscriptores_stock_${storeId || 'tienda'}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const CAMPAIGN_PRESETS = [
     { id: 'none', label: 'Diseño Normal / Personalizado', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
@@ -553,147 +655,125 @@ export default function FavoritosEditor({
                 border: '1px solid #e5e7eb',
                 borderRadius: 16,
                 padding: 16,
-                position: 'relative',
-                minHeight: 320,
               }}
             >
-              {/* Imagen producto + badge */}
               <div
                 style={{
-                  background: '#e5e7eb',
-                  borderRadius: 12,
-                  height: 220,
-                  position: 'relative',
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  overflow: 'hidden',
+                  gap: 8,
+                  background: '#ffffff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 10,
+                  padding: '6px 12px',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: '#111827',
+                  marginBottom: 14,
                 }}
               >
-                <div style={{ textAlign: 'center', color: '#9ca3af' }}>
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <path d="M21 15l-5-5L5 21" />
-                  </svg>
-                  <div style={{ fontSize: 12, marginTop: 6, fontWeight: 600 }}>Imagen del producto</div>
-                </div>
-
-                {/* Badge sobre imagen (configurable) */}
-                <button
-                  type="button"
-                  style={{
-                    ...badgePosStyle(),
-                    width: 36,
-                    height: 36,
-                    borderRadius: cfg.borderRadius,
-                    background: ps.bg,
-                    border: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: cfg.hasShadow ? '0 4px 12px rgba(0,0,0,0.15)' : 'none',
-                    cursor: 'default',
-                  }}
-                >
-                  <FavIcon type={cfg.iconType} color={ps.accent} size={18} />
-                </button>
+                <span>🎧</span> Auriculares Air 31 AAA
               </div>
 
-              {/* FAB flotante FIJO abajo-derecha */}
-              <div style={{ position: 'absolute', bottom: 14, right: 14, zIndex: 3 }}>
-                <div style={{ position: 'relative' }}>
-                  <button
-                    type="button"
-                    style={{
-                      width: fabSize,
-                      height: fabSize,
-                      borderRadius: cfg.borderRadius,
-                      background: ps.bg,
-                      border: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: cfg.hasShadow ? '0 8px 24px rgba(0,0,0,0.18)' : '0 1px 3px rgba(0,0,0,0.08)',
-                      cursor: 'default',
-                    }}
-                  >
-                    <FavIcon type={cfg.iconType} color={ps.accent} size={iconSize} />
-                  </button>
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: -4,
-                      right: -4,
-                      minWidth: 20,
-                      height: 20,
-                      borderRadius: 999,
-                      background: ps.accent,
-                      color: '#ffffff',
-                      fontSize: 11,
-                      fontWeight: 800,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '0 5px',
-                      border: '2px solid #fff',
-                    }}
-                  >
-                    3
-                  </span>
-                </div>
-              </div>
+              <button
+                type="button"
+                disabled
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: '#D1D5DB',
+                  color: '#6B7280',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  cursor: 'not-allowed',
+                  marginBottom: 14,
+                }}
+              >
+                Sin stock
+              </button>
 
-              {/* Mini panel preview */}
               <div
                 style={{
-                  marginTop: 14,
                   background: '#ffffff',
                   border: '1px solid #e5e7eb',
                   borderRadius: 12,
-                  padding: '12px 14px',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                  padding: 16,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#111827' }}>
-                    {cfg.modalTitle || 'Mis favoritos'} (3)
+                {previewSuccess ? (
+                  <div
+                    style={{
+                      textAlign: 'center',
+                      padding: '16px 8px',
+                      color: '#059669',
+                      fontWeight: 700,
+                      fontSize: cfg.titleFontSize,
+                    }}
+                  >
+                    {cfg.successMessage || '¡Te avisamos cuando vuelva!'}
                   </div>
-                  <FavIcon type={cfg.iconType} color={ps.accent} size={16} filled />
-                </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 8, background: '#e5e7eb' }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>Producto ejemplo</div>
-                    <div style={{ fontSize: 12, color: '#6b7280' }}>$12.500</div>
-                  </div>
-                  {cfg.showAddToCart && (
-                    <button
-                      type="button"
+                ) : (
+                  <form onSubmit={handlePreviewSubmit}>
+                    {cfg.title.trim() !== '' && (
+                      <div
+                        style={{
+                          fontSize: cfg.titleFontSize,
+                          fontWeight: cfg.titleFontWeight === 'bold' ? 700 : 400,
+                          color: cfg.titleTextColor,
+                          textAlign: 'center',
+                          marginBottom: 12,
+                        }}
+                      >
+                        {cfg.title}
+                      </div>
+                    )}
+
+                    <input
+                      type="email"
+                      value={previewEmail}
+                      onChange={(e) => setPreviewEmail(e.target.value)}
+                      placeholder={cfg.emailPlaceholder || 'Tu email'}
+                      required
                       style={{
-                        background: ps.accent,
-                        color: '#fff',
+                        width: '100%',
+                        padding: '10px 12px',
+                        border: `1.5px solid ${cfg.inputBorderColor}`,
+                        borderRadius: cfg.inputBorderRadius,
+                        fontSize: 14,
+                        marginBottom: 10,
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                        fontFamily: 'inherit',
+                      }}
+                    />
+
+                    <button
+                      type="submit"
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        background: cfg.buttonColor,
+                        color: cfg.buttonTextColor,
                         border: 'none',
-                        borderRadius: 8,
-                        padding: '6px 10px',
-                        fontSize: 12,
-                        fontWeight: 800,
-                        cursor: 'default',
+                        borderRadius: cfg.buttonBorderRadius,
+                        fontSize: cfg.buttonFontSize,
+                        fontWeight: cfg.buttonFontWeight === 'bold' ? 700 : 400,
+                        cursor: 'pointer',
                       }}
                     >
-                      + Carrito
+                      {cfg.buttonText || 'Avisame cuando haya stock'}
                     </button>
-                  )}
-                </div>
-                <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 10 }}>
-                  🔒 Botón flotante fijo: abajo a la derecha
-                </div>
+                  </form>
+                )}
               </div>
-            </div>
 
-            <p style={{ fontSize: 13, color: '#6b7280', marginTop: 12, lineHeight: 1.5 }}>
-              El botón de favoritos aparece sobre la imagen del producto (podés elegir la esquina). El botón flotante grande queda <strong>siempre fijo en la esquina inferior derecha</strong> para mantener la mejor experiencia de usuario.
-            </p>
+              <p style={{ fontSize: 12, color: '#6b7280', marginTop: 12, lineHeight: 1.5, textAlign: 'center' }}>
+                ⓘ El formulario aparecerá debajo del botón &quot;Sin stock&quot; cuando un producto no tenga stock disponible.
+              </p>
+            </div>
           </div>
 
           {/* TABS */}
@@ -708,7 +788,7 @@ export default function FavoritosEditor({
             {(
               [
                 ['gen', 'General'],
-                ['ubicacion', 'Ubicación'],
+                ['emails', 'Emails'],
                 ['style', 'Estilos'],
                 ['dates', '🔥 Eventos'],
               ] as const
@@ -744,57 +824,25 @@ export default function FavoritosEditor({
           {tab === 'gen' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               <div>
-                <FieldLabel>Ícono del botón</FieldLabel>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-                  {(
-                    [
-                      { id: 'heart', label: 'Corazón' },
-                      { id: 'star', label: 'Estrella' },
-                      { id: 'bookmark', label: 'Marcador' },
-                    ] as const
-                  ).map((opt) => {
-                    const selected = cfg.iconType === opt.id;
-                    return (
-                      <label
-                        key={opt.id}
-                        onClick={() => set('iconType', opt.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 8,
-                          padding: '10px 14px',
-                          borderRadius: 10,
-                          border: selected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
-                          background: selected ? '#ECFDF5' : '#ffffff',
-                          cursor: 'pointer',
-                          fontSize: 14,
-                          fontWeight: 700,
-                          color: '#111827',
-                        }}
-                      >
-                        <input
-                          type="radio"
-                          name="iconType"
-                          checked={selected}
-                          onChange={() => set('iconType', opt.id)}
-                          style={{ accentColor: '#10B981' }}
-                        />
-                        <FavIcon type={opt.id} color={selected ? '#10B981' : '#6b7280'} size={16} />
-                        {opt.label}
-                      </label>
-                    );
-                  })}
-                </div>
+                <FieldLabel>Título (opcional)</FieldLabel>
+                <TextInput value={cfg.title} onChange={(v) => set('title', v)} placeholder="¿Querés saber cuándo vuelve?" />
+                <FieldHelper>Se muestra sobre el formulario. Dejá vacío para ocultarlo.</FieldHelper>
               </div>
 
               <div>
-                <FieldLabel>Título del modal</FieldLabel>
-                <TextInput
-                  value={cfg.modalTitle}
-                  onChange={(v) => set('modalTitle', v)}
-                  placeholder="Mis favoritos"
-                />
-                <FieldHelper>Título que aparece en el panel con los productos guardados.</FieldHelper>
+                <FieldLabel>Texto del botón</FieldLabel>
+                <TextInput value={cfg.buttonText} onChange={(v) => set('buttonText', v)} placeholder="Avisame cuando haya stock" />
+              </div>
+
+              <div>
+                <FieldLabel>Placeholder del email</FieldLabel>
+                <TextInput value={cfg.emailPlaceholder} onChange={(v) => set('emailPlaceholder', v)} placeholder="Tu email" />
+              </div>
+
+              <div>
+                <FieldLabel>Mensaje de éxito</FieldLabel>
+                <TextInput value={cfg.successMessage} onChange={(v) => set('successMessage', v)} placeholder="¡Te avisamos cuando vuelva!" />
+                <FieldHelper>Texto que se muestra al cliente luego de registrarse.</FieldHelper>
               </div>
 
               <div
@@ -805,203 +853,42 @@ export default function FavoritosEditor({
                   padding: 16,
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <input
-                    type="checkbox"
-                    checked={cfg.showInGrids}
-                    onChange={(e) => set('showInGrids', e.target.checked)}
-                    style={{ marginTop: 3, width: 18, height: 18, accentColor: '#10B981' }}
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 4 }}>
+                  Email de aviso al cliente
+                </div>
+                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 14, lineHeight: 1.45 }}>
+                  Este texto se usa cuando tocás <strong>Avisar</strong> en la pestaña Emails. Variables:{' '}
+                  <span style={{ color: '#EC4899', fontWeight: 700 }}>{'{nombre}'}</span> y{' '}
+                  <span style={{ color: '#EC4899', fontWeight: 700 }}>{'{url}'}</span>.
+                </div>
+
+                <div style={{ marginBottom: 14 }}>
+                  <FieldLabel>Asunto del email</FieldLabel>
+                  <TextInput
+                    value={cfg.emailSubject}
+                    onChange={(v) => set('emailSubject', v)}
+                    placeholder="¡El producto que querías está disponible!"
                   />
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#111827' }}>
-                      Mostrar botón de favoritos en productos de home y categorías
-                    </div>
-                    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4, lineHeight: 1.45 }}>
-                      Inyecta el botón sobre la imagen de cada producto en las grillas de la tienda (home, categorías, productos relacionados).
-                    </div>
-                  </div>
                 </div>
-              </div>
-            </div>
-          )}
 
-          {/* TAB UBICACIÓN */}
-          {tab === 'ubicacion' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-              <div>
-                <FieldLabel>Posición del botón sobre la imagen del producto</FieldLabel>
-                <FieldHelper>Esquina donde aparece el corazón pequeño sobre la imagen de cada producto (tanto en ficha como en grillas de home y categorías).</FieldHelper>
-
-                {/* Selector visual 2x2 estilo Wigy */}
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 12, flexWrap: 'wrap' }}>
-                  <div
-                    style={{
-                      width: 72,
-                      height: 72,
-                      borderRadius: 12,
-                      border: '1.5px solid #e5e7eb',
-                      background: '#f9fafb',
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gridTemplateRows: '1fr 1fr',
-                      gap: 6,
-                      padding: 10,
-                    }}
-                  >
-                    {(
-                      [
-                        'top-left',
-                        'top-right',
-                        'bottom-left',
-                        'bottom-right',
-                      ] as const
-                    ).map((pos) => (
-                      <button
-                        key={pos}
-                        type="button"
-                        onClick={() => set('badgePositionImage', pos)}
-                        style={{
-                          border: 'none',
-                          borderRadius: '50%',
-                          background: cfg.badgePositionImage === pos ? '#10B981' : '#d1d5db',
-                          cursor: 'pointer',
-                          width: '100%',
-                          height: '100%',
-                        }}
-                        aria-label={pos}
-                      />
-                    ))}
-                  </div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>
-                    {cfg.badgePositionImage === 'top-right' && 'Arriba a la derecha'}
-                    {cfg.badgePositionImage === 'top-left' && 'Arriba a la izquierda'}
-                    {cfg.badgePositionImage === 'bottom-right' && 'Abajo a la derecha'}
-                    {cfg.badgePositionImage === 'bottom-left' && 'Abajo a la izquierda'}
-                  </div>
+                <div style={{ marginBottom: 14 }}>
+                  <FieldLabel>Cuerpo del email</FieldLabel>
+                  <TextArea
+                    value={cfg.emailBody}
+                    onChange={(v) => set('emailBody', v)}
+                    placeholder="El producto {nombre} que querías volvió a tener stock..."
+                    rows={4}
+                  />
+                  <FieldHelper>
+                    Variables: {'{nombre}'} (nombre del producto) y {'{url}'} (enlace al producto).
+                  </FieldHelper>
                 </div>
-              </div>
 
-              {/* Nota sobre el FAB fijo */}
-              <div
-                style={{
-                  background: '#ECFDF5',
-                  border: '1px solid #A7F3D0',
-                  borderRadius: 12,
-                  padding: 16,
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: 12,
-                }}
-              >
-                <div style={{ fontSize: 20, flexShrink: 0 }}>🔒</div>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#065F46', marginBottom: 4 }}>
-                    Botón flotante fijo (abajo a la derecha)
-                  </div>
-                  <div style={{ fontSize: 13, color: '#065F46', opacity: 0.85, lineHeight: 1.5 }}>
-                    El botón flotante grande con el contador de favoritos siempre aparece en la esquina inferior derecha de la tienda. Esta posición está optimizada para la mejor experiencia móvil y no se puede modificar.
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB ESTILOS */}
-          {tab === 'style' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-              {/* Colores */}
-              <div
-                style={{
-                  background: '#ffffff',
-                  border: '1.5px solid #e5e7eb',
-                  borderRadius: 12,
-                  padding: 16,
-                }}
-              >
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 4 }}>
-                  🎨 Colores
-                </div>
-                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 14 }}>
-                  Acento del ícono, badge y fondo del botón.
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                  <div>
-                    <FieldLabel>Color del ícono / acento</FieldLabel>
-                    <ColorPickerField value={cfg.accentColor} onChange={(v) => setCustomColor('accentColor', v)} />
-                    <FieldHelper>Corazón/estrella, badge y botones del modal.</FieldHelper>
-                  </div>
-                  <div>
-                    <FieldLabel>Color de fondo del botón</FieldLabel>
-                    <ColorPickerField value={cfg.bgColor} onChange={(v) => setCustomColor('bgColor', v)} />
-                    <FieldHelper>Fondo del botón de producto y flotante.</FieldHelper>
-                  </div>
-                </div>
-              </div>
-
-              {/* Forma y tamaño */}
-              <div
-                style={{
-                  background: '#ffffff',
-                  border: '1.5px solid #e5e7eb',
-                  borderRadius: 12,
-                  padding: 16,
-                }}
-              >
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 4 }}>
-                  ▦ Forma y tamaño
-                </div>
-                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 14 }}>
-                  Sombra, borde y dimensiones del botón flotante.
-                </div>
-
-                <div style={{ marginBottom: 16 }}>
-                  <FieldLabel>Sombra del botón</FieldLabel>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                    {[
-                      { v: true, label: 'Con sombra' },
-                      { v: false, label: 'Sin sombra' },
-                    ].map((opt) => {
-                      const selected = cfg.hasShadow === opt.v;
-                      return (
-                        <button
-                          key={String(opt.v)}
-                          type="button"
-                          onClick={() => set('hasShadow', opt.v)}
-                          style={{
-                            padding: '12px',
-                            borderRadius: 10,
-                            border: selected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
-                            background: selected ? '#ECFDF5' : '#ffffff',
-                            cursor: 'pointer',
-                            fontSize: 13,
-                            fontWeight: 700,
-                            color: '#111827',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8,
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <span
-                            style={{
-                              width: 14,
-                              height: 14,
-                              borderRadius: 3,
-                              background: selected ? '#10B981' : '#d1d5db',
-                            }}
-                          />
-                          {opt.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: 16 }}>
-                  <FieldLabel>Borde del botón</FieldLabel>
+                  <FieldLabel>Modo de notificación</FieldLabel>
                   <select
-                    value={cfg.borderRadius}
-                    onChange={(e) => set('borderRadius', e.target.value as CfgFavoritos['borderRadius'])}
+                    value={cfg.notificationMode}
+                    onChange={(e) => set('notificationMode', e.target.value as 'all' | 'fifo')}
                     style={{
                       width: '100%',
                       padding: '12px 14px',
@@ -1013,63 +900,202 @@ export default function FavoritosEditor({
                       outline: 'none',
                     }}
                   >
-                    <option value="50%">Circular (50%)</option>
-                    <option value="8px">Redondeado (8px)</option>
-                    <option value="0px">Cuadrado (0px)</option>
+                    <option value="all">Avisar a todos</option>
+                    <option value="fifo">Avisar según stock disponible (FIFO)</option>
                   </select>
+                  <FieldHelper>
+                    Con &quot;según stock disponible&quot;, si hay más suscriptores que unidades, priorizá a los primeros en registrarse (FIFO).
+                  </FieldHelper>
                 </div>
+              </div>
+            </div>
+          )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                  <div>
-                    <FieldLabel>Tamaño del botón flotante</FieldLabel>
-                    <select
-                      value={cfg.floatingButtonSize}
-                      onChange={(e) =>
-                        set('floatingButtonSize', e.target.value as CfgFavoritos['floatingButtonSize'])
-                      }
-                      style={{
-                        width: '100%',
-                        padding: '12px 14px',
-                        fontSize: 14,
-                        border: '1.5px solid #e5e7eb',
-                        borderRadius: 10,
-                        background: '#ffffff',
-                        color: '#000000',
-                        outline: 'none',
-                      }}
-                    >
-                      <option value="55px">Grande (55px)</option>
-                      <option value="45px">Mediano (45px)</option>
-                      <option value="35px">Pequeño (35px)</option>
-                    </select>
+          {/* TAB EMAILS */}
+          {tab === 'emails' && (
+            <div>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 16,
+                  gap: 12,
+                  flexWrap: 'wrap',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#111827' }}>
+                    Emails recolectados ({filteredSubscribers.length})
                   </div>
-                  <div>
-                    <FieldLabel>Tamaño del ícono flotante</FieldLabel>
-                    <select
-                      value={cfg.floatingIconSize}
-                      onChange={(e) =>
-                        set('floatingIconSize', e.target.value as CfgFavoritos['floatingIconSize'])
-                      }
-                      style={{
-                        width: '100%',
-                        padding: '12px 14px',
-                        fontSize: 14,
-                        border: '1.5px solid #e5e7eb',
-                        borderRadius: 10,
-                        background: '#ffffff',
-                        color: '#000000',
-                        outline: 'none',
-                      }}
-                    >
-                      <option value="24px">Grande (24px)</option>
-                      <option value="20px">Mediano (20px)</option>
-                      <option value="16px">Pequeño (16px)</option>
-                    </select>
+                  <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
+                    Cualquier visitante puede dejar su email. No hace falta que esté registrado en la tienda.
                   </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={loadSubscribers}
+                    style={{
+                      padding: '10px 14px',
+                      background: '#ffffff',
+                      color: '#111827',
+                      border: '1.5px solid #e5e7eb',
+                      borderRadius: 8,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ↻ Actualizar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={downloadCSV}
+                    disabled={subscribers.length === 0}
+                    style={{
+                      padding: '10px 16px',
+                      background: subscribers.length === 0 ? '#9ca3af' : '#10B981',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: 8,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: subscribers.length === 0 ? 'not-allowed' : 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    <span>📥</span> Exportar CSV
+                  </button>
                 </div>
               </div>
 
-              {/* Carrito */}
+              {subscribers.length > 0 && (
+                <div style={{ marginBottom: 16 }}>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Buscar por email o producto..."
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      fontSize: 13,
+                      border: '1.5px solid #e5e7eb',
+                      borderRadius: 8,
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+              )}
+
+              {subscribersError && (
+                <div
+                  style={{
+                    background: '#fef2f2',
+                    border: '1px solid #fca5a5',
+                    borderRadius: 10,
+                    padding: '10px 14px',
+                    fontSize: 13,
+                    color: '#dc2626',
+                    marginBottom: 12,
+                    fontWeight: 600,
+                  }}
+                >
+                  {subscribersError}
+                </div>
+              )}
+
+              {loadingSubscribers ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#6b7280', fontSize: 14 }}>
+                  Cargando suscriptores...
+                </div>
+              ) : subscribers.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: 'center',
+                    padding: '40px 20px',
+                    background: '#fafafa',
+                    borderRadius: 12,
+                    border: '1px dashed #d1d5db',
+                  }}
+                >
+                  <div style={{ fontSize: 36, marginBottom: 8, color: '#9ca3af' }}>✉️</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#374151', marginBottom: 6 }}>
+                    Aún no hay suscriptores
+                  </div>
+                  <div style={{ fontSize: 13, color: '#6b7280', maxWidth: 340, margin: '0 auto', lineHeight: 1.5 }}>
+                    Cuando un visitante deje su email en un producto sin stock, aparecerá acá automáticamente. Después vas a poder tocar <strong>Avisar</strong> y se abre tu email con el mensaje listo (producto + link).
+                  </div>
+                </div>
+              ) : filteredSubscribers.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '30px 20px', color: '#6b7280', fontSize: 13 }}>
+                  No se encontraron suscriptores que coincidan con &quot;{searchQuery}&quot;.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {filteredSubscribers.map((sub, idx) => (
+                    <div
+                      key={sub.id || idx}
+                      style={{
+                        border: '1px solid #e5e7eb',
+                        borderRadius: 12,
+                        padding: 14,
+                        background: '#ffffff',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', wordBreak: 'break-word' }}>
+                            {sub.email}
+                          </div>
+                          <div style={{ fontSize: 13, color: '#4b5563', marginTop: 4, wordBreak: 'break-word' }}>
+                            {sub.product_url ? (
+                              <a href={sub.product_url} target="_blank" rel="noreferrer" style={{ color: '#10B981', fontWeight: 600 }}>
+                                {sub.product_name || 'Ver producto'}
+                              </a>
+                            ) : (
+                              sub.product_name || 'Producto sin nombre'
+                            )}
+                          </div>
+                          <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>
+                            {sub.created_at ? new Date(sub.created_at).toLocaleString('es-AR') : '-'}
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => openNotifyEmail(sub)}
+                          style={{
+                            flexShrink: 0,
+                            padding: '10px 12px',
+                            background: '#10B981',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                          }}
+                          title="Abre tu app de email con el mensaje listo"
+                        >
+                          ✉ Avisar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB ESTILOS */}
+          {tab === 'style' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               <div
                 style={{
                   background: '#ffffff',
@@ -1078,22 +1104,189 @@ export default function FavoritosEditor({
                   padding: 16,
                 }}
               >
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 4 }}>
-                  🛒 Carrito
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 4 }}>🎨 Colores principales</div>
+                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 14 }}>Personalizá los colores del botón, input y título.</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <FieldLabel>Color del botón</FieldLabel>
+                    <ColorPickerField value={cfg.buttonColor} onChange={(v) => setCustomColor('buttonColor', v)} />
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <FieldLabel>Color del texto del botón</FieldLabel>
+                    <ColorPickerField value={cfg.buttonTextColor} onChange={(v) => setCustomColor('buttonTextColor', v)} />
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <FieldLabel>Color del borde del input</FieldLabel>
+                    <ColorPickerField value={cfg.inputBorderColor} onChange={(v) => setCustomColor('inputBorderColor', v)} />
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <FieldLabel>Color del texto del título</FieldLabel>
+                    <ColorPickerField value={cfg.titleTextColor} onChange={(v) => setCustomColor('titleTextColor', v)} />
+                  </div>
                 </div>
-                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 14 }}>
-                  Opciones de agregar al carrito desde el panel.
-                </div>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#111827' }}>
-                      Mostrar botones de agregar al carrito
-                    </div>
-                    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4, lineHeight: 1.45 }}>
-                      Muestra el botón &quot;+&quot; y &quot;Agregar todos&quot; en el panel de favoritos para agregar productos al carrito directamente.
+              </div>
+
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1.5px solid #e5e7eb',
+                  borderRadius: 12,
+                  padding: 16,
+                }}
+              >
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 4 }}>T Tipografías</div>
+                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 14 }}>Tamaño y estilo del texto del título y del botón.</div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 16 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <FieldLabel>Tamaño de texto</FieldLabel>
+                    <select
+                      value={cfg.titleFontSize}
+                      onChange={(e) => set('titleFontSize', e.target.value as CfgSuscripcionStock['titleFontSize'])}
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        fontSize: 14,
+                        border: '1.5px solid #e5e7eb',
+                        borderRadius: 10,
+                        background: '#ffffff',
+                        color: '#000000',
+                        outline: 'none',
+                      }}
+                    >
+                      <option value="12px">12 px</option>
+                      <option value="14px">14 px</option>
+                      <option value="16px">16 px</option>
+                      <option value="18px">18 px</option>
+                    </select>
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <FieldLabel>Estilo del texto</FieldLabel>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      {([
+                        { v: 'normal', label: 'Normal' },
+                        { v: 'bold', label: 'Resaltado' },
+                      ] as const).map((opt) => {
+                        const selected = cfg.titleFontWeight === opt.v;
+                        return (
+                          <button
+                            key={opt.v}
+                            type="button"
+                            onClick={() => set('titleFontWeight', opt.v)}
+                            style={{
+                              padding: '12px',
+                              borderRadius: 10,
+                              border: selected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                              background: selected ? '#ECFDF5' : '#ffffff',
+                              cursor: 'pointer',
+                              fontSize: 13,
+                              fontWeight: opt.v === 'bold' ? 700 : 500,
+                              color: '#111827',
+                            }}
+                          >
+                            {opt.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                  <ToggleSwitch checked={cfg.showAddToCart} onChange={(v) => set('showAddToCart', v)} />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <FieldLabel>Tamaño de fuente del botón</FieldLabel>
+                    <select
+                      value={cfg.buttonFontSize}
+                      onChange={(e) => set('buttonFontSize', e.target.value as CfgSuscripcionStock['buttonFontSize'])}
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        fontSize: 14,
+                        border: '1.5px solid #e5e7eb',
+                        borderRadius: 10,
+                        background: '#ffffff',
+                        color: '#000000',
+                        outline: 'none',
+                      }}
+                    >
+                      <option value="12px">12 px</option>
+                      <option value="14px">14 px</option>
+                      <option value="16px">16 px</option>
+                      <option value="18px">18 px</option>
+                    </select>
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <FieldLabel>Estilo del texto del botón</FieldLabel>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      {([
+                        { v: 'normal', label: 'Normal' },
+                        { v: 'bold', label: 'Resaltado' },
+                      ] as const).map((opt) => {
+                        const selected = cfg.buttonFontWeight === opt.v;
+                        return (
+                          <button
+                            key={opt.v}
+                            type="button"
+                            onClick={() => set('buttonFontWeight', opt.v)}
+                            style={{
+                              padding: '12px',
+                              borderRadius: 10,
+                              border: selected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                              background: selected ? '#ECFDF5' : '#ffffff',
+                              cursor: 'pointer',
+                              fontSize: 13,
+                              fontWeight: opt.v === 'bold' ? 700 : 500,
+                              color: '#111827',
+                            }}
+                          >
+                            {opt.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1.5px solid #e5e7eb',
+                  borderRadius: 12,
+                  padding: 16,
+                }}
+              >
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 4 }}>▦ Comportamiento y diseño</div>
+                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 14 }}>Bordes redondeados del botón y del input.</div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <FieldLabel>Bordes redondeados del botón</FieldLabel>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{cfg.buttonBorderRadius}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={30}
+                    value={cfg.buttonBorderRadius}
+                    onChange={(e) => set('buttonBorderRadius', parseInt(e.target.value, 10))}
+                    style={{ width: '100%', accentColor: '#10B981' }}
+                  />
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <FieldLabel>Bordes redondeados del input</FieldLabel>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{cfg.inputBorderRadius}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={30}
+                    value={cfg.inputBorderRadius}
+                    onChange={(e) => set('inputBorderRadius', parseInt(e.target.value, 10))}
+                    style={{ width: '100%', accentColor: '#10B981' }}
+                  />
                 </div>
               </div>
             </div>
@@ -1105,7 +1298,7 @@ export default function FavoritosEditor({
               <div style={{ marginBottom: 20 }}>
                 <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
                 <FieldHelper>
-                  Elegí una campaña: el color de acento y el fondo del botón se adaptan automáticamente al evento.
+                  Elegí una campaña: los colores del botón, borde e título se adaptan automáticamente al evento.
                 </FieldHelper>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -1166,7 +1359,6 @@ export default function FavoritosEditor({
             </div>
           )}
 
-          {/* Widget activo + mensajes */}
           <div
             style={{
               marginTop: 28,
@@ -1218,7 +1410,6 @@ export default function FavoritosEditor({
             )}
           </div>
 
-          {/* BOTÓN GUARDAR FULL WIDTH VERDE */}
           <div style={{ marginTop: 24 }}>
             <button
               type="button"
@@ -1248,4 +1439,4 @@ export default function FavoritosEditor({
       </div>
     </div>
   );
-     }
+   }
