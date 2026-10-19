@@ -31,13 +31,7 @@ export interface CfgFavoritos {
   modalTitle: string;
   showInGrids: boolean;
   badgePositionImage: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
-  floatingPosition:
-    | 'bottom-left'
-    | 'bottom-right'
-    | 'top-left'
-    | 'top-right'
-    | 'center-left'
-    | 'center-right';
+  floatingPosition: 'bottom-right';
   accentColor: string;
   bgColor: string;
   hasShadow: boolean;
@@ -69,7 +63,7 @@ const DEF: CfgFavoritos = {
   modalTitle: 'Mis favoritos',
   showInGrids: true,
   badgePositionImage: 'top-right',
-  floatingPosition: 'bottom-left',
+  floatingPosition: 'bottom-right',
   accentColor: '#e11d48',
   bgColor: '#ffffff',
   hasShadow: true,
@@ -282,7 +276,7 @@ function parseCfg(raw: Record<string, unknown> | undefined): CfgFavoritos {
     modalTitle: raw.modalTitle !== undefined ? String(raw.modalTitle) : DEF.modalTitle,
     showInGrids: typeof raw.showInGrids === 'boolean' ? raw.showInGrids : DEF.showInGrids,
     badgePositionImage: (raw.badgePositionImage as CfgFavoritos['badgePositionImage']) || DEF.badgePositionImage,
-    floatingPosition: (raw.floatingPosition as CfgFavoritos['floatingPosition']) || DEF.floatingPosition,
+    floatingPosition: 'bottom-right',
     accentColor: (raw.accentColor as string) || DEF.accentColor,
     bgColor: (raw.bgColor as string) || DEF.bgColor,
     hasShadow: typeof raw.hasShadow === 'boolean' ? raw.hasShadow : DEF.hasShadow,
@@ -358,8 +352,10 @@ export default function FavoritosEditor({
   };
 
   const save = async () => {
+    const finalCfg = { ...cfg, floatingPosition: 'bottom-right' as const };
+
     if (onSave) {
-      onSave(cfg);
+      onSave(finalCfg);
       return;
     }
 
@@ -372,7 +368,7 @@ export default function FavoritosEditor({
         id: ew?.id ?? null,
         store_id: storeId,
         widget_slug: wd.slug,
-        config: cfg,
+        config: finalCfg,
         target_type: targetType,
         target_product_id: productId ?? null,
         target_category_id: categoryId ?? null,
@@ -422,24 +418,6 @@ export default function FavoritosEditor({
     }
   };
 
-  const fabPosStyle = (): React.CSSProperties => {
-    const base: React.CSSProperties = { position: 'absolute', zIndex: 3 };
-    switch (cfg.floatingPosition) {
-      case 'bottom-right':
-        return { ...base, bottom: 14, right: 14 };
-      case 'top-left':
-        return { ...base, top: 14, left: 14 };
-      case 'top-right':
-        return { ...base, top: 14, right: 14 };
-      case 'center-left':
-        return { ...base, top: '50%', left: 14, transform: 'translateY(-50%)' };
-      case 'center-right':
-        return { ...base, top: '50%', right: 14, transform: 'translateY(-50%)' };
-      default:
-        return { ...base, bottom: 14, left: 14 };
-    }
-  };
-
   const fabSize = parseInt(cfg.floatingButtonSize, 10) || 55;
   const iconSize = parseInt(cfg.floatingIconSize, 10) || 24;
 
@@ -453,24 +431,6 @@ export default function FavoritosEditor({
     { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Índigo suave y elegante.' },
     { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Ámbar cálido de oferta.' },
   ];
-
-  const floatingLabels: Record<CfgFavoritos['floatingPosition'], string> = {
-    'bottom-left': 'Abajo a la izquierda',
-    'bottom-right': 'Abajo a la derecha',
-    'top-left': 'Arriba a la izquierda',
-    'top-right': 'Arriba a la derecha',
-    'center-left': 'Al centro a la izquierda',
-    'center-right': 'Al centro a la derecha',
-  };
-
-  const floatingDescs: Record<CfgFavoritos['floatingPosition'], string> = {
-    'bottom-left': 'El botón aparece en la esquina inferior izquierda de la pantalla.',
-    'bottom-right': 'El botón aparece en la esquina inferior derecha de la pantalla.',
-    'top-left': 'El botón aparece en la esquina superior izquierda de la pantalla.',
-    'top-right': 'El botón aparece en la esquina superior derecha de la pantalla.',
-    'center-left': 'El botón aparece centrado verticalmente sobre el lado izquierdo de la pantalla.',
-    'center-right': 'El botón aparece centrado verticalmente sobre el lado derecho de la pantalla.',
-  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -619,7 +579,7 @@ export default function FavoritosEditor({
                   <div style={{ fontSize: 12, marginTop: 6, fontWeight: 600 }}>Imagen del producto</div>
                 </div>
 
-                {/* Badge sobre imagen */}
+                {/* Badge sobre imagen (configurable) */}
                 <button
                   type="button"
                   style={{
@@ -640,8 +600,8 @@ export default function FavoritosEditor({
                 </button>
               </div>
 
-              {/* FAB flotante con contador */}
-              <div style={fabPosStyle()}>
+              {/* FAB flotante FIJO abajo-derecha */}
+              <div style={{ position: 'absolute', bottom: 14, right: 14, zIndex: 3 }}>
                 <div style={{ position: 'relative' }}>
                   <button
                     type="button"
@@ -726,13 +686,13 @@ export default function FavoritosEditor({
                   )}
                 </div>
                 <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 10 }}>
-                  Botón flotante: {floatingLabels[cfg.floatingPosition]}
+                  🔒 Botón flotante fijo: abajo a la derecha
                 </div>
               </div>
             </div>
 
             <p style={{ fontSize: 13, color: '#6b7280', marginTop: 12, lineHeight: 1.5 }}>
-              El botón de favoritos aparece sobre la imagen del producto. El panel flotante está visible en toda la tienda y muestra los productos guardados.
+              El botón de favoritos aparece sobre la imagen del producto (podés elegir la esquina). El botón flotante grande queda <strong>siempre fijo en la esquina inferior derecha</strong> para mantener la mejor experiencia de usuario.
             </p>
           </div>
 
@@ -869,10 +829,10 @@ export default function FavoritosEditor({
           {tab === 'ubicacion' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               <div>
-                <FieldLabel>Posición del botón sobre la imagen</FieldLabel>
-                <FieldHelper>Esquina donde aparece el botón de favoritos sobre la imagen del producto.</FieldHelper>
+                <FieldLabel>Posición del botón sobre la imagen del producto</FieldLabel>
+                <FieldHelper>Esquina donde aparece el corazón pequeño sobre la imagen de cada producto (tanto en ficha como en grillas de home y categorías).</FieldHelper>
 
-                {/* Selector visual 2x2 como Wigy */}
+                {/* Selector visual 2x2 estilo Wigy */}
                 <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginTop: 12, flexWrap: 'wrap' }}>
                   <div
                     style={{
@@ -921,53 +881,26 @@ export default function FavoritosEditor({
                 </div>
               </div>
 
-              <div>
-                <FieldLabel>Posición del botón flotante</FieldLabel>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
-                  {(
-                    [
-                      'bottom-left',
-                      'bottom-right',
-                      'top-left',
-                      'top-right',
-                      'center-left',
-                      'center-right',
-                    ] as const
-                  ).map((pos) => {
-                    const selected = cfg.floatingPosition === pos;
-                    return (
-                      <label
-                        key={pos}
-                        onClick={() => set('floatingPosition', pos)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: 12,
-                          padding: '14px 16px',
-                          borderRadius: 12,
-                          border: selected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
-                          background: selected ? '#ECFDF5' : '#ffffff',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <input
-                          type="radio"
-                          name="floatingPosition"
-                          checked={selected}
-                          onChange={() => set('floatingPosition', pos)}
-                          style={{ marginTop: 2, accentColor: '#10B981', width: 18, height: 18 }}
-                        />
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: '#111827' }}>
-                            {floatingLabels[pos]}
-                          </div>
-                          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2, lineHeight: 1.4 }}>
-                            {floatingDescs[pos]}
-                          </div>
-                        </div>
-                      </label>
-                    );
-                  })}
+              {/* Nota sobre el FAB fijo */}
+              <div
+                style={{
+                  background: '#ECFDF5',
+                  border: '1px solid #A7F3D0',
+                  borderRadius: 12,
+                  padding: 16,
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 12,
+                }}
+              >
+                <div style={{ fontSize: 20, flexShrink: 0 }}>🔒</div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#065F46', marginBottom: 4 }}>
+                    Botón flotante fijo (abajo a la derecha)
+                  </div>
+                  <div style={{ fontSize: 13, color: '#065F46', opacity: 0.85, lineHeight: 1.5 }}>
+                    El botón flotante grande con el contador de favoritos siempre aparece en la esquina inferior derecha de la tienda. Esta posición está optimizada para la mejor experiencia móvil y no se puede modificar.
+                  </div>
                 </div>
               </div>
             </div>
@@ -1315,4 +1248,4 @@ export default function FavoritosEditor({
       </div>
     </div>
   );
-    }
+     }
