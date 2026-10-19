@@ -15936,7 +15936,7 @@ function renderFavoritos(w) {
   }
 }
 /* ═══════════════════════════════════════════
-   WIDGET #50: AVISO DE STOCK (v406 FIX EMAIL)
+   WIDGET #50: AVISO DE STOCK (v407 ESTRICTO SIN STOCK)
    ═══════════════════════════════════════════ */
 function renderSuscripcionStock(w) {
   try {
@@ -16016,11 +16016,7 @@ function renderSuscripcionStock(w) {
       if (buyBtn) {
         if (buyBtn.disabled || buyBtn.getAttribute("disabled") !== null) return true;
         var btxt = ((buyBtn.textContent || "") + " " + (buyBtn.value || "")).toLowerCase();
-        if (btxt.indexOf("sin stock") !== -1 || btxt.indexOf("agotado") !== -1) return true;
-      } else {
-        if (document.querySelector(".js-product-container, [data-store='product-detail'], h1.js-product-name")) {
-          return true;
-        }
+        if (btxt.indexOf("sin stock") !== -1 || btxt.indexOf("agotado") !== -1 || btxt.indexOf("out of stock") !== -1 || btxt.indexOf("no disponible") !== -1) return true;
       }
 
       var labels = document.querySelectorAll(
@@ -16028,7 +16024,7 @@ function renderSuscripcionStock(w) {
       );
       for (var j = 0; j < labels.length; j++) {
         var t = (labels[j].textContent || "").toLowerCase();
-        if (t.indexOf("sin stock") !== -1 || t.indexOf("agotado") !== -1 || t.indexOf("out of stock") !== -1) {
+        if (t.indexOf("sin stock") !== -1 || t.indexOf("agotado") !== -1 || t.indexOf("out of stock") !== -1 || t.indexOf("sin disponibilidad") !== -1) {
           return true;
         }
       }
@@ -16097,7 +16093,8 @@ function renderSuscripcionStock(w) {
       }
       if (!isProductPage()) return false;
 
-      var oos = isOutOfStock();
+      // 🔒 REGLA ESTRICTA: SOLO mostrar si el producto NO TIENE STOCK
+      if (!isOutOfStock()) return false;
 
       var anchor = findAnchor();
       if (!anchor) return false;
@@ -16105,7 +16102,7 @@ function renderSuscripcionStock(w) {
       var root = document.createElement("div");
       root.id = uniqueId + "-root";
       root.setAttribute("data-nevux-widget", "suscripcion-stock");
-      root.setAttribute("data-nvx-oos", oos ? "1" : "0");
+      root.setAttribute("data-nvx-oos", "1");
       root.style.cssText = "background:#ffffff !important;border:1.5px solid #e5e7eb !important;border-radius:12px !important;padding:14px 16px !important;margin:16px 0 !important;box-shadow:0 4px 12px rgba(0,0,0,0.06) !important;font-family:system-ui,-apple-system,sans-serif !important;box-sizing:border-box !important;width:100% !important;max-width:100% !important;display:block !important;";
 
       var badge = campaignBadgeHtml();
@@ -16215,7 +16212,7 @@ function renderSuscripcionStock(w) {
       mounted = true;
 
       if (typeof nvxTrack === "function") {
-        try { nvxTrack("suscripcion-stock", "render", { oos: oos, campaignTheme: campaignTheme }); } catch (e) {}
+        try { nvxTrack("suscripcion-stock", "render", { oos: true, campaignTheme: campaignTheme }); } catch (e) {}
       }
       return true;
     }
@@ -16240,5 +16237,5 @@ function renderSuscripcionStock(w) {
       window.console.warn("[Nevux] renderSuscripcionStock error:", err);
     }
   }
-                    }
+      }
 })(); 
