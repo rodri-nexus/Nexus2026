@@ -1845,6 +1845,7 @@
             if (w.widget_slug === "barra-descuento") renderBarraDescuento(w);
             if (w.widget_slug === "medios-pago") renderMediosPago(w);
             if (w.widget_slug === "favoritos") renderFavoritos(w);
+            if (w.widget_slug === "suscripcion-stock") renderSuscripcionStock(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -15934,4 +15935,133 @@ function renderFavoritos(w) {
     }
   }
 }
+        /* ═══════════════════════════════════════════
+   WIDGET #50: AVISO DE STOCK (v403)
+   ═══════════════════════════════════════════ */
+function renderSuscripcionStock(w) {
+  try {
+    var cfg = w.config || {};
+    if (typeof cfg === "string") {
+      try { cfg = JSON.parse(cfg); } catch (e) { cfg = {}; }
+    }
+
+    var uniqueId = "nvx-suscripcion-stock-" + (w.id || "global");
+    if (document.getElementById(uniqueId + "-root")) return;
+
+    /* ===== CONFIGURACIÓN Y FALLBACKS ===== */
+    var title = cfg.title !== undefined ? String(cfg.title) : "¿Querés saber cuándo vuelve?";
+    var buttonText = cfg.buttonText !== undefined ? String(cfg.buttonText) : "Avisame cuando haya stock";
+    var emailPlaceholder = cfg.emailPlaceholder !== undefined ? String(cfg.emailPlaceholder) : "Tu email";
+    var successMessage = cfg.successMessage !== undefined ? String(cfg.successMessage) : "¡Te avisamos cuando vuelva!";
+    var buttonColor = cfg.buttonColor || "#10B981";
+    var buttonTextColor = cfg.buttonTextColor || "#ffffff";
+    var inputBorderColor = cfg.inputBorderColor || "#d1d5db";
+    var titleTextColor = cfg.titleTextColor || "#111827";
+    var titleFontSize = cfg.titleFontSize || "15px";
+    var buttonFontSize = cfg.buttonFontSize || "13px";
+    var titleFontWeight = cfg.titleFontWeight || "bold";
+    var buttonFontWeight = cfg.buttonFontWeight || "bold";
+    var buttonBorderRadius = cfg.buttonBorderRadius !== undefined ? cfg.buttonBorderRadius : 8;
+    var inputBorderRadius = cfg.inputBorderRadius !== undefined ? cfg.inputBorderRadius : 8;
+    var campaignTheme = cfg.campaignTheme || "none";
+
+    var btnBrCss = (typeof buttonBorderRadius === "number") ? (buttonBorderRadius + "px") : String(buttonBorderRadius);
+    var inputBrCss = (typeof inputBorderRadius === "number") ? (inputBorderRadius + "px") : String(inputBorderRadius);
+
+    /* ===== BADGE DE CAMPAÑA ===== */
+    var campaignBadgeHtml = "";
+    if (campaignTheme === "black-friday") {
+      campaignBadgeHtml = '<span style="background:#000000 !important;color:#facc15 !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">⚡ BLACK FRIDAY</span>';
+    } else if (campaignTheme === "hot-sale") {
+      campaignBadgeHtml = '<span style="background:#ef4444 !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">🔥 HOT SALE</span>';
+    } else if (campaignTheme === "cyber-monday") {
+      campaignBadgeHtml = '<span style="background:#2563eb !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">💻 CYBER MONDAY</span>';
+    } else if (campaignTheme === "navidad") {
+      campaignBadgeHtml = '<span style="background:#15803d !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">🎄 NAVIDAD</span>';
+    } else if (campaignTheme === "san-valentin") {
+      campaignBadgeHtml = '<span style="background:#e11d48 !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">❤️ SAN VALENTÍN</span>';
+    } else if (campaignTheme === "dia-padre-madre") {
+      campaignBadgeHtml = '<span style="background:#4f46e5 !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">🎁 DÍA ESPECIAL</span>';
+    } else if (campaignTheme === "liquidacion") {
+      campaignBadgeHtml = '<span style="background:#dc2626 !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">🏷️ LIQUIDACIÓN</span>';
+    }
+
+    /* ===== CONTENEDOR CONTENEDOR OBJETIVO (PÁGINA DE PRODUCTO / COMPRAR) ===== */
+    var targetContainer = document.querySelector(
+      "form[action*='/comprar/'], form[action*='/carrito/'], .js-product-container, .js-product-buy-container, .product-buy-panel, .product-container"
+    );
+    if (!targetContainer) {
+      targetContainer = document.querySelector("main") || document.body;
+    }
+
+    var root = document.createElement("div");
+    root.id = uniqueId + "-root";
+    root.setAttribute("data-nevux-widget", "suscripcion-stock");
+    root.style.cssText = "background:#ffffff !important;border:1.5px solid #e5e7eb !important;border-radius:12px !important;padding:14px 16px !important;margin:16px 0 !important;box-shadow:0 4px 12px rgba(0,0,0,0.04) !important;font-family:system-ui,-apple-system,sans-serif !important;box-sizing:border-box !important;width:100% !important;";
+
+    var contentHtml = '<div style="display:flex !important;flex-direction:column !important;gap:10px !important;">';
+    if (campaignBadgeHtml) {
+      contentHtml += '<div>' + campaignBadgeHtml + '</div>';
+    }
+    contentHtml += '<div style="color:' + titleTextColor + ' !important;font-size:' + titleFontSize + ' !important;font-weight:' + titleFontWeight + ' !important;display:flex !important;align-items:center !important;gap:8px !important;line-height:1.3 !important;">';
+    contentHtml += '<span style="font-size:18px !important;line-height:1 !important;">🔔</span>';
+    contentHtml += '<span>' + title + '</span>';
+    contentHtml += '</div>';
+
+    contentHtml += '<form id="' + uniqueId + '-form" style="display:flex !important;gap:8px !important;width:100% !important;flex-wrap:wrap !important;margin-top:2px !important;">';
+    contentHtml += '<input type="email" id="' + uniqueId + '-input" placeholder="' + emailPlaceholder + '" required style="flex:1 !important;min-width:180px !important;padding:9px 12px !important;border:1px solid ' + inputBorderColor + ' !important;border-radius:' + inputBrCss + ' !important;font-size:13px !important;outline:none !important;box-sizing:border-box !important;background:#ffffff !important;color:#111827 !important;" />';
+    contentHtml += '<button type="submit" id="' + uniqueId + '-btn" style="background:' + buttonColor + ' !important;color:' + buttonTextColor + ' !important;border:none !important;border-radius:' + btnBrCss + ' !important;padding:9px 16px !important;font-size:' + buttonFontSize + ' !important;font-weight:' + buttonFontWeight + ' !important;cursor:pointer !important;white-space:nowrap !important;transition:opacity 0.2s !important;line-height:1.2 !important;">' + buttonText + '</button>';
+    contentHtml += '</form>';
+
+    contentHtml += '<div id="' + uniqueId + '-success" style="display:none !important;color:#059669 !important;background:#ecfdf5 !important;border:1px solid #a7f3d0 !important;border-radius:8px !important;padding:10px 12px !important;font-size:13px !important;font-weight:700 !important;text-align:center !important;line-height:1.3 !important;">';
+    contentHtml += successMessage;
+    contentHtml += '</div>';
+    contentHtml += '</div>';
+
+    root.innerHTML = contentHtml;
+    targetContainer.appendChild(root);
+
+    /* ===== LÓGICA DE SUSCRIPCIÓN Y GUARDADO ===== */
+    var formEl = document.getElementById(uniqueId + "-form");
+    var inputEl = document.getElementById(uniqueId + "-input");
+    var successEl = document.getElementById(uniqueId + "-success");
+
+    if (formEl) {
+      formEl.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var email = inputEl ? inputEl.value.trim() : "";
+        if (!email) return;
+
+        var STORAGE_KEY = "nvx_stock_subs_" + (w.store_id || w.storeId || "default");
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          var existing = raw ? JSON.parse(raw) : [];
+          if (!Array.isArray(existing)) existing = [];
+          existing.push({
+            email: email,
+            url: window.location.href,
+            date: new Date().toISOString()
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+        } catch (err) {}
+
+        if (typeof nvxTrack === "function") {
+          try { nvxTrack("suscripcion-stock", "subscribe", { email: email, url: window.location.href }); } catch (err) {}
+        }
+
+        formEl.style.display = "none";
+        if (successEl) successEl.style.display = "block";
+      });
+    }
+
+    if (typeof nvxTrack === "function") {
+      try { nvxTrack("suscripcion-stock", "render", { campaignTheme: campaignTheme }); } catch (e) {}
+    }
+
+  } catch (err) {
+    if (window.console && window.console.warn) {
+      window.console.warn("[Nevux] renderSuscripcionStock error:", err);
+    }
+  }
+              }
 })(); 
