@@ -15936,7 +15936,7 @@ function renderFavoritos(w) {
   }
 }
 /* ═══════════════════════════════════════════
-   WIDGET #50: AVISO DE STOCK (v404)
+   WIDGET #50: AVISO DE STOCK (v405 INTEGRADO)
    ═══════════════════════════════════════════ */
 function renderSuscripcionStock(w) {
   try {
@@ -15968,7 +15968,8 @@ function renderSuscripcionStock(w) {
     var btnBrCss = (typeof buttonBorderRadius === "number") ? (buttonBorderRadius + "px") : String(buttonBorderRadius);
     var inputBrCss = (typeof inputBorderRadius === "number") ? (inputBorderRadius + "px") : String(inputBorderRadius);
 
-    var STORAGE_KEY = "nvx_stock_subs_" + (w.store_id || w.storeId || "default");
+    var targetStoreId = w.store_id || w.storeId || (window.LS && window.LS.store && window.LS.store.id) || "";
+    var STORAGE_KEY = "nvx_stock_subs_" + (targetStoreId || "default");
     var mounted = false;
 
     function isProductPage() {
@@ -16089,8 +16090,6 @@ function renderSuscripcionStock(w) {
       }
       if (!isProductPage()) return false;
 
-      // Prioridad: sin stock. Si no se detecta, igual montamos en ficha de producto
-      // (así no queda invisible por falsos negativos de stock).
       var oos = isOutOfStock();
 
       var anchor = findAnchor();
@@ -16135,6 +16134,7 @@ function renderSuscripcionStock(w) {
 
       var formEl = document.getElementById(uniqueId + "-form");
       var inputEl = document.getElementById(uniqueId + "-input");
+      var btnEl = document.getElementById(uniqueId + "-btn");
       var successEl = document.getElementById(uniqueId + "-success");
 
       if (formEl) {
@@ -16142,27 +16142,65 @@ function renderSuscripcionStock(w) {
           e.preventDefault();
           e.stopPropagation();
           var email = inputEl ? String(inputEl.value || "").trim() : "";
-          if (!email) return;
+          if (!email || email.indexOf("@") === -1) return;
 
+          var productName = "";
+          try {
+            if (window.LS && LS.product && LS.product.name) {
+              productName = LS.product.name;
+            }
+          } catch (eP) {}
+          if (!productName) {
+            var h1 = document.querySelector("h1.js-product-name, h1[itemprop='name'], h1.product-title, h1");
+            productName = h1 ? h1.innerText.trim() : document.title;
+          }
+
+          var productUrl = window.location.href;
+
+          if (btnEl) {
+            btnEl.disabled = true;
+            btnEl.style.opacity = "0.6";
+          }
+
+          // Guardar respaldo local
           try {
             var raw = localStorage.getItem(STORAGE_KEY);
             var existing = raw ? JSON.parse(raw) : [];
             if (!Array.isArray(existing)) existing = [];
             existing.push({
               email: email,
-              url: window.location.href,
-              product: (window.LS && LS.product && (LS.product.name || LS.product.id)) || "",
+              url: productUrl,
+              product: productName,
               date: new Date().toISOString()
             });
             localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
           } catch (err) {}
 
+          // Envío HTTP directo al backend Nevux
+          fetch("https://nevux.ar/api/public/stock-subscription", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              store_id: String(targetStoreId),
+              email: email,
+              product_name: productName,
+              product_url: productUrl
+            })
+          })
+          .then(function (res) { return res.json(); })
+          .then(function () {
+            formEl.style.display = "none";
+            if (successEl) successEl.style.display = "block";
+          })
+          .catch(function () {
+            // Si falla el servidor por red, igual mostramos el éxito al usuario
+            formEl.style.display = "none";
+            if (successEl) successEl.style.display = "block";
+          });
+
           if (typeof nvxTrack === "function") {
             try { nvxTrack("suscripcion-stock", "subscribe", { email: email }); } catch (err) {}
           }
-
-          formEl.style.display = "none";
-          if (successEl) successEl.style.display = "block";
         });
       }
 
