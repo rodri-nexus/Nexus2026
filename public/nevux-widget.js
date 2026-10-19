@@ -15935,8 +15935,8 @@ function renderFavoritos(w) {
     }
   }
 }
-        /* ═══════════════════════════════════════════
-   WIDGET #50: AVISO DE STOCK (v403)
+/* ═══════════════════════════════════════════
+   WIDGET #50: AVISO DE STOCK (v404)
    ═══════════════════════════════════════════ */
 function renderSuscripcionStock(w) {
   try {
@@ -15948,7 +15948,7 @@ function renderSuscripcionStock(w) {
     var uniqueId = "nvx-suscripcion-stock-" + (w.id || "global");
     if (document.getElementById(uniqueId + "-root")) return;
 
-    /* ===== CONFIGURACIÓN Y FALLBACKS ===== */
+    /* ===== CONFIG ===== */
     var title = cfg.title !== undefined ? String(cfg.title) : "¿Querés saber cuándo vuelve?";
     var buttonText = cfg.buttonText !== undefined ? String(cfg.buttonText) : "Avisame cuando haya stock";
     var emailPlaceholder = cfg.emailPlaceholder !== undefined ? String(cfg.emailPlaceholder) : "Tu email";
@@ -15968,100 +15968,231 @@ function renderSuscripcionStock(w) {
     var btnBrCss = (typeof buttonBorderRadius === "number") ? (buttonBorderRadius + "px") : String(buttonBorderRadius);
     var inputBrCss = (typeof inputBorderRadius === "number") ? (inputBorderRadius + "px") : String(inputBorderRadius);
 
-    /* ===== BADGE DE CAMPAÑA ===== */
-    var campaignBadgeHtml = "";
-    if (campaignTheme === "black-friday") {
-      campaignBadgeHtml = '<span style="background:#000000 !important;color:#facc15 !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">⚡ BLACK FRIDAY</span>';
-    } else if (campaignTheme === "hot-sale") {
-      campaignBadgeHtml = '<span style="background:#ef4444 !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">🔥 HOT SALE</span>';
-    } else if (campaignTheme === "cyber-monday") {
-      campaignBadgeHtml = '<span style="background:#2563eb !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">💻 CYBER MONDAY</span>';
-    } else if (campaignTheme === "navidad") {
-      campaignBadgeHtml = '<span style="background:#15803d !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">🎄 NAVIDAD</span>';
-    } else if (campaignTheme === "san-valentin") {
-      campaignBadgeHtml = '<span style="background:#e11d48 !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">❤️ SAN VALENTÍN</span>';
-    } else if (campaignTheme === "dia-padre-madre") {
-      campaignBadgeHtml = '<span style="background:#4f46e5 !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">🎁 DÍA ESPECIAL</span>';
-    } else if (campaignTheme === "liquidacion") {
-      campaignBadgeHtml = '<span style="background:#dc2626 !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;margin-bottom:4px !important;">🏷️ LIQUIDACIÓN</span>';
+    var STORAGE_KEY = "nvx_stock_subs_" + (w.store_id || w.storeId || "default");
+    var mounted = false;
+
+    function isProductPage() {
+      try {
+        if (window.LS && LS.product) return true;
+      } catch (e) {}
+      var path = (window.location.pathname || "").toLowerCase();
+      if (path.indexOf("/productos/") !== -1 || path.indexOf("/products/") !== -1) return true;
+      if (document.querySelector("form[action*='/comprar/'], .js-product-container, [data-store='product-detail'], h1.js-product-name, h1[itemprop='name']")) {
+        return true;
+      }
+      return false;
     }
 
-    /* ===== CONTENEDOR CONTENEDOR OBJETIVO (PÁGINA DE PRODUCTO / COMPRAR) ===== */
-    var targetContainer = document.querySelector(
-      "form[action*='/comprar/'], form[action*='/carrito/'], .js-product-container, .js-product-buy-container, .product-buy-panel, .product-container"
-    );
-    if (!targetContainer) {
-      targetContainer = document.querySelector("main") || document.body;
-    }
-
-    var root = document.createElement("div");
-    root.id = uniqueId + "-root";
-    root.setAttribute("data-nevux-widget", "suscripcion-stock");
-    root.style.cssText = "background:#ffffff !important;border:1.5px solid #e5e7eb !important;border-radius:12px !important;padding:14px 16px !important;margin:16px 0 !important;box-shadow:0 4px 12px rgba(0,0,0,0.04) !important;font-family:system-ui,-apple-system,sans-serif !important;box-sizing:border-box !important;width:100% !important;";
-
-    var contentHtml = '<div style="display:flex !important;flex-direction:column !important;gap:10px !important;">';
-    if (campaignBadgeHtml) {
-      contentHtml += '<div>' + campaignBadgeHtml + '</div>';
-    }
-    contentHtml += '<div style="color:' + titleTextColor + ' !important;font-size:' + titleFontSize + ' !important;font-weight:' + titleFontWeight + ' !important;display:flex !important;align-items:center !important;gap:8px !important;line-height:1.3 !important;">';
-    contentHtml += '<span style="font-size:18px !important;line-height:1 !important;">🔔</span>';
-    contentHtml += '<span>' + title + '</span>';
-    contentHtml += '</div>';
-
-    contentHtml += '<form id="' + uniqueId + '-form" style="display:flex !important;gap:8px !important;width:100% !important;flex-wrap:wrap !important;margin-top:2px !important;">';
-    contentHtml += '<input type="email" id="' + uniqueId + '-input" placeholder="' + emailPlaceholder + '" required style="flex:1 !important;min-width:180px !important;padding:9px 12px !important;border:1px solid ' + inputBorderColor + ' !important;border-radius:' + inputBrCss + ' !important;font-size:13px !important;outline:none !important;box-sizing:border-box !important;background:#ffffff !important;color:#111827 !important;" />';
-    contentHtml += '<button type="submit" id="' + uniqueId + '-btn" style="background:' + buttonColor + ' !important;color:' + buttonTextColor + ' !important;border:none !important;border-radius:' + btnBrCss + ' !important;padding:9px 16px !important;font-size:' + buttonFontSize + ' !important;font-weight:' + buttonFontWeight + ' !important;cursor:pointer !important;white-space:nowrap !important;transition:opacity 0.2s !important;line-height:1.2 !important;">' + buttonText + '</button>';
-    contentHtml += '</form>';
-
-    contentHtml += '<div id="' + uniqueId + '-success" style="display:none !important;color:#059669 !important;background:#ecfdf5 !important;border:1px solid #a7f3d0 !important;border-radius:8px !important;padding:10px 12px !important;font-size:13px !important;font-weight:700 !important;text-align:center !important;line-height:1.3 !important;">';
-    contentHtml += successMessage;
-    contentHtml += '</div>';
-    contentHtml += '</div>';
-
-    root.innerHTML = contentHtml;
-    targetContainer.appendChild(root);
-
-    /* ===== LÓGICA DE SUSCRIPCIÓN Y GUARDADO ===== */
-    var formEl = document.getElementById(uniqueId + "-form");
-    var inputEl = document.getElementById(uniqueId + "-input");
-    var successEl = document.getElementById(uniqueId + "-success");
-
-    if (formEl) {
-      formEl.addEventListener("submit", function (e) {
-        e.preventDefault();
-        var email = inputEl ? inputEl.value.trim() : "";
-        if (!email) return;
-
-        var STORAGE_KEY = "nvx_stock_subs_" + (w.store_id || w.storeId || "default");
-        try {
-          var raw = localStorage.getItem(STORAGE_KEY);
-          var existing = raw ? JSON.parse(raw) : [];
-          if (!Array.isArray(existing)) existing = [];
-          existing.push({
-            email: email,
-            url: window.location.href,
-            date: new Date().toISOString()
-          });
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
-        } catch (err) {}
-
-        if (typeof nvxTrack === "function") {
-          try { nvxTrack("suscripcion-stock", "subscribe", { email: email, url: window.location.href }); } catch (err) {}
+    function isOutOfStock() {
+      try {
+        if (window.LS && LS.product) {
+          if (typeof LS.product.stock === "number" && LS.product.stock <= 0) return true;
+          if (LS.product.available === false) return true;
+          if (LS.product.has_stock === false) return true;
+          var variants = LS.product.variants || [];
+          if (variants.length) {
+            var any = false;
+            for (var i = 0; i < variants.length; i++) {
+              var v = variants[i];
+              var st = (typeof v.stock === "number") ? v.stock : null;
+              if (v.available === true || (st !== null && st > 0)) { any = true; break; }
+            }
+            if (!any) return true;
+          }
         }
+      } catch (e) {}
 
-        formEl.style.display = "none";
-        if (successEl) successEl.style.display = "block";
+      var buyBtn = document.querySelector(
+        ".js-addtocart, .js-product-buy-button, button[name='add_to_cart'], input[name='add_to_cart'], .js-addtocart-container button, form[action*='/comprar/'] button[type='submit']"
+      );
+      if (buyBtn) {
+        if (buyBtn.disabled || buyBtn.getAttribute("disabled") !== null) return true;
+        var btxt = ((buyBtn.textContent || "") + " " + (buyBtn.value || "")).toLowerCase();
+        if (btxt.indexOf("sin stock") !== -1 || btxt.indexOf("agotado") !== -1) return true;
+      } else {
+        if (document.querySelector(".js-product-container, [data-store='product-detail'], h1.js-product-name")) {
+          return true;
+        }
+      }
+
+      var labels = document.querySelectorAll(
+        ".js-product-stock, .product-stock, .js-stock-label, .stock-label, .label-default, .js-product-variants, .product-form"
+      );
+      for (var j = 0; j < labels.length; j++) {
+        var t = (labels[j].textContent || "").toLowerCase();
+        if (t.indexOf("sin stock") !== -1 || t.indexOf("agotado") !== -1 || t.indexOf("out of stock") !== -1) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    function findAnchor() {
+      var selectors = [
+        ".js-product-form",
+        "form[action*='/comprar/']",
+        "form[action*='/carrito/']",
+        ".js-addtocart-container",
+        ".js-product-buy-container",
+        ".product-buy-panel",
+        ".js-product-variants",
+        ".js-product-detail",
+        ".product-form",
+        ".product-price-container",
+        ".js-product-price",
+        "[data-store='product-detail']",
+        ".js-product-container",
+        ".product-container",
+        "h1.js-product-name",
+        "h1[itemprop='name']",
+        "h1.product-title",
+        "h1"
+      ];
+      for (var i = 0; i < selectors.length; i++) {
+        var el = document.querySelector(selectors[i]);
+        if (el) return el;
+      }
+      return document.querySelector("main") || document.body;
+    }
+
+    function campaignBadgeHtml() {
+      if (campaignTheme === "black-friday") {
+        return '<span style="background:#000000 !important;color:#facc15 !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;">⚡ BLACK FRIDAY</span>';
+      }
+      if (campaignTheme === "hot-sale") {
+        return '<span style="background:#ef4444 !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;">🔥 HOT SALE</span>';
+      }
+      if (campaignTheme === "cyber-monday") {
+        return '<span style="background:#2563eb !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;">💻 CYBER MONDAY</span>';
+      }
+      if (campaignTheme === "navidad") {
+        return '<span style="background:#15803d !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;">🎄 NAVIDAD</span>';
+      }
+      if (campaignTheme === "san-valentin") {
+        return '<span style="background:#e11d48 !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;">❤️ SAN VALENTÍN</span>';
+      }
+      if (campaignTheme === "dia-padre-madre") {
+        return '<span style="background:#4f46e5 !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;">🎁 DÍA ESPECIAL</span>';
+      }
+      if (campaignTheme === "liquidacion") {
+        return '<span style="background:#dc2626 !important;color:#ffffff !important;font-size:10px !important;font-weight:900 !important;padding:2px 8px !important;border-radius:4px !important;display:inline-block !important;text-transform:uppercase !important;letter-spacing:0.5px !important;">🏷️ LIQUIDACIÓN</span>';
+      }
+      return "";
+    }
+
+    function buildAndMount() {
+      if (mounted) return true;
+      if (document.getElementById(uniqueId + "-root")) {
+        mounted = true;
+        return true;
+      }
+      if (!isProductPage()) return false;
+
+      // Prioridad: sin stock. Si no se detecta, igual montamos en ficha de producto
+      // (así no queda invisible por falsos negativos de stock).
+      var oos = isOutOfStock();
+
+      var anchor = findAnchor();
+      if (!anchor) return false;
+
+      var root = document.createElement("div");
+      root.id = uniqueId + "-root";
+      root.setAttribute("data-nevux-widget", "suscripcion-stock");
+      root.setAttribute("data-nvx-oos", oos ? "1" : "0");
+      root.style.cssText = "background:#ffffff !important;border:1.5px solid #e5e7eb !important;border-radius:12px !important;padding:14px 16px !important;margin:16px 0 !important;box-shadow:0 4px 12px rgba(0,0,0,0.06) !important;font-family:system-ui,-apple-system,sans-serif !important;box-sizing:border-box !important;width:100% !important;max-width:100% !important;display:block !important;";
+
+      var badge = campaignBadgeHtml();
+      var html = '<div style="display:flex !important;flex-direction:column !important;gap:10px !important;width:100% !important;">';
+      if (badge) html += '<div>' + badge + '</div>';
+      html += '<div style="color:' + titleTextColor + ' !important;font-size:' + titleFontSize + ' !important;font-weight:' + titleFontWeight + ' !important;display:flex !important;align-items:center !important;gap:8px !important;line-height:1.3 !important;">';
+      html += '<span style="font-size:18px !important;line-height:1 !important;flex-shrink:0 !important;">🔔</span>';
+      html += '<span>' + title + '</span></div>';
+
+      html += '<form id="' + uniqueId + '-form" style="display:flex !important;gap:8px !important;width:100% !important;flex-wrap:wrap !important;align-items:center !important;margin:0 !important;">';
+      html += '<input type="email" id="' + uniqueId + '-input" placeholder="' + emailPlaceholder + '" required autocomplete="email" style="flex:1 1 180px !important;min-width:160px !important;padding:10px 12px !important;border:1px solid ' + inputBorderColor + ' !important;border-radius:' + inputBrCss + ' !important;font-size:13px !important;outline:none !important;box-sizing:border-box !important;background:#ffffff !important;color:#111827 !important;" />';
+      html += '<button type="submit" id="' + uniqueId + '-btn" style="background:' + buttonColor + ' !important;color:' + buttonTextColor + ' !important;border:none !important;border-radius:' + btnBrCss + ' !important;padding:10px 16px !important;font-size:' + buttonFontSize + ' !important;font-weight:' + buttonFontWeight + ' !important;cursor:pointer !important;white-space:nowrap !important;line-height:1.2 !important;flex:0 0 auto !important;">' + buttonText + '</button>';
+      html += '</form>';
+
+      html += '<div id="' + uniqueId + '-success" style="display:none !important;color:#059669 !important;background:#ecfdf5 !important;border:1px solid #a7f3d0 !important;border-radius:8px !important;padding:10px 12px !important;font-size:13px !important;font-weight:700 !important;text-align:center !important;line-height:1.3 !important;">' + successMessage + '</div>';
+      html += '</div>';
+
+      root.innerHTML = html;
+
+      try {
+        if (anchor.tagName && (anchor.tagName.toLowerCase() === "h1" || anchor.tagName.toLowerCase() === "form")) {
+          if (anchor.parentNode) {
+            anchor.parentNode.insertBefore(root, anchor.nextSibling);
+          } else {
+            anchor.appendChild(root);
+          }
+        } else {
+          anchor.appendChild(root);
+        }
+      } catch (errIns) {
+        (document.body || document.documentElement).appendChild(root);
+      }
+
+      var formEl = document.getElementById(uniqueId + "-form");
+      var inputEl = document.getElementById(uniqueId + "-input");
+      var successEl = document.getElementById(uniqueId + "-success");
+
+      if (formEl) {
+        formEl.addEventListener("submit", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var email = inputEl ? String(inputEl.value || "").trim() : "";
+          if (!email) return;
+
+          try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            var existing = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(existing)) existing = [];
+            existing.push({
+              email: email,
+              url: window.location.href,
+              product: (window.LS && LS.product && (LS.product.name || LS.product.id)) || "",
+              date: new Date().toISOString()
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+          } catch (err) {}
+
+          if (typeof nvxTrack === "function") {
+            try { nvxTrack("suscripcion-stock", "subscribe", { email: email }); } catch (err) {}
+          }
+
+          formEl.style.display = "none";
+          if (successEl) successEl.style.display = "block";
+        });
+      }
+
+      mounted = true;
+
+      if (typeof nvxTrack === "function") {
+        try { nvxTrack("suscripcion-stock", "render", { oos: oos, campaignTheme: campaignTheme }); } catch (e) {}
+      }
+      return true;
+    }
+
+    /* ===== BOOT + RETRIES (DOM lento / sin stock) ===== */
+    buildAndMount();
+    setTimeout(function () { buildAndMount(); }, 400);
+    setTimeout(function () { buildAndMount(); }, 1200);
+    setTimeout(function () { buildAndMount(); }, 2500);
+    setTimeout(function () { buildAndMount(); }, 4500);
+
+    try {
+      var mo = new MutationObserver(function () {
+        if (!mounted) buildAndMount();
       });
-    }
-
-    if (typeof nvxTrack === "function") {
-      try { nvxTrack("suscripcion-stock", "render", { campaignTheme: campaignTheme }); } catch (e) {}
-    }
+      mo.observe(document.body, { childList: true, subtree: true });
+      setTimeout(function () { try { mo.disconnect(); } catch (e) {} }, 8000);
+    } catch (e) {}
 
   } catch (err) {
     if (window.console && window.console.warn) {
       window.console.warn("[Nevux] renderSuscripcionStock error:", err);
     }
   }
-              }
+          }
 })(); 
