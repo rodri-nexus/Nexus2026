@@ -372,25 +372,29 @@ export default function SuscripcionStockEditor({
     setErr('');
   }, [cfg, isActive]);
 
-  // Carga directa desde Supabase al entrar a la pestaña 'emails'
+  // Carga directa desde Supabase usando async/await
   useEffect(() => {
     if (tab === 'emails' && storeId && supabase) {
       setLoadingSubscribers(true);
-      supabase
-        .from('stock_alert_subscriptions')
-        .select('*')
-        .eq('store_id', String(storeId))
-        .order('created_at', { ascending: false })
-        .then(({ data, error }) => {
+      const fetchSubscribers = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('stock_alert_subscriptions')
+            .select('*')
+            .eq('store_id', String(storeId))
+            .order('created_at', { ascending: false });
+
           if (!error && data) {
             setSubscribers(data as StockSubscriber[]);
           }
-          setLoadingSubscribers(false);
-        })
-        .catch((e) => {
+        } catch (e) {
           console.error('Error al cargar suscriptores:', e);
+        } finally {
           setLoadingSubscribers(false);
-        });
+        }
+      };
+
+      fetchSubscribers();
     }
   }, [tab, storeId]);
 
