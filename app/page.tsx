@@ -26,7 +26,7 @@ export default function HomePage() {
       {/* 1. Hero: Suite de Conversión & IA */}
       <Hero />
 
-      {/* 2. Los 27 Widgets + Herramientas Pro & IA */}
+      {/* 2. Los 50 Widgets + Herramientas Pro & IA */}
       <FeatureWidgets />
 
       {/* 3. Motor de Estilo de Marca Sincronizado en Vivo */}
@@ -42,4 +42,4 @@ export default function HomePage() {
       <ChatBubble />
     </main>
   );
-      }
+}
