@@ -2,17 +2,17 @@ import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://nevux.ar"),
-  title: "Nevux - Aumenta tu ticket promedio",
+  title: "Nevux - Suite de 50 Widgets de Conversión e IA",
   description:
-    "App de Tiendanube para aumentar el ticket promedio de tu tienda online",
+    "Suite de 50 widgets de conversión e inteligencia artificial para Tiendanube. Aumenta el ticket promedio de tu tienda online.",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     shortcut: ["/icon.svg"],
     apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
   },
   openGraph: {
-    title: "Nevux - Aumenta tu ticket promedio",
-    description: "App de Tiendanube para aumentar el ticket promedio de tu tienda online",
+    title: "Nevux - Suite de 50 Widgets de Conversión e IA",
+    description: "Suite de 50 widgets de conversión e inteligencia artificial para Tiendanube. Aumenta el ticket promedio de tu tienda online.",
     url: "https://nevux.ar",
     siteName: "Nevux",
     locale: "es_AR",
@@ -51,4 +51,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-  }
+}
