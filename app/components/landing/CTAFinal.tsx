@@ -44,7 +44,7 @@ const FAQ_LIST: FAQItem[] = [
   {
     question: "¿Cómo funciona la prueba gratis de 7 días?",
     answer:
-      "Tenés acceso total e ilimitado a los 26 widgets y a toda la suite de Inteligencia Artificial durante 7 días corridos. No te pedimos tarjeta de crédito para comenzar.",
+      "Tenés acceso total e ilimitado a los 50 widgets y a toda la suite de Inteligencia Artificial durante 7 días corridos. No te pedimos tarjeta de crédito para comenzar.",
   },
   {
     question: "¿Cobran comisión por las ventas que genere Nevux?",
@@ -324,7 +324,7 @@ export default function CTAFinal() {
               maxWidth: "700px",
             }}
           >
-            Activá los <strong style={{ color: "#ffffff" }}>26 widgets de conversión</strong> y la <strong style={{ color: "#10B981" }}>suite de Inteligencia Artificial</strong> en menos de 2 minutos. Sin contratos forzosos, sin comisiones sobre tus pedidos.
+            Activá los <strong style={{ color: "#ffffff" }}>50 widgets de conversión</strong> y la <strong style={{ color: "#10B981" }}>suite de Inteligencia Artificial</strong> en menos de 2 minutos. Sin contratos forzosos, sin comisiones sobre tus pedidos.
           </p>
 
           {/* TARJETA DE PRECIOS TRANSPARENTE */}
@@ -402,7 +402,7 @@ export default function CTAFinal() {
                 marginBottom: "2rem",
               }}
             >
-              <FeatureBullet text="26 Widgets de conversión activos" />
+              <FeatureBullet text="50 Widgets de conversión activos" />
               <FeatureBullet text="NevuxBot CRM (WhatsApp 1 Clic)" />
               <FeatureBullet text="Vendedor Virtual 24/7 con IA" />
               <FeatureBullet text="Búsqueda por Voz en celulares" />
@@ -481,4 +481,4 @@ export default function CTAFinal() {
       </motion.div>
     </section>
   );
-           }
+}
