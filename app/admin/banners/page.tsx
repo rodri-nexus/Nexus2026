@@ -15,12 +15,22 @@ import {
   Sparkles,
   TrendingUp,
   MessageCircle,
-  CheckCircle2,
+  CheckCircle,
   Grid,
   Bot,
   ShieldCheck,
   Rocket,
   BarChart3,
+  Globe,
+  Mic,
+  Gift,
+  ShoppingCart,
+  Bell,
+  Star,
+  Play,
+  Flame,
+  Calendar,
+  Sliders,
 } from 'lucide-react';
 
 /* ─── Logo Oficial NEVUX (Isologotipo con N real) ─── */
@@ -75,7 +85,82 @@ function NevuxLogo({ size = 24 }: { size?: number }) {
   );
 }
 
-/* ─── Wrapper Slide Carrusel (4:5) con Logo SOLO arriba a la izquierda ─── */
+/* ─── Wrapper Canvas Banner App Store (Ratio 16:10) ─── */
+function AppStoreBannerWrapper({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div style={{ marginBottom: 36 }}>
+      <div
+        style={{
+          fontSize: 12,
+          fontWeight: 800,
+          color: '#10B981',
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          marginBottom: 10,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        <ImageIcon size={14} /> {label}
+      </div>
+      <div
+        style={{
+          aspectRatio: '16/10',
+          width: '100%',
+          maxWidth: 720,
+          background: '#020a07',
+          border: '2px solid rgba(16,185,129,0.35)',
+          borderRadius: 20,
+          padding: 28,
+          position: 'relative',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+        }}
+      >
+        {/* Logo Nevux ÚNICAMENTE en la parte superior izquierda */}
+        <div style={{ position: 'absolute', top: 22, left: 22, zIndex: 10 }}>
+          <NevuxLogo size={22} />
+        </div>
+
+        {/* Dynamic Glow decorativo */}
+        <div
+          style={{
+            position: 'absolute',
+            top: -80,
+            right: -80,
+            width: 260,
+            height: 260,
+            background:
+              'radial-gradient(circle, rgba(16,185,129,0.18) 0%, transparent 70%)',
+            borderRadius: '50%',
+            pointerEvents: 'none',
+          }}
+        />
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            paddingTop: 32,
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Wrapper Slide Carrusel Instagram (4:5) ─── */
 function SlideWrapper({
   label,
   children,
@@ -93,7 +178,6 @@ function SlideWrapper({
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
           marginBottom: 10,
-          fontFamily: 'system-ui, sans-serif',
         }}
       >
         {label}
@@ -110,7 +194,6 @@ function SlideWrapper({
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          fontFamily: 'system-ui, -apple-system, sans-serif',
         }}
       >
         {/* Logo Nevux ÚNICAMENTE en la parte superior izquierda */}
@@ -118,7 +201,6 @@ function SlideWrapper({
           <NevuxLogo size={20} />
         </div>
 
-        {/* Glow decorativo */}
         <div
           style={{
             position: 'absolute',
@@ -147,7 +229,7 @@ function SlideWrapper({
   );
 }
 
-/* ─── Bloque de copy con botón copiar ─── */
+/* ─── Bloque de copy interactivo ─── */
 function CopyBlock({
   id,
   title,
@@ -165,10 +247,10 @@ function CopyBlock({
     <div
       style={{
         background: '#061e14',
-        border: '1px solid rgba(16,185,129,0.2)',
+        border: '1px solid rgba(16,185,129,0.25)',
         borderRadius: 16,
         padding: 24,
-        marginBottom: 20,
+        marginBottom: 24,
       }}
     >
       <div
@@ -186,7 +268,6 @@ function CopyBlock({
             color: '#10B981',
             letterSpacing: '0.08em',
             textTransform: 'uppercase',
-            fontFamily: 'system-ui, sans-serif',
           }}
         >
           {title}
@@ -205,7 +286,6 @@ function CopyBlock({
             fontSize: 12,
             fontWeight: 700,
             cursor: 'pointer',
-            fontFamily: 'system-ui, sans-serif',
             transition: 'all 0.2s',
           }}
         >
@@ -231,9 +311,12 @@ function CopyBlock({
 }
 
 /* ════════════════════════════════════════════════════════════
-   PÁGINA PRINCIPAL — VIERNES: TRANSFORMACIÓN TOTAL / ECOSISTEMA
+   PÁGINA PRINCIPAL - BANNERS APP STORE + PLAN SEMANAL IG
    ════════════════════════════════════════════════════════════ */
 export default function BannersPage() {
+  const [activeTab, setActiveTab] = useState<'appstore' | 'instagram'>('appstore');
+  const [lang, setLang] = useState<'es' | 'pt'>('es');
+  const [selectedDay, setSelectedDay] = useState<'lunes' | 'martes' | 'miercoles' | 'jueves' | 'viernes'>('viernes');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopy = (id: string, text: string) => {
@@ -242,13 +325,124 @@ export default function BannersPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  /* ── Copy Viernes ── */
+  /* ─── Copys para App Store Partners ─── */
+  const appStoreCopyES = [
+    '⚡ Impulsá tus ventas en Tiendanube con el Ecosistema Nevux',
+    '',
+    'Nevux es la suite de optimización de conversión (CRO) e Inteligencia Artificial definitiva diseñada para Tiendanube.',
+    '',
+    '🔥 ¿Qué incluye Nevux?',
+    '',
+    '🛠️ Suite de 50 Widgets de Conversión:',
+    '• Contadores regresivos de urgencia',
+    '• Notificaciones de compras en tiempo real (Prueba Social)',
+    '• Barras dinámicas de Envío Gratis',
+    '• Gamificación: Raspá y Gana / Ruleta de premios',
+    '• Order Bumps y Venta Cruzada',
+    '• Botones de WhatsApp flotantes y cajas de reseñas',
+    '',
+    '🧠 6 Funciones Inteligentes con IA:',
+    '1. Asistente de Ventas IA 24/7 (Responde dudas y cierra ventas)',
+    '2. Buscador por Voz optimizado para celulares',
+    '3. Traductor Automático en Vivo (Español, Portugués, Inglés)',
+    '4. Asistente de Soporte & CRM para WhatsApp',
+    '5. Notificaciones de Ventas PRO',
+    '6. Métricas de ROI e Impacto en Facturación en Vivo',
+    '',
+    '🚀 Oferta Principal:',
+    '50 Widgets + 6 funciones para impulsar tu Tiendanube',
+    '',
+    '✅ Instalación en 2 minutos sin saber de código.',
+    '✅ No afecta la velocidad de carga de tu tienda.',
+    '✅ 100% Personalizable a los colores de tu marca.',
+  ].join('\n');
+
+  const appStoreCopyPT = [
+    '⚡ Alavanque suas vendas na Nuvemshop com o Ecossistema Nevux',
+    '',
+    'Nevux é a suíte definitiva de otimização de conversão (CRO) e Inteligência Artificial projetada para a Nuvemshop.',
+    '',
+    '🔥 O que o Nevux inclui?',
+    '',
+    '🛠️ Suíte de 50 Widgets de Conversão:',
+    '• Contadores regressivos de urgência',
+    '• Notificações de compras em tempo real (Prova Social)',
+    '• Barras dinâmicas de Frete Grátis',
+    '• Gamificação: Raspadinha & Roleta de prêmios',
+    '• Order Bumps e Venda Cruzada',
+    '• Botões de WhatsApp flutuantes e caixas de avaliações',
+    '',
+    '🧠 6 Funções Inteligentes com IA:',
+    '1. Assistente de Vendas IA 24/7 (Responde dúvidas e fecha vendas)',
+    '2. Busca por Voz otimizada para dispositivos móveis',
+    '3. Tradutor Automático em Tempo Real (Espanhol, Português, Inglês)',
+    '4. Assistente de Suporte & CRM para WhatsApp',
+    '5. Notificações de Vendas PRO',
+    '6. Métricas de ROI e Impacto no Faturamento em Tempo Real',
+    '',
+    '🚀 Oferta Principal:',
+    '50 Widgets + 6 funções para alavancar sua Nuvemshop',
+    '',
+    '✅ Instalação em 2 minutos sem necessidade de código.',
+    '✅ Não afeta a velocidade de carregamento da sua loja.',
+    '✅ 100% Personalizável com as cores da sua marca.',
+  ].join('\n');
+
+  /* ── Copys Instagram Semanal ── */
+  const copyLunes = [
+    '⏱️ ¿Sabías que el 65% de los carritos abandonados ocurren por posponer la compra?',
+    '',
+    'Cuando un cliente entra a tu tienda y piensa "lo compro más tarde", la venta está prácticamente perdida.',
+    '',
+    'La solución no es bajar precios. La solución es generar URGENCIA Y ESCASEZ REAL.',
+    '',
+    'Con Nevux podés activar contadores regresivos y alertas de stock crítico en menos de 2 minutos.',
+    '',
+    'Accedé a 50 Widgets + 6 funciones para impulsar tu Tiendanube.',
+    '',
+    'Comentá URGENCIA y te enviamos el link de instalación. 👇',
+  ].join('\n');
+
+  const copyMartes = [
+    '🎙️ El 70% de tus clientes navega tu Tiendanube desde el celular... ¿por qué obligarlos a escribir?',
+    '',
+    'Te presentamos el primer Buscador por Voz Inteligente para Tiendanube.',
+    '',
+    'Tus clientes solo tocan el micrófono, dicen lo que buscan y Nevux encuentra el producto al instante.',
+    '',
+    'Accedé a 50 Widgets + 6 funciones para impulsar tu Tiendanube.',
+    '',
+    'Comentá VOZ para probarlo gratis en tu tienda. 👇',
+  ].join('\n');
+
+  const copyMiercoles = [
+    '🚚 ¿Querés subir tu ticket promedio sin gastar más en publicidad?',
+    '',
+    'La clave está en la Barra de Envío Gratis Dinámica y los Order Bumps en el carrito.',
+    '',
+    'Le mostrás al cliente exactamente cuánto le falta para el envío gratis y le ofrecés un producto complementario antes del pago.',
+    '',
+    'Accedé a 50 Widgets + 6 funciones para impulsar tu Tiendanube.',
+    '',
+    'Comentá TICKET para activarlo hoy. 👇',
+  ].join('\n');
+
+  const copyJueves = [
+    '🎮 Convertí visitantes indecisos en clientes con Gamificación.',
+    '',
+    'Con el widget Raspá y Gana de Nevux, los clientes interactúan, obtienen un cupón exclusivo y compran en el acto.',
+    '',
+    'Gamificación + Captura de Leads + Conversión Inmediata.',
+    '',
+    'Accedé a 50 Widgets + 6 funciones para impulsar tu Tiendanube.',
+    '',
+    'Comentá GANAR y te mostramos cómo configurarlo. 👇',
+  ].join('\n');
+
   const copyViernes = [
     '⚡ ¿Tu Tiendanube se ve igual a las miles de tiendas que hay en internet?',
     '',
     'El problema no es tu producto ni tus precios. El problema es la FALTA DE OPTIMIZACIÓN de tu tienda.',
-    '',
-    'Si no generás urgencia, si no mostrás prueba social en vivo y si no ayudás al cliente a encontrar lo que busca en segundos... estás regalando tus ventas.',
     '',
     'Con Nevux transformás tu tienda en una verdadera máquina de ventas:',
     '',
@@ -261,15 +455,13 @@ export default function BannersPage() {
     '• Asistente de Soporte & CRM para WhatsApp',
     '',
     '🛠️ Suite de 50 Widgets de Conversión:',
-    'Contadores regresivos, barras de envío gratis, botones de WhatsApp, cajas de opiniones, comparadores, promociones y gamificación.',
+    'Contadores regresivos, barras de envío gratis, botones de WhatsApp, cajas de opiniones, promociones y gamificación.',
     '',
-    'Se instala en menos de 2 minutos sin tocar una sola línea de código.',
+    'Se instala en menos de 2 minutos sin tocar código.',
     '',
     'Accedé a 50 Widgets + 6 funciones para impulsar tu Tiendanube.',
     '',
-    'Comentá NEVUX y te mostro cómo transformar tu tienda hoy mismo. 👇',
-    '',
-    '#Tiendanube #ConversionOptimization #EcommerceArgentina #VentasOnline #Nevux #CRO #MarketingDigital #PymesArgentina #TiendaOnline #EcommerceTips #ConversionRate',
+    'Comentá NEVUX y te mostramos cómo transformar tu tienda hoy mismo. 👇',
   ].join('\n');
 
   return (
@@ -285,11 +477,14 @@ export default function BannersPage() {
       <header
         style={{
           background: '#04140e',
-          borderBottom: '1px solid rgba(16,185,129,0.15)',
+          borderBottom: '1px solid rgba(16,185,129,0.2)',
           padding: '16px 24px',
           display: 'flex',
           alignItems: 'center',
           gap: 16,
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
         }}
       >
         <Link
@@ -301,7 +496,7 @@ export default function BannersPage() {
             gap: 6,
             textDecoration: 'none',
             fontSize: 13,
-            fontWeight: 600,
+            fontWeight: 700,
           }}
         >
           <ArrowLeft size={16} /> Volver
@@ -310,1214 +505,501 @@ export default function BannersPage() {
         <NevuxLogo size={22} />
       </header>
 
-      <main
-        style={{ maxWidth: 800, margin: '0 auto', padding: '32px 20px 80px' }}
-      >
-        {/* ─── Título ─── */}
-        <h1
-          style={{
-            fontSize: 28,
-            fontWeight: 900,
-            marginBottom: 6,
-            background: 'linear-gradient(135deg, #fff 30%, #10B981 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          📅 Viernes — Ecosistema Completo Nevux
-        </h1>
-        <p style={{ color: '#6b7280', fontSize: 14, marginBottom: 32 }}>
-          Contenido semanal · Nevux para Tiendanube · Cierre de Semana
-        </p>
-
-        {/* ══════════════════════════════════════════
-            FICHA DEL DÍA
-        ══════════════════════════════════════════ */}
+      <main style={{ maxWidth: 860, margin: '0 auto', padding: '32px 20px 80px' }}>
+        
+        {/* PESTAÑAS DE NAVEGACIÓN PRINCIPAL */}
         <div
           style={{
-            background:
-              'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,30,20,0.9) 100%)',
-            border: '1px solid rgba(16,185,129,0.35)',
-            borderRadius: 20,
-            padding: 28,
-            marginBottom: 40,
+            display: 'flex',
+            gap: 12,
+            background: 'rgba(6,30,20,0.8)',
+            padding: 6,
+            borderRadius: 14,
+            border: '1px solid rgba(16,185,129,0.2)',
+            marginBottom: 32,
           }}
         >
-          <h2
+          <button
+            onClick={() => setActiveTab('appstore')}
             style={{
-              fontSize: 18,
+              flex: 1,
+              padding: '12px 18px',
+              borderRadius: 10,
+              border: 'none',
+              background: activeTab === 'appstore' ? '#10B981' : 'transparent',
+              color: activeTab === 'appstore' ? '#000' : '#9ca3af',
               fontWeight: 800,
-              color: '#fff',
-              marginBottom: 18,
+              fontSize: 14,
+              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: 10,
+              justifyContent: 'center',
+              gap: 8,
+              transition: 'all 0.2s',
             }}
           >
-            <Layers size={22} style={{ color: '#10B981' }} />
-            Ficha del Día
-          </h2>
-          <div
+            <Grid size={18} /> App Store Banners (5 Assets)
+          </button>
+          <button
+            onClick={() => setActiveTab('instagram')}
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-              gap: 14,
+              flex: 1,
+              padding: '12px 18px',
+              borderRadius: 10,
+              border: 'none',
+              background: activeTab === 'instagram' ? '#10B981' : 'transparent',
+              color: activeTab === 'instagram' ? '#000' : '#9ca3af',
+              fontWeight: 800,
+              fontSize: 14,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              transition: 'all 0.2s',
             }}
           >
-            {[
-              { icon: Clock, label: 'Horario', value: '11:30 hs' },
-              { icon: ImageIcon, label: 'Formato', value: 'Carrusel · 7 slides' },
-              {
-                icon: Layers,
-                label: 'Protagonista',
-                value: '50 Widgets + 6 Funciones',
-              },
-            ].map((item, i) => (
-              <div
-                key={'ficha-' + i}
-                style={{
-                  background: 'rgba(0,0,0,0.3)',
-                  borderRadius: 12,
-                  padding: '14px 16px',
-                  border: '1px solid rgba(16,185,129,0.12)',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    marginBottom: 6,
-                  }}
-                >
-                  <item.icon size={14} style={{ color: '#10B981' }} />
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      color: '#6b7280',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.1em',
-                    }}
-                  >
-                    {item.label}
-                  </span>
-                </div>
-                <span
-                  style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}
-                >
-                  {item.value}
-                </span>
-              </div>
-            ))}
-          </div>
+            <Calendar size={18} /> Plan Instagram (Semana 1)
+          </button>
         </div>
 
-        {/* ══════════════════════════════════════════
-            CARRUSEL — 7 SLIDES
-        ══════════════════════════════════════════ */}
-        <h2
-          style={{
-            fontSize: 20,
-            fontWeight: 800,
-            color: '#fff',
-            marginBottom: 24,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          <ImageIcon size={20} style={{ color: '#10B981' }} />
-          CARRUSEL — 7 Slides
-        </h2>
-
-        {/* ── SLIDE 1: HOOK ── */}
-        <SlideWrapper label="Slide 1 · Hook">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              gap: 16,
-            }}
-          >
+        {/* ====================================================================
+            VISTA 1: APP STORE BANNERS (TIENDANUBE AR / NUVEMSHOP BR)
+            ==================================================================== */}
+        {activeTab === 'appstore' && (
+          <div>
             <div
               style={{
-                background: 'rgba(16,185,129,0.1)',
-                border: '1px solid rgba(16,185,129,0.3)',
-                borderRadius: 12,
-                padding: '8px 14px',
-                display: 'inline-flex',
+                display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                gap: 8,
-                alignSelf: 'flex-start',
+                flexWrap: 'wrap',
+                gap: 16,
+                marginBottom: 28,
               }}
             >
-              <Rocket size={14} style={{ color: '#10B981' }} />
-              <span
-                style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}
-              >
-                TRANSFORMACIÓN TOTAL
-              </span>
-            </div>
-            <h3
-              style={{
-                fontSize: 27,
-                fontWeight: 900,
-                lineHeight: 1.15,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              Así se ve una <span style={{ color: '#10B981' }}>Tiendanube</span>{' '}
-              optimizada para vender 🚀
-            </h3>
-            <p
-              style={{
-                fontSize: 15,
-                color: '#9ca3af',
-                lineHeight: 1.4,
-                margin: 0,
-              }}
-            >
-              Dejá de usar la plantilla genérica que usan todas las tiendas.
-            </p>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#4b5563',
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            Deslizá <ChevronRight size={14} />
-          </div>
-        </SlideWrapper>
-
-        {/* ── SLIDE 2: EL PROBLEMA ── */}
-        <SlideWrapper label="Slide 2 · El Problema">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              gap: 16,
-            }}
-          >
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: '#f87171',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-              }}
-            >
-              POR QUÉ NO CONVIERTES
-            </span>
-            <h3
-              style={{
-                fontSize: 22,
-                fontWeight: 900,
-                lineHeight: 1.2,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              Una tienda básica transmite{' '}
-              <span style={{ color: '#f87171' }}>fricción y dudas</span>
-            </h3>
-
-            <div
-              style={{
-                background: 'rgba(248,113,113,0.06)',
-                borderRadius: 12,
-                padding: 14,
-                border: '1px solid rgba(248,113,113,0.2)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 8,
-              }}
-            >
-              {[
-                'Sin prueba social ni notificaciones',
-                'Sin contadores de urgencia o stock',
-                'Buscador antiguo difícil de usar',
-                'Sin asistente 24/7 para responder dudas',
-              ].map((item, i) => (
-                <div
-                  key={'prob-' + i}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-                >
-                  <span style={{ color: '#f87171', fontSize: 12 }}>❌</span>
-                  <span style={{ fontSize: 12, color: '#d1d5db' }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#4b5563',
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            Deslizá <ChevronRight size={14} />
-          </div>
-        </SlideWrapper>
-
-        {/* ── SLIDE 3: LAS 6 FUNCIONES ── */}
-        <SlideWrapper label="Slide 3 · Las 6 Funciones IA">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              gap: 14,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Bot size={18} style={{ color: '#10B981' }} />
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: '#10B981',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                INTELIGENCIA APLICADA
-              </span>
-            </div>
-            <h3
-              style={{
-                fontSize: 22,
-                fontWeight: 900,
-                lineHeight: 1.15,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              6 Funciones <span style={{ color: '#10B981' }}>Inteligentes</span>
-            </h3>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {[
-                '📊 Métricas en Vivo & ROI real',
-                '🔔 Notificaciones de Compras PRO',
-                '🌐 Traductor IA (ES, PT, EN)',
-                '🎙️ Buscador por Voz Inteligente',
-                '🤖 Vendedor Virtual IA 24/7',
-                '📲 CRM & Asistente WhatsApp',
-              ].map((f, i) => (
-                <div
-                  key={'func-' + i}
+              <div>
+                <h1
                   style={{
-                    background: 'rgba(0,0,0,0.3)',
-                    borderRadius: 8,
-                    padding: '8px 12px',
-                    border: '1px solid rgba(16,185,129,0.15)',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: '#e5e7eb',
+                    fontSize: 26,
+                    fontWeight: 900,
+                    margin: '0 0 6px',
+                    background: 'linear-gradient(135deg, #fff 30%, #10B981 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
                   }}
                 >
-                  {f}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#4b5563',
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            Deslizá <ChevronRight size={14} />
-          </div>
-        </SlideWrapper>
+                  🚀 Banners Oficiales App Store
+                </h1>
+                <p style={{ color: '#6b7280', fontSize: 14, margin: 0 }}>
+                  Assets visuales optimizados para conversión (16:10 landscape)
+                </p>
+              </div>
 
-        {/* ── SLIDE 4: LOS 50 WIDGETS ── */}
-        <SlideWrapper label="Slide 4 · Suite de 50 Widgets">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              gap: 14,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Grid size={18} style={{ color: '#10B981' }} />
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: '#10B981',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                SUITE COMPLETA
-              </span>
-            </div>
-            <h3
-              style={{
-                fontSize: 22,
-                fontWeight: 900,
-                lineHeight: 1.15,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              50 Widgets de <span style={{ color: '#10B981' }}>Conversión</span>
-            </h3>
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: 8,
-              }}
-            >
-              {[
-                '⏱️ Cuenta Regresiva',
-                '🚚 Barra Envío Gratis',
-                '🎮 Raspá y Gana',
-                '💬 Botón WhatsApp',
-                '⭐ Carrusel Reseñas',
-                '🏷️ Cuotas Sin Interés',
-                '📦 Urgencia Stock',
-                '🎥 Video Flotante',
-              ].map((w, i) => (
-                <div
-                  key={'widg-' + i}
-                  style={{
-                    background: 'rgba(16,185,129,0.06)',
-                    borderRadius: 8,
-                    padding: '8px 10px',
-                    border: '1px solid rgba(16,185,129,0.2)',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: '#34d399',
-                  }}
-                >
-                  {w}
-                </div>
-              ))}
-            </div>
-            <p
-              style={{
-                fontSize: 11,
-                color: '#9ca3af',
-                margin: 0,
-                textAlign: 'center',
-              }}
-            >
-              +42 widgets más listos para activar en 1 clic
-            </p>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#4b5563',
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            Deslizá <ChevronRight size={14} />
-          </div>
-        </SlideWrapper>
-
-        {/* ── SLIDE 5: INSTALACIÓN SIN CÓDIGO ── */}
-        <SlideWrapper label="Slide 5 · Sin Código">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              gap: 16,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Zap size={18} style={{ color: '#facc15' }} />
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: '#facc15',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                FÁCIL Y RÁPIDO
-              </span>
-            </div>
-            <h3
-              style={{
-                fontSize: 24,
-                fontWeight: 900,
-                lineHeight: 1.15,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              Instalación en <span style={{ color: '#facc15' }}>2 minutos</span>
-            </h3>
-
-            <div
-              style={{
-                background: 'rgba(0,0,0,0.4)',
-                borderRadius: 14,
-                padding: 16,
-                border: '1px solid rgba(255,255,255,0.08)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 12,
-              }}
-            >
-              {[
-                { step: '1', text: 'Conectás tu Tiendanube en 1 clic' },
-                { step: '2', text: 'Elegís los widgets que querés activar' },
-                { step: '3', text: 'Personalizás colores y listo 🎉' },
-              ].map((s, i) => (
-                <div
-                  key={'step-' + i}
-                  style={{ display: 'flex', alignItems: 'center', gap: 12 }}
-                >
-                  <div
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: '50%',
-                      background: '#10B981',
-                      color: '#000',
-                      fontWeight: 900,
-                      fontSize: 13,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {s.step}
-                  </div>
-                  <span
-                    style={{ fontSize: 13, color: '#fff', fontWeight: 700 }}
-                  >
-                    {s.text}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <p
-              style={{
-                fontSize: 12,
-                color: '#9ca3af',
-                lineHeight: 1.4,
-                margin: 0,
-                textAlign: 'center',
-              }}
-            >
-              No necesitás programadores ni saber de código.
-            </p>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#4b5563',
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            Deslizá <ChevronRight size={14} />
-          </div>
-        </SlideWrapper>
-
-        {/* ── SLIDE 6: RESULTADO FINAL ── */}
-        <SlideWrapper label="Slide 6 · Resultados">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              gap: 16,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <BarChart3 size={18} style={{ color: '#10B981' }} />
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: '#10B981',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                EL IMPACTO REAL
-              </span>
-            </div>
-            <h3
-              style={{
-                fontSize: 24,
-                fontWeight: 900,
-                lineHeight: 1.15,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              Métricas que cambian desde el <span style={{ color: '#10B981' }}>Día 1</span>
-            </h3>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[
-                { metric: '+28%', label: 'Conversión de Visita a Compra' },
-                { metric: '-40%', label: 'Abandono de Carrito' },
-                { metric: '+35%', label: 'Aumento en Ticket Promedio' },
-              ].map((m, i) => (
-                <div
-                  key={'met-' + i}
-                  style={{
-                    background: 'rgba(16,185,129,0.08)',
-                    border: '1px solid rgba(16,185,129,0.25)',
-                    borderRadius: 10,
-                    padding: '10px 14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <span style={{ fontSize: 12, color: '#d1d5db', fontWeight: 600 }}>
-                    {m.label}
-                  </span>
-                  <span style={{ fontSize: 18, fontWeight: 900, color: '#10B981' }}>
-                    {m.metric}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#4b5563',
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            Deslizá <ChevronRight size={14} />
-          </div>
-        </SlideWrapper>
-
-        {/* ── SLIDE 7: CTA ── */}
-        <SlideWrapper label="Slide 7 · CTA Final">
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 18,
-              textAlign: 'center',
-            }}
-          >
-            <h3
-              style={{
-                fontSize: 24,
-                fontWeight: 900,
-                lineHeight: 1.2,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              Impulsá tu <span style={{ color: '#10B981' }}>Tiendanube</span> hoy
-            </h3>
-
-            {/* Banner Oferta de Valor Oficial */}
-            <div
-              style={{
-                background:
-                  'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(6,30,20,0.9) 100%)',
-                border: '1px solid rgba(16,185,129,0.35)',
-                borderRadius: 14,
-                padding: '16px 20px',
-                width: '100%',
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 13,
-                  color: '#fff',
-                  fontWeight: 800,
-                  margin: 0,
-                  lineHeight: 1.4,
-                }}
-              >
-                50 Widgets + 6 funciones para impulsar tu Tiendanube
-              </p>
-            </div>
-
-            <div
-              style={{
-                background: 'rgba(16,185,129,0.1)',
-                border: '2px solid rgba(16,185,129,0.4)',
-                borderRadius: 12,
-                padding: '14px 20px',
-                width: '100%',
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 18,
-                  color: '#10B981',
-                  margin: 0,
-                  fontWeight: 900,
-                }}
-              >
-                Comentá NEVUX 👇
-              </p>
-              <p style={{ fontSize: 12, color: '#6b7280', margin: '4px 0 0' }}>
-                y te muestro cómo activarlo en 2 minutos
-              </p>
-            </div>
-          </div>
-        </SlideWrapper>
-
-        {/* ══════════════════════════════════════════
-            STORIES DEL DÍA — 5 STORIES
-        ══════════════════════════════════════════ */}
-        <h2
-          style={{
-            fontSize: 20,
-            fontWeight: 800,
-            color: '#fff',
-            marginBottom: 24,
-            marginTop: 48,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          <Eye size={20} style={{ color: '#10B981' }} />
-          STORIES DEL DÍA — 5 Stories
-        </h2>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: 16,
-            marginBottom: 48,
-          }}
-        >
-          {/* Story 1: Encuesta */}
-          <div
-            style={{
-              aspectRatio: '9/16',
-              background: '#020a07',
-              border: '2px solid rgba(16,185,129,0.3)',
-              borderRadius: 20,
-              padding: 16,
-              display: 'flex',
-              flexDirection: 'column',
-              position: 'relative',
-              overflow: 'hidden',
-              fontFamily: 'system-ui, sans-serif',
-            }}
-          >
-            <div
-              style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}
-            >
-              <NevuxLogo size={16} />
-            </div>
-
-            <div
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                gap: 12,
-                paddingTop: 24,
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 9,
-                  fontWeight: 700,
-                  color: '#facc15',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                📊 ENCUESTA
-              </span>
-              <p
-                style={{
-                  fontSize: 15,
-                  fontWeight: 900,
-                  color: '#fff',
-                  margin: 0,
-                  lineHeight: 1.25,
-                }}
-              >
-                ¿Tu tienda tiene herramientas para{' '}
-                <span style={{ color: '#10B981' }}>convertir más</span>?
-              </p>
+              {/* Switch de Idioma */}
               <div
                 style={{
                   display: 'flex',
-                  flexDirection: 'column',
                   gap: 8,
-                  marginTop: 8,
-                }}
-              >
-                <div
-                  style={{
-                    background: 'rgba(248,113,113,0.1)',
-                    border: '1.5px solid rgba(248,113,113,0.3)',
-                    borderRadius: 10,
-                    padding: '10px 12px',
-                    textAlign: 'center',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 800,
-                      color: '#f87171',
-                    }}
-                  >
-                    Solo la plantilla básica 😬
-                  </span>
-                </div>
-                <div
-                  style={{
-                    background: 'rgba(16,185,129,0.12)',
-                    border: '1.5px solid rgba(16,185,129,0.35)',
-                    borderRadius: 10,
-                    padding: '10px 12px',
-                    textAlign: 'center',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 800,
-                      color: '#10B981',
-                    }}
-                  >
-                    Tengo Nevux instalado 🚀
-                  </span>
-                </div>
-              </div>
-            </div>
-            <span
-              style={{
-                fontSize: 9,
-                color: '#4b5563',
-                fontWeight: 600,
-                textAlign: 'center',
-              }}
-            >
-              STORY 1/5
-            </span>
-          </div>
-
-          {/* Story 2: Comparativa */}
-          <div
-            style={{
-              aspectRatio: '9/16',
-              background: '#020a07',
-              border: '2px solid rgba(16,185,129,0.3)',
-              borderRadius: 20,
-              padding: 16,
-              display: 'flex',
-              flexDirection: 'column',
-              position: 'relative',
-              overflow: 'hidden',
-              fontFamily: 'system-ui, sans-serif',
-            }}
-          >
-            <div
-              style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}
-            >
-              <NevuxLogo size={16} />
-            </div>
-
-            <div
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                gap: 12,
-                paddingTop: 24,
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 14,
-                  fontWeight: 900,
-                  color: '#fff',
-                  margin: 0,
-                  lineHeight: 1.25,
-                }}
-              >
-                Tienda Común vs. Tienda con Nevux ⚡
-              </p>
-              <div
-                style={{
-                  background: 'rgba(248,113,113,0.08)',
-                  borderRadius: 8,
-                  padding: 8,
-                  border: '1px solid rgba(248,113,113,0.2)',
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: 10,
-                    color: '#f87171',
-                    margin: 0,
-                    fontWeight: 700,
-                  }}
-                >
-                  ❌ Sin notificaciones ni urgencia
-                </p>
-              </div>
-              <div
-                style={{
-                  background: 'rgba(16,185,129,0.1)',
-                  borderRadius: 8,
-                  padding: 8,
-                  border: '1px solid rgba(16,185,129,0.25)',
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: 10,
-                    color: '#10B981',
-                    margin: 0,
-                    fontWeight: 700,
-                  }}
-                >
-                  ✅ 50 Widgets + 6 Funciones IA
-                </p>
-              </div>
-            </div>
-            <span
-              style={{
-                fontSize: 9,
-                color: '#4b5563',
-                fontWeight: 600,
-                textAlign: 'center',
-              }}
-            >
-              STORY 2/5
-            </span>
-          </div>
-
-          {/* Story 3: Destacado 6 Funciones */}
-          <div
-            style={{
-              aspectRatio: '9/16',
-              background: '#020a07',
-              border: '2px solid rgba(16,185,129,0.3)',
-              borderRadius: 20,
-              padding: 16,
-              display: 'flex',
-              flexDirection: 'column',
-              position: 'relative',
-              overflow: 'hidden',
-              fontFamily: 'system-ui, sans-serif',
-            }}
-          >
-            <div
-              style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}
-            >
-              <NevuxLogo size={16} />
-            </div>
-
-            <div
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 10,
-                paddingTop: 24,
-              }}
-            >
-              <Bot size={24} style={{ color: '#10B981' }} />
-              <p
-                style={{
-                  fontSize: 13,
-                  fontWeight: 900,
-                  color: '#fff',
-                  margin: 0,
-                  textAlign: 'center',
-                }}
-              >
-                6 Funciones Inteligentes
-              </p>
-              <div
-                style={{
-                  background: 'rgba(0,0,0,0.4)',
-                  borderRadius: 8,
-                  padding: 8,
-                  width: '100%',
-                  border: '1px solid rgba(16,185,129,0.2)',
-                  fontSize: 9,
-                  color: '#d1d5db',
-                  lineHeight: 1.5,
-                }}
-              >
-                • Asistente IA 24/7
-                <br />
-                • Buscador por Voz
-                <br />
-                • Traductor en Vivo
-                <br />• CRM WhatsApp
-              </div>
-            </div>
-            <span
-              style={{
-                fontSize: 9,
-                color: '#4b5563',
-                fontWeight: 600,
-                textAlign: 'center',
-              }}
-            >
-              STORY 3/5
-            </span>
-          </div>
-
-          {/* Story 4: Destacado 50 Widgets */}
-          <div
-            style={{
-              aspectRatio: '9/16',
-              background: '#020a07',
-              border: '2px solid rgba(16,185,129,0.3)',
-              borderRadius: 20,
-              padding: 16,
-              display: 'flex',
-              flexDirection: 'column',
-              position: 'relative',
-              overflow: 'hidden',
-              fontFamily: 'system-ui, sans-serif',
-            }}
-          >
-            <div
-              style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}
-            >
-              <NevuxLogo size={16} />
-            </div>
-
-            <div
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 12,
-                paddingTop: 24,
-              }}
-            >
-              <Grid size={24} style={{ color: '#10B981' }} />
-              <p
-                style={{
-                  fontSize: 14,
-                  fontWeight: 900,
-                  color: '#fff',
-                  margin: 0,
-                  textAlign: 'center',
-                }}
-              >
-                50 Widgets en 1 sola app
-              </p>
-              <p
-                style={{
-                  fontSize: 10,
-                  color: '#9ca3af',
-                  margin: 0,
-                  textAlign: 'center',
-                  lineHeight: 1.4,
-                }}
-              >
-                Sin pagar apps por separado. Todo integrado en tu panel.
-              </p>
-            </div>
-            <span
-              style={{
-                fontSize: 9,
-                color: '#4b5563',
-                fontWeight: 600,
-                textAlign: 'center',
-              }}
-            >
-              STORY 4/5
-            </span>
-          </div>
-
-          {/* Story 5: CTA */}
-          <div
-            style={{
-              aspectRatio: '9/16',
-              background: '#020a07',
-              border: '2px solid rgba(16,185,129,0.35)',
-              borderRadius: 20,
-              padding: 16,
-              display: 'flex',
-              flexDirection: 'column',
-              position: 'relative',
-              overflow: 'hidden',
-              fontFamily: 'system-ui, sans-serif',
-            }}
-          >
-            <div
-              style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}
-            >
-              <NevuxLogo size={16} />
-            </div>
-
-            <div
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 14,
-                textAlign: 'center',
-                paddingTop: 24,
-              }}
-            >
-              <Rocket size={26} style={{ color: '#10B981' }} />
-              <p
-                style={{
-                  fontSize: 15,
-                  fontWeight: 900,
-                  color: '#fff',
-                  margin: 0,
-                  lineHeight: 1.25,
-                }}
-              >
-                Transformá tu <span style={{ color: '#10B981' }}>Tiendanube</span>
-              </p>
-              <p
-                style={{
-                  fontSize: 11,
-                  color: '#9ca3af',
-                  margin: 0,
-                  lineHeight: 1.3,
-                }}
-              >
-                50 Widgets + 6 funciones para impulsar tu Tiendanube
-              </p>
-              <div
-                style={{
-                  background:
-                    'linear-gradient(135deg, #10B981, #059669)',
+                  background: 'rgba(0,0,0,0.5)',
+                  padding: 4,
                   borderRadius: 10,
-                  padding: '10px 18px',
-                  width: '100%',
+                  border: '1px solid rgba(16,185,129,0.3)',
                 }}
               >
-                <p
+                <button
+                  onClick={() => setLang('es')}
                   style={{
-                    fontSize: 13,
-                    color: '#fff',
-                    margin: 0,
+                    padding: '8px 14px',
+                    borderRadius: 8,
+                    border: 'none',
+                    background: lang === 'es' ? '#10B981' : 'transparent',
+                    color: lang === 'es' ? '#000' : '#d1d5db',
                     fontWeight: 800,
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
                   }}
                 >
-                  🔗 Link en bio
-                </p>
+                  🇦🇷 Tiendanube (ES)
+                </button>
+                <button
+                  onClick={() => setLang('pt')}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: 8,
+                    border: 'none',
+                    background: lang === 'pt' ? '#10B981' : 'transparent',
+                    color: lang === 'pt' ? '#000' : '#d1d5db',
+                    fontWeight: 800,
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  🇧🇷 Nuvemshop (PT)
+                </button>
               </div>
             </div>
-            <span
+
+            {/* Banner 1: Propuesta de Valor Integrada */}
+            <AppStoreBannerWrapper label={lang === 'es' ? 'Banner 1 · Propuesta de Valor All-in-One' : 'Banner 1 · Proposta de Valor All-in-One'}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 20, padding: '6px 14px', width: 'fit-content' }}>
+                  <Sparkles size={14} style={{ color: '#10B981' }} />
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#10B981', letterSpacing: '0.05em' }}>
+                    ECOSISTEMA CRO + IA
+                  </span>
+                </div>
+                <h2 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.15 }}>
+                  {lang === 'es' ? (
+                    <>El Motor Completo de Conversión para <span style={{ color: '#10B981' }}>Tiendanube</span></>
+                  ) : (
+                    <>O Motor Completo de Conversão para <span style={{ color: '#10B981' }}>Nuvemshop</span></>
+                  )}
+                </h2>
+                <div style={{ background: 'rgba(6,30,20,0.9)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: 12, padding: '14px 18px' }}>
+                  <p style={{ fontSize: 14, fontWeight: 900, color: '#fff', margin: 0 }}>
+                    {lang === 'es'
+                      ? '50 Widgets + 6 funciones para impulsar tu Tiendanube'
+                      : '50 Widgets + 6 funções para alavancar sua Nuvemshop'}
+                  </p>
+                </div>
+              </div>
+            </AppStoreBannerWrapper>
+
+            {/* Banner 2: Prueba Social y Urgencia */}
+            <AppStoreBannerWrapper label={lang === 'es' ? 'Banner 2 · Prueba Social & Urgencia' : 'Banner 2 · Prova Social & Urgência'}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Bell size={18} style={{ color: '#10B981' }} />
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>
+                    {lang === 'es' ? 'Gatillos Mentales Validados' : 'Gatilhos Mentais Validados'}
+                  </span>
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>
+                  {lang === 'es' ? 'Generá Confianza e Inmediatez en Vivo' : 'Gere Confiança e Imediatismo ao Vivo'}
+                </h2>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div style={{ background: 'rgba(0,0,0,0.4)', padding: 12, borderRadius: 10, border: '1px solid rgba(16,185,129,0.2)' }}>
+                    <p style={{ fontSize: 11, color: '#10B981', fontWeight: 800, margin: '0 0 2px' }}>🔔 {lang === 'es' ? 'Notificaciones' : 'Notificações'}</p>
+                    <p style={{ fontSize: 12, color: '#d1d5db', margin: 0 }}>{lang === 'es' ? 'Alerta de compras en tiempo real' : 'Alerta de compras em tempo real'}</p>
+                  </div>
+                  <div style={{ background: 'rgba(0,0,0,0.4)', padding: 12, borderRadius: 10, border: '1px solid rgba(16,185,129,0.2)' }}>
+                    <p style={{ fontSize: 11, color: '#f87171', fontWeight: 800, margin: '0 0 2px' }}>⏱️ {lang === 'es' ? 'Urgencia' : 'Urgência'}</p>
+                    <p style={{ fontSize: 12, color: '#d1d5db', margin: 0 }}>{lang === 'es' ? 'Relojes regresivos & Stock crítico' : 'Contadores regressivos & Estoque crítico'}</p>
+                  </div>
+                </div>
+              </div>
+            </AppStoreBannerWrapper>
+
+            {/* Banner 3: IA & Buscador por Voz */}
+            <AppStoreBannerWrapper label={lang === 'es' ? 'Banner 3 · Asistente IA & Buscador por Voz' : 'Banner 3 · Assistente IA & Busca por Voz'}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Bot size={18} style={{ color: '#10B981' }} />
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>
+                    {lang === 'es' ? 'Inteligencia Avanzada' : 'Inteligência Avançada'}
+                  </span>
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>
+                  {lang === 'es' ? 'Vendedor Virtual 24/7 y Búsqueda por Voz' : 'Vendedor Virtual 24/7 e Busca por Voz'}
+                </h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {[
+                    lang === 'es' ? '🤖 Chatbot IA que responde dudas de productos al instante' : '🤖 Chatbot IA que responde dúvidas sobre produtos instantaneamente',
+                    lang === 'es' ? '🎙️ Buscador por Voz optimizado para celulares' : '🎙️ Busca por Voz otimizada para celulares',
+                    lang === 'es' ? '🌐 Traducción automática en vivo (ES, PT, EN)' : '🌐 Tradução automática em tempo real (ES, PT, EN)',
+                  ].map((feat, idx) => (
+                    <div key={'b3-' + idx} style={{ fontSize: 12, color: '#e5e7eb', background: 'rgba(16,185,129,0.08)', padding: '8px 12px', borderRadius: 8 }}>
+                      {feat}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AppStoreBannerWrapper>
+
+            {/* Banner 4: Ticket Promedio y Leads */}
+            <AppStoreBannerWrapper label={lang === 'es' ? 'Banner 4 · Elevá el Ticket Promedio' : 'Banner 4 · Aumente o Ticket Médio'}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <TrendingUp size={18} style={{ color: '#10B981' }} />
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>
+                    {lang === 'es' ? 'Mayor Facturación por Cliente' : 'Maior Faturamento por Cliente'}
+                  </span>
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>
+                  {lang === 'es' ? 'Envío Gratis + Order Bump + Gamificación' : 'Frete Grátis + Order Bump + Gamificação'}
+                </h2>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                  <div style={{ background: 'rgba(0,0,0,0.3)', padding: 10, borderRadius: 8, border: '1px solid rgba(16,185,129,0.2)', textAlign: 'center' }}>
+                    <ShoppingCart size={16} style={{ color: '#10B981', marginBottom: 4 }} />
+                    <p style={{ fontSize: 10, fontWeight: 700, color: '#fff', margin: 0 }}>Barra Envío Gratis</p>
+                  </div>
+                  <div style={{ background: 'rgba(0,0,0,0.3)', padding: 10, borderRadius: 8, border: '1px solid rgba(16,185,129,0.2)', textAlign: 'center' }}>
+                    <Zap size={16} style={{ color: '#10B981', marginBottom: 4 }} />
+                    <p style={{ fontSize: 10, fontWeight: 700, color: '#fff', margin: 0 }}>Order Bump Checkout</p>
+                  </div>
+                  <div style={{ background: 'rgba(0,0,0,0.3)', padding: 10, borderRadius: 8, border: '1px solid rgba(16,185,129,0.2)', textAlign: 'center' }}>
+                    <Gift size={16} style={{ color: '#10B981', marginBottom: 4 }} />
+                    <p style={{ fontSize: 10, fontWeight: 700, color: '#fff', margin: 0 }}>Raspá y Gana</p>
+                  </div>
+                </div>
+              </div>
+            </AppStoreBannerWrapper>
+
+            {/* Banner 5: ROI e Instalación 1-Clic */}
+            <AppStoreBannerWrapper label={lang === 'es' ? 'Banner 5 · ROI Transparente & Sin Código' : 'Banner 5 · ROI Transparente & Sem Código'}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <ShieldCheck size={18} style={{ color: '#10B981' }} />
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>
+                    {lang === 'es' ? 'Instalación Inmediata' : 'Instalação Imediata'}
+                  </span>
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>
+                  {lang === 'es' ? 'Sin Código · Activación en 2 Minutos' : 'Sem Código · Ativação em 2 Minutos'}
+                </h2>
+                <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 12, padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <BarChart3 size={22} style={{ color: '#10B981' }} />
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 800, color: '#fff', margin: 0 }}>{lang === 'es' ? 'Panel de Métricas de ROI' : 'Painel de Métricas de ROI'}</p>
+                      <p style={{ fontSize: 11, color: '#9ca3af', margin: 0 }}>{lang === 'es' ? 'Medí las ventas generadas en tiempo real' : 'Meça as vendas geradas em tempo real'}</p>
+                    </div>
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: '#10B981', background: 'rgba(16,185,129,0.2)', padding: '4px 10px', borderRadius: 6 }}>
+                    100% AUTOMÁTICO
+                  </span>
+                </div>
+              </div>
+            </AppStoreBannerWrapper>
+
+            {/* COPY PARA PUBLICACIÓN EN EL PORTAL DE PARTNERS */}
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#fff', margin: '40px 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <MessageCircle size={20} style={{ color: '#10B981' }} />
+              Copy Oficial para Portal de Partners ({lang.toUpperCase()})
+            </h2>
+
+            <CopyBlock
+              id="copy-appstore"
+              title={lang === 'es' ? 'Descripción Oficial para Tiendanube Partners AR' : 'Descrição Oficial para Nuvemshop Partners BR'}
+              text={lang === 'es' ? appStoreCopyES : appStoreCopyPT}
+              copied={copiedId === 'copy-appstore'}
+              onCopy={() => handleCopy('copy-appstore', lang === 'es' ? appStoreCopyES : appStoreCopyPT)}
+            />
+          </div>
+        )}
+
+        {/* ====================================================================
+            VISTA 2: PLAN SEMANAL DE INSTAGRAM (LUNES A VIERNES)
+            ==================================================================== */}
+        {activeTab === 'instagram' && (
+          <div>
+            {/* Switcher de Días */}
+            <div
               style={{
-                fontSize: 9,
-                color: '#4b5563',
-                fontWeight: 600,
-                textAlign: 'center',
+                display: 'flex',
+                gap: 8,
+                overflowX: 'auto',
+                paddingBottom: 10,
+                marginBottom: 28,
               }}
             >
-              STORY 5/5
-            </span>
+              {[
+                { id: 'lunes', label: 'Lunes (Carrusel)' },
+                { id: 'martes', label: 'Martes (Reel)' },
+                { id: 'miercoles', label: 'Miércoles (Carrusel)' },
+                { id: 'jueves', label: 'Jueves (Reel)' },
+                { id: 'viernes', label: 'Viernes (Carrusel)' },
+              ].map((day) => (
+                <button
+                  key={day.id}
+                  onClick={() => setSelectedDay(day.id as any)}
+                  style={{
+                    padding: '10px 16px',
+                    borderRadius: 10,
+                    border: '1px solid rgba(16,185,129,0.3)',
+                    background: selectedDay === day.id ? '#10B981' : 'rgba(6,30,20,0.6)',
+                    color: selectedDay === day.id ? '#000' : '#d1d5db',
+                    fontWeight: 800,
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {day.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Ficha Resumen del Día Seleccionado */}
+            <div
+              style={{
+                background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,30,20,0.9) 100%)',
+                border: '1px solid rgba(16,185,129,0.35)',
+                borderRadius: 20,
+                padding: 24,
+                marginBottom: 36,
+              }}
+            >
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Layers size={20} style={{ color: '#10B981' }} />
+                Ficha Técnica · {selectedDay.toUpperCase()}
+              </h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+                <div style={{ background: 'rgba(0,0,0,0.3)', padding: 12, borderRadius: 10, border: '1px solid rgba(16,185,129,0.15)' }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase' }}>Horario</span>
+                  <p style={{ fontSize: 14, fontWeight: 800, color: '#fff', margin: '4px 0 0' }}>
+                    {selectedDay === 'martes' || selectedDay === 'jueves' ? '19:30 hs (Reel)' : '11:30 hs (Carrusel)'}
+                  </p>
+                </div>
+                <div style={{ background: 'rgba(0,0,0,0.3)', padding: 12, borderRadius: 10, border: '1px solid rgba(16,185,129,0.15)' }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase' }}>Oferta Principal</span>
+                  <p style={{ fontSize: 13, fontWeight: 800, color: '#10B981', margin: '4px 0 0' }}>
+                    50 Widgets + 6 funciones
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* VISTA DEL DÍA SELECCIONADO */}
+            {selectedDay === 'viernes' && (
+              <>
+                <h2 style={{ fontSize: 20, fontWeight: 800, color: '#fff', marginBottom: 20 }}>
+                  🖼️ CARRUSEL VIERNES (7 Slides)
+                </h2>
+                <SlideWrapper label="Slide 1 · Hook">
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
+                    <h3 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>
+                      Así se ve una <span style={{ color: '#10B981' }}>Tiendanube</span> optimizada para vender 🚀
+                    </h3>
+                  </div>
+                </SlideWrapper>
+                <SlideWrapper label="Slide 7 · CTA Final">
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 16, textAlign: 'center' }}>
+                    <div style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: 12, padding: 16, width: '100%' }}>
+                      <p style={{ fontSize: 13, color: '#fff', fontWeight: 800, margin: 0 }}>
+                        50 Widgets + 6 funciones para impulsar tu Tiendanube
+                      </p>
+                    </div>
+                    <p style={{ fontSize: 18, color: '#10B981', margin: 0, fontWeight: 900 }}>
+                      Comentá NEVUX 👇
+                    </p>
+                  </div>
+                </SlideWrapper>
+                <CopyBlock
+                  id="copy-ig-viernes"
+                  title="Copy Viernes — Ecosistema Completo"
+                  text={copyViernes}
+                  copied={copiedId === 'copy-ig-viernes'}
+                  onCopy={() => handleCopy('copy-ig-viernes', copyViernes)}
+                />
+              </>
+            )}
+
+            {selectedDay === 'lunes' && (
+              <>
+                <SlideWrapper label="Slide 1 · Hook Lunes">
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
+                    <h3 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>
+                      ¿Tus clientes ven tus productos pero <span style={{ color: '#f87171' }}>no compran</span>? ⏱️
+                    </h3>
+                  </div>
+                </SlideWrapper>
+                <CopyBlock
+                  id="copy-ig-lunes"
+                  title="Copy Lunes — Urgencia & Cuentas Regresivas"
+                  text={copyLunes}
+                  copied={copiedId === 'copy-ig-lunes'}
+                  onCopy={() => handleCopy('copy-ig-lunes', copyLunes)}
+                />
+              </>
+            )}
+
+            {selectedDay === 'martes' && (
+              <>
+                <div style={{ background: '#061e14', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 16, padding: 20, marginBottom: 24 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, color: '#10B981', margin: '0 0 10px' }}>🎬 Guión de Reel (Buscador por Voz)</h3>
+                  <p style={{ fontSize: 13, color: '#d1d5db', lineHeight: 1.6, margin: 0 }}>
+                    1. Mostrar pantalla de Tiendanube en celular.<br/>
+                    2. Tocar icono de micrófono Nevux y decir: "Zapatillas negras talle 42".<br/>
+                    3. Mostrar la velocidad de resultado instantáneo.<br/>
+                    4. CTA: "50 Widgets + 6 funciones para impulsar tu Tiendanube".
+                  </p>
+                </div>
+                <CopyBlock
+                  id="copy-ig-martes"
+                  title="Copy Martes — Buscador por Voz"
+                  text={copyMartes}
+                  copied={copiedId === 'copy-ig-martes'}
+                  onCopy={() => handleCopy('copy-ig-martes', copyMartes)}
+                />
+              </>
+            )}
+
+            {selectedDay === 'miercoles' && (
+              <>
+                <SlideWrapper label="Slide 1 · Hook Miércoles">
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14 }}>
+                    <h3 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>
+                      Cómo subir tu <span style={{ color: '#10B981' }}>Ticket Promedio</span> sin gastar más en anuncios 🚚
+                    </h3>
+                  </div>
+                </SlideWrapper>
+                <CopyBlock
+                  id="copy-ig-miercoles"
+                  title="Copy Miércoles — Envío Gratis & Order Bumps"
+                  text={copyMiercoles}
+                  copied={copiedId === 'copy-ig-miercoles'}
+                  onCopy={() => handleCopy('copy-ig-miercoles', copyMiercoles)}
+                />
+              </>
+            )}
+
+            {selectedDay === 'jueves' && (
+              <>
+                <div style={{ background: '#061e14', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 16, padding: 20, marginBottom: 24 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, color: '#10B981', margin: '0 0 10px' }}>🎬 Guión de Reel (Raspá y Gana)</h3>
+                  <p style={{ fontSize: 13, color: '#d1d5db', lineHeight: 1.6, margin: 0 }}>
+                    1. Demostración en vivo rascando la tarjeta flotante Nevux en el celular.<br/>
+                    2. Ganar cupón e ingresar email en el acto.<br/>
+                    3. CTA: "50 Widgets + 6 funciones para impulsar tu Tiendanube".
+                  </p>
+                </div>
+                <CopyBlock
+                  id="copy-ig-jueves"
+                  title="Copy Jueves — Gamificación Raspá y Gana"
+                  text={copyJueves}
+                  copied={copiedId === 'copy-ig-jueves'}
+                  onCopy={() => handleCopy('copy-ig-jueves', copyJueves)}
+                />
+              </>
+            )}
           </div>
-        </div>
+        )}
 
-        {/* ══════════════════════════════════════════
-            COPY / DESCRIPCIÓN FINAL
-        ══════════════════════════════════════════ */}
-        <h2
-          style={{
-            fontSize: 20,
-            fontWeight: 800,
-            color: '#fff',
-            marginBottom: 20,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          <MessageCircle size={20} style={{ color: '#10B981' }} />
-          COPY / DESCRIPCIÓN
-        </h2>
-
-        <CopyBlock
-          id="copy-viernes"
-          title="Copy Viernes — Ecosistema Completo (Carrusel)"
-          text={copyViernes}
-          copied={copiedId === 'copy-viernes'}
-          onCopy={() => handleCopy('copy-viernes', copyViernes)}
-        />
-
-        {/* ─── Footer Página ─── */}
+        {/* Footer del Admin */}
         <div
           style={{
             marginTop: 48,
-            padding: '20px 0',
-            borderTop: '1px solid rgba(16,185,129,0.1)',
+            paddingTop: 24,
+            borderTop: '1px solid rgba(16,185,129,0.15)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
           }}
         >
-          <span style={{ fontSize: 12, color: '#4b5563' }}>
-            Nevux · Planificación Semanal · Semana 1 Completa 🎉
+          <span style={{ fontSize: 12, color: '#6b7280' }}>
+            Nevux Admin Panel · Assets Oficiales para Tiendanube / Nuvemshop
           </span>
           <NevuxLogo size={18} />
         </div>
       </main>
     </div>
   );
-                     }
+        }
