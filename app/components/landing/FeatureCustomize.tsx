@@ -275,7 +275,7 @@ export default function FeatureCustomize() {
           }}
         >
           Definí tu paleta de colores, curvatura de botones y tipografía una sola vez. 
-          Nevux armoniza automáticamente los <strong style={{ color: "#ffffff" }}>26 widgets</strong> y tus <strong style={{ color: "#10B981" }}>asistentes de IA</strong> para que se sientan 100% nativos del diseño de tu Tiendanube.
+          Nevux armoniza automáticamente los <strong style={{ color: "#ffffff" }}>50 widgets</strong> y tus <strong style={{ color: "#10B981" }}>asistentes de IA</strong> para que se sientan 100% nativos del diseño de tu Tiendanube.
         </motion.p>
 
         {/* Tip en vivo interactivo */}
@@ -681,7 +681,7 @@ export default function FeatureCustomize() {
             >
               <Wand2 size={18} color="#10B981" style={{ marginTop: "2px", flexShrink: 0 }} />
               <p style={{ fontSize: "0.8rem", color: "#d1fae5", margin: 0, lineHeight: 1.45, fontWeight: 500 }}>
-                <strong style={{ color: "#ffffff" }}>Sincronización Universal:</strong> Cuando elegís tus colores en Nevux, se aplican a los 26 widgets automáticamente sin tocar código.
+                <strong style={{ color: "#ffffff" }}>Sincronización Universal:</strong> Cuando elegís tus colores en Nevux, se aplican a los 50 widgets automáticamente sin tocar código.
               </p>
             </div>
           </div>
@@ -689,4 +689,4 @@ export default function FeatureCustomize() {
       </div>
     </section>
   );
-   }
+             }
