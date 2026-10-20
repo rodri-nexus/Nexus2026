@@ -20,10 +20,17 @@ import {
   Calendar,
   Mic,
   Settings,
+  Flame,
+  CheckCircle2,
+  Clock,
+  Video,
+  ChevronDown,
+  Gift,
+  HelpCircle,
 } from 'lucide-react';
 
 /* ─── Logo Oficial NEVUX ─── */
-function NevuxLogoMark({ size = 24 }: { size?: number }) {
+function NevuxLogoMark({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -46,7 +53,7 @@ function NevuxLogoMark({ size = 24 }: { size?: number }) {
   );
 }
 
-function NevuxLogo({ size = 24 }: { size?: number }) {
+function NevuxLogo({ size = 20 }: { size?: number }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
       <NevuxLogoMark size={size} />
@@ -54,7 +61,7 @@ function NevuxLogo({ size = 24 }: { size?: number }) {
         style={{
           fontFamily: 'system-ui, -apple-system, sans-serif',
           fontWeight: 900,
-          fontSize: size * 0.62,
+          fontSize: size * 0.65,
           letterSpacing: '0.08em',
           color: '#fff',
         }}
@@ -65,7 +72,7 @@ function NevuxLogo({ size = 24 }: { size?: number }) {
   );
 }
 
-/* ─── Banner App Store COMPACTO (Fácil de capturar horizontalmente) ─── */
+/* ─── Contenedor Banner App Store (Compacto, denso, perfecto para capturas) ─── */
 function AppStoreBannerWrapper({
   label,
   children,
@@ -74,7 +81,7 @@ function AppStoreBannerWrapper({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ marginBottom: 28 }}>
+    <div style={{ marginBottom: 24 }}>
       <div
         style={{
           fontSize: 11,
@@ -90,49 +97,50 @@ function AppStoreBannerWrapper({
       >
         <ImageIcon size={12} /> {label}
       </div>
-      {/* maxWidth 520 para capturas horizontales cómodas */}
+      {/* Tamaño optimizado 540px máximo para captura horizontal sin scroll */}
       <div
         style={{
           aspectRatio: '16/10',
           width: '100%',
-          maxWidth: 520,
-          background: '#020a07',
-          border: '1px solid rgba(16,185,129,0.35)',
-          borderRadius: 16,
+          maxWidth: 540,
+          background: 'linear-gradient(145deg, #020a07 0%, #051810 100%)',
+          border: '1.5px solid rgba(16,185,129,0.35)',
+          borderRadius: 18,
           position: 'relative',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '0 12px 28px rgba(0,0,0,0.55)',
+          boxShadow: '0 16px 36px rgba(0,0,0,0.65)',
           fontFamily: 'system-ui, -apple-system, sans-serif',
         }}
       >
-        {/* Grid sutil */}
+        {/* Pattern de Fondo estilo Tech Grid */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
             backgroundImage:
-              'linear-gradient(rgba(16,185,129,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,0.04) 1px, transparent 1px)',
-            backgroundSize: '22px 22px',
+              'linear-gradient(rgba(16,185,129,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,0.05) 1px, transparent 1px)',
+            backgroundSize: '20px 22px',
             pointerEvents: 'none',
           }}
         />
-        {/* Glow */}
+
+        {/* Glow Esmeralda */}
         <div
           style={{
             position: 'absolute',
-            top: '40%',
-            left: '55%',
-            transform: 'translate(-50%, -50%)',
-            width: '70%',
-            height: '70%',
-            background: 'radial-gradient(circle, rgba(16,185,129,0.14) 0%, transparent 65%)',
+            top: '-20%',
+            right: '-10%',
+            width: '60%',
+            height: '80%',
+            background: 'radial-gradient(circle, rgba(16,185,129,0.18) 0%, transparent 70%)',
             pointerEvents: 'none',
           }}
         />
-        {/* Logo Nevux ÚNICAMENTE en la parte superior izquierda */}
-        <div style={{ position: 'absolute', top: 14, left: 16, zIndex: 10 }}>
+
+        {/* Logo Nevux ÚNICAMENTE superior izquierda */}
+        <div style={{ position: 'absolute', top: 14, left: 16, zIndex: 20 }}>
           <NevuxLogo size={16} />
         </div>
 
@@ -140,7 +148,7 @@ function AppStoreBannerWrapper({
           style={{
             flex: 1,
             display: 'flex',
-            padding: '14px 16px 14px 16px',
+            padding: '14px 16px',
             position: 'relative',
             zIndex: 2,
           }}
@@ -157,14 +165,14 @@ function BannerLayout({ left, right }: { left: React.ReactNode; right: React.Rea
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
+        gridTemplateColumns: '1fr 1.05fr',
         gap: 12,
         width: '100%',
         height: '100%',
         paddingTop: 22,
       }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8, paddingRight: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 6, paddingRight: 4 }}>
         {left}
       </div>
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -177,110 +185,28 @@ function BannerLayout({ left, right }: { left: React.ReactNode; right: React.Rea
 /* ─── Slide IG 4:5 ─── */
 function SlideWrapper({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: 24 }}>
-      <div
-        style={{
-          fontSize: 10,
-          fontWeight: 700,
-          color: '#10B981',
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          marginBottom: 8,
-        }}
-      >
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: '#10B981', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>
         {label}
       </div>
-      <div
-        style={{
-          aspectRatio: '4/5',
-          maxWidth: 320,
-          background: '#020a07',
-          border: '1.5px solid rgba(16,185,129,0.3)',
-          borderRadius: 18,
-          padding: 18,
-          position: 'relative',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 10 }}>
-          <NevuxLogo size={16} />
-        </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: 22 }}>{children}</div>
+      <div style={{ aspectRatio: '4/5', maxWidth: 320, background: '#020a07', border: '1.5px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}><NevuxLogo size={15} /></div>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingTop: 20 }}>{children}</div>
       </div>
     </div>
   );
 }
 
-function CopyBlock({
-  id,
-  title,
-  text,
-  copied,
-  onCopy,
-}: {
-  id: string;
-  title: string;
-  text: string;
-  copied: boolean;
-  onCopy: () => void;
-}) {
+function CopyBlock({ id, title, text, copied, onCopy }: { id: string; title: string; text: string; copied: boolean; onCopy: () => void }) {
   return (
-    <div
-      style={{
-        background: '#061e14',
-        border: '1px solid rgba(16,185,129,0.25)',
-        borderRadius: 14,
-        padding: 18,
-        marginBottom: 18,
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <span
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: '#10B981',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-          }}
-        >
-          {title}
-        </span>
-        <button
-          onClick={onCopy}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            background: copied ? '#059669' : 'rgba(16,185,129,0.15)',
-            border: '1px solid rgba(16,185,129,0.3)',
-            borderRadius: 8,
-            padding: '5px 12px',
-            color: '#fff',
-            fontSize: 11,
-            fontWeight: 700,
-            cursor: 'pointer',
-          }}
-        >
-          {copied ? <Check size={12} /> : <Copy size={12} />}
-          {copied ? 'COPIADO' : 'COPIAR'}
+    <div style={{ background: '#061e14', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{title}</span>
+        <button onClick={onCopy} style={{ display: 'flex', alignItems: 'center', gap: 4, background: copied ? '#059669' : 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 6, padding: '4px 10px', color: '#fff', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
+          {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? 'COPIADO' : 'COPIAR'}
         </button>
       </div>
-      <pre
-        style={{
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
-          color: '#d1d5db',
-          fontSize: 12,
-          lineHeight: 1.65,
-          fontFamily: 'system-ui, sans-serif',
-          margin: 0,
-        }}
-      >
-        {text}
-      </pre>
+      <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: '#d1d5db', fontSize: 11, lineHeight: 1.6, fontFamily: 'system-ui, sans-serif', margin: 0 }}>{text}</pre>
     </div>
   );
 }
@@ -327,108 +253,36 @@ export default function BannersPage() {
     '✅ 100% personalizável à sua marca',
   ].join('\n');
 
-  const copyLunes = [
-    '⏱️ ¿Sabías que el 65% de los carritos abandonados ocurren por posponer la compra?',
-    '',
-    'La solución es generar URGENCIA Y ESCASEZ REAL.',
-    '',
-    'Con Nevux activás contadores regresivos y alertas de stock en menos de 2 minutos.',
-    '',
-    '50 Widgets + 6 funciones para impulsar tu Tiendanube.',
-    '',
-    'Comentá URGENCIA y te enviamos el link. 👇',
-  ].join('\n');
-
-  const copyMartes = [
-    '🎙️ El 70% de tus clientes navega desde el celular... ¿por qué obligarlos a escribir?',
-    '',
-    'Buscador por Voz Inteligente para Tiendanube.',
-    '',
-    '50 Widgets + 6 funciones para impulsar tu Tiendanube.',
-    '',
-    'Comentá VOZ para probarlo. 👇',
-  ].join('\n');
-
-  const copyMiercoles = [
-    '🚚 Subí tu ticket promedio sin gastar más en ads.',
-    '',
-    'Barra de Envío Gratis + Order Bumps en el carrito.',
-    '',
-    '50 Widgets + 6 funciones para impulsar tu Tiendanube.',
-    '',
-    'Comentá TICKET para activarlo. 👇',
-  ].join('\n');
-
-  const copyJueves = [
-    '🎮 Convertí visitantes indecisos con Gamificación.',
-    '',
-    'Raspá y Gana: interactúan, dejan el mail y compran.',
-    '',
-    '50 Widgets + 6 funciones para impulsar tu Tiendanube.',
-    '',
-    'Comentá GANAR y te mostramos cómo. 👇',
-  ].join('\n');
-
-  const copyViernes = [
-    '⚡ ¿Tu Tiendanube se ve igual a miles de tiendas?',
-    '',
-    'Con Nevux transformás tu tienda en una máquina de ventas:',
-    '',
-    '🔥 6 Funciones IA + 🛠️ 50 Widgets de Conversión',
-    '',
-    'Se instala en menos de 2 minutos sin código.',
-    '',
-    '50 Widgets + 6 funciones para impulsar tu Tiendanube.',
-    '',
-    'Comentá NEVUX y te muestro cómo. 👇',
-  ].join('\n');
+  const copyLunes = '50 Widgets + 6 funciones para impulsar tu Tiendanube. Comentá URGENCIA y te enviamos el link. 👇';
+  const copyMartes = 'Buscador por Voz Inteligente para Tiendanube. 50 Widgets + 6 funciones. Comentá VOZ. 👇';
+  const copyMiercoles = 'Barra de Envío Gratis + Order Bumps en el carrito. 50 Widgets + 6 funciones. Comentá TICKET. 👇';
+  const copyJueves = 'Raspá y Gana: interactúan, dejan el mail y compran. 50 Widgets + 6 funciones. Comentá GANAR. 👇';
+  const copyViernes = 'Así se ve una Tiendanube optimizada para vender. 50 Widgets + 6 funciones. Comentá NEVUX. 👇';
 
   return (
     <div style={{ minHeight: '100vh', background: '#020a07', color: '#fff', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      <header
-        style={{
-          background: '#04140e',
-          borderBottom: '1px solid rgba(16,185,129,0.2)',
-          padding: '12px 18px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-        }}
-      >
-        <Link href="/admin" style={{ color: '#10B981', display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', fontSize: 12, fontWeight: 700 }}>
+      <header style={{ background: '#04140e', borderBottom: '1px solid rgba(16,185,129,0.2)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, position: 'sticky', top: 0, zIndex: 50 }}>
+        <Link href="/admin" style={{ color: '#10B981', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none', fontSize: 12, fontWeight: 700 }}>
           <ArrowLeft size={14} /> Volver
         </Link>
         <div style={{ flex: 1 }} />
-        <NevuxLogo size={18} />
+        <NevuxLogo size={16} />
       </header>
 
-      <main style={{ maxWidth: 640, margin: '0 auto', padding: '24px 16px 64px' }}>
-        {/* Tabs */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 8,
-            background: 'rgba(6,30,20,0.85)',
-            padding: 5,
-            borderRadius: 12,
-            border: '1px solid rgba(16,185,129,0.2)',
-            marginBottom: 24,
-          }}
-        >
+      <main style={{ maxWidth: 580, margin: '0 auto', padding: '20px 12px 60px' }}>
+        {/* Tabs Pestañas */}
+        <div style={{ display: 'flex', gap: 6, background: 'rgba(6,30,20,0.85)', padding: 4, borderRadius: 10, border: '1px solid rgba(16,185,129,0.2)', marginBottom: 20 }}>
           <button
             onClick={() => setActiveTab('appstore')}
             style={{
               flex: 1,
-              padding: '10px 12px',
-              borderRadius: 8,
+              padding: '8px 10px',
+              borderRadius: 6,
               border: 'none',
               background: activeTab === 'appstore' ? '#10B981' : 'transparent',
               color: activeTab === 'appstore' ? '#000' : '#9ca3af',
               fontWeight: 800,
-              fontSize: 12,
+              fontSize: 11,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -436,19 +290,19 @@ export default function BannersPage() {
               gap: 6,
             }}
           >
-            <Grid size={14} /> App Store (5)
+            <Grid size={13} /> App Store (5 Images)
           </button>
           <button
             onClick={() => setActiveTab('instagram')}
             style={{
               flex: 1,
-              padding: '10px 12px',
-              borderRadius: 8,
+              padding: '8px 10px',
+              borderRadius: 6,
               border: 'none',
               background: activeTab === 'instagram' ? '#10B981' : 'transparent',
               color: activeTab === 'instagram' ? '#000' : '#9ca3af',
               fontWeight: 800,
-              fontSize: 12,
+              fontSize: 11,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -456,79 +310,81 @@ export default function BannersPage() {
               gap: 6,
             }}
           >
-            <Calendar size={14} /> Instagram S1
+            <Calendar size={13} /> Instagram S1
           </button>
         </div>
 
-        {/* ════════ APP STORE ════════ */}
+        {/* ====================================================================
+            APP STORE BANNERS — 100% PROFESIONAL, DENSO Y COMPACTO
+            ==================================================================== */}
         {activeTab === 'appstore' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 16 }}>
               <div>
-                <h1 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 4px', color: '#fff' }}>🎨 Banners App Store</h1>
-                <p style={{ color: '#6b7280', fontSize: 12, margin: 0 }}>Compactos 16:10 · listos para captura</p>
+                <h1 style={{ fontSize: 18, fontWeight: 900, margin: '0 0 2px', color: '#fff' }}>🚀 Banners App Store</h1>
+                <p style={{ color: '#6b7280', fontSize: 11, margin: 0 }}>Formato 16:10 · Listo para captura horizontal</p>
               </div>
-              <div style={{ display: 'flex', gap: 6, background: 'rgba(0,0,0,0.45)', padding: 3, borderRadius: 8, border: '1px solid rgba(16,185,129,0.3)' }}>
-                <button onClick={() => setLang('es')} style={{ padding: '6px 10px', borderRadius: 6, border: 'none', background: lang === 'es' ? '#10B981' : 'transparent', color: lang === 'es' ? '#000' : '#d1d5db', fontWeight: 800, fontSize: 11, cursor: 'pointer' }}>
-                  🇦🇷 ES
-                </button>
-                <button onClick={() => setLang('pt')} style={{ padding: '6px 10px', borderRadius: 6, border: 'none', background: lang === 'pt' ? '#10B981' : 'transparent', color: lang === 'pt' ? '#000' : '#d1d5db', fontWeight: 800, fontSize: 11, cursor: 'pointer' }}>
-                  🇧🇷 PT
-                </button>
+              <div style={{ display: 'flex', gap: 4, background: 'rgba(0,0,0,0.45)', padding: 3, borderRadius: 6, border: '1px solid rgba(16,185,129,0.3)' }}>
+                <button onClick={() => setLang('es')} style={{ padding: '5px 8px', borderRadius: 4, border: 'none', background: lang === 'es' ? '#10B981' : 'transparent', color: lang === 'es' ? '#000' : '#d1d5db', fontWeight: 800, fontSize: 10, cursor: 'pointer' }}>🇦🇷 ES</button>
+                <button onClick={() => setLang('pt')} style={{ padding: '5px 8px', borderRadius: 4, border: 'none', background: lang === 'pt' ? '#10B981' : 'transparent', color: lang === 'pt' ? '#000' : '#d1d5db', fontWeight: 800, fontSize: 10, cursor: 'pointer' }}>🇧🇷 PT</button>
               </div>
             </div>
 
-            {/* BANNER 1 — All-in-One */}
-            <AppStoreBannerWrapper label="1 · Propuesta de valor">
+            {/* ── BANNER 1: Ecosistema Completo (50 Widgets + 6 Funciones IA) ── */}
+            <AppStoreBannerWrapper label="1 · Propuesta de Valor All-in-One">
               <BannerLayout
                 left={
                   <>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: 14, padding: '3px 8px', width: 'fit-content' }}>
-                      <Sparkles size={10} style={{ color: '#10B981' }} />
-                      <span style={{ fontSize: 9, fontWeight: 800, color: '#10B981' }}>CRO + IA</span>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: 12, padding: '2px 7px', width: 'fit-content' }}>
+                      <Sparkles size={9} style={{ color: '#10B981' }} />
+                      <span style={{ fontSize: 8, fontWeight: 800, color: '#10B981' }}>CRO + IA SUITE</span>
                     </div>
-                    <h2 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.15 }}>
+                    <h2 style={{ fontSize: 16, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.15 }}>
                       {lang === 'es' ? (
                         <>El motor completo para <span style={{ color: '#10B981' }}>Tiendanube</span></>
                       ) : (
                         <>O motor completo para <span style={{ color: '#10B981' }}>Nuvemshop</span></>
                       )}
                     </h2>
-                    <p style={{ fontSize: 11, color: '#9ca3af', margin: 0, lineHeight: 1.35 }}>
-                      {lang === 'es' ? 'Optimizá conversión sin tocar código.' : 'Otimize conversão sem tocar em código.'}
+                    <p style={{ fontSize: 9, color: '#9ca3af', margin: 0, lineHeight: 1.3 }}>
+                      {lang === 'es' ? 'Aumentá tus ventas sin tocar una sola línea de código.' : 'Aumente suas vendas sem tocar em uma linha de código.'}
                     </p>
-                    <div style={{ background: '#111827', border: '1px solid rgba(16,185,129,0.45)', borderRadius: 8, padding: '8px 10px', marginTop: 2 }}>
-                      <p style={{ fontSize: 10, fontWeight: 900, color: '#10B981', margin: 0, lineHeight: 1.3 }}>
-                        {lang === 'es'
-                          ? '50 Widgets + 6 funciones para impulsar tu Tiendanube'
-                          : '50 Widgets + 6 funções para alavancar sua Nuvemshop'}
+                    <div style={{ background: '#0a2318', border: '1px solid rgba(16,185,129,0.4)', borderRadius: 6, padding: '6px 8px', marginTop: 2 }}>
+                      <p style={{ fontSize: 9, fontWeight: 900, color: '#10B981', margin: 0, lineHeight: 1.2 }}>
+                        {lang === 'es' ? '50 Widgets + 6 funciones para impulsar tu Tiendanube' : '50 Widgets + 6 funções para alavancar sua Nuvemshop'}
                       </p>
                     </div>
                   </>
                 }
                 right={
-                  <div style={{ position: 'relative', width: '100%', height: 140 }}>
-                    <div style={{ position: 'absolute', top: 4, right: 0, width: 150, background: '#061e14', border: '1px solid #10B981', borderRadius: 10, padding: 10, boxShadow: '0 8px 18px rgba(0,0,0,0.5)', transform: 'rotate(3deg)', zIndex: 2 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                        <div style={{ background: '#10B981', padding: 5, borderRadius: 6 }}><Grid size={12} color="#000" /></div>
-                        <div>
-                          <div style={{ fontSize: 11, fontWeight: 800, color: '#fff' }}>50 Widgets</div>
-                          <div style={{ fontSize: 8, color: '#9ca3af' }}>1-clic</div>
-                        </div>
+                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {/* Floating Mockup 1: Contador Regresivo Widget */}
+                    <div style={{ background: '#111827', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 8, padding: '6px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <Flame size={11} color="#f87171" />
+                        <span style={{ fontSize: 8, fontWeight: 700, color: '#fff' }}>{lang === 'es' ? 'Oferta por tiempo limitado' : 'Oferta por tempo limitado'}</span>
                       </div>
-                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                        {['Urgencia', 'Social', 'Game'].map((t) => (
-                          <span key={t} style={{ fontSize: 7, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', padding: '2px 5px', borderRadius: 8, color: '#10B981' }}>{t}</span>
-                        ))}
+                      <span style={{ fontSize: 8, fontWeight: 900, color: '#10B981', background: 'rgba(16,185,129,0.15)', padding: '1px 5px', borderRadius: 4 }}>04:12:30</span>
+                    </div>
+
+                    {/* Floating Mockup 2: Asistente IA Widget */}
+                    <div style={{ background: '#061e14', border: '1px solid #10B981', borderRadius: 8, padding: '6px 8px', display: 'flex', gap: 6, alignItems: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                      <div style={{ width: 18, height: 18, background: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Bot size={11} color="#000" />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: 8, fontWeight: 800, color: '#fff', margin: 0 }}>{lang === 'es' ? 'Asistente IA 24/7' : 'Assistente IA 24/7'}</p>
+                        <p style={{ fontSize: 7, color: '#9ca3af', margin: 0 }}>{lang === 'es' ? '¿Dudas con el envío? Te ayudo.' : 'Dúvidas com o frete? Te ajudo.'}</p>
                       </div>
                     </div>
-                    <div style={{ position: 'absolute', top: 72, right: 28, width: 140, background: '#111827', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: 10, boxShadow: '0 8px 18px rgba(0,0,0,0.5)', transform: 'rotate(-2deg)', zIndex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <div style={{ background: 'linear-gradient(135deg,#10B981,#059669)', padding: 5, borderRadius: 6 }}><Bot size={12} color="#000" /></div>
-                        <div>
-                          <div style={{ fontSize: 11, fontWeight: 800, color: '#fff' }}>6 {lang === 'es' ? 'IA' : 'IA'}</div>
-                          <div style={{ fontSize: 8, color: '#9ca3af' }}>Voz · CRM · Chat</div>
-                        </div>
+
+                    {/* Floating Badges */}
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <div style={{ flex: 1, background: '#111827', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '4px 6px', textAlign: 'center' }}>
+                        <p style={{ fontSize: 8, fontWeight: 900, color: '#10B981', margin: 0 }}>🛠️ 50 Widgets</p>
+                      </div>
+                      <div style={{ flex: 1, background: '#111827', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '4px 6px', textAlign: 'center' }}>
+                        <p style={{ fontSize: 8, fontWeight: 900, color: '#fff', margin: 0 }}>🧠 6 Funciones IA</p>
                       </div>
                     </div>
                   </div>
@@ -536,203 +392,224 @@ export default function BannersPage() {
               />
             </AppStoreBannerWrapper>
 
-            {/* BANNER 2 — Prueba social / urgencia */}
-            <AppStoreBannerWrapper label="2 · Prueba social & urgencia">
+            {/* ── BANNER 2: Impulsá tu Ticket Promedio (Packs, Order Bump, Envío Gratis) ── */}
+            <AppStoreBannerWrapper label="2 · Impulsá tu Ticket Promedio (Packs & Upsells)">
               <BannerLayout
                 left={
                   <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <Bell size={12} style={{ color: '#10B981' }} />
-                      <span style={{ fontSize: 9, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>
-                        {lang === 'es' ? 'Gatillos mentales' : 'Gatilhos mentais'}
-                      </span>
-                    </div>
-                    <h2 style={{ fontSize: 17, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.15 }}>
-                      {lang === 'es' ? (
-                        <>Generá <span style={{ color: '#10B981' }}>confianza</span> al instante</>
-                      ) : (
-                        <>Gere <span style={{ color: '#10B981' }}>confiança</span> na hora</>
-                      )}
-                    </h2>
-                    <p style={{ fontSize: 10, color: '#9ca3af', margin: 0, lineHeight: 1.35 }}>
-                      {lang === 'es'
-                        ? 'Ventas en vivo, stock crítico y reseñas.'
-                        : 'Vendas ao vivo, estoque crítico e reviews.'}
-                    </p>
-                  </>
-                }
-                right={
-                  <div style={{ position: 'relative', width: '100%', height: 140 }}>
-                    <div style={{ position: 'absolute', top: 8, right: 0, width: 168, background: '#111827', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 10, padding: '8px 10px', display: 'flex', gap: 8, boxShadow: '0 8px 16px rgba(0,0,0,0.5)', zIndex: 2 }}>
-                      <div style={{ width: 28, height: 28, background: '#061e14', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Bell size={12} color="#10B981" />
-                      </div>
-                      <div>
-                        <p style={{ fontSize: 8, color: '#9ca3af', margin: 0 }}>{lang === 'es' ? 'Córdoba · hace 2 min' : 'SP · há 2 min'}</p>
-                        <p style={{ fontSize: 10, fontWeight: 800, color: '#fff', margin: 0 }}>Zapatillas Urbanas</p>
-                      </div>
-                    </div>
-                    <div style={{ position: 'absolute', top: 70, right: 18, width: 150, background: '#061e14', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: 10, boxShadow: '0 8px 16px rgba(0,0,0,0.5)', zIndex: 1 }}>
-                      <div style={{ display: 'flex', gap: 2, marginBottom: 4 }}>
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} size={9} fill="#facc15" color="#facc15" />
-                        ))}
-                      </div>
-                      <p style={{ fontSize: 9, fontWeight: 700, color: '#fff', margin: 0 }}>&quot;Excelente calidad&quot;</p>
-                      <p style={{ fontSize: 8, color: '#9ca3af', margin: '2px 0 0' }}>{lang === 'es' ? 'Llegó rápido · 5★' : 'Chegou rápido · 5★'}</p>
-                    </div>
-                  </div>
-                }
-              />
-            </AppStoreBannerWrapper>
-
-            {/* BANNER 3 — IA + Voz */}
-            <AppStoreBannerWrapper label="3 · IA & Buscador por voz">
-              <BannerLayout
-                left={
-                  <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <Bot size={12} style={{ color: '#10B981' }} />
-                      <span style={{ fontSize: 9, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>
-                        {lang === 'es' ? 'Inteligencia' : 'Inteligência'}
-                      </span>
-                    </div>
-                    <h2 style={{ fontSize: 17, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.15 }}>
-                      {lang === 'es' ? (
-                        <>Vendedor IA 24/7 + <span style={{ color: '#10B981' }}>Voz</span></>
-                      ) : (
-                        <>Vendedor IA 24/7 + <span style={{ color: '#10B981' }}>Voz</span></>
-                      )}
-                    </h2>
-                    <p style={{ fontSize: 10, color: '#9ca3af', margin: 0, lineHeight: 1.35 }}>
-                      {lang === 'es' ? 'Chat, voz y traductor en vivo.' : 'Chat, voz e tradutor ao vivo.'}
-                    </p>
-                  </>
-                }
-                right={
-                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
-                    <div style={{ width: '92%', background: '#111827', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 20, padding: '8px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 6px 14px rgba(0,0,0,0.45)' }}>
-                      <span style={{ fontSize: 9, color: '#9ca3af' }}>
-                        {lang === 'es' ? 'Escuchando "campera"...' : 'Ouvindo "jaqueta"...'}
-                      </span>
-                      <div style={{ width: 22, height: 22, background: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Mic size={11} color="#000" />
-                      </div>
-                    </div>
-                    <div style={{ width: '85%', background: '#061e14', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 10, padding: 8 }}>
-                      <p style={{ fontSize: 8, color: '#10B981', margin: '0 0 4px', fontWeight: 700 }}>IA · 24/7</p>
-                      <p style={{ fontSize: 9, color: '#e5e7eb', margin: 0, lineHeight: 1.3 }}>
-                        {lang === 'es' ? '¿Talle 42 en negro? Sí, hay stock.' : 'Tamanho 42 preto? Sim, tem estoque.'}
-                      </p>
-                    </div>
-                  </div>
-                }
-              />
-            </AppStoreBannerWrapper>
-
-            {/* BANNER 4 — Ticket + Fechas especiales */}
-            <AppStoreBannerWrapper label="4 · Ticket promedio & fechas especiales">
-              <BannerLayout
-                left={
-                  <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <TrendingUp size={12} style={{ color: '#10B981' }} />
-                      <span style={{ fontSize: 9, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>
-                        {lang === 'es' ? 'Crecimiento' : 'Crescimento'}
+                      <span style={{ fontSize: 8, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>
+                        {lang === 'es' ? 'Mayor Facturación' : 'Maior Faturamento'}
                       </span>
                     </div>
-                    <h2 style={{ fontSize: 17, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.15 }}>
+                    <h2 style={{ fontSize: 16, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.15 }}>
                       {lang === 'es' ? (
-                        <>Ticket + <span style={{ color: '#10B981' }}>Hot Sale / BF</span></>
+                        <>Impulsá tu <span style={{ color: '#10B981' }}>ticket promedio</span></>
                       ) : (
-                        <>Ticket + <span style={{ color: '#10B981' }}>Black Friday</span></>
+                        <>Aumente seu <span style={{ color: '#10B981' }}>ticket médio</span></>
                       )}
                     </h2>
-                    <p style={{ fontSize: 10, color: '#9ca3af', margin: 0, lineHeight: 1.35 }}>
-                      {lang === 'es'
-                        ? 'Envío gratis, order bump y campañas.'
-                        : 'Frete grátis, order bump e campanhas.'}
+                    <p style={{ fontSize: 9, color: '#9ca3af', margin: 0, lineHeight: 1.3 }}>
+                      {lang === 'es' ? 'Aumentá tus ventas con Packs de Productos, Barras de Envío Gratis y Order Bumps.' : 'Aumente suas vendas com Packs de Produtos, Frete Grátis e Order Bumps.'}
                     </p>
                   </>
                 }
                 right={
-                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 7, alignItems: 'flex-end' }}>
-                    <div style={{ width: '95%', background: 'linear-gradient(90deg,#ef4444,#b91c1c)', borderRadius: 8, padding: '7px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <p style={{ fontSize: 10, fontWeight: 900, color: '#fff', margin: 0 }}>BLACK FRIDAY 🔥</p>
-                        <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.85)', margin: 0 }}>{lang === 'es' ? 'Ofertas por tiempo limitado' : 'Ofertas por tempo limitado'}</p>
+                  <div style={{ width: '100%', background: '#0e1713', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 8, padding: 8, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {/* Barra Envío Gratis */}
+                    <div style={{ background: '#061e14', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 6, padding: '4px 6px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                        <span style={{ fontSize: 7, fontWeight: 800, color: '#fff' }}>🚚 {lang === 'es' ? '¡Envío Gratis Alcanzado!' : 'Frete Grátis Liberado!'}</span>
+                        <span style={{ fontSize: 7, fontWeight: 900, color: '#10B981' }}>100%</span>
                       </div>
-                      <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-                        <span style={{ background: '#000', color: '#fff', fontSize: 9, fontWeight: 800, padding: '2px 5px', borderRadius: 3 }}>08</span>
-                        <span style={{ color: '#fff', fontSize: 9 }}>:</span>
-                        <span style={{ background: '#000', color: '#fff', fontSize: 9, fontWeight: 800, padding: '2px 5px', borderRadius: 3 }}>45</span>
+                      <div style={{ width: '100%', height: 4, background: 'rgba(255,255,255,0.1)', borderRadius: 2, overflow: 'hidden' }}>
+                        <div style={{ width: '100%', height: '100%', background: '#10B981' }} />
                       </div>
                     </div>
-                    <div style={{ width: '88%', background: '#111827', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 8, padding: 8 }}>
-                      <p style={{ fontSize: 8, fontWeight: 700, color: '#fff', margin: '0 0 5px', textAlign: 'center' }}>
-                        🎉 {lang === 'es' ? '¡Casi envío gratis!' : 'Quase frete grátis!'}
-                      </p>
-                      <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-                        <div style={{ width: '78%', height: '100%', background: '#10B981', borderRadius: 3 }} />
+
+                    {/* Pack Selector Widget */}
+                    <div style={{ background: '#111827', border: '1px solid #10B981', borderRadius: 6, padding: '4px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <span style={{ fontSize: 8, fontWeight: 800, color: '#fff' }}>Llevá 2 Unidades</span>
+                        <span style={{ fontSize: 7, color: '#10B981', marginLeft: 4, fontWeight: 700 }}> (Ahorrá 15%)</span>
                       </div>
+                      <span style={{ fontSize: 7, background: '#10B981', color: '#000', fontWeight: 900, padding: '1px 4px', borderRadius: 3 }}>MÁS VENDIDO</span>
+                    </div>
+
+                    {/* Order Bump Widget */}
+                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(16,185,129,0.4)', borderRadius: 6, padding: '4px 6px', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <CheckCircle2 size={10} color="#10B981" />
+                      <span style={{ fontSize: 7, color: '#d1d5db', fontWeight: 700 }}>{lang === 'es' ? 'Agregar garantía extendida' : 'Adicionar garantia estendida'}</span>
                     </div>
                   </div>
                 }
               />
             </AppStoreBannerWrapper>
 
-            {/* BANNER 5 — ROI + sin código */}
-            <AppStoreBannerWrapper label="5 · ROI & configuración">
+            {/* ── BANNER 3: Destacá tus Ofertas & Fechas Especiales ── */}
+            <AppStoreBannerWrapper label="3 · Fechas Especiales & Ofertas (Hot Sale / Cyber)">
               <BannerLayout
                 left={
                   <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <ShieldCheck size={12} style={{ color: '#10B981' }} />
-                      <span style={{ fontSize: 9, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>
-                        {lang === 'es' ? 'Sin código' : 'Sem código'}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <Calendar size={12} style={{ color: '#10B981' }} />
+                      <span style={{ fontSize: 8, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>
+                        {lang === 'es' ? 'Campañas Masivas' : 'Campanhas Massivas'}
                       </span>
                     </div>
-                    <h2 style={{ fontSize: 17, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.15 }}>
+                    <h2 style={{ fontSize: 16, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.15 }}>
                       {lang === 'es' ? (
-                        <>ROI real · <span style={{ color: '#10B981' }}>2 minutos</span></>
+                        <>Destacá tus <span style={{ color: '#10B981' }}>ofertas</span></>
                       ) : (
-                        <>ROI real · <span style={{ color: '#10B981' }}>2 minutos</span></>
+                        <>Destaque suas <span style={{ color: '#10B981' }}>ofertas</span></>
                       )}
                     </h2>
-                    <p style={{ fontSize: 10, color: '#9ca3af', margin: 0, lineHeight: 1.35 }}>
-                      {lang === 'es'
-                        ? 'Métricas en vivo y colores de tu marca.'
-                        : 'Métricas ao vivo e cores da sua marca.'}
+                    <p style={{ fontSize: 9, color: '#9ca3af', margin: 0, lineHeight: 1.3 }}>
+                      {lang === 'es' ? 'Prepará tu tienda para Hot Sale, Cyber Monday y Black Friday con herramientas visuales.' : 'Prepare sua loja para Black Friday e datas especiais com ferramentas visuais.'}
                     </p>
                   </>
                 }
                 right={
-                  <div style={{ width: '92%', background: '#020a07', border: '1px solid rgba(16,185,129,0.4)', borderRadius: 10, overflow: 'hidden', boxShadow: '0 8px 18px rgba(0,0,0,0.55)' }}>
-                    <div style={{ padding: '6px 10px', background: '#061e14', borderBottom: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <NevuxLogo size={11} />
-                      <span style={{ fontSize: 8, color: '#6b7280' }}>/ settings</span>
+                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {/* Hot Sale / Black Friday Banner */}
+                    <div style={{ background: 'linear-gradient(90deg, #ef4444, #b91c1c)', borderRadius: 6, padding: '5px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 10px rgba(239, 68, 68, 0.3)' }}>
+                      <div>
+                        <p style={{ fontSize: 8, fontWeight: 900, color: '#fff', margin: 0 }}>HOT SALE 🔥</p>
+                        <p style={{ fontSize: 6, color: 'rgba(255,255,255,0.85)', margin: 0 }}>{lang === 'es' ? 'Descuentos exclusivos en la app' : 'Descontos exclusivos no app'}</p>
+                      </div>
+                      <div style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                        <span style={{ background: '#000', color: '#fff', fontSize: 7, fontWeight: 800, padding: '1px 3px', borderRadius: 2 }}>12</span>
+                        <span style={{ color: '#fff', fontSize: 7 }}>:</span>
+                        <span style={{ background: '#000', color: '#fff', fontSize: 7, fontWeight: 800, padding: '1px 3px', borderRadius: 2 }}>45</span>
+                      </div>
                     </div>
-                    <div style={{ padding: 10, display: 'flex', flexDirection: 'column', gap: 7 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: 9, color: '#d1d5db' }}>{lang === 'es' ? 'Color principal' : 'Cor principal'}</span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#111827', padding: '2px 6px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.08)' }}>
-                          <div style={{ width: 10, height: 10, background: '#10B981', borderRadius: '50%' }} />
-                          <span style={{ fontSize: 8, color: '#fff', fontFamily: 'monospace' }}>#10B981</span>
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: 9, color: '#d1d5db' }}>ROI live</span>
-                        <span style={{ fontSize: 10, fontWeight: 900, color: '#10B981' }}>+28%</span>
-                      </div>
-                      <div style={{ background: '#10B981', color: '#000', fontSize: 9, fontWeight: 800, textAlign: 'center', padding: '6px', borderRadius: 6 }}>
-                        {lang === 'es' ? 'Activar en 1 clic' : 'Ativar em 1 clique'}
-                      </div>
+
+                    {/* Slider de Videos Widget */}
+                    <div style={{ background: '#111827', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 6, padding: '4px 6px', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <Video size={10} color="#10B981" />
+                      <span style={{ fontSize: 7, color: '#fff', fontWeight: 700 }}>Slider de Videos de Producto (9:16)</span>
+                    </div>
+
+                    {/* Buscador por Voz Widget */}
+                    <div style={{ background: '#061e14', border: '1px solid #10B981', borderRadius: 12, padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 7, color: '#9ca3af' }}>{lang === 'es' ? 'Probar "Buscador por Voz"...' : 'Testar "Busca por Voz"...'}</span>
+                      <Mic size={10} color="#10B981" />
                     </div>
                   </div>
                 }
               />
             </AppStoreBannerWrapper>
 
+            {/* ── BANNER 4: Generá Confianza & Prueba Social ── */}
+            <AppStoreBannerWrapper label="4 · Generá Confianza & Prueba Social">
+              <BannerLayout
+                left={
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <ShieldCheck size={12} style={{ color: '#10B981' }} />
+                      <span style={{ fontSize: 8, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>
+                        {lang === 'es' ? 'Prueba Social' : 'Prova Social'}
+                      </span>
+                    </div>
+                    <h2 style={{ fontSize: 16, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.15 }}>
+                      {lang === 'es' ? (
+                        <>Generá <span style={{ color: '#10B981' }}>confianza</span></>
+                      ) : (
+                        <>Gere <span style={{ color: '#10B981' }}>confiança</span></>
+                      )}
+                    </h2>
+                    <p style={{ fontSize: 9, color: '#9ca3af', margin: 0, lineHeight: 1.3 }}>
+                      {lang === 'es' ? 'Que tus clientes se sientan seguros a la hora de comprar con notificaciones y reseñas.' : 'Faça seus clientes se sentirem seguros na hora de comprar com avaliações.'}
+                    </p>
+                  </>
+                }
+                right={
+                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {/* Rating Header */}
+                    <div style={{ background: '#111827', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 6, padding: '5px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div>
+                        <div style={{ display: 'flex', gap: 2 }}>
+                          {[...Array(5)].map((_, i) => <Star key={i} size={8} fill="#facc15" color="#facc15" />)}
+                        </div>
+                        <p style={{ fontSize: 7, color: '#9ca3af', margin: '2px 0 0' }}>4.9 / 5.0 (120+ {lang === 'es' ? 'opiniones' : 'avalições'})</p>
+                      </div>
+                      <span style={{ fontSize: 7, background: 'rgba(16,185,129,0.15)', color: '#10B981', padding: '2px 5px', borderRadius: 4, fontWeight: 800 }}>
+                        {lang === 'es' ? 'VERIFICADO' : 'VERIFICADO'}
+                      </span>
+                    </div>
+
+                    {/* Reseña Card Widget */}
+                    <div style={{ background: '#061e14', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, padding: '5px 8px' }}>
+                      <p style={{ fontSize: 7, fontWeight: 800, color: '#fff', margin: '0 0 2px' }}>Laura G. ⭐⭐⭐⭐⭐</p>
+                      <p style={{ fontSize: 7, color: '#d1d5db', margin: 0, lineHeight: 1.2 }}>
+                        {lang === 'es' ? '"Excelente calidad, llegó antes de lo esperado."' : '"Excelente qualidade, chegou antes do esperado."'}
+                      </p>
+                    </div>
+
+                    {/* Notificación de Compra en Vivo */}
+                    <div style={{ background: '#111827', border: '1px solid #10B981', borderRadius: 6, padding: '4px 6px', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <Bell size={9} color="#10B981" />
+                      <span style={{ fontSize: 7, color: '#fff', fontWeight: 700 }}>{lang === 'es' ? 'Lucas de Córdoba compró recién' : 'Lucas de SP comprou agora'}</span>
+                    </div>
+                  </div>
+                }
+              />
+            </AppStoreBannerWrapper>
+
+            {/* ── BANNER 5: Tus Estilos, Tus Colores (Customización & ROI) ── */}
+            <AppStoreBannerWrapper label="5 · Customización Cero Código & ROI">
+              <BannerLayout
+                left={
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <Settings size={12} style={{ color: '#10B981' }} />
+                      <span style={{ fontSize: 8, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>
+                        {lang === 'es' ? '100% Personalizable' : '100% Personalizável'}
+                      </span>
+                    </div>
+                    <h2 style={{ fontSize: 16, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.15 }}>
+                      {lang === 'es' ? (
+                        <>Tus estilos, <span style={{ color: '#10B981' }}>tus colores</span></>
+                      ) : (
+                        <>Seus estilos, <span style={{ color: '#10B981' }}>suas cores</span></>
+                      )}
+                    </h2>
+                    <p style={{ fontSize: 9, color: '#9ca3af', margin: 0, lineHeight: 1.3 }}>
+                      {lang === 'es' ? 'Customizá los widgets con los estilos y colores de tu marca sin saber de código.' : 'Customize os widgets com as cores e estilos da sua marca sem saber código.'}
+                    </p>
+                  </>
+                }
+                right={
+                  <div style={{ width: '100%', background: '#0a1a12', border: '1px solid rgba(16,185,129,0.35)', borderRadius: 8, padding: 8, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {/* Selector de Colores UI Mockup */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#111827', padding: '4px 6px', borderRadius: 4 }}>
+                      <span style={{ fontSize: 7, color: '#d1d5db', fontWeight: 600 }}>{lang === 'es' ? 'Color de Botón' : 'Cor do Botão'}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <div style={{ width: 8, height: 8, background: '#10B981', borderRadius: '50%' }} />
+                        <span style={{ fontSize: 7, color: '#fff', fontFamily: 'monospace' }}>#10B981</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#111827', padding: '4px 6px', borderRadius: 4 }}>
+                      <span style={{ fontSize: 7, color: '#d1d5db', fontWeight: 600 }}>{lang === 'es' ? 'Badge Más Vendido' : 'Badge Mais Vendido'}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <div style={{ width: 8, height: 8, background: '#f87171', borderRadius: '50%' }} />
+                        <span style={{ fontSize: 7, color: '#fff', fontFamily: 'monospace' }}>#F87171</span>
+                      </div>
+                    </div>
+
+                    {/* Métrica de ROI Live */}
+                    <div style={{ background: '#061e14', border: '1px solid #10B981', borderRadius: 4, padding: '4px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 7, color: '#fff', fontWeight: 800 }}>ROI {lang === 'es' ? 'en Tiempo Real' : 'Tempo Real'}</span>
+                      <span style={{ fontSize: 8, color: '#10B981', fontWeight: 900 }}>+32.8%</span>
+                    </div>
+                  </div>
+                }
+              />
+            </AppStoreBannerWrapper>
+
+            {/* COPY PARNERS */}
             <CopyBlock
               id="copy-appstore"
               title={lang === 'es' ? 'Copy Portal Partners AR' : 'Copy Portal Partners BR'}
@@ -743,10 +620,12 @@ export default function BannersPage() {
           </div>
         )}
 
-        {/* ════════ INSTAGRAM SEMANA 1 ════════ */}
+        {/* ====================================================================
+            INSTAGRAM SEMANA 1
+            ==================================================================== */}
         {activeTab === 'instagram' && (
           <div>
-            <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 8, marginBottom: 18 }}>
+            <div style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 6, marginBottom: 14 }}>
               {[
                 { id: 'lunes', label: 'Lun' },
                 { id: 'martes', label: 'Mar' },
@@ -758,15 +637,14 @@ export default function BannersPage() {
                   key={d.id}
                   onClick={() => setSelectedDay(d.id as typeof selectedDay)}
                   style={{
-                    padding: '8px 12px',
-                    borderRadius: 8,
+                    padding: '6px 10px',
+                    borderRadius: 6,
                     border: '1px solid rgba(16,185,129,0.3)',
                     background: selectedDay === d.id ? '#10B981' : 'rgba(6,30,20,0.6)',
                     color: selectedDay === d.id ? '#000' : '#d1d5db',
                     fontWeight: 800,
-                    fontSize: 11,
+                    fontSize: 10,
                     cursor: 'pointer',
-                    whiteSpace: 'nowrap',
                   }}
                 >
                   {d.label}
@@ -774,119 +652,34 @@ export default function BannersPage() {
               ))}
             </div>
 
-            <div
-              style={{
-                background: 'linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(6,30,20,0.9) 100%)',
-                border: '1px solid rgba(16,185,129,0.3)',
-                borderRadius: 14,
-                padding: 16,
-                marginBottom: 20,
-              }}
-            >
-              <h2 style={{ fontSize: 14, fontWeight: 800, color: '#fff', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Layers size={16} style={{ color: '#10B981' }} />
-                Ficha · {selectedDay.toUpperCase()}
-              </h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                <div style={{ background: 'rgba(0,0,0,0.3)', padding: 10, borderRadius: 8 }}>
-                  <span style={{ fontSize: 9, color: '#6b7280', fontWeight: 700 }}>HORARIO</span>
-                  <p style={{ fontSize: 12, fontWeight: 800, color: '#fff', margin: '2px 0 0' }}>
-                    {selectedDay === 'martes' || selectedDay === 'jueves' ? '19:30 · Reel' : '11:30 · Carrusel'}
-                  </p>
-                </div>
-                <div style={{ background: 'rgba(0,0,0,0.3)', padding: 10, borderRadius: 8 }}>
-                  <span style={{ fontSize: 9, color: '#6b7280', fontWeight: 700 }}>OFERTA</span>
-                  <p style={{ fontSize: 11, fontWeight: 800, color: '#10B981', margin: '2px 0 0' }}>50 Widgets + 6 funciones</p>
-                </div>
+            <SlideWrapper label={`${selectedDay.toUpperCase()} · Slide`}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 900, color: '#fff', margin: 0 }}>
+                  50 Widgets + 6 funciones para impulsar tu Tiendanube 🚀
+                </h3>
               </div>
-            </div>
+            </SlideWrapper>
 
-            {selectedDay === 'lunes' && (
-              <>
-                <SlideWrapper label="Lunes · Hook">
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
-                    <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.2 }}>
-                      ¿Ven tus productos pero <span style={{ color: '#f87171' }}>no compran</span>? ⏱️
-                    </h3>
-                    <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>Activá urgencia real en 2 minutos.</p>
-                  </div>
-                </SlideWrapper>
-                <CopyBlock id="ig-lunes" title="Copy Lunes" text={copyLunes} copied={copiedId === 'ig-lunes'} onCopy={() => handleCopy('ig-lunes', copyLunes)} />
-              </>
-            )}
-
-            {selectedDay === 'martes' && (
-              <>
-                <div style={{ background: '#061e14', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
-                  <h3 style={{ fontSize: 13, fontWeight: 800, color: '#10B981', margin: '0 0 8px' }}>🎬 Reel · Buscador por Voz</h3>
-                  <p style={{ fontSize: 12, color: '#d1d5db', lineHeight: 1.55, margin: 0 }}>
-                    1. Celular en Tiendanube<br />
-                    2. Mic Nevux → &quot;Zapatillas negras 42&quot;<br />
-                    3. Resultado al instante<br />
-                    4. CTA: 50 Widgets + 6 funciones...
-                  </p>
-                </div>
-                <CopyBlock id="ig-martes" title="Copy Martes" text={copyMartes} copied={copiedId === 'ig-martes'} onCopy={() => handleCopy('ig-martes', copyMartes)} />
-              </>
-            )}
-
-            {selectedDay === 'miercoles' && (
-              <>
-                <SlideWrapper label="Miércoles · Hook">
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
-                    <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.2 }}>
-                      Subí el <span style={{ color: '#10B981' }}>ticket promedio</span> sin más ads 🚚
-                    </h3>
-                  </div>
-                </SlideWrapper>
-                <CopyBlock id="ig-mier" title="Copy Miércoles" text={copyMiercoles} copied={copiedId === 'ig-mier'} onCopy={() => handleCopy('ig-mier', copyMiercoles)} />
-              </>
-            )}
-
-            {selectedDay === 'jueves' && (
-              <>
-                <div style={{ background: '#061e14', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
-                  <h3 style={{ fontSize: 13, fontWeight: 800, color: '#10B981', margin: '0 0 8px' }}>🎬 Reel · Raspá y Gana</h3>
-                  <p style={{ fontSize: 12, color: '#d1d5db', lineHeight: 1.55, margin: 0 }}>
-                    1. Raspar tarjeta flotante<br />
-                    2. Ganar cupón + capturar mail<br />
-                    3. CTA: 50 Widgets + 6 funciones...
-                  </p>
-                </div>
-                <CopyBlock id="ig-jue" title="Copy Jueves" text={copyJueves} copied={copiedId === 'ig-jue'} onCopy={() => handleCopy('ig-jue', copyJueves)} />
-              </>
-            )}
-
-            {selectedDay === 'viernes' && (
-              <>
-                <SlideWrapper label="Viernes · Hook">
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
-                    <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.2 }}>
-                      Así se ve una <span style={{ color: '#10B981' }}>Tiendanube</span> optimizada 🚀
-                    </h3>
-                  </div>
-                </SlideWrapper>
-                <SlideWrapper label="Viernes · CTA">
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 12, textAlign: 'center' }}>
-                    <div style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: 10, padding: 12, width: '100%' }}>
-                      <p style={{ fontSize: 11, color: '#fff', fontWeight: 800, margin: 0 }}>
-                        50 Widgets + 6 funciones para impulsar tu Tiendanube
-                      </p>
-                    </div>
-                    <p style={{ fontSize: 16, color: '#10B981', margin: 0, fontWeight: 900 }}>Comentá NEVUX 👇</p>
-                  </div>
-                </SlideWrapper>
-                <CopyBlock id="ig-vie" title="Copy Viernes" text={copyViernes} copied={copiedId === 'ig-vie'} onCopy={() => handleCopy('ig-vie', copyViernes)} />
-              </>
-            )}
+            <CopyBlock
+              id="ig-copy"
+              title={`Copy ${selectedDay.toUpperCase()}`}
+              text={
+                selectedDay === 'lunes' ? copyLunes :
+                selectedDay === 'martes' ? copyMartes :
+                selectedDay === 'miercoles' ? copyMiercoles :
+                selectedDay === 'jueves' ? copyJueves : copyViernes
+              }
+              copied={copiedId === 'ig-copy'}
+              onCopy={() => handleCopy('ig-copy', selectedDay)}
+            />
           </div>
         )}
 
-        <div style={{ marginTop: 36, paddingTop: 16, borderTop: '1px solid rgba(16,185,129,0.12)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: 11, color: '#6b7280' }}>Nevux · Banners compactos listos para captura</span>
-          <NevuxLogo size={14} />
+        <div style={{ marginTop: 24, paddingTop: 12, borderTop: '1px solid rgba(16,185,129,0.12)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: 10, color: '#6b7280' }}>Nevux · Assets Oficiales 16:10</span>
+          <NevuxLogo size={12} />
         </div>
       </main>
     </div>
   );
-          }
+            }
