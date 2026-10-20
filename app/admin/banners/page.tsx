@@ -7,28 +7,19 @@ import {
   Copy,
   Check,
   Layers,
-  Eye,
-  Image as ImageIcon,
-  Clock,
-  ChevronRight,
-  Zap,
+  ImageIcon,
   Sparkles,
   TrendingUp,
   MessageCircle,
   Grid,
   Bot,
   ShieldCheck,
-  Rocket,
-  BarChart3,
   ShoppingCart,
   Bell,
   Star,
   Calendar,
   Mic,
-  Gift,
   Settings,
-  Play,
-  Flame,
 } from 'lucide-react';
 
 /* ─── Logo Oficial NEVUX ─── */
@@ -74,7 +65,7 @@ function NevuxLogo({ size = 24 }: { size?: number }) {
   );
 }
 
-/* ─── Banner App Store COMPACTO (fácil de capturar) ─── */
+/* ─── Banner App Store COMPACTO (Fácil de capturar horizontalmente) ─── */
 function AppStoreBannerWrapper({
   label,
   children,
@@ -99,7 +90,7 @@ function AppStoreBannerWrapper({
       >
         <ImageIcon size={12} /> {label}
       </div>
-      {/* maxWidth 520 → entra bien en pantalla y captura horizontal */}
+      {/* maxWidth 520 para capturas horizontales cómodas */}
       <div
         style={{
           aspectRatio: '16/10',
@@ -140,7 +131,7 @@ function AppStoreBannerWrapper({
             pointerEvents: 'none',
           }}
         />
-        {/* Logo SOLO arriba izquierda */}
+        {/* Logo Nevux ÚNICAMENTE en la parte superior izquierda */}
         <div style={{ position: 'absolute', top: 14, left: 16, zIndex: 10 }}>
           <NevuxLogo size={16} />
         </div>
@@ -173,7 +164,7 @@ function BannerLayout({ left, right }: { left: React.ReactNode; right: React.Rea
         paddingTop: 22,
       }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8, pr: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8, paddingRight: 8 }}>
         {left}
       </div>
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
