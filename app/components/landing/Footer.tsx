@@ -84,7 +84,7 @@ export default function Footer() {
                 maxWidth: "300px",
               }}
             >
-              La suite integral de optimización para Tiendanube. 26 widgets de conversión probados y asistentes de Inteligencia Artificial para multiplicar tu ticket promedio.
+              La suite integral de optimización para Tiendanube. 50 widgets de conversión probados y asistentes de Inteligencia Artificial para multiplicar tu ticket promedio.
             </p>
 
             {/* Badge Oficial Tiendanube */}
@@ -118,7 +118,7 @@ export default function Footer() {
             <ul style={listStyle}>
               <li>
                 <a href="#widgets" style={linkStyle}>
-                  26 Widgets de Conversión
+                  50 Widgets de Conversión
                 </a>
               </li>
               <li>
@@ -277,4 +277,4 @@ export default function Footer() {
       </div>
     </footer>
   );
-                 }
+                   }
