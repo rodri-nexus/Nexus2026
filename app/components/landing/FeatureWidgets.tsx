@@ -50,7 +50,7 @@ interface WidgetItem {
 }
 
 const CATEGORIES: { id: CategoryId; label: string; icon: string }[] = [
-  { id: "todos", label: "Todos (26)", icon: "⚡" },
+  { id: "todos", label: "Todos (50)", icon: "⚡" },
   { id: "urgencia", label: "Urgencia & Escasez", icon: "🔥" },
   { id: "aov", label: "Aumentar Ticket (AOV)", icon: "📦" },
   { id: "confianza", label: "Confianza & Social Proof", icon: "🛡️" },
@@ -437,7 +437,7 @@ export default function FeatureWidgets() {
               margin: "0 0 1rem 0",
             }}
           >
-            26 Widgets Diseñados para{" "}
+            50 Widgets Diseñados para{" "}
             <span
               style={{
                 background: "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
