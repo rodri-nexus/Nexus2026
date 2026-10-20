@@ -199,7 +199,7 @@ export default function Hero() {
           }}
         >
           La suite definitiva de optimización para Tiendanube. Activá en <strong style={{ color: "#ffffff" }}>1 solo clic</strong>{" "}
-          <strong style={{ color: "#10B981" }}>26 widgets de conversión probados</strong> y{" "}
+          <strong style={{ color: "#10B981" }}>50 widgets de conversión probados</strong> y{" "}
           <strong style={{ color: "#ffffff" }}>6 motores de Inteligencia Artificial</strong> que eliminan dudas,
           multiplican el ticket promedio y recuperan carritos por WhatsApp en piloto automático.
         </motion.p>
@@ -224,7 +224,7 @@ export default function Hero() {
           </a>
 
           <a href="#widgets" style={ctaSecondaryStyle}>
-            <span>Explorar los 26 Widgets</span>
+            <span>Explorar los 50 Widgets</span>
             <Zap size={16} color="#10B981" />
           </a>
         </motion.div>
@@ -582,4 +582,4 @@ export default function Hero() {
       </div>
     </section>
   );
-        }
+}
