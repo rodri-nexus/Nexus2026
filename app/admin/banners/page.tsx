@@ -235,7 +235,7 @@ export default function MarketingAssetsPage() {
                 padding: 16,
                 display: 'flex',
                 flexDirection: 'column',
-                justify: 'space-between',
+                justifyContent: 'space-between',
                 position: 'relative',
                 boxShadow: '0 20px 40px rgba(0,0,0,0.8)'
               }}>
@@ -258,7 +258,7 @@ export default function MarketingAssetsPage() {
                     </p>
                   </div>
 
-                  {/* Loyalty Benefits Card (Exact terms from Screenshot 1) */}
+                  {/* Loyalty Benefits Card */}
                   <div style={{ backgroundColor: '#0B1512', border: '1px solid rgba(16, 185, 129, 0.4)', borderRadius: 12, padding: 10 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                       <Gift size={14} color="#10B981" />
@@ -308,7 +308,7 @@ export default function MarketingAssetsPage() {
             </div>
           </div>
 
-          {/* Loyalty Rewards Breakdown Section (From Screenshot 1) */}
+          {/* Loyalty Rewards Breakdown Section */}
           <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 16, padding: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
               <Gift size={24} color="#10B981" />
@@ -356,7 +356,7 @@ export default function MarketingAssetsPage() {
             </div>
           </div>
 
-          {/* Lo que se viene en Nevux Section (From Screenshots 2 & 3) */}
+          {/* Lo que se viene en Nevux Section */}
           <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 16, padding: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
               <span style={{ backgroundColor: '#10B981', color: '#000', padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 900 }}>
@@ -446,7 +446,7 @@ export default function MarketingAssetsPage() {
               padding: 32,
               display: 'flex',
               flexDirection: 'column',
-              justify: 'space-between',
+              justifyContent: 'space-between',
               position: 'relative',
               overflow: 'hidden'
             }}>
@@ -564,7 +564,7 @@ export default function MarketingAssetsPage() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justify: 'center',
+          justifyContent: 'center',
           padding: 24
         }}>
           <button
@@ -598,7 +598,7 @@ export default function MarketingAssetsPage() {
               padding: 64,
               display: 'flex',
               flexDirection: 'column',
-              justify: 'space-between',
+              justifyContent: 'space-between',
               boxSizing: 'border-box'
             }}>
               {/* Header */}
@@ -641,4 +641,4 @@ export default function MarketingAssetsPage() {
 
     </div>
   );
-              }
+                          }
