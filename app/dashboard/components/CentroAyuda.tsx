@@ -282,44 +282,46 @@ export default function CentroAyuda() {
       </div>
 
       {/* ═══════════════════════════════════════════
-          TARJETA COMUNIDAD INSTAGRAM
+          TARJETA COMUNIDAD INSTAGRAM (ESTILO NEVUX)
       ═══════════════════════════════════════════ */}
       <div
         style={{
-          background: "linear-gradient(135deg, rgba(254, 242, 242, 0.6) 0%, rgba(253, 242, 248, 0.8) 100%)",
-          border: "1.5px solid #fbcfe8",
+          background: "#111827",
+          backgroundImage: "radial-gradient(circle at top right, rgba(16, 185, 129, 0.15), transparent 60%)",
+          border: "1.5px solid rgba(16, 185, 129, 0.3)",
           borderRadius: "16px",
           padding: "1.1rem 1.25rem",
           textAlign: "center",
           position: "relative",
           zIndex: 1,
+          boxShadow: "0 8px 20px rgba(0, 0, 0, 0.08)",
         }}
       >
         <div
           style={{
-            fontSize: "0.9rem",
+            fontSize: "0.95rem",
             fontWeight: 800,
-            color: "#831843",
-            marginBottom: "0.25rem",
+            color: "#ffffff",
+            marginBottom: "0.3rem",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: "0.45rem",
           }}
         >
-          <Instagram size={18} color="#db2777" />
+          <Instagram size={18} color="#10B981" />
           <span>¡Seguinos en Instagram!</span>
         </div>
 
         <p
           style={{
-            fontSize: "0.8rem",
-            color: "#9d174d",
-            lineHeight: 1.4,
+            fontSize: "0.82rem",
+            color: "#9ca3af",
+            lineHeight: 1.45,
             margin: "0 0 0.85rem 0",
           }}
         >
-          Sumate a nuestra comunidad <strong style={{ color: "#831843" }}>@nevux.app</strong> para enterarte de las novedades, tips de ventas y nuevos lanzamientos.
+          Sumate a nuestra comunidad <strong style={{ color: "#10B981" }}>@nevux.app</strong> para enterarte de las novedades, tips de ventas y nuevos lanzamientos.
         </p>
 
         <a
@@ -331,14 +333,14 @@ export default function CentroAyuda() {
             alignItems: "center",
             justifyContent: "center",
             gap: "0.45rem",
-            background: "linear-gradient(135deg, #e1306c 0%, #c13584 50%, #833ab4 100%)",
-            color: "#ffffff",
+            background: "#10B981",
+            color: "#0b0f19",
             padding: "0.65rem 1.15rem",
             borderRadius: "999px",
             fontSize: "0.82rem",
             fontWeight: 800,
             textDecoration: "none",
-            boxShadow: "0 4px 12px rgba(225, 48, 108, 0.25)",
+            boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
             transition: "all 0.2s ease",
             cursor: "pointer",
             width: "100%",
@@ -352,4 +354,4 @@ export default function CentroAyuda() {
       </div>
     </motion.section>
   );
-        }
+      }
