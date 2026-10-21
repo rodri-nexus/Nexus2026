@@ -1,3 +1,4 @@
+// app/dashboard/components/CentroAyuda.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -8,12 +9,14 @@ import {
   MessageCircle,
   Mail,
   Sparkles,
+  Instagram,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 export default function CentroAyuda() {
   const whatsappUrl =
     "https://wa.me/5493435042812?text=Hola%20Nevux!%20%F0%9F%91%8B%20Estoy%20creando%20un%20widget%20en%20mi%20tienda%20y%20tengo%20una%20duda.%20%C2%BFMe%20ayudan%20paso%20a%20paso%3F";
+  const instagramUrl = "https://www.instagram.com/nevux.app?rpxt=Z25seW0wNW5xcHJp";
 
   return (
     <motion.section
@@ -211,6 +214,7 @@ export default function CentroAyuda() {
           gap: "0.5rem",
           position: "relative",
           zIndex: 1,
+          marginBottom: "1.25rem",
         }}
       >
         <Link
@@ -276,6 +280,76 @@ export default function CentroAyuda() {
           <span>Email de soporte</span>
         </a>
       </div>
+
+      {/* ═══════════════════════════════════════════
+          TARJETA COMUNIDAD INSTAGRAM
+      ═══════════════════════════════════════════ */}
+      <div
+        style={{
+          background: "linear-gradient(135deg, rgba(254, 242, 242, 0.6) 0%, rgba(253, 242, 248, 0.8) 100%)",
+          border: "1.5px solid #fbcfe8",
+          borderRadius: "16px",
+          padding: "1.1rem 1.25rem",
+          textAlign: "center",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        <div
+          style={{
+            fontSize: "0.9rem",
+            fontWeight: 800,
+            color: "#831843",
+            marginBottom: "0.25rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.45rem",
+          }}
+        >
+          <Instagram size={18} color="#db2777" />
+          <span>¡Seguinos en Instagram!</span>
+        </div>
+
+        <p
+          style={{
+            fontSize: "0.8rem",
+            color: "#9d174d",
+            lineHeight: 1.4,
+            margin: "0 0 0.85rem 0",
+          }}
+        >
+          Sumate a nuestra comunidad <strong style={{ color: "#831843" }}>@nevux.app</strong> para enterarte de las novedades, tips de ventas y nuevos lanzamientos.
+        </p>
+
+        <a
+          href={instagramUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.45rem",
+            background: "linear-gradient(135deg, #e1306c 0%, #c13584 50%, #833ab4 100%)",
+            color: "#ffffff",
+            padding: "0.65rem 1.15rem",
+            borderRadius: "999px",
+            fontSize: "0.82rem",
+            fontWeight: 800,
+            textDecoration: "none",
+            boxShadow: "0 4px 12px rgba(225, 48, 108, 0.25)",
+            transition: "all 0.2s ease",
+            cursor: "pointer",
+            width: "100%",
+            maxWidth: "300px",
+            boxSizing: "border-box",
+          }}
+        >
+          <Instagram size={16} />
+          <span>Seguir @nevux.app en Instagram</span>
+        </a>
+      </div>
     </motion.section>
   );
-          }
+        }
