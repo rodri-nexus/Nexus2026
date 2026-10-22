@@ -1,20 +1,20 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@supabase/supabase-js";
 import { 
   Bot, 
   Send, 
   Settings, 
-  MessageSquare, 
-  ShoppingBag, 
-  Zap, 
-  ArrowRight,
-  User
+  MessageSquare
 } from "lucide-react";
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 export default function VendedorIAPage() {
-  const supabase = createClientComponentClient();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -46,7 +46,7 @@ export default function VendedorIAPage() {
       setLoading(false);
     }
     loadData();
-  }, [supabase]);
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -55,12 +55,14 @@ export default function VendedorIAPage() {
   }, [messages]);
 
   const saveSettings = async () => {
+    if (!user) return;
     setSaving(true);
     await fetch("/api/ai/virtual-salesman", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "save",
-        user_id: user?.id,
+        user_id: user.id,
         settings
       })
     });
@@ -78,9 +80,10 @@ export default function VendedorIAPage() {
     try {
       const res = await fetch("/api/ai/virtual-salesman", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "chat",
-          user_id: user?.id, // CRÍTICO: Enviamos el ID para que el backend busque la tienda
+          user_id: user?.id,
           message: input,
           history: messages
         })
@@ -228,4 +231,4 @@ export default function VendedorIAPage() {
       </div>
     </div>
   );
-                                                                          }
+      }
