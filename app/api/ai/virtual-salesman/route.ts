@@ -201,4 +201,4 @@ export async function GET(req: Request) {
   const userId = searchParams.get("user_id");
   const { data } = await supabase.from("vendedor_ia_settings").select("*").eq("user_id", userId).maybeSingle();
   return NextResponse.json(data || {});
-                }
+    }
