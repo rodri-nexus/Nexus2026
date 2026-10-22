@@ -6,8 +6,12 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const ADMIN_EMAIL = "nevuxapp@gmail.com";
 
 // Usar dominio verificado en Resend (nevux.ar).
+// Si la variable de entorno en Vercel tiene "resend.dev", la descartamos para forzar el dominio oficial.
+const envFrom = process.env.RESEND_FROM_EMAIL;
 const FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL || "Nevux <noreply@nevux.ar>";
+  envFrom && !envFrom.includes("resend.dev")
+    ? envFrom
+    : "Nevux <noreply@nevux.ar>";
 
 interface SendEmailParams {
   to: string;
@@ -24,7 +28,7 @@ interface SendEmailResult {
 
 /**
  * Envío base a Resend vía fetch nativo (sin SDK pesado, ultra liviano).
- * Devuelve { success, error, id } para poder mostrar el motivo real al usuario.
+ * Devuelve { success, error, id } con el detalle exacto de la respuesta de Resend.
  */
 async function sendEmail({
   to,
@@ -100,19 +104,8 @@ async function sendEmail({
         to
       );
 
-      let friendly = resendMsg;
-      if (
-        response.status === 403 ||
-        /only send testing emails|verify a domain|not verified/i.test(resendMsg)
-      ) {
-        friendly =
-          "Resend requiere verificar nevux.ar en resend.com/domains y vincularlo en Vercel.";
-      } else if (response.status === 401 || /api key|unauthorized/i.test(resendMsg)) {
-        friendly =
-          "API key de Resend inválida o revocada. Revisá RESEND_API_KEY en Vercel.";
-      } else if (response.status === 422) {
-        friendly = `Resend rechazó el correo: ${resendMsg}`;
-      }
+      // Mostrar el mensaje transparente y exacto de Resend para diagnóstico
+      const friendly = `Resend [HTTP ${response.status}]: ${resendMsg}`;
 
       return { success: false, error: friendly };
     }
@@ -638,4 +631,4 @@ function escapeHtml(str: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
-    }
+}
