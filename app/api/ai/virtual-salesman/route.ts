@@ -160,7 +160,6 @@ export async function POST(req: Request) {
                 };
               });
 
-              // Extraer categorías desde productos si la API de categorías devolvió array vacío
               if (categoriesList.length === 0) {
                 const extracted = new Set<string>();
                 catalogContext.forEach(item => {
@@ -182,59 +181,68 @@ export async function POST(req: Request) {
 Eres un asesor comercial humano, experto, súper cálido, servicial y amable de la tienda online. Tu meta es guiar al cliente de manera fluida y atenta para que encuentre lo que busca y disfrute su experiencia de compra.
 
 CATEGORÍAS DE LA TIENDA:
-${categoriesList.length > 0 ? categoriesList.join(", ") : "Audio y Tecnología, Humidificadores y Hogar, Accesorios"}
+${categoriesList.length > 0 ? categoriesList.join(", ") : "Audio y Tecnología, Humidificadores, Smartwatches, Fitness, Belleza, Hogar"}
 
 CATÁLOGO COMPLETO EN VIVO CON PRECIOS Y CATEGORÍAS:
 ${JSON.stringify(catalogContext, null, 2)}
 
 ESTRATEGIA DE ATENCIÓN Y VENTA PASO A PASO:
 1. SI EL CLIENTE PREGUNTA QUÉ PRODUCTOS HAY O HACE UNA PREGUNTA GENERAL ("¿Qué vendés?", "¿Qué productos tenés?"):
-   - Saludá de forma muy amable.
-   - Presentá primero las CATEGORÍAS O RUBROS PRINCIPALES de la tienda (ej: Audio & Parlantes, Humidificadores, Auriculares VIP).
+   - Saludá amablemente.
+   - Presentá primero las CATEGORÍAS O RUBROS PRINCIPALES de la tienda.
    - Preguntale al cliente qué categoría le interesa explorar hoy.
 
-2. SI EL CLIENTE ELIGE UNA CATEGORÍA O PREGUNTA POR ALGO ESPECÍFICO (ej: "Humidificadores", "Auriculares", "Parlantes"):
-   - Mencioná 2 o 3 productos destacados de esa categoría con sus nombres exactos y sus precios reales.
-   - Preguntale si desea conocer detalles de alguno o ver formas de pago y envíos.
+2. SI EL CLIENTE ELIGE O PREGUNTA POR UNA CATEGORÍA O PRODUCTO ESPECÍFICO (ej: "Humidificadores", "Auriculares", "Smartwatches"):
+   - Mencioná de inmediato 2 a 4 productos concretos de esa categoría con sus nombres exactos y precios reales del catálogo.
+   - Preguntale si desea conocer detalles de alguno o asesoramiento para comprar por WhatsApp.
 
-3. SI EL CLIENTE HACE PREGUNTAS TÉCNICAS, STOCK, TALLES O COLORES:
-   - Responde con precisión basándote en los datos reales del catálogo.
-
-4. TONO Y FORMATO:
-   - Hablá como un vendedor real en un showroom (cálido, cercano, amigable).
-   - MÁXIMO 2 A 4 ORACIONES POR RESPUESTA. Jamás escribas textos gigantes.
-   - Si el cliente demuestra intención clara de compra o pide asesoramiento personalizado, invitá cordialmente a continuar el pedido por WhatsApp.
+3. TONO Y FORMATO:
+   - Hablá como una persona real (cálida, empática, amigable).
+   - MÁXIMO 2 A 4 ORACIONES POR RESPUESTA.
+   - Ofrece derivar a WhatsApp si el cliente demuestra intención clara de compra.
 `;
 
       const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
       if (GEMINI_API_KEY) {
         try {
-          const contents: any[] = [
-            {
-              role: "user",
-              parts: [{ text: `INSTRUCCIONES DE ATENCIÓN CONCIERGE:\n${systemInstruction}` }]
-            },
-            {
-              role: "model",
-              parts: [{ text: "Entendido perfectamente. Seré un asesor comercial súper humano y servicial. Cuando me pregunten en general, presentaré primero las categorías de la tienda para orientar al cliente paso a paso." }]
-            }
-          ];
+          // Construcción estricta de turnos para Gemini API (User -> Model -> User -> Model)
+          const geminiContents: any[] = [];
 
           if (Array.isArray(history)) {
             history.forEach((h: any) => {
-              const textContent = h.content || h.text;
-              if (textContent) {
-                const role = (h.role === "user" || h.sender === "user") ? "user" : "model";
-                contents.push({ role, parts: [{ text: textContent }] });
+              const textContent = (h.content || h.text || "").trim();
+              if (!textContent) return;
+
+              const role = (h.role === "user" || h.sender === "user") ? "user" : "model";
+
+              // Gemini exige que el primer mensaje en contents sea de rol "user"
+              if (geminiContents.length === 0 && role !== "user") {
+                return;
+              }
+
+              const lastTurn = geminiContents[geminiContents.length - 1];
+              if (lastTurn && lastTurn.role === role) {
+                lastTurn.parts[0].text += `\n${textContent}`;
+              } else {
+                geminiContents.push({
+                  role,
+                  parts: [{ text: textContent }]
+                });
               }
             });
           }
 
-          contents.push({
-            role: "user",
-            parts: [{ text: message || "Hola, ¿qué productos tenés disponibles?" }]
-          });
+          const currentMsgText = (message || "Hola, ¿qué productos tenés disponibles?").trim();
+          const lastTurn = geminiContents[geminiContents.length - 1];
+          if (lastTurn && lastTurn.role === "user") {
+            lastTurn.parts[0].text += `\n${currentMsgText}`;
+          } else {
+            geminiContents.push({
+              role: "user",
+              parts: [{ text: currentMsgText }]
+            });
+          }
 
           const geminiRes = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
@@ -242,10 +250,13 @@ ESTRATEGIA DE ATENCIÓN Y VENTA PASO A PASO:
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                contents,
+                system_instruction: {
+                  parts: [{ text: systemInstruction }]
+                },
+                contents: geminiContents,
                 generationConfig: {
                   temperature: 0.7,
-                  maxOutputTokens: 250
+                  maxOutputTokens: 300
                 }
               })
             }
@@ -260,13 +271,15 @@ ESTRATEGIA DE ATENCIÓN Y VENTA PASO A PASO:
                 reply: aiText.trim()
               });
             }
+          } else {
+            console.error("Gemini API Error details:", geminiRes.status, await geminiRes.text());
           }
         } catch (geminiErr) {
           console.error("Excepción Gemini API:", geminiErr);
         }
       }
 
-      // Fallback dinámico si Gemini se demora
+      // Fallback dinámico
       const catsFormatted = categoriesList.length > 0 ? categoriesList.join(", ") : "Audio, Humidificadores y Tecnología";
       const fallbackMsg = `¡Hola! Con gusto te cuento. En la tienda contamos con categorías como: ${catsFormatted}.\n\n¿Qué tipo de producto te gustaría ver hoy?`;
 
