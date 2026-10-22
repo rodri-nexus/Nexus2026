@@ -7,459 +7,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   Bot,
+  Lock,
+  X,
+  ShieldAlert,
   Sparkles,
-  Loader2,
-  CheckCircle2,
-  AlertCircle,
-  Save,
-  Send,
-  MessageCircle,
-  User,
-  ShoppingBag,
-  Zap,
+  Wrench,
 } from "lucide-react";
 import DashboardHeader from "../components/DashboardHeader";
 import SideMenu from "../components/SideMenu";
 import CentroAyuda from "../components/CentroAyuda";
 import { createClient } from "@/lib/supabase-browser";
 
-/* ═══════════════════════════════════════════
-   TIPOS E INTERFACES
-═══════════════════════════════════════════ */
-type PersonalityType = "friendly" | "expert" | "dynamic";
-
-interface VirtualSalesmanConfig {
-  is_active: boolean;
-  agent_name: string;
-  welcome_message: string;
-  agent_avatar: string;
-  personality: PersonalityType;
-  whatsapp_number: string;
-  enable_whatsapp_escalation: boolean;
-  theme_color: string;
-}
-
-interface ChatMessage {
-  id: string;
-  sender: "bot" | "user";
-  text: string;
-  timestamp: string;
-  showWhatsappBtn?: boolean;
-}
-
-interface UserStore {
-  store_id: number;
-  user_id: string;
-}
-
-/* ═══════════════════════════════════════════
-   CONSTANTES Y AVATARES
-═══════════════════════════════════════════ */
-const AVATAR_OPTIONS = ["👩‍💼", "👨‍💼", "🤖", "🛍️", "⚡", "💎"];
-
-const PERSONALITY_OPTIONS: { id: PersonalityType; title: string; desc: string }[] = [
-  {
-    id: "friendly",
-    title: "Amigable y Cálido (Humano)",
-    desc: "Tono empático, cercano y fluido, ideal para orientar y resolver dudas.",
-  },
-  {
-    id: "expert",
-    title: "Asesor Técnico Experto",
-    desc: "Tono profesional y preciso, enfocado en especificaciones de producto.",
-  },
-  {
-    id: "dynamic",
-    title: "Vendedor Dinámico & Promos",
-    desc: "Destaca facilidades de pago, cuotas sin interés y envíos gratis.",
-  },
-];
-
-const DEFAULT_CONFIG: VirtualSalesmanConfig = {
-  is_active: true,
-  agent_name: "Sofía (Asesora Virtual)",
-  welcome_message: "¡Hola! 👋 ¿Buscás algo en especial hoy? Contame y te ayudo a encontrar el producto ideal.",
-  agent_avatar: "👩‍💼",
-  personality: "friendly",
-  whatsapp_number: "",
-  enable_whatsapp_escalation: true,
-  theme_color: "#10B981",
-};
-
-/* ═══════════════════════════════════════════
-   SUB-COMPONENTE: SIMULADOR DE CHAT EN VIVO CON IA
-═══════════════════════════════════════════ */
-function VirtualSalesmanChatSimulator({
-  config,
-  storeId,
-}: {
-  config: VirtualSalesmanConfig;
-  storeId: number | string | null;
-}) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-
-  // Reiniciar chat cuando cambia el mensaje de bienvenida
-  useEffect(() => {
-    setMessages([
-      {
-        id: "msg-welcome",
-        sender: "bot",
-        text: config.welcome_message,
-        timestamp: "Ahora",
-      },
-    ]);
-  }, [config.welcome_message]);
-
-  const handleSendMessage = async (textToSend?: string) => {
-    const text = (textToSend || inputValue).trim();
-    if (!text || isTyping) return;
-
-    const userMsg: ChatMessage = {
-      id: "user-" + Date.now(),
-      sender: "user",
-      text,
-      timestamp: "Ahora",
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setInputValue("");
-    setIsTyping(true);
-
-    try {
-      // Consulta en vivo al backend con IA + Catálogo de Tiendanube
-      const res = await fetch("/api/ai/virtual-salesman", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "chat",
-          store_id: storeId,
-          message: text,
-          history: messages.map((m) => ({
-            role: m.sender === "user" ? "user" : "assistant",
-            content: m.text,
-          })),
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        const aiText = data.response || data.reply;
-        if (aiText) {
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: "bot-" + Date.now(),
-              sender: "bot",
-              text: aiText,
-              timestamp: "Ahora",
-              showWhatsappBtn: Boolean(
-                data.showWhatsappBtn ||
-                  (config.enable_whatsapp_escalation && config.whatsapp_number && text.toLowerCase().includes("whatsapp"))
-              ),
-            },
-          ]);
-          setIsTyping(false);
-          return;
-        }
-      }
-    } catch (err) {
-      console.error("[Simulator Chat Error]:", err);
-    }
-
-    // Fallback en caso de desconexión momentánea
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: "bot-" + Date.now(),
-          sender: "bot",
-          text: "¡Hola! Te cuento que tenemos varios productos geniales disponibles en la tienda. ¿Te gustaría ver opciones en especial?",
-          timestamp: "Ahora",
-          showWhatsappBtn: config.enable_whatsapp_escalation && Boolean(config.whatsapp_number),
-        },
-      ]);
-      setIsTyping(false);
-    }, 800);
-  };
-
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        border: "1.5px solid #e5e7eb",
-        borderRadius: "22px",
-        overflow: "hidden",
-        boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
-        boxSizing: "border-box",
-        display: "flex",
-        flexDirection: "column",
-        height: "540px",
-      }}
-    >
-      {/* Header del Chat */}
-      <div
-        style={{
-          background: config.theme_color,
-          color: "#ffffff",
-          padding: "1rem 1.25rem",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.75rem",
-        }}
-      >
-        <div
-          style={{
-            width: "42px",
-            height: "42px",
-            borderRadius: "50%",
-            background: "#ffffff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "1.4rem",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-            flexShrink: 0,
-          }}
-        >
-          {config.agent_avatar}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontSize: "0.95rem",
-              fontWeight: 800,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {config.agent_name}
-          </div>
-          <div
-            style={{
-              fontSize: "0.72rem",
-              color: "rgba(255,255,255,0.85)",
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-            }}
-          >
-            <span
-              style={{
-                width: "7px",
-                height: "7px",
-                borderRadius: "50%",
-                background: "#4ade80",
-                display: "inline-block",
-              }}
-            />
-            IA Conectada con tu Tienda
-          </div>
-        </div>
-      </div>
-
-      {/* Cuerpo del Chat */}
-      <div
-        style={{
-          flex: 1,
-          padding: "1rem",
-          overflowY: "auto",
-          background: "#f9fafb",
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.75rem",
-        }}
-      >
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: m.sender === "user" ? "flex-end" : "flex-start",
-            }}
-          >
-            <div
-              style={{
-                maxWidth: "84%",
-                padding: "0.75rem 1rem",
-                borderRadius:
-                  m.sender === "user"
-                    ? "16px 16px 4px 16px"
-                    : "16px 16px 16px 4px",
-                background: m.sender === "user" ? config.theme_color : "#ffffff",
-                color: m.sender === "user" ? "#ffffff" : "#111827",
-                fontSize: "0.84rem",
-                lineHeight: 1.45,
-                border: m.sender === "user" ? "none" : "1px solid #e5e7eb",
-                boxShadow: "0 1px 4px rgba(0,0,0,0.03)",
-              }}
-            >
-              {m.text}
-            </div>
-
-            {/* Botón de Derivación a WhatsApp dentro del mensaje */}
-            {m.showWhatsappBtn && config.whatsapp_number && (
-              <a
-                href={`https://wa.me/${config.whatsapp_number.replace(/[^0-9]/g, "")}`}
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  marginTop: "6px",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  background: "#25D366",
-                  color: "#ffffff",
-                  textDecoration: "none",
-                  padding: "0.45rem 0.85rem",
-                  borderRadius: "999px",
-                  fontSize: "0.75rem",
-                  fontWeight: 800,
-                  boxShadow: "0 2px 8px rgba(37, 211, 102, 0.3)",
-                }}
-              >
-                <MessageCircle size={14} />
-                Hablar por WhatsApp
-              </a>
-            )}
-          </div>
-        ))}
-
-        {isTyping && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "0.5rem",
-            }}
-          >
-            <Loader2 size={14} color="#10B981" className="animate-spin" />
-            <span
-              style={{
-                fontSize: "0.75rem",
-                color: "#6b7280",
-                fontStyle: "italic",
-              }}
-            >
-              {config.agent_name} está consultando el catálogo...
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Botones de Preguntas Rápidas */}
-      <div
-        style={{
-          padding: "0.5rem 0.75rem",
-          background: "#ffffff",
-          borderTop: "1px solid #f3f4f6",
-          display: "flex",
-          gap: "6px",
-          overflowX: "auto",
-        }}
-      >
-        {["¿Tenés productos disponibles?", "¿Hay cuotas sin interés?", "Ver recomendaciones"].map(
-          (prompt) => (
-            <button
-              key={prompt}
-              type="button"
-              onClick={() => handleSendMessage(prompt)}
-              style={{
-                whiteSpace: "nowrap",
-                padding: "0.35rem 0.65rem",
-                borderRadius: "999px",
-                border: "1px solid #e5e7eb",
-                background: "#f9fafb",
-                fontSize: "0.72rem",
-                fontWeight: 700,
-                color: "#374151",
-                cursor: "pointer",
-              }}
-            >
-              {prompt}
-            </button>
-          )
-        )}
-      </div>
-
-      {/* Input de Envío */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSendMessage();
-        }}
-        style={{
-          padding: "0.75rem 1rem",
-          background: "#ffffff",
-          borderTop: "1px solid #e5e7eb",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Escribí una duda para probar la IA real..."
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          style={{
-            flex: 1,
-            padding: "0.65rem 0.85rem",
-            borderRadius: "10px",
-            border: "1.5px solid #e5e7eb",
-            fontSize: "0.85rem",
-            outline: "none",
-            fontFamily: "inherit",
-          }}
-        />
-        <button
-          type="submit"
-          disabled={isTyping}
-          style={{
-            background: config.theme_color,
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "10px",
-            width: "38px",
-            height: "38px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: isTyping ? "not-allowed" : "pointer",
-            flexShrink: 0,
-            opacity: isTyping ? 0.6 : 1,
-          }}
-        >
-          <Send size={16} />
-        </button>
-      </form>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL
-═══════════════════════════════════════════ */
 export default function VendedorIaPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  const [store, setStore] = useState<UserStore | null>(null);
-  const [config, setConfig] = useState<VirtualSalesmanConfig>(DEFAULT_CONFIG);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [feedback, setFeedback] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
+  const [showModal, setShowModal] = useState(true);
 
-  // Cargar usuario y configuración previa
   useEffect(() => {
-    let isMounted = true;
-
     async function init() {
       try {
         const supabase = createClient();
@@ -467,90 +31,15 @@ export default function VendedorIaPage() {
           data: { user },
         } = await supabase.auth.getUser();
 
-        if (user && isMounted) {
+        if (user) {
           setUserEmail(user.email || "");
-
-          const { data: storeData } = await supabase
-            .from("stores")
-            .select("store_id, user_id")
-            .eq("user_id", user.id)
-            .eq("is_active", true)
-            .maybeSingle();
-
-          if (storeData && isMounted) {
-            setStore(storeData);
-
-            const res = await fetch(
-              `/api/ai/virtual-salesman?store_id=${storeData.store_id}`
-            );
-            if (res.ok) {
-              const data = await res.json();
-              if (data.settings) {
-                setConfig({
-                  is_active: data.settings.is_active ?? true,
-                  agent_name:
-                    data.settings.agent_name || DEFAULT_CONFIG.agent_name,
-                  welcome_message:
-                    data.settings.welcome_message ||
-                    DEFAULT_CONFIG.welcome_message,
-                  agent_avatar:
-                    data.settings.agent_avatar || DEFAULT_CONFIG.agent_avatar,
-                  personality:
-                    data.settings.personality || DEFAULT_CONFIG.personality,
-                  whatsapp_number: data.settings.whatsapp_number || "",
-                  enable_whatsapp_escalation:
-                    data.settings.enable_whatsapp_escalation ?? true,
-                  theme_color:
-                    data.settings.theme_color || DEFAULT_CONFIG.theme_color,
-                });
-              }
-            }
-          }
         }
       } catch (err) {
-        console.error("Error inicializando Vendedor Virtual IA:", err);
-      } finally {
-        if (isMounted) setLoading(false);
+        console.error("Error al obtener usuario:", err);
       }
     }
-
     init();
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
-
-  const handleSave = async () => {
-    if (!store) return;
-    setSaving(true);
-    setFeedback(null);
-
-    try {
-      const res = await fetch("/api/ai/virtual-salesman", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "save",
-          store_id: store.store_id,
-          ...config,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al guardar");
-
-      setFeedback({
-        type: "success",
-        message: "¡Vendedor Virtual IA guardado y activo con éxito!",
-      });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Error inesperado";
-      setFeedback({ type: "error", message: msg });
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <div
@@ -560,23 +49,29 @@ export default function VendedorIaPage() {
         color: "#000000",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        position: "relative",
       }}
     >
       <DashboardHeader email={userEmail} onMenuClick={() => setMenuOpen(true)} />
       <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
 
+      {/* CONTENIDO PRINCIPAL APAGADO Y DESHABILITADO */}
       <main
+        onClick={() => setShowModal(true)}
         style={{
           maxWidth: "1100px",
           margin: "0 auto",
           padding: "2rem 1.25rem 4rem",
           boxSizing: "border-box",
+          filter: "grayscale(0.85)",
+          opacity: 0.5,
+          cursor: "pointer",
+          userSelect: "none",
         }}
       >
         {/* BREADCRUMB */}
         <div style={{ marginBottom: "1.5rem" }}>
-          <Link
-            href="/dashboard"
+          <div
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -584,26 +79,19 @@ export default function VendedorIaPage() {
               fontSize: "0.85rem",
               fontWeight: 700,
               color: "#6b7280",
-              textDecoration: "none",
               padding: "0.4rem 0.8rem",
               borderRadius: "8px",
-              background: "#f9fafb",
+              background: "#f3f4f6",
               border: "1px solid #e5e7eb",
-              transition: "all 0.15s ease",
             }}
           >
             <ArrowLeft size={15} />
             Volver al Dashboard
-          </Link>
+          </div>
         </div>
 
-        {/* ENCABEZADO */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          style={{ marginBottom: "2rem" }}
-        >
+        {/* ENCABEZADO CON BADGE DE MANTENIMIENTO */}
+        <div style={{ marginBottom: "2rem" }}>
           <div
             style={{
               display: "inline-flex",
@@ -612,17 +100,17 @@ export default function VendedorIaPage() {
               padding: "0.35rem 0.85rem",
               borderRadius: "999px",
               fontSize: "0.75rem",
-              color: "#059669",
+              color: "#d97706",
               fontWeight: 800,
               marginBottom: "0.6rem",
-              background: "rgba(16, 185, 129, 0.12)",
-              border: "1px solid rgba(16, 185, 129, 0.3)",
+              background: "rgba(217, 119, 6, 0.12)",
+              border: "1px solid rgba(217, 119, 6, 0.3)",
               textTransform: "uppercase",
               letterSpacing: "0.04em",
             }}
           >
-            <Bot size={13} color="#10B981" />
-            Asistente de Ventas Conversacional
+            <Lock size={13} color="#d97706" />
+            Función en Calibración y Mantenimiento
           </div>
 
           <h1
@@ -631,476 +119,254 @@ export default function VendedorIaPage() {
               fontSize: "1.85rem",
               fontWeight: 900,
               letterSpacing: "-0.02em",
-              color: "#000000",
+              color: "#374151",
             }}
           >
-            Vendedor Virtual IA & Cierre WhatsApp
+            Vendedor Virtual IA & Cierre WhatsApp 🔒
           </h1>
           <p
             style={{
               margin: 0,
               fontSize: "0.95rem",
-              color: "#6b7280",
+              color: "#9ca3af",
               lineHeight: 1.5,
             }}
           >
-            Atendé las dudas de tus compradores 24/7 con empatía humana, recomendá productos reales con precio y stock, y escalá a WhatsApp para cerrar ventas.
+            Asistente conversacional en etapa de optimización y pruebas de precisión humana.
           </p>
-        </motion.div>
+        </div>
 
-        {/* FEEDBACK TOAST */}
-        <AnimatePresence>
-          {feedback && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              style={{
-                padding: "0.9rem 1.25rem",
-                borderRadius: "12px",
-                background:
-                  feedback.type === "success" ? "#ecfdf5" : "#fef2f2",
-                color: feedback.type === "success" ? "#065f46" : "#991b1b",
-                border: `1px solid ${
-                  feedback.type === "success" ? "#a7f3d0" : "#fecaca"
-                }`,
-                fontSize: "0.88rem",
-                fontWeight: 600,
-                marginBottom: "1.5rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.65rem",
-              }}
-            >
-              {feedback.type === "success" ? (
-                <CheckCircle2 size={18} color="#059669" />
-              ) : (
-                <AlertCircle size={18} color="#dc2626" />
-              )}
-              <span>{feedback.message}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* CONTENIDO PRINCIPAL */}
-        {loading ? (
+        {/* ESTRUCTURA FANTASMA / DESHABILITADA */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "2rem",
+            alignItems: "start",
+          }}
+        >
+          {/* PANEL CONFIGURACIÓN BLOQUEADO */}
           <div
             style={{
+              background: "#f9fafb",
+              border: "1.5px solid #e5e7eb",
+              borderRadius: "16px",
+              padding: "1.5rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.25rem",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyBetween: "space-between" }}>
+              <span style={{ fontSize: "0.9rem", fontWeight: 800, color: "#6b7280" }}>
+                Ajustes del Asesor (Bloqueado)
+              </span>
+              <Lock size={16} color="#9ca3af" />
+            </div>
+            <div
+              style={{
+                height: "180px",
+                background: "#f3f4f6",
+                borderRadius: "12px",
+                border: "1px dashed #d1d5db",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#9ca3af",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+              }}
+            >
+              Mantenimiento programado de motor de IA
+            </div>
+          </div>
+
+          {/* SIMULADOR BLOQUEADO */}
+          <div
+            style={{
+              height: "450px",
+              background: "#f9fafb",
+              border: "1.5px solid #e5e7eb",
+              borderRadius: "22px",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              padding: "4rem 1rem",
-              gap: "0.85rem",
+              gap: "1rem",
+              color: "#9ca3af",
             }}
           >
-            <Loader2 size={32} color="#10B981" className="animate-spin" />
-            <span
-              style={{ fontSize: "0.9rem", color: "#6b7280", fontWeight: 600 }}
-            >
-              Cargando Vendedor Virtual IA...
+            <Wrench size={36} color="#9ca3af" />
+            <span style={{ fontSize: "0.9rem", fontWeight: 700 }}>
+              Simulador temporalmente fuera de servicio
             </span>
           </div>
-        ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-              gap: "2rem",
-              alignItems: "start",
-            }}
-          >
-            {/* COLUMNA IZQUIERDA: CONFIGURADOR */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.25rem",
-              }}
-            >
-              {/* SWITCH ACTIVO */}
-              <div
-                style={{
-                  background: "#ffffff",
-                  border: "1.5px solid #e5e7eb",
-                  borderRadius: "16px",
-                  padding: "1.25rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <div>
-                  <div
-                    style={{
-                      fontSize: "0.95rem",
-                      fontWeight: 800,
-                      color: "#111827",
-                    }}
-                  >
-                    Vendedor Virtual Activo
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "0.78rem",
-                      color: "#6b7280",
-                      marginTop: "2px",
-                    }}
-                  >
-                    Muestra el chat de asistencia flotante en toda la tienda
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setConfig((prev) => ({
-                      ...prev,
-                      is_active: !prev.is_active,
-                    }))
-                  }
-                  style={{
-                    width: "48px",
-                    height: "26px",
-                    borderRadius: "999px",
-                    background: config.is_active ? "#10B981" : "#e5e7eb",
-                    position: "relative",
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "3px",
-                      left: config.is_active ? "25px" : "3px",
-                      width: "20px",
-                      height: "20px",
-                      borderRadius: "50%",
-                      background: "#ffffff",
-                      transition: "all 0.2s",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-                    }}
-                  />
-                </button>
-              </div>
-
-              {/* IDENTIDAD Y AVATAR */}
-              <div
-                style={{
-                  background: "#ffffff",
-                  border: "1.5px solid #e5e7eb",
-                  borderRadius: "16px",
-                  padding: "1.25rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1rem",
-                }}
-              >
-                <div>
-                  <label
-                    style={{
-                      display: "block",
-                      fontSize: "0.82rem",
-                      fontWeight: 700,
-                      marginBottom: "0.3rem",
-                    }}
-                  >
-                    Nombre del Asesor
-                  </label>
-                  <input
-                    type="text"
-                    value={config.agent_name}
-                    onChange={(e) =>
-                      setConfig((prev) => ({
-                        ...prev,
-                        agent_name: e.target.value,
-                      }))
-                    }
-                    style={{
-                      width: "100%",
-                      padding: "0.65rem 0.85rem",
-                      borderRadius: "10px",
-                      border: "1.5px solid #e5e7eb",
-                      fontSize: "0.85rem",
-                      boxSizing: "border-box",
-                      fontFamily: "inherit",
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      display: "block",
-                      fontSize: "0.82rem",
-                      fontWeight: 700,
-                      marginBottom: "0.4rem",
-                    }}
-                  >
-                    Avatar del Asesor
-                  </label>
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    {AVATAR_OPTIONS.map((av) => (
-                      <button
-                        key={av}
-                        type="button"
-                        onClick={() =>
-                          setConfig((prev) => ({
-                            ...prev,
-                            agent_avatar: av,
-                          }))
-                        }
-                        style={{
-                          width: "42px",
-                          height: "42px",
-                          borderRadius: "10px",
-                          border:
-                            config.agent_avatar === av
-                              ? "2px solid #10B981"
-                              : "1px solid #e5e7eb",
-                          background:
-                            config.agent_avatar === av
-                              ? "#ecfdf5"
-                              : "#ffffff",
-                          fontSize: "1.3rem",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        {av}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      display: "block",
-                      fontSize: "0.82rem",
-                      fontWeight: 700,
-                      marginBottom: "0.3rem",
-                    }}
-                  >
-                    Mensaje de Bienvenida
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={config.welcome_message}
-                    onChange={(e) =>
-                      setConfig((prev) => ({
-                        ...prev,
-                        welcome_message: e.target.value,
-                      }))
-                    }
-                    style={{
-                      width: "100%",
-                      padding: "0.65rem 0.85rem",
-                      borderRadius: "10px",
-                      border: "1.5px solid #e5e7eb",
-                      fontSize: "0.85rem",
-                      boxSizing: "border-box",
-                      fontFamily: "inherit",
-                      resize: "none",
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* PERSONALIDAD DEL ASESOR */}
-              <div
-                style={{
-                  background: "#ffffff",
-                  border: "1.5px solid #e5e7eb",
-                  borderRadius: "16px",
-                  padding: "1.25rem",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: "0.9rem",
-                    fontWeight: 800,
-                    color: "#111827",
-                    marginBottom: "0.3rem",
-                  }}
-                >
-                  Tono y Personalidad
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                    marginTop: "0.65rem",
-                  }}
-                >
-                  {PERSONALITY_OPTIONS.map((opt) => {
-                    const isSelected = config.personality === opt.id;
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() =>
-                          setConfig((prev) => ({
-                            ...prev,
-                            personality: opt.id,
-                          }))
-                        }
-                        style={{
-                          padding: "0.75rem",
-                          borderRadius: "12px",
-                          border: isSelected
-                            ? "2px solid #10B981"
-                            : "1px solid #e5e7eb",
-                          background: isSelected ? "#ecfdf5" : "#ffffff",
-                          textAlign: "left",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontSize: "0.85rem",
-                            fontWeight: 800,
-                            color: isSelected ? "#059669" : "#111827",
-                          }}
-                        >
-                          {opt.title}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "0.74rem",
-                            color: "#6b7280",
-                            marginTop: "2px",
-                          }}
-                        >
-                          {opt.desc}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* DERIVACIÓN A WHATSAPP */}
-              <div
-                style={{
-                  background: "#ffffff",
-                  border: "1.5px solid #e5e7eb",
-                  borderRadius: "16px",
-                  padding: "1.25rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.85rem",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <MessageCircle size={18} color="#25D366" />
-                  <span
-                    style={{
-                      fontSize: "0.9rem",
-                      fontWeight: 800,
-                      color: "#111827",
-                    }}
-                  >
-                    Cierre de Ventas por WhatsApp
-                  </span>
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      display: "block",
-                      fontSize: "0.82rem",
-                      fontWeight: 700,
-                      marginBottom: "0.3rem",
-                    }}
-                  >
-                    Número de WhatsApp Oficial (con código de país)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Ej: +5493435042812"
-                    value={config.whatsapp_number}
-                    onChange={(e) =>
-                      setConfig((prev) => ({
-                        ...prev,
-                        whatsapp_number: e.target.value,
-                      }))
-                    }
-                    style={{
-                      width: "100%",
-                      padding: "0.65rem 0.85rem",
-                      borderRadius: "10px",
-                      border: "1.5px solid #e5e7eb",
-                      fontSize: "0.85rem",
-                      boxSizing: "border-box",
-                      fontFamily: "inherit",
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* BOTÓN GUARDAR */}
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={saving}
-                style={{
-                  width: "100%",
-                  padding: "0.95rem",
-                  borderRadius: "12px",
-                  border: "none",
-                  background: "#10B981",
-                  color: "#ffffff",
-                  fontWeight: 800,
-                  fontSize: "0.92rem",
-                  cursor: saving ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.5rem",
-                  boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
-                }}
-              >
-                {saving ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <Save size={18} />
-                    Guardar y Activar Vendedor Virtual
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* COLUMNA DERECHA: SIMULADOR DE CHAT */}
-            <div style={{ position: "sticky", top: "2rem" }}>
-              <VirtualSalesmanChatSimulator
-                config={config}
-                storeId={store?.store_id || null}
-              />
-            </div>
-          </div>
-        )}
+        </div>
 
         {/* CENTRO DE AYUDA */}
         <div style={{ marginTop: "3rem" }}>
           <CentroAyuda />
         </div>
       </main>
+
+      {/* MODAL FLOTANTE PROFESIONAL CENTRADO CON FONDO BORROSO */}
+      <AnimatePresence>
+        {showModal && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              zIndex: 99999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "1.25rem",
+              boxSizing: "border-box",
+              background: "rgba(11, 17, 32, 0.65)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 15 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+              style={{
+                position: "relative",
+                width: "100%",
+                maxWidth: "460px",
+                background: "#ffffff",
+                borderRadius: "24px",
+                padding: "2.25rem 1.75rem 2rem",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.35)",
+                boxSizing: "border-box",
+                textAlign: "center",
+                border: "1px solid rgba(229, 231, 235, 0.8)",
+              }}
+            >
+              {/* BOTÓN CERRAR "X" */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowModal(false);
+                }}
+                style={{
+                  position: "absolute",
+                  top: "1.1rem",
+                  right: "1.1rem",
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "50%",
+                  background: "#f3f4f6",
+                  border: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  color: "#4b5563",
+                  transition: "background 0.15s ease",
+                }}
+              >
+                <X size={18} />
+              </button>
+
+              {/* ICONO DE MANTENIMIENTO / CANDADO CON GLOW */}
+              <div
+                style={{
+                  width: "68px",
+                  height: "68px",
+                  borderRadius: "20px",
+                  background: "linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)",
+                  border: "1px solid #fed7aa",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 1.25rem",
+                  boxShadow: "0 10px 25px -3px rgba(249, 115, 22, 0.15)",
+                }}
+              >
+                <Lock size={32} color="#f97316" />
+              </div>
+
+              {/* TÍTULO */}
+              <h2
+                style={{
+                  margin: "0 0 0.6rem 0",
+                  fontSize: "1.35rem",
+                  fontWeight: 900,
+                  color: "#111827",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                Función en Calibración Final
+              </h2>
+
+              {/* MENTANSAJE PROFESIONAL */}
+              <p
+                style={{
+                  margin: "0 0 1.5rem 0",
+                  fontSize: "0.88rem",
+                  color: "#4b5563",
+                  lineHeight: 1.6,
+                }}
+              >
+                Estamos optimizando nuestro algoritmo de Inteligencia Artificial para garantizar conversaciones 100% precisas, humanas y sin margen de error al interactuar con el catálogo de tu tienda.
+                <br /><br />
+                Esta herramienta estará disponible muy pronto con el estándar de excelencia de <strong>Nevux</strong>.
+              </p>
+
+              {/* BOTONES DE ACCIÓN */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowModal(false);
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "0.85rem",
+                    borderRadius: "14px",
+                    border: "none",
+                    background: "#111827",
+                    color: "#ffffff",
+                    fontWeight: 800,
+                    fontSize: "0.88rem",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 12px rgba(17, 24, 39, 0.2)",
+                  }}
+                >
+                  Entendido, cerrar
+                </button>
+
+                <Link
+                  href="/dashboard"
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: "14px",
+                    border: "1px solid #e5e7eb",
+                    background: "#f9fafb",
+                    color: "#4b5563",
+                    fontWeight: 700,
+                    fontSize: "0.82rem",
+                    textDecoration: "none",
+                    boxSizing: "border-box",
+                  }}
+                >
+                  Volver al Dashboard
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
-}
+            }
