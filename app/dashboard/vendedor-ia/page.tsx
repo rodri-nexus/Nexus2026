@@ -6,9 +6,12 @@ import {
   Bot, 
   Send, 
   Settings, 
-  MessageSquare
+  MessageSquare,
+  Zap,
+  ShoppingBag
 } from "lucide-react";
 
+// Inicializamos Supabase fuera o dentro, pero con los valores correctos
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -19,7 +22,6 @@ export default function VendedorIAPage() {
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState<any>(null);
   
-  // Settings State
   const [settings, setSettings] = useState({
     enabled: true,
     human_tone: "warm",
@@ -27,7 +29,6 @@ export default function VendedorIAPage() {
     custom_prompt: ""
   });
 
-  // Chat State
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [input, setInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
@@ -36,12 +37,15 @@ export default function VendedorIAPage() {
   useEffect(() => {
     async function loadData() {
       const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      
       if (user) {
-        const res = await fetch(`/api/ai/virtual-salesman?user_id=${user.id}`);
-        const data = await res.json();
-        if (data && !data.error) setSettings(data);
+        setUser(user);
+        try {
+          const res = await fetch(`/api/ai/virtual-salesman?user_id=${user.id}`);
+          const data = await res.json();
+          if (data && !data.error) setSettings(data);
+        } catch (e) {
+          console.error("Error cargando settings");
+        }
       }
       setLoading(false);
     }
@@ -67,10 +71,11 @@ export default function VendedorIAPage() {
       })
     });
     setSaving(false);
+    alert("Configuración guardada");
   };
 
   const handleSendMessage = async () => {
-    if (!input.trim() || chatLoading) return;
+    if (!input.trim() || chatLoading || !user) return;
 
     const userMsg = { role: "user", content: input };
     setMessages(prev => [...prev, userMsg]);
@@ -83,7 +88,7 @@ export default function VendedorIAPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "chat",
-          user_id: user?.id,
+          user_id: user.id,
           message: input,
           history: messages
         })
@@ -91,144 +96,146 @@ export default function VendedorIAPage() {
       const data = await res.json();
       setMessages(prev => [...prev, { role: "assistant", content: data.response }]);
     } catch (err) {
-      setMessages(prev => [...prev, { role: "assistant", content: "Perdón, tuve un problema técnico. ¿Me repetís?" }]);
+      setMessages(prev => [...prev, { role: "assistant", content: "Perdón, che, se me cortó la conexión. ¿Me repetís?" }]);
     } finally {
       setChatLoading(false);
     }
   };
 
-  if (loading) return <div className="p-8 text-white">Cargando configuración...</div>;
+  if (loading) return <div className="p-8 text-white bg-[#0B1120] min-h-screen text-center">Cargando configuración...</div>;
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto pb-24">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-          <Bot className="text-emerald-500 w-8 h-8" />
-          Vendedor Virtual IA
-        </h1>
-        <p className="text-gray-400 mt-2">Tu asistente inteligente que vende por vos 24/7 en tu tienda.</p>
-      </header>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* PANEL DE CONFIGURACIÓN */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 h-fit">
-          <div className="flex items-center gap-2 mb-6 text-emerald-500 font-semibold uppercase text-sm tracking-wider">
-            <Settings className="w-4 h-4" />
-            Configuración del Asesor
+    <div className="min-h-screen bg-[#0B1120] p-4 md:p-8 pb-24 text-white">
+      <div className="max-w-6xl mx-auto">
+        <header className="mb-8">
+          <div className="flex items-center gap-3">
+            <Bot className="text-emerald-500 w-8 h-8" />
+            <h1 className="text-2xl font-bold">Vendedor Virtual IA</h1>
           </div>
+          <p className="text-gray-400 mt-2 text-sm">El asistente inteligente que atiende tu tienda 24/7.</p>
+        </header>
 
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2 text-left">Tono de Voz</label>
-              <select 
-                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white outline-none focus:border-emerald-500 transition-colors"
-                value={settings.human_tone}
-                onChange={(e) => setSettings({...settings, human_tone: e.target.value})}
-              >
-                <option value="warm">Empático y Cálido (Recomendado)</option>
-                <option value="professional">Profesional y Directo</option>
-                <option value="enthusiastic">Súper Entusiasta y Vendedor</option>
-              </select>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* PANEL CONFIGURACION */}
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl h-fit">
+            <div className="flex items-center gap-2 mb-6 text-emerald-500 font-semibold text-xs uppercase tracking-widest">
+              <Settings className="w-4 h-4" />
+              Personalización
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+            <div className="space-y-6">
               <div>
-                <p className="text-white font-medium">Cierre por WhatsApp</p>
-                <p className="text-xs text-gray-400">Ofrecer derivar al chat humano para cerrar la venta</p>
+                <label className="block text-sm text-gray-400 mb-2">Tono de voz del asesor</label>
+                <select 
+                  className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white outline-none focus:border-emerald-500"
+                  value={settings.human_tone}
+                  onChange={(e) => setSettings({...settings, human_tone: e.target.value})}
+                >
+                  <option value="warm">Cálido y Humano (Recomendado)</option>
+                  <option value="professional">Profesional</option>
+                  <option value="enthusiastic">Vendedor Entusiasta</option>
+                </select>
               </div>
+
+              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+                <div>
+                  <p className="text-sm font-medium">Cierre por WhatsApp</p>
+                  <p className="text-[10px] text-gray-500">Ofrecer chat humano al detectar intención de compra</p>
+                </div>
+                <button 
+                  onClick={() => setSettings({...settings, auto_whatsapp: !settings.auto_whatsapp})}
+                  className={`w-10 h-5 rounded-full transition-colors relative ${settings.auto_whatsapp ? 'bg-emerald-500' : 'bg-gray-600'}`}
+                >
+                  <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-transform ${settings.auto_whatsapp ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">Instrucciones extra</label>
+                <textarea 
+                  className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white h-24 resize-none text-sm outline-none focus:border-emerald-500"
+                  placeholder="Ej: Menciona que tenemos 10% off en efectivo..."
+                  value={settings.custom_prompt}
+                  onChange={(e) => setSettings({...settings, custom_prompt: e.target.value})}
+                />
+              </div>
+
               <button 
-                onClick={() => setSettings({...settings, auto_whatsapp: !settings.auto_whatsapp})}
-                className={`w-12 h-6 rounded-full transition-colors relative ${settings.auto_whatsapp ? 'bg-emerald-500' : 'bg-gray-600'}`}
+                onClick={saveSettings}
+                disabled={saving}
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-gray-900 font-bold py-3 rounded-xl transition-all"
               >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.auto_whatsapp ? 'translate-x-7' : 'translate-x-1'}`} />
+                {saving ? "Guardando..." : "Guardar Cambios"}
               </button>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2 text-left">Instrucciones Personalizadas (Opcional)</label>
-              <textarea 
-                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white outline-none focus:border-emerald-500 transition-colors h-24 resize-none"
-                placeholder="Ej: 'Menciona siempre que tenemos 3 cuotas sin interés'..."
-                value={settings.custom_prompt}
-                onChange={(e) => setSettings({...settings, custom_prompt: e.target.value})}
-              />
-            </div>
-
-            <button 
-              onClick={saveSettings}
-              disabled={saving}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-gray-900 font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2"
-            >
-              {saving ? "Guardando..." : "Guardar Cambios"}
-            </button>
-          </div>
-        </div>
-
-        {/* SIMULADOR DE CHAT */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl flex flex-col h-[600px] overflow-hidden">
-          <div className="p-4 border-b border-gray-800 bg-gray-800/30 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-emerald-500/10 rounded-full flex items-center justify-center">
-                <Bot className="text-emerald-500 w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-white font-semibold text-sm">Simulador en Vivo</p>
-                <p className="text-emerald-500 text-[10px] flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                  CONECTADO A TIENDANUBE
-                </p>
-              </div>
-            </div>
           </div>
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0B1120]">
-            {messages.length === 0 && (
-              <div className="text-center py-10">
-                <MessageSquare className="w-12 h-12 text-gray-700 mx-auto mb-4" />
-                <p className="text-gray-500 text-sm">Probá tu Vendedor Virtual acá abajo.<br/>Preguntale por productos, precios o talles.</p>
-              </div>
-            )}
-            {messages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${
-                  msg.role === 'user' 
-                    ? 'bg-emerald-500 text-gray-900 font-medium rounded-tr-none' 
-                    : 'bg-gray-800 text-white rounded-tl-none border border-gray-700'
-                }`}>
-                  {msg.content}
+          {/* SIMULADOR */}
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl flex flex-col h-[550px] overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-gray-800 bg-gray-800/50 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                  <Bot className="text-emerald-500 w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-tighter">Simulador Nevux</p>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                    <span className="text-[9px] text-emerald-500 font-bold uppercase">Catálogo Live Tiendanube</span>
+                  </div>
                 </div>
               </div>
-            ))}
-            {chatLoading && (
-              <div className="flex justify-start">
-                <div className="bg-gray-800 text-white p-3 rounded-2xl rounded-tl-none border border-gray-700 animate-pulse text-xs">
-                  Nevux IA está escribiendo...
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
 
-          <div className="p-4 bg-gray-900 border-t border-gray-800">
-            <div className="relative">
-              <input 
-                type="text"
-                className="w-full bg-gray-800 border border-gray-700 rounded-xl pl-4 pr-12 py-3 text-white outline-none focus:border-emerald-500 transition-colors"
-                placeholder="Preguntá algo a tu IA..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              />
-              <button 
-                onClick={handleSendMessage}
-                disabled={chatLoading}
-                className="absolute right-2 top-1.5 p-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-gray-900 transition-colors"
-              >
-                <Send className="w-5 h-5" />
-              </button>
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0F172A]">
+              {messages.length === 0 && (
+                <div className="flex flex-col items-center justify-center h-full text-center text-gray-600">
+                  <MessageSquare className="w-10 h-10 mb-2 opacity-20" />
+                  <p className="text-xs italic">Preguntale qué productos hay en stock...</p>
+                </div>
+              )}
+              {messages.map((msg, i) => (
+                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[85%] p-3 rounded-2xl text-xs ${
+                    msg.role === 'user' 
+                      ? 'bg-emerald-600 text-white rounded-tr-none' 
+                      : 'bg-gray-800 text-gray-200 border border-gray-700 rounded-tl-none'
+                  }`}>
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
+              {chatLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-gray-800 text-emerald-500 p-2 px-4 rounded-full text-[10px] animate-pulse">
+                    IA Nevux escribiendo...
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-3 bg-gray-900 border-t border-gray-800">
+              <div className="flex gap-2">
+                <input 
+                  type="text"
+                  className="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                  placeholder="Escribí tu mensaje..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                />
+                <button 
+                  onClick={handleSendMessage}
+                  disabled={chatLoading}
+                  className="p-2 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-gray-900 disabled:opacity-50"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-      }
+  }
