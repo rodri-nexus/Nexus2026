@@ -66,16 +66,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, data });
     }
 
-    // ACCIÓN 2: CHAT SIMULADOR / WIDGET
+    // ACCIÓN 2: CHAT CON CONCIERGE IA
     if (action === "chat") {
       let token = body.access_token;
       let sId = store_id ? String(store_id) : null;
 
-      // Búsqueda exhaustiva de credenciales de Tiendanube
+      // Búsqueda de credenciales de Tiendanube en Supabase
       if (!token) {
         let tnData: any = null;
 
-        // 1. Buscar en tiendanube_settings por store_id
         if (sId) {
           const { data } = await supabase
             .from("tiendanube_settings")
@@ -85,7 +84,6 @@ export async function POST(req: Request) {
           tnData = data;
         }
 
-        // 2. Buscar en tiendanube_settings por user_id
         if (!tnData && user_id) {
           const { data } = await supabase
             .from("tiendanube_settings")
@@ -95,7 +93,6 @@ export async function POST(req: Request) {
           tnData = data;
         }
 
-        // 3. Fallback: buscar la primera tienda en tiendanube_settings
         if (!tnData) {
           const { data } = await supabase
             .from("tiendanube_settings")
@@ -105,7 +102,6 @@ export async function POST(req: Request) {
           tnData = data;
         }
 
-        // 4. Fallback: buscar en tabla stores por user_id o store_id
         if (!tnData?.access_token && (user_id || sId)) {
           let stQuery = supabase.from("stores").select("store_id, access_token");
           if (user_id) stQuery = stQuery.eq("user_id", user_id);
@@ -120,11 +116,28 @@ export async function POST(req: Request) {
         }
       }
 
-      // Obtener productos reales de Tiendanube
+      // 1. Obtener Categorías y Productos reales de Tiendanube
+      let categoriesList: string[] = [];
       let catalogContext: any[] = [];
+
       if (sId && token) {
         try {
-          const tnRes = await fetch(`https://api.tiendanube.com/v1/${sId}/products?per_page=40&published=true`, {
+          // Obtener Categorías
+          const catRes = await fetch(`https://api.tiendanube.com/v1/${sId}/categories`, {
+            headers: {
+              "Authentication": `bearer ${token}`,
+              "User-Agent": "Nevux (admin@nevux.ar)"
+            }
+          });
+          if (catRes.ok) {
+            const cats = await catRes.json();
+            if (Array.isArray(cats)) {
+              categoriesList = cats.map((c: any) => c.name?.es || c.name?.en || c.name?.pt).filter(Boolean);
+            }
+          }
+
+          // Obtener Productos con sus categorías y detalles
+          const tnRes = await fetch(`https://api.tiendanube.com/v1/${sId}/products?per_page=50&published=true`, {
             headers: {
               "Authentication": `bearer ${token}`,
               "User-Agent": "Nevux (admin@nevux.ar)"
@@ -132,119 +145,134 @@ export async function POST(req: Request) {
           });
           if (tnRes.ok) {
             const products = await tnRes.json();
-            if (Array.isArray(products) && products.length > 0) {
+            if (Array.isArray(products)) {
               catalogContext = products.map((p: any) => {
                 const priceVal = p.variants?.[0]?.price;
                 const formattedPrice = priceVal ? `$${Number(priceVal).toLocaleString("es-AR")}` : "Consultar";
+                const prodCats = p.categories?.map((c: any) => c.name?.es || c.name?.en).filter(Boolean) || [];
+
                 return {
                   nombre: p.name?.es || p.name?.en || p.name?.pt || "Producto",
                   precio: formattedPrice,
+                  categoria: prodCats.length > 0 ? prodCats.join(", ") : "General",
                   stock: p.variants?.reduce((a: number, v: any) => a + (v.stock || 0), 0) > 0 ? "Disponible" : "Agotado",
                   variantes: p.variants?.map((v: any) => v.values?.[0]?.es).filter(Boolean).slice(0, 3).join(", ") || "Único"
                 };
               });
+
+              // Extraer categorías desde productos si la API de categorías devolvió array vacío
+              if (categoriesList.length === 0) {
+                const extracted = new Set<string>();
+                catalogContext.forEach(item => {
+                  if (item.categoria && item.categoria !== "General") {
+                    extracted.add(item.categoria);
+                  }
+                });
+                categoriesList = Array.from(extracted);
+              }
             }
-          } else {
-            console.error("Error API Tiendanube:", tnRes.status, await tnRes.text());
           }
         } catch (catErr) {
           console.error("Excepción API Tiendanube:", catErr);
         }
       }
 
-      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+      // 2. Prompt Concierge Humano Experto
+      const systemInstruction = `
+Eres un asesor comercial humano, experto, súper cálido, servicial y amable de la tienda online. Tu meta es guiar al cliente de manera fluida y atenta para que encuentre lo que busca y disfrute su experiencia de compra.
 
-      // Si tenemos productos reales, Gemini o el formateador directo informarán los productos
-      if (catalogContext.length > 0) {
-        const systemInstruction = `
-Eres un vendedor comercial de una tienda online, súper humano, cálido, cercano y entusiasta. Hablás en español latino/argentino amigable ("¡Hola!", "Te cuento que...", "Mirá, tenemos...").
+CATEGORÍAS DE LA TIENDA:
+${categoriesList.length > 0 ? categoriesList.join(", ") : "Audio y Tecnología, Humidificadores y Hogar, Accesorios"}
 
-CATÁLOGO REAL EN VIVO CON PRECIOS Y STOCK:
+CATÁLOGO COMPLETO EN VIVO CON PRECIOS Y CATEGORÍAS:
 ${JSON.stringify(catalogContext, null, 2)}
 
-REGLAS OBLIGATORIAS:
-1. SI TE PREGUNTAN QUÉ PRODUCTOS HAY O QUÉ VENDES: Presenta de inmediato 3 o 4 productos concretos de la lista anterior con sus nombres exactos y sus precios reales.
-2. MÁXIMO 2 A 4 FRASES CORTAS. No escribas párrafos largos.
-3. SI TE PREGUNTAN TALLES O STOCK: Responde con seguridad basándote en la lista.
-4. CIERRE EN WHATSAPP: Ofrece derivar a WhatsApp si el cliente muestra intención de compra o pide ayuda directa.
-5. JAMÁS inventes productos ni precios fuera del catálogo provisto.
+ESTRATEGIA DE ATENCIÓN Y VENTA PASO A PASO:
+1. SI EL CLIENTE PREGUNTA QUÉ PRODUCTOS HAY O HACE UNA PREGUNTA GENERAL ("¿Qué vendés?", "¿Qué productos tenés?"):
+   - Saludá de forma muy amable.
+   - Presentá primero las CATEGORÍAS O RUBROS PRINCIPALES de la tienda (ej: Audio & Parlantes, Humidificadores, Auriculares VIP).
+   - Preguntale al cliente qué categoría le interesa explorar hoy.
+
+2. SI EL CLIENTE ELIGE UNA CATEGORÍA O PREGUNTA POR ALGO ESPECÍFICO (ej: "Humidificadores", "Auriculares", "Parlantes"):
+   - Mencioná 2 o 3 productos destacados de esa categoría con sus nombres exactos y sus precios reales.
+   - Preguntale si desea conocer detalles de alguno o ver formas de pago y envíos.
+
+3. SI EL CLIENTE HACE PREGUNTAS TÉCNICAS, STOCK, TALLES O COLORES:
+   - Responde con precisión basándote en los datos reales del catálogo.
+
+4. TONO Y FORMATO:
+   - Hablá como un vendedor real en un showroom (cálido, cercano, amigable).
+   - MÁXIMO 2 A 4 ORACIONES POR RESPUESTA. Jamás escribas textos gigantes.
+   - Si el cliente demuestra intención clara de compra o pide asesoramiento personalizado, invitá cordialmente a continuar el pedido por WhatsApp.
 `;
 
-        if (GEMINI_API_KEY) {
-          try {
-            const contents: any[] = [
-              {
-                role: "user",
-                parts: [{ text: `INSTRUCCIONES DE ATENCIÓN:\n${systemInstruction}` }]
-              },
-              {
-                role: "model",
-                parts: [{ text: "Entendido perfectamente. Responderé mostrando de inmediato los productos reales con sus nombres exactos y precios." }]
-              }
-            ];
+      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-            if (Array.isArray(history)) {
-              history.forEach((h: any) => {
-                const textContent = h.content || h.text;
-                if (textContent) {
-                  const role = (h.role === "user" || h.sender === "user") ? "user" : "model";
-                  contents.push({ role, parts: [{ text: textContent }] });
+      if (GEMINI_API_KEY) {
+        try {
+          const contents: any[] = [
+            {
+              role: "user",
+              parts: [{ text: `INSTRUCCIONES DE ATENCIÓN CONCIERGE:\n${systemInstruction}` }]
+            },
+            {
+              role: "model",
+              parts: [{ text: "Entendido perfectamente. Seré un asesor comercial súper humano y servicial. Cuando me pregunten en general, presentaré primero las categorías de la tienda para orientar al cliente paso a paso." }]
+            }
+          ];
+
+          if (Array.isArray(history)) {
+            history.forEach((h: any) => {
+              const textContent = h.content || h.text;
+              if (textContent) {
+                const role = (h.role === "user" || h.sender === "user") ? "user" : "model";
+                contents.push({ role, parts: [{ text: textContent }] });
+              }
+            });
+          }
+
+          contents.push({
+            role: "user",
+            parts: [{ text: message || "Hola, ¿qué productos tenés disponibles?" }]
+          });
+
+          const geminiRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents,
+                generationConfig: {
+                  temperature: 0.7,
+                  maxOutputTokens: 250
                 }
+              })
+            }
+          );
+
+          if (geminiRes.ok) {
+            const aiData = await geminiRes.json();
+            const aiText = aiData.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (aiText && aiText.trim().length > 0) {
+              return NextResponse.json({
+                response: aiText.trim(),
+                reply: aiText.trim()
               });
             }
-
-            contents.push({
-              role: "user",
-              parts: [{ text: message || "Hola, ¿qué productos tenés disponibles y qué precios tienen?" }]
-            });
-
-            const geminiRes = await fetch(
-              `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  contents,
-                  generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 250
-                  }
-                })
-              }
-            );
-
-            if (geminiRes.ok) {
-              const aiData = await geminiRes.json();
-              const aiText = aiData.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (aiText && aiText.trim().length > 0) {
-                return NextResponse.json({
-                  response: aiText.trim(),
-                  reply: aiText.trim()
-                });
-              }
-            } else {
-              console.error("Gemini API Error:", geminiRes.status, await geminiRes.text());
-            }
-          } catch (geminiErr) {
-            console.error("Excepción Gemini API:", geminiErr);
           }
+        } catch (geminiErr) {
+          console.error("Excepción Gemini API:", geminiErr);
         }
-
-        // Si Gemini no devolvió texto pero SÍ tenemos productos de Tiendanube:
-        const sampleProducts = catalogContext.slice(0, 4).map(p => `• ${p.nombre}: ${p.precio}`).join("\n");
-        const catalogMsg = `¡Hola! Te cuento que en la tienda tenemos disponibles productos geniales como:\n\n${sampleProducts}\n\n¿Te gustaría consultar por alguno en particular o conocer las formas de pago?`;
-
-        return NextResponse.json({
-          response: catalogMsg,
-          reply: catalogMsg
-        });
       }
 
-      // Si catalogContext.length === 0 (no hay productos cargados o no se encontró el token)
-      const emptyMsg = "¡Hola! Estaba consultando la base de datos de tu Tiendanube pero no encontré productos activos guardados en tu catálogo. Si ya tenés productos cargados, por favor verificá que estén en estado 'Publicado'.";
+      // Fallback dinámico si Gemini se demora
+      const catsFormatted = categoriesList.length > 0 ? categoriesList.join(", ") : "Audio, Humidificadores y Tecnología";
+      const fallbackMsg = `¡Hola! Con gusto te cuento. En la tienda contamos con categorías como: ${catsFormatted}.\n\n¿Qué tipo de producto te gustaría ver hoy?`;
+
       return NextResponse.json({
-        response: emptyMsg,
-        reply: emptyMsg
+        response: fallbackMsg,
+        reply: fallbackMsg
       });
     }
 
@@ -253,4 +281,4 @@ REGLAS OBLIGATORIAS:
     console.error("Error en virtual-salesman POST:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
-}
+            }
