@@ -4,55 +4,128 @@
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const ADMIN_EMAIL = "nevuxapp@gmail.com";
-const FROM_EMAIL = "Nevux <onboarding@resend.dev>";
+
+// Usar dominio verificado en Resend (nevux.ar).
+const FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL || "Nevux <noreply@nevux.ar>";
 
 interface SendEmailParams {
   to: string;
   subject: string;
   html: string;
+  replyTo?: string;
+}
+
+interface SendEmailResult {
+  success: boolean;
+  error?: string;
+  id?: string;
 }
 
 /**
  * Envío base a Resend vía fetch nativo (sin SDK pesado, ultra liviano).
- * Si falla, registra en log pero no rompe el flujo de la aplicación.
+ * Devuelve { success, error, id } para poder mostrar el motivo real al usuario.
  */
-async function sendEmail({ to, subject, html }: SendEmailParams): Promise<boolean> {
+async function sendEmail({
+  to,
+  subject,
+  html,
+  replyTo,
+}: SendEmailParams): Promise<SendEmailResult> {
   if (!RESEND_API_KEY) {
-    console.error("❌ [email] RESEND_API_KEY no configurada");
-    return false;
+    console.error("❌ [email] RESEND_API_KEY no configurada en Vercel");
+    return {
+      success: false,
+      error:
+        "Falta configurar RESEND_API_KEY. Agregala en Vercel → Environment Variables.",
+    };
+  }
+
+  if (!to || !to.includes("@")) {
+    console.error("❌ [email] Destinatario inválido:", to);
+    return {
+      success: false,
+      error: "La dirección de email del destinatario no es válida.",
+    };
   }
 
   try {
+    const payload: Record<string, unknown> = {
+      from: FROM_EMAIL,
+      to: [to],
+      subject,
+      html,
+    };
+
+    if (replyTo) {
+      payload.reply_to = replyTo;
+    }
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to,
-        subject,
-        html,
-      }),
+      body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `❌ [email] Resend respondió ${response.status}:`,
-        errorText
-      );
-      return false;
+    const responseText = await response.text();
+    let responseData: {
+      id?: string;
+      message?: string;
+      name?: string;
+      statusCode?: number;
+    } = {};
+
+    try {
+      responseData = JSON.parse(responseText);
+    } catch {
+      // respuesta no-JSON
     }
 
-    const data = await response.json();
-    console.log(`✅ [email] Enviado a ${to}, id:`, data.id);
-    return true;
+    if (!response.ok) {
+      const resendMsg =
+        responseData.message ||
+        responseData.name ||
+        responseText ||
+        `HTTP ${response.status}`;
+
+      console.error(
+        `❌ [email] Resend respondió ${response.status}:`,
+        resendMsg,
+        "| from:",
+        FROM_EMAIL,
+        "| to:",
+        to
+      );
+
+      let friendly = resendMsg;
+      if (
+        response.status === 403 ||
+        /only send testing emails|verify a domain|not verified/i.test(resendMsg)
+      ) {
+        friendly =
+          "Resend requiere verificar nevux.ar en resend.com/domains y vincularlo en Vercel.";
+      } else if (response.status === 401 || /api key|unauthorized/i.test(resendMsg)) {
+        friendly =
+          "API key de Resend inválida o revocada. Revisá RESEND_API_KEY en Vercel.";
+      } else if (response.status === 422) {
+        friendly = `Resend rechazó el correo: ${resendMsg}`;
+      }
+
+      return { success: false, error: friendly };
+    }
+
+    console.log(`✅ [email] Enviado a ${to}, id:`, responseData.id);
+    return { success: true, id: responseData.id };
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Error desconocido";
-    console.error("❌ [email] Error enviando:", msg);
-    return false;
+    console.error("❌ [email] Error de red enviando:", msg);
+    return {
+      success: false,
+      error: `Error de conexión con Resend: ${msg}`,
+    };
   }
 }
 
@@ -205,11 +278,13 @@ export async function sendNewPaymentAlert(
 </html>
   `.trim();
 
-  return sendEmail({
+  const result = await sendEmail({
     to: ADMIN_EMAIL,
     subject: `💰 Nuevo pago de ${customerEmail} — ${formattedAmount}`,
     html,
   });
+
+  return result.success;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -243,7 +318,8 @@ export async function sendPlanExpiringAlert(
 
   const urgencyColor = daysLeft <= 1 ? "#dc2626" : "#f59e0b";
   const urgencyBg = daysLeft <= 1 ? "#fee2e2" : "#fef3c7";
-  const urgencyText = daysLeft <= 1 ? "🚨 ÚLTIMO DÍA / EXPIRADO" : "⏰ VENCE PRONTO";
+  const urgencyText =
+    daysLeft <= 1 ? "🚨 ÚLTIMO DÍA / EXPIRADO" : "⏰ VENCE PRONTO";
 
   const clientEmailSubject =
     daysLeft <= 1
@@ -392,13 +468,15 @@ Gracias por confiar en Nevux 🚀`;
 </html>
   `.trim();
 
-  return sendEmail({
+  const result = await sendEmail({
     to: ADMIN_EMAIL,
     subject: `${daysLeft <= 1 ? "🚨" : "⏰"} Plan de ${customerEmail} ${
       daysLeft <= 1 ? "venció hoy" : `vence en ${daysLeft} días`
     }`,
     html,
   });
+
+  return result.success;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -415,12 +493,19 @@ export interface CartRecoveryEmailParams {
   botName?: string;
 }
 
+export interface CartRecoveryEmailResult {
+  success: boolean;
+  error?: string;
+  id?: string;
+}
+
 /**
  * Envía un correo HTML de recupero de carrito abandonado al comprador desde el NevuxBot AI.
+ * Devuelve { success, error } para que la API pueda mostrar el motivo real en el modal.
  */
 export async function sendCartRecoveryEmail(
   params: CartRecoveryEmailParams
-): Promise<boolean> {
+): Promise<CartRecoveryEmailResult> {
   const {
     to,
     customerName,
@@ -431,9 +516,12 @@ export async function sendCartRecoveryEmail(
     botName = "Sofía",
   } = params;
 
-  if (!to) {
-    console.error("❌ [email] No hay destinatario para el email de recupero.");
-    return false;
+  if (!to || !to.includes("@")) {
+    console.error("❌ [email] No hay destinatario válido para recupero:", to);
+    return {
+      success: false,
+      error: "Este comprador no ingresó una dirección de email válida.",
+    };
   }
 
   const nameStr = customerName ? customerName : "Cliente";
@@ -442,13 +530,23 @@ export async function sendCartRecoveryEmail(
       ? products
           .map(
             (p) =>
-              `<li style="padding:6px 0;border-bottom:1px solid #e5e7eb;">${p}</li>`
+              `<li style="padding:6px 0;border-bottom:1px solid #e5e7eb;">${escapeHtml(
+                p
+              )}</li>`
           )
           .join("")
       : `<li style="padding:6px 0;">Tu selección de productos</li>`;
 
   const defaultBody = `Notamos que dejaste productos en tu carrito. Te los guardamos para que no pierdas tu selección y puedas completarla en 1 clic.`;
-  const bodyText = customMessage || defaultBody;
+
+  const bodyText = customMessage
+    ? escapeHtml(customMessage).replace(/\n/g, "<br>")
+    : defaultBody;
+
+  const safeCheckoutUrl = checkoutUrl || "#";
+  const safeTotal = escapeHtml(totalFormatted);
+  const safeName = escapeHtml(nameStr);
+  const safeBot = escapeHtml(botName);
 
   const html = `
 <!DOCTYPE html>
@@ -470,12 +568,12 @@ export async function sendCartRecoveryEmail(
 
     <!-- Título -->
     <h1 style="margin:0 0 12px;font-size:24px;font-weight:800;color:#000000;line-height:1.2;text-align:center;">
-      ¡Hola ${nameStr}! 👋
+      ¡Hola ${safeName}! 👋
     </h1>
     
-    <p style="margin:0 0 24px;font-size:15px;color:#000000;opacity:0.75;line-height:1.6;text-align:center;white-space:pre-line;">
+    <div style="margin:0 0 24px;font-size:15px;color:#000000;opacity:0.85;line-height:1.6;text-align:left;">
       ${bodyText}
-    </p>
+    </div>
 
     <!-- Resumen de Productos -->
     <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:28px;">
@@ -492,14 +590,14 @@ export async function sendCartRecoveryEmail(
           Total del pedido:
         </div>
         <div style="display:table-cell;text-align:right;font-size:20px;font-weight:800;color:#10B981;vertical-align:middle;">
-          ${totalFormatted}
+          ${safeTotal}
         </div>
       </div>
     </div>
 
     <!-- CTA Principal Button -->
     <div style="text-align:center;margin-bottom:28px;">
-      <a href="${checkoutUrl}" style="display:inline-block;background:#10B981;color:#ffffff;text-decoration:none;padding:16px 36px;border-radius:12px;font-size:16px;font-weight:800;box-shadow:0 4px 14px rgba(16, 185, 129, 0.35);">
+      <a href="${safeCheckoutUrl}" style="display:inline-block;background:#10B981;color:#ffffff;text-decoration:none;padding:16px 36px;border-radius:12px;font-size:16px;font-weight:800;box-shadow:0 4px 14px rgba(16, 185, 129, 0.35);">
         Finalizar mi compra en 1 clic →
       </a>
     </div>
@@ -507,7 +605,7 @@ export async function sendCartRecoveryEmail(
     <!-- Footer -->
     <div style="text-align:center;padding-top:20px;border-top:1px solid #f3f4f6;">
       <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#000000;">
-        Te saluda ${botName}
+        Te saluda ${safeBot}
       </p>
       <p style="margin:0;font-size:12px;color:#000000;opacity:0.4;">
         Si tuviste alguna duda con tu pago o envío, podés responder directamente a este correo.
@@ -519,9 +617,25 @@ export async function sendCartRecoveryEmail(
 </html>
   `.trim();
 
-  return sendEmail({
+  const result = await sendEmail({
     to,
     subject: `🛒 ¡${nameStr}, no te olvides de tu pedido!`,
     html,
   });
+
+  if (!result.success) {
+    console.error("❌ [email] Falló recupero de carrito a", to, "→", result.error);
+  }
+
+  return result;
 }
+
+/** Escape básico para interpolar texto de usuario en HTML de email */
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+    }
