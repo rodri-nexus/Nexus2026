@@ -54,7 +54,6 @@ async function generateAIRecoveryMessage(
   botName: string = "Sofía"
 ): Promise<string> {
   const nameStr = customerName ? customerName : "hola";
-  const productsStr = products.length > 0 ? products.join(", ") : "tus productos";
 
   if (!GEMINI_API_KEY) {
     return buildFallbackMessage(nameStr, products, totalFormatted, checkoutUrl, botName);
@@ -73,7 +72,7 @@ Escribí un mensaje corto, natural y altamente persuasivo para recuperar un carr
 
 DATOS DE LA COMPRA:
 - Comprador: ${nameStr}
-- Productos en el carrito: ${productsStr}
+- Productos en el carrito: ${products.length > 0 ? products.join(", ") : "tus productos"}
 - Total: ${totalFormatted}
 - Link para finalizar la compra: ${checkoutUrl}
 
@@ -168,7 +167,7 @@ export async function GET() {
       });
     }
 
-    // Petición a Tiendanube Checkouts con Authorization Bearer oficial
+    // Petición a Tiendanube Checkouts
     const tnRes = await fetch(
       `https://api.tiendanube.com/v1/${store.store_id}/checkouts?status=uncompleted&per_page=50`,
       {
@@ -196,8 +195,6 @@ export async function GET() {
     const rawCheckouts: TiendanubeRawCheckout[] = await tnRes.json();
 
     let recoverableAmount = 0;
-    const recoveredAmount = 0;
-    const recoveredCount = 0;
 
     const checkouts = (Array.isArray(rawCheckouts) ? rawCheckouts : []).map(
       (c) => {
@@ -228,8 +225,8 @@ export async function GET() {
       summary: {
         totalAbandoned: checkouts.length,
         recoverableAmount,
-        recoveredAmount,
-        recoveredCount,
+        recoveredAmount: 0,
+        recoveredCount: 0,
       },
     });
   } catch (err: unknown) {
@@ -288,14 +285,14 @@ export async function POST(req: NextRequest) {
 
     // CASO 2: Enviar Email de Recupero con Resend
     if (action === "send_email") {
-      if (!customerEmail) {
+      if (!customerEmail || !customerEmail.includes("@")) {
         return NextResponse.json(
-          { error: "Este cliente no dejó registrada una dirección de email." },
+          { error: "Este comprador no dejó registrada una dirección de email válida." },
           { status: 400 }
         );
       }
 
-      const emailSent = await sendCartRecoveryEmail({
+      const emailResult = await sendCartRecoveryEmail({
         to: customerEmail,
         customerName,
         products,
@@ -305,10 +302,11 @@ export async function POST(req: NextRequest) {
         botName,
       });
 
-      if (!emailSent) {
+      if (!emailResult.success) {
         return NextResponse.json(
           {
             error:
+              emailResult.error ||
               "No se pudo entregar el correo por un problema temporal de servicio.",
           },
           { status: 500 }
@@ -319,6 +317,7 @@ export async function POST(req: NextRequest) {
         success: true,
         sent: true,
         status: "contacted",
+        emailId: emailResult.id,
         message: `Email de recupero enviado exitosamente a ${customerEmail}`,
       });
     }
@@ -343,4 +342,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-  }
+}
