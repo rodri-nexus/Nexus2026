@@ -20,73 +20,62 @@ function normalize(text: string) {
   return (text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-function smartLocalReply(message: string, catalog: CatalogItem[], customPrompt: string, history: any[]): string {
+function smartLocalReply(message: string, catalog: CatalogItem[], history: any[]): string {
   const q = normalize(message);
   
-  // Extraer el último mensaje del asistente para darle MEMORIA al bot
+  // Analizar último mensaje del bot para dar continuidad
   let lastBotMsg = "";
   if (history && history.length > 0) {
     const lastItem = history.filter((h: any) => h.role === "assistant" || h.sender === "bot" || h.role === "model").pop();
     if (lastItem) lastBotMsg = normalize(lastItem.content || lastItem.text || "");
   }
 
-  // 1. MEMORIA DE CONTEXTO (Continuación de conversación)
   const isAffirmative = /^(si|sí|dale|ok|oka|bueno|genial|joya|me parece|perfecto|obvio|de una|claro|por supuesto)/.test(q);
-  const isLocationContext = /(de donde sos|donde sos|decime de donde|a que zona)/.test(lastBotMsg);
-  const isPaymentContext = /(te paso el link|datos por whatsapp|coordinamos)/.test(lastBotMsg);
-
-  if (isPaymentContext && isAffirmative) {
-    return "¡Excelente! Hacé clic en el botón de WhatsApp o escribinos a nuestro número para tomarte el pedido al instante y pasarte los datos de pago.";
-  }
-
   const isLocationMention = /(buenos aires|caba|palermo|belgrano|caballito|recoleta|cordoba|rosario|santa fe|mendoza|tucuman|neuquen|salta|barrio|provincia|interior|zona|capital)/.test(q);
-  
-  if (isLocationContext && (isLocationMention || q.length > 3)) {
-    return "¡Perfecto! A esa zona llegamos súper rápido por correo o motomensajería. Si me escribís al WhatsApp con tu código postal exacto, te confirmo el costo y qué día te llega a la puerta de tu casa.";
+
+  // 1. Memoria de conversación
+  if (lastBotMsg.includes("whatsapp") && isAffirmative) {
+    return "¡Buenísimo! Hacé clic en el botón de WhatsApp para coordinar los detalles del pedido y la entrega de inmediato.";
   }
 
-  // 2. DETECCIÓN DE INTENCIONES (Diccionario Extenso de Dudas Frecuentes)
+  if (lastBotMsg.includes("donde sos") && (isLocationMention || q.length > 2)) {
+    return "¡Genial! A esa zona llegamos en el día con motomensajería o por correo expreso a todo el país. ¿Querés que te pasemos los datos por WhatsApp para coordinar el envío?";
+  }
+
+  // 2. Diccionario de intenciones frecuentes
   const wantsShipping = /(envio|envíos|mandan|llega|domicilio|correo|andreani|oca|moto|cadete|despacho|flete|costo|cuanto sale|gratis|llegar)/.test(q) || isLocationMention;
   const wantsPay = /(tarjeta|pago|cuota|credito|debito|transferencia|efectivo|mercadopago|mercado pago|mp|descuento)/.test(q);
   const wantsLocation = /(donde estan|ubicacion|local|tienda fisica|direccion|calle|showroom|retirar|retiro)/.test(q);
-  const wantsHours = /(horario|abierto|cierran|abren|dias|feriado|finde)/.test(q);
-  const wantsWarranty = /(garantia|cambio|devolucion|falla|roto|rompe|seguro)/.test(q);
-  const wantsBestSellers = /(mas vendido|recomendados|top|mejores|recomendame|mostrame lo mas vendido|que recomendas|sugerencia)/.test(q);
-  const wantsGreeting = /^(hola|buenas|buen dia|buen día|buenas tardes|que tal|como andas)/.test(q) && q.length < 20;
+  const wantsBestSellers = /(mas vendido|más vendido|top|mejores|recomendaciones|destacados|sugerencia|mas vendidos)/.test(q);
+  const wantsGreeting = /^(hola|buenas|buen dia|buen día|buenas tardes|que tal)/.test(q) && q.length < 20;
 
-  // RESPUESTAS DIRECTAS POR INTENCIÓN
   if (wantsGreeting) {
-    return "¡Hola! Qué bueno tenerte en la tienda. Contame, ¿buscás algún producto en particular o querés que te muestre lo más vendido?";
+    return "¡Hola! Qué bueno tenerte en la tienda. ¿Buscás algún producto en particular o querés que te recomiende lo más vendido?";
   }
 
-  if (wantsBestSellers && catalog.length > 0) {
-    const top = catalog.slice(0, 3).map(p => `${p.nombre} (${p.precio})`).join(", ");
-    return `¡Claro! Entre lo que más se está llevando la gente tenemos: ${top}. ¿Te interesa alguno de estos para darte más detalles?`;
+  if (wantsBestSellers) {
+    if (catalog.length > 0) {
+      const top = catalog.slice(0, 3).map(p => `${p.nombre} (${p.precio})`).join(", ");
+      return `¡De una! Entre lo más vendido de la tienda tenemos: ${top}. ¿Te interesa conocer más detalles de alguno?`;
+    }
+    return "¡De una! Entre lo más pedido tenemos nuestros productos de audio, humidificadores y tecnología VIP. ¿Te interesa alguna línea en especial?";
   }
 
   if (wantsShipping) {
-    return "Hacemos envíos a todo el país (por correo o envíos rápidos en el día en CABA/GBA). Si superás cierto monto solemos tener envíos gratis. ¿De qué zona sos así te digo exacto?";
+    return "Hacemos envíos rápidos a todo el país (por correo y moto en CABA/GBA). Si me decís tu localidad o barrio, te confirmo el tiempo de entrega al instante.";
   }
 
   if (wantsPay) {
-    return "Aceptamos todas las tarjetas para que pagues en cuotas, y también podés abonar por transferencia o efectivo con descuento especial. ¿Querés que armemos tu pedido por WhatsApp?";
+    return "Aceptamos todas las tarjetas en cuotas, y también podés abonar por transferencia o efectivo con descuento especial. ¿Querés que armemos el pedido por WhatsApp?";
   }
 
   if (wantsLocation) {
-    return "Nos manejamos principalmente de forma online con envíos rápidos a todo el país. Si necesitás ver algo puntual o coordinar un retiro, escribinos al WhatsApp y te confirmamos stock y punto de entrega.";
+    return "Somos una tienda online con envíos a todo el país. Si necesitás coordinar un retiro o atención directa, podés escribirnos al WhatsApp de la tienda.";
   }
 
-  if (wantsHours) {
-    return "La tienda online está abierta 24/7 para que compres cuando quieras. La atención por WhatsApp para despachar pedidos suele ser de lunes a viernes en horario comercial. ¡Dejanos tu mensaje y te respondemos al toque!";
-  }
-
-  if (wantsWarranty) {
-    return "¡Quedate tranquilo! Todos nuestros productos salen probados y tienen garantía por falla de fábrica. Si llegás a tener algún inconveniente, nos contactás y gestionamos el cambio.";
-  }
-
-  // 3. BÚSQUEDA ORGÁNICA DE PRODUCTOS EN EL CATÁLOGO
+  // 3. Búsqueda directa en productos del catálogo
   const scored = catalog.map(p => {
-    const blob = normalize(`${p.nombre} ${p.categoria} ${p.resumen} ${p.variantes}`);
+    const blob = normalize(`${p.nombre} ${p.categoria} ${p.resumen}`);
     let score = 0;
     q.split(/\s+/).forEach(t => { if (t.length > 3 && blob.includes(t)) score += 2; });
     return { p, score };
@@ -94,18 +83,35 @@ function smartLocalReply(message: string, catalog: CatalogItem[], customPrompt: 
 
   if (scored.length > 0) {
     const top = scored.slice(0, 2).map(x => `${x.p.nombre} a ${x.p.precio}`).join(" y ");
-    return `¡Sí, lo tenemos! Encontré esto para vos: ${top}. Ambos están disponibles. ¿Te gustaría que te comente alguna especificación técnica o pasamos a los medios de pago?`;
+    return `¡Sí! Encontré esto disponible en la tienda: ${top}. ¿Te gustaría que te de más detalles o pasamos a coordinar por WhatsApp?`;
   }
 
-  // 4. RESPUESTA INTELIGENTE DE RESGUARDO (Nunca vacía)
-  return "Entiendo. Puedo ayudarte a encontrar productos específicos, consultar precios, talles o formas de envío. Decime bien qué andás buscando o qué duda tenés y lo resolvemos al instante.";
+  // 4. Resguardo dinámico con productos reales de la tienda
+  if (catalog.length > 0) {
+    const sample = catalog.slice(0, 3).map(p => `${p.nombre} (${p.precio})`).join(", ");
+    return `Te puedo asesorar con cualquiera de nuestros productos, como: ${sample}. ¿Sobre cuál te gustaría consultar?`;
+  }
+
+  return "¡Hola! Te puedo ayudar con información sobre productos, envíos a todo el país o medios de pago. ¿En qué te puedo asesorar hoy?";
 }
 
 async function askGemini(systemInstruction: string, message: string, history: any[]) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
-  const prompt = `${systemInstruction}\n\nHISTORIAL DE CHAT:\n${JSON.stringify(history)}\n\nPREGUNTA DEL CLIENTE: "${message}"\n\nRESPUESTA DEL ASESOR:`;
+  let formattedHistory = "";
+  if (Array.isArray(history)) {
+    formattedHistory = history
+      .map((h: any) => {
+        const sender = (h.role === "user" || h.sender === "user") ? "Cliente" : "Asesor";
+        const text = h.content || h.text || "";
+        return text ? `${sender}: ${text}` : "";
+      })
+      .filter(Boolean)
+      .join("\n");
+  }
+
+  const prompt = `${systemInstruction}\n\nHISTORIAL DE CHAT:\n${formattedHistory}\n\nPREGUNTA ACTUAL DEL CLIENTE: "${message}"\n\nRESPUESTA DEL ASESOR (Máximo 3 oraciones, muy humano y servicial):`;
 
   try {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
@@ -116,11 +122,11 @@ async function askGemini(systemInstruction: string, message: string, history: an
         generationConfig: { temperature: 0.7, maxOutputTokens: 250 }
       })
     });
+    if (!res.ok) return null;
     const data = await res.json();
     return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
-  } catch (e) { 
-    console.error("Fallo llamada a Gemini", e);
-    return null; 
+  } catch (e) {
+    return null;
   }
 }
 
@@ -132,8 +138,8 @@ export async function POST(req: Request) {
     if (action === "save") {
       const { settings } = body;
       const { data, error } = await supabase.from("vendedor_ia_settings").upsert({ 
-        store_id: String(store_id), 
-        user_id, 
+        store_id: store_id ? String(store_id) : undefined, 
+        user_id: user_id || undefined, 
         settings, 
         updated_at: new Date().toISOString() 
       }).select().single();
@@ -141,12 +147,37 @@ export async function POST(req: Request) {
     }
 
     if (action === "chat") {
-      const { data: tnData } = await supabase.from("tiendanube_settings").select("store_id, access_token").eq("user_id", user_id).maybeSingle();
-      const sId = tnData?.store_id;
-      const token = tnData?.access_token;
+      let token = body.access_token as string | undefined;
+      let sId = store_id ? String(store_id) : null;
 
-      const { data: aiSet } = await supabase.from("vendedor_ia_settings").select("settings").eq("user_id", user_id).maybeSingle();
-      const customPrompt = aiSet?.settings?.custom_prompt || "";
+      // Búsqueda exhaustiva del token de Tiendanube
+      if (!token) {
+        if (sId) {
+          const { data } = await supabase.from("tiendanube_settings").select("store_id, access_token").eq("store_id", sId).maybeSingle();
+          if (data?.access_token) token = data.access_token;
+        }
+        if (!token && user_id) {
+          const { data } = await supabase.from("tiendanube_settings").select("store_id, access_token").eq("user_id", user_id).maybeSingle();
+          if (data?.access_token) {
+            sId = String(data.store_id);
+            token = data.access_token;
+          }
+        }
+        if (!token) {
+          const { data } = await supabase.from("tiendanube_settings").select("store_id, access_token").limit(1).maybeSingle();
+          if (data?.access_token) {
+            sId = String(data.store_id);
+            token = data.access_token;
+          }
+        }
+        if (!token) {
+          const { data } = await supabase.from("stores").select("store_id, access_token").not("access_token", "is", null).limit(1).maybeSingle();
+          if (data?.access_token) {
+            sId = String(data.store_id);
+            token = data.access_token;
+          }
+        }
+      }
 
       const catalog: CatalogItem[] = [];
       if (sId && token) {
@@ -160,10 +191,10 @@ export async function POST(req: Request) {
               products.forEach((p: any) => {
                 const price = Number(p.variants?.[0]?.price || 0);
                 catalog.push({
-                  nombre: p.name?.es || "Producto",
-                  precio: `$${price.toLocaleString("es-AR")}`,
+                  nombre: p.name?.es || p.name?.en || "Producto",
+                  precio: price ? `$${price.toLocaleString("es-AR")}` : "Consultar",
                   precioNum: price,
-                  categoria: p.categories?.map((c: any) => c.name?.es).join(", ") || "General",
+                  categoria: p.categories?.map((c: any) => c.name?.es).filter(Boolean).join(", ") || "General",
                   stock: p.variants?.[0]?.stock > 0 ? "Disponible" : "Sin stock",
                   variantes: p.variants?.map((v: any) => v.values?.map((val: any) => val.es).join(" / ")).filter(Boolean).join(", ") || "",
                   resumen: p.description?.es?.replace(/<[^>]*>/g, "").slice(0, 150) || ""
@@ -171,34 +202,45 @@ export async function POST(req: Request) {
               });
             }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.error("Error cargando productos:", e);
+        }
       }
 
       const systemInstruction = `
-Eres un humano vendiendo en la tienda online.
-Conoces a la perfección este catálogo real: ${JSON.stringify(catalog.slice(0, 30))}
-Directivas de tu jefe: ${customPrompt}
-REGLAS:
-1. Responde de forma muy amigable, natural y fluida. Tono argentino ("Hola", "Dale", "Mirá").
-2. Presta atención al historial. Si el cliente dice su zona, indicale envíos. Si dice sí a una propuesta, guíalo al cierre.
-3. Puedes hablar de pagos, envíos a todo el país, retiros, stock y dar asesoramiento.
-4. MÁXIMO 3 oraciones por mensaje. Nunca escribas biblias.
+Eres un vendedor de atención al cliente humano de la tienda online.
+Cuentas con la información de todo el catálogo en vivo:
+${JSON.stringify(catalog.slice(0, 40))}
+
+REGLAS DE ATENCIÓN:
+1. Responde de forma muy amigable, fluida y empática (tono argentino: "¡Hola!", "De una", "Te cuento", "Mirá").
+2. Si el cliente indica su ubicación o barrio (ej: Palermo, CABA, Córdoba), infórmale sobre los envíos a esa zona.
+3. Si el cliente pide ver lo más vendido o recomendaciones, presenta opciones reales con su precio.
+4. MÁXIMO 3 ORACIONES por respuesta. Mantenlo muy dinámico y enfocado a vender.
 `;
 
-      const geminiText = await askGemini(systemInstruction, message, history || []);
-      if (geminiText) return NextResponse.json({ response: geminiText });
+      const geminiText = await askGemini(systemInstruction, message || "", history || []);
+      if (geminiText) return NextResponse.json({ response: geminiText, reply: geminiText });
 
-      const local = smartLocalReply(message, catalog, customPrompt, history || []);
-      return NextResponse.json({ response: local });
+      const local = smartLocalReply(message || "", catalog, history || []);
+      return NextResponse.json({ response: local, reply: local });
     }
+
+    return NextResponse.json({ error: "Acción no válida" }, { status: 400 });
   } catch (err: any) {
-    return NextResponse.json({ response: "¡Hola! Tuve una pequeña falla técnica. ¿Me repetís en qué te puedo ayudar?" });
+    return NextResponse.json({ response: "¡Hola! ¿En qué te puedo asesorar sobre la tienda hoy?" });
   }
 }
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("user_id");
-  const { data } = await supabase.from("vendedor_ia_settings").select("*").eq("user_id", userId).maybeSingle();
-  return NextResponse.json(data || {});
-    }
+  const storeId = searchParams.get("store_id");
+
+  let query = supabase.from("vendedor_ia_settings").select("*");
+  if (storeId) query = query.eq("store_id", String(storeId));
+  else if (userId) query = query.eq("user_id", userId);
+
+  const { data } = await query.maybeSingle();
+  return NextResponse.json({ settings: data?.settings || data || null });
+                        }
