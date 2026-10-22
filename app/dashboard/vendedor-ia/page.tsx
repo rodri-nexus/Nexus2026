@@ -7,10 +7,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   Bot,
+  Sparkles,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Save,
+  Send,
+  MessageCircle,
+  User,
+  ShoppingBag,
+  Zap,
   Lock,
   X,
   ShieldAlert,
-  Sparkles,
   Wrench,
 } from "lucide-react";
 import DashboardHeader from "../components/DashboardHeader";
@@ -18,12 +27,212 @@ import SideMenu from "../components/SideMenu";
 import CentroAyuda from "../components/CentroAyuda";
 import { createClient } from "@/lib/supabase-browser";
 
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES
+═══════════════════════════════════════════ */
+type PersonalityType = "friendly" | "expert" | "dynamic";
+
+interface VirtualSalesmanConfig {
+  is_active: boolean;
+  agent_name: string;
+  welcome_message: string;
+  agent_avatar: string;
+  personality: PersonalityType;
+  whatsapp_number: string;
+  enable_whatsapp_escalation: boolean;
+  theme_color: string;
+}
+
+interface ChatMessage {
+  id: string;
+  sender: "bot" | "user";
+  text: string;
+  timestamp: string;
+  showWhatsappBtn?: boolean;
+}
+
+interface UserStore {
+  store_id: number;
+  user_id: string;
+}
+
+/* ═══════════════════════════════════════════
+   CONSTANTES Y AVATARES
+═══════════════════════════════════════════ */
+const AVATAR_OPTIONS = ["👩‍💼", "👨‍💼", "🤖", "🛍️", "⚡", "💎"];
+
+const PERSONALITY_OPTIONS: { id: PersonalityType; title: string; desc: string }[] = [
+  {
+    id: "friendly",
+    title: "Amigable y Cálido (Humano)",
+    desc: "Tono empático, cercano y fluido, ideal para orientar y resolver dudas.",
+  },
+  {
+    id: "expert",
+    title: "Asesor Técnico Experto",
+    desc: "Tono profesional y preciso, enfocado en especificaciones de producto.",
+  },
+  {
+    id: "dynamic",
+    title: "Vendedor Dinámico & Promos",
+    desc: "Destaca facilidades de pago, cuotas sin interés y envíos gratis.",
+  },
+];
+
+const DEFAULT_CONFIG: VirtualSalesmanConfig = {
+  is_active: true,
+  agent_name: "Sofía (Asesora Virtual)",
+  welcome_message: "¡Hola! 👋 ¿Buscás algo en especial hoy? Contame y te ayudo a encontrar el producto ideal.",
+  agent_avatar: "👩‍💼",
+  personality: "friendly",
+  whatsapp_number: "",
+  enable_whatsapp_escalation: true,
+  theme_color: "#10B981",
+};
+
+/* ═══════════════════════════════════════════
+   SUB-COMPONENTE: SIMULADOR DE CHAT EN VIVO CON IA (DESHABILITADO)
+═══════════════════════════════════════════ */
+function VirtualSalesmanChatSimulator({
+  config,
+  storeId,
+}: {
+  config: VirtualSalesmanConfig;
+  storeId: number | string | null;
+}) {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        border: "1.5px solid #e5e7eb",
+        borderRadius: "22px",
+        overflow: "hidden",
+        boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        height: "540px",
+        position: "relative",
+      }}
+    >
+      {/* Header del Chat */}
+      <div
+        style={{
+          background: "#6b7280",
+          color: "#ffffff",
+          padding: "1rem 1.25rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem",
+        }}
+      >
+        <div
+          style={{
+            width: "42px",
+            height: "42px",
+            borderRadius: "50%",
+            background: "#ffffff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "1.4rem",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            flexShrink: 0,
+          }}
+        >
+          🔒
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              fontSize: "0.95rem",
+              fontWeight: 800,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {config.agent_name}
+          </div>
+          <div
+            style={{
+              fontSize: "0.72rem",
+              color: "rgba(255,255,255,0.85)",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            <span
+              style={{
+                width: "7px",
+                height: "7px",
+                borderRadius: "50%",
+                background: "#f59e0b",
+                display: "inline-block",
+              }}
+            />
+            En Calibración y Mantenimiento
+          </div>
+        </div>
+      </div>
+
+      {/* Cuerpo del Chat Bloqueado */}
+      <div
+        style={{
+          flex: 1,
+          padding: "1.5rem",
+          background: "#f9fafb",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "1rem",
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            width: "56px",
+            height: "56px",
+            borderRadius: "50%",
+            background: "#fff7ed",
+            border: "1px solid #fed7aa",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Lock size={26} color="#f97316" />
+        </div>
+        <div>
+          <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#374151" }}>
+            Simulador Fuera de Servicio
+          </div>
+          <div style={{ fontSize: "0.8rem", color: "#6b7280", marginTop: "4px" }}>
+            Hacé clic en cualquier lugar para ver el estado de mantenimiento.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function VendedorIaPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [store, setStore] = useState<UserStore | null>(null);
+  const [config, setConfig] = useState<VirtualSalesmanConfig>(DEFAULT_CONFIG);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(true);
 
+  // Cargar usuario y configuración previa
   useEffect(() => {
+    let isMounted = true;
+
     async function init() {
       try {
         const supabase = createClient();
@@ -31,14 +240,32 @@ export default function VendedorIaPage() {
           data: { user },
         } = await supabase.auth.getUser();
 
-        if (user) {
+        if (user && isMounted) {
           setUserEmail(user.email || "");
+
+          const { data: storeData } = await supabase
+            .from("stores")
+            .select("store_id, user_id")
+            .eq("user_id", user.id)
+            .eq("is_active", true)
+            .maybeSingle();
+
+          if (storeData && isMounted) {
+            setStore(storeData);
+          }
         }
       } catch (err) {
-        console.error("Error al obtener usuario:", err);
+        console.error("Error inicializando Vendedor Virtual IA:", err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     }
+
     init();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
@@ -55,7 +282,7 @@ export default function VendedorIaPage() {
       <DashboardHeader email={userEmail} onMenuClick={() => setMenuOpen(true)} />
       <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      {/* CONTENIDO PRINCIPAL APAGADO Y DESHABILITADO */}
+      {/* CONTENIDO PRINCIPAL APAGADO Y DESHABILITADO CON ACCIÓN DE CLIC */}
       <main
         onClick={() => setShowModal(true)}
         style={{
@@ -81,7 +308,7 @@ export default function VendedorIaPage() {
               color: "#6b7280",
               padding: "0.4rem 0.8rem",
               borderRadius: "8px",
-              background: "#f3f4f6",
+              background: "#f9fafb",
               border: "1px solid #e5e7eb",
             }}
           >
@@ -128,7 +355,7 @@ export default function VendedorIaPage() {
             style={{
               margin: 0,
               fontSize: "0.95rem",
-              color: "#9ca3af",
+              color: "#6b7280",
               lineHeight: 1.5,
             }}
           >
@@ -136,7 +363,7 @@ export default function VendedorIaPage() {
           </p>
         </div>
 
-        {/* ESTRUCTURA FANTASMA / DESHABILITADA */}
+        {/* ESTRUCTURA FANTASMA APAGADA */}
         <div
           style={{
             display: "grid",
@@ -145,61 +372,73 @@ export default function VendedorIaPage() {
             alignItems: "start",
           }}
         >
-          {/* PANEL CONFIGURACIÓN BLOQUEADO */}
+          {/* COLUMNA IZQUIERDA: CONFIGURADOR DESHABILITADO */}
           <div
             style={{
-              background: "#f9fafb",
-              border: "1.5px solid #e5e7eb",
-              borderRadius: "16px",
-              padding: "1.5rem",
               display: "flex",
               flexDirection: "column",
               gap: "1.25rem",
+              pointerEvents: "none",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyBetween: "space-between" }}>
-              <span style={{ fontSize: "0.9rem", fontWeight: 800, color: "#6b7280" }}>
-                Ajustes del Asesor (Bloqueado)
-              </span>
-              <Lock size={16} color="#9ca3af" />
-            </div>
             <div
               style={{
-                height: "180px",
-                background: "#f3f4f6",
-                borderRadius: "12px",
-                border: "1px dashed #d1d5db",
+                background: "#ffffff",
+                border: "1.5px solid #e5e7eb",
+                borderRadius: "16px",
+                padding: "1.25rem",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                color: "#9ca3af",
-                fontSize: "0.85rem",
-                fontWeight: 600,
+                justifyContent: "space-between",
               }}
             >
-              Mantenimiento programado de motor de IA
+              <div>
+                <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#111827" }}>
+                  Vendedor Virtual Desactivado
+                </div>
+                <div style={{ fontSize: "0.78rem", color: "#6b7280", marginTop: "2px" }}>
+                  Mantenimiento programado de motor de IA
+                </div>
+              </div>
+              <Lock size={20} color="#9ca3af" />
+            </div>
+
+            <div
+              style={{
+                background: "#ffffff",
+                border: "1.5px solid #e5e7eb",
+                borderRadius: "16px",
+                padding: "1.25rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem",
+              }}
+            >
+              <div>
+                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                  Nombre del Asesor
+                </label>
+                <input
+                  type="text"
+                  disabled
+                  value={config.agent_name}
+                  style={{
+                    width: "100%",
+                    padding: "0.65rem 0.85rem",
+                    borderRadius: "10px",
+                    border: "1.5px solid #e5e7eb",
+                    fontSize: "0.85rem",
+                    boxSizing: "border-box",
+                    background: "#f3f4f6",
+                  }}
+                />
+              </div>
             </div>
           </div>
 
-          {/* SIMULADOR BLOQUEADO */}
-          <div
-            style={{
-              height: "450px",
-              background: "#f9fafb",
-              border: "1.5px solid #e5e7eb",
-              borderRadius: "22px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "1rem",
-              color: "#9ca3af",
-            }}
-          >
-            <Wrench size={36} color="#9ca3af" />
-            <span style={{ fontSize: "0.9rem", fontWeight: 700 }}>
-              Simulador temporalmente fuera de servicio
-            </span>
+          {/* COLUMNA DERECHA: SIMULADOR DE CHAT BLOQUEADO */}
+          <div style={{ position: "sticky", top: "2rem", pointerEvents: "none" }}>
+            <VirtualSalesmanChatSimulator config={config} storeId={store?.store_id || null} />
           </div>
         </div>
 
@@ -306,7 +545,7 @@ export default function VendedorIaPage() {
                 Función en Calibración Final
               </h2>
 
-              {/* MENTANSAJE PROFESIONAL */}
+              {/* MENSAJE PROFESIONAL */}
               <p
                 style={{
                   margin: "0 0 1.5rem 0",
@@ -369,4 +608,4 @@ export default function VendedorIaPage() {
       </AnimatePresence>
     </div>
   );
-            }
+              }
