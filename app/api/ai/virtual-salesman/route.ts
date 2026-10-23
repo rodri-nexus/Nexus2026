@@ -6,7 +6,17 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-async function fetchStoreMetrics(storeId: string, accessToken: string) {
+interface StoreMetrics {
+  totalSales: number;
+  todayOrdersCount: number;
+  abandonedCartsCount: number;
+  abandonedCartsAmount: number;
+  lowestStockItem: { name: string; stock: number; price: string } | null;
+  criticalStockProducts: Array<{ name: string; stock: number }>;
+  productsCount: number;
+}
+
+async function fetchStoreMetrics(storeId: string, accessToken: string): Promise<StoreMetrics> {
   try {
     const todayStr = new Date().toISOString().split('T')[0];
 
@@ -87,7 +97,7 @@ async function fetchStoreMetrics(storeId: string, accessToken: string) {
   }
 }
 
-function smartLocalCopilotReply(userMsg: string, metrics: any): string {
+function smartLocalCopilotReply(userMsg: string, metrics: StoreMetrics): string {
   const q = (userMsg || "").toLowerCase();
 
   const isStockQuery = q.includes("stock") || q.includes("producto") || q.includes("agotad") || q.includes("queda") || q.includes("minimo") || q.includes("reposic");
@@ -153,7 +163,7 @@ export async function GET() {
   try {
     const { data: store } = await supabase.from("stores").select("*").limit(1).single();
     
-    let metrics = {
+    let metrics: StoreMetrics = {
       totalSales: 0,
       todayOrdersCount: 0,
       abandonedCartsCount: 0,
@@ -178,7 +188,7 @@ export async function POST(req: Request) {
     const { message } = await req.json();
     const { data: store } = await supabase.from("stores").select("*").limit(1).single();
 
-    let metrics = {
+    let metrics: StoreMetrics = {
       totalSales: 0,
       todayOrdersCount: 0,
       abandonedCartsCount: 0,
@@ -245,4 +255,4 @@ INSTRUCCIONES:
     console.error("Error in virtual-salesman POST:", error);
     return NextResponse.json({ reply: "Tuve un inconveniente de conexión con Tiendanube. ¿Probamos de nuevo?" }, { status: 500 });
   }
-      }
+                                   }
