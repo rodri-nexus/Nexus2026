@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Brain,
   TrendingUp,
@@ -13,7 +13,6 @@ import {
   Sparkles,
   Smartphone,
   Check,
-  Code2,
   Bot,
   DollarSign,
   MessageCircle,
@@ -24,6 +23,7 @@ import {
 } from "lucide-react";
 import DashboardHeader from "../components/DashboardHeader";
 import SideMenu from "../components/SideMenu";
+import CentroAyuda from "../components/CentroAyuda";
 import { createClient } from "@/lib/supabase-browser";
 
 interface CopilotMetrics {
@@ -285,25 +285,6 @@ export default function VendedorIAPage() {
                 Tu Gerente Comercial 24/7 conectado a Tiendanube y WhatsApp.
               </p>
             </div>
-            <a
-              href="https://wa.me/5491100000000"
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                padding: "0.65rem 1.25rem",
-                borderRadius: "999px",
-                background: "#f3f4f6",
-                color: "#4b5563",
-                textDecoration: "none",
-                fontSize: "0.85rem",
-                fontWeight: 700,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
-            >
-              Centro de Ayuda
-            </a>
           </div>
         </motion.div>
 
@@ -587,7 +568,12 @@ export default function VendedorIAPage() {
             </div>
           </motion.div>
         )}
+
+        {/* CENTRO DE AYUDA AL FINAL DE LA PANTALLA */}
+        <div style={{ marginTop: "3rem" }}>
+          <CentroAyuda />
+        </div>
       </main>
     </div>
   );
-  }
+    }
