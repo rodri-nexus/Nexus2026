@@ -3,229 +3,217 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-interface StoreMetrics {
-  salesToday: number;
-  ordersToday: number;
-  salesWeek: number;
-  salesWeekProjected: number;
-  abandonedCartsCount: number;
-  abandonedCartsValue: number;
-  criticalStockProducts: string[];
-  conversionRateEst: string;
-}
-
-// Helper para formato de moneda ARS
-function formatARS(amount: number) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(amount || 0);
-}
-
-// 1. Obtener métricas reales de la API de Tiendanube
-async function fetchStoreRealMetrics(storeId: string = "8293155"): Promise<StoreMetrics> {
-  let salesToday = 0;
-  let ordersToday = 0;
-  let salesWeek = 0;
-  let abandonedCartsCount = 0;
-  let abandonedCartsValue = 0;
-  let criticalStockProducts: string[] = [];
-
+async function fetchStoreMetrics(storeId: string, accessToken: string) {
   try {
-    const { data: store, error: storeError } = await supabase
-      .from("stores")
-      .select("access_token")
-      .eq("store_id", storeId)
-      .single();
+    const todayStr = new Date().toISOString().split('T')[0];
 
-    const accessToken = store?.access_token;
+    const headers = {
+      "Authentication": `bearer ${accessToken}`,
+      "User-Agent": "NevuxSaaS (contacto@nevux.ar)",
+      "Content-Type": "application/json"
+    };
 
-    if (accessToken) {
-      const headers = {
-        "Authorization": `Bearer ${accessToken}`,
-        "User-Agent": "NevuxApp (info@nevux.ar)",
-        "Content-Type": "application/json",
-      };
+    const [ordersRes, draftsRes, productsRes] = await Promise.all([
+      fetch(`https://api.tiendanube.com/v1/${storeId}/orders?created_at_min=${todayStr}T00:00:00Z&status=paid`, { headers }),
+      fetch(`https://api.tiendanube.com/v1/${storeId}/draft_orders?status=open`, { headers }),
+      fetch(`https://api.tiendanube.com/v1/${storeId}/products?per_page=50`, { headers })
+    ]);
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const todayISO = today.toISOString();
+    const orders = ordersRes.ok ? await ordersRes.json() : [];
+    const drafts = draftsRes.ok ? await draftsRes.json() : [];
+    const products = productsRes.ok ? await productsRes.json() : [];
 
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      const weekAgoISO = weekAgo.toISOString();
+    const todayOrdersCount = Array.isArray(orders) ? orders.length : 0;
+    const totalSales = Array.isArray(orders) 
+      ? orders.reduce((sum: number, o: any) => sum + parseFloat(o.total || "0"), 0)
+      : 0;
 
-      // Ventas Pagadas Hoy y Semana
-      try {
-        const ordersRes = await fetch(
-          `https://api.tiendanube.com/v1/${storeId}/orders?status=paid&created_at_min=${weekAgoISO}`,
-          { headers }
-        );
-        if (ordersRes.ok) {
-          const orders = await ordersRes.json();
-          if (Array.isArray(orders)) {
-            orders.forEach((o: any) => {
-              const total = parseFloat(o.total || "0");
-              salesWeek += total;
+    const abandonedCartsCount = Array.isArray(drafts) ? drafts.length : 0;
+    const abandonedCartsAmount = Array.isArray(drafts)
+      ? drafts.reduce((sum: number, d: any) => sum + parseFloat(d.total || "0"), 0)
+      : 0;
 
-              const createdAt = new Date(o.created_at || o.created_at_min);
-              if (createdAt >= today) {
-                salesToday += total;
-                ordersToday += 1;
+    let lowestStockItem: { name: string; stock: number; price: string } | null = null;
+    const criticalStockProducts: Array<{ name: string; stock: number }> = [];
+
+    if (Array.isArray(products)) {
+      products.forEach((prod: any) => {
+        const pName = typeof prod.name === 'object' ? (prod.name.es || Object.values(prod.name)[0] || "Producto") : (prod.name || "Producto");
+        
+        if (Array.isArray(prod.variants) && prod.variants.length > 0) {
+          prod.variants.forEach((v: any) => {
+            if (v.stock !== null && v.stock !== undefined) {
+              const stockNum = parseInt(v.stock, 10);
+              const variantLabel = v.values && v.values.length > 0 
+                ? `${pName} (${v.values.map((val: any) => typeof val === 'object' ? (val.es || Object.values(val)[0]) : val).join(" / ")})`
+                : pName;
+
+              if (stockNum <= 5) {
+                criticalStockProducts.push({ name: variantLabel, stock: stockNum });
               }
-            });
-          }
-        }
-      } catch (e: any) {
-        console.error("Error obteniendo órdenes:", e.message);
-      }
 
-      // Carritos Abandonados (Draft Orders)
-      try {
-        const cartsRes = await fetch(
-          `https://api.tiendanube.com/v1/${storeId}/draft_orders?status=open`,
-          { headers }
-        );
-        if (cartsRes.ok) {
-          const carts = await cartsRes.json();
-          if (Array.isArray(carts)) {
-            abandonedCartsCount = carts.length;
-            abandonedCartsValue = carts.reduce((sum: number, c: any) => sum + parseFloat(c.total || "0"), 0);
-          }
+              if (!lowestStockItem || stockNum < lowestStockItem.stock) {
+                lowestStockItem = { name: variantLabel, stock: stockNum, price: v.price || prod.price || "0" };
+              }
+            }
+          });
         }
-      } catch (e: any) {
-        console.error("Error obteniendo carritos:", e.message);
-      }
-
-      // Productos con Stock Crítico (<= 5 unidades)
-      try {
-        const productsRes = await fetch(
-          `https://api.tiendanube.com/v1/${storeId}/products?per_page=50`,
-          { headers }
-        );
-        if (productsRes.ok) {
-          const products = await productsRes.json();
-          if (Array.isArray(products)) {
-            products.forEach((p: any) => {
-              const title = p.name?.es || p.name?.en || p.name?.pt || "Producto";
-              p.variants?.forEach((v: any) => {
-                const stock = v.stock;
-                if (stock !== null && stock !== undefined && stock <= 5) {
-                  const varName = v.values?.map((val: any) => val.es || val.en || val.pt).join(" / ");
-                  criticalStockProducts.push(`${title}${varName ? ` (${varName})` : ''} [Stock: ${stock}]`);
-                }
-              });
-            });
-          }
-        }
-      } catch (e: any) {
-        console.error("Error obteniendo productos:", e.message);
-      }
+      });
     }
-  } catch (err: any) {
-    console.error("Error en fetchStoreRealMetrics:", err.message);
+
+    return {
+      totalSales,
+      todayOrdersCount,
+      abandonedCartsCount,
+      abandonedCartsAmount,
+      lowestStockItem,
+      criticalStockProducts,
+      productsCount: Array.isArray(products) ? products.length : 0
+    };
+  } catch (err) {
+    console.error("Error fetching store metrics:", err);
+    return {
+      totalSales: 0,
+      todayOrdersCount: 0,
+      abandonedCartsCount: 0,
+      abandonedCartsAmount: 0,
+      lowestStockItem: null,
+      criticalStockProducts: [],
+      productsCount: 0
+    };
   }
-
-  const dailyAverage = salesWeek / 7;
-  const salesWeekProjected = Math.round(salesToday + dailyAverage * 6);
-  const conversionRateEst = ordersToday > 0 ? "2.8%" : "1.2%";
-
-  return {
-    salesToday,
-    ordersToday,
-    salesWeek,
-    salesWeekProjected,
-    abandonedCartsCount,
-    abandonedCartsValue,
-    criticalStockProducts,
-    conversionRateEst,
-  };
 }
 
-// 2. Generador inteligente de respuestas con intención precisa y persona "CEO Argentino"
-function smartLocalCopilotReply(query: string, metrics: StoreMetrics): string {
-  const q = query.toLowerCase().trim();
+function smartLocalCopilotReply(userMsg: string, metrics: any): string {
+  const q = (userMsg || "").toLowerCase();
 
-  // A) CONSULTA DE STOCK
-  if (q.includes("stock") || q.includes("inventario") || q.includes("reponer") || q.includes("variante") || q.includes("poco")) {
-    if (metrics.criticalStockProducts.length === 0) {
-      return `🟢 **Excelente Noticia de Inventario**\n\nNo tenés ningún producto en stock crítico (con 5 o menos unidades) en tu Tiendanube.\n\nTodo tu catálogo cuenta con disponibilidad suficiente para la venta. Podés promocionar sin riesgo de quiebre de stock.`;
+  const isStockQuery = q.includes("stock") || q.includes("producto") || q.includes("agotad") || q.includes("queda") || q.includes("minimo") || q.includes("reposic");
+  const isCartQuery = q.includes("carrito") || q.includes("plata") || q.includes("abandonad") || q.includes("recuper") || q.includes("pendiente") || q.includes("monto");
+  const isSalesQuery = q.includes("venta") || q.includes("hoy") || q.includes("factura") || q.includes("recaud") || q.includes("orden");
+  const isStrategyQuery = q.includes("estrategia") || q.includes("consejo") || q.includes("vender mas") || q.includes("promocion") || q.includes("mejora");
+
+  // CONSULTA COMBINADA: Stock Y Carritos
+  if (isStockQuery && isCartQuery) {
+    let stockText = "";
+    if (metrics.lowestStockItem) {
+      stockText = `📦 **Producto con menos stock:** ${metrics.lowestStockItem.name} con sólo **${metrics.lowestStockItem.stock} unidad(es)** disponible(s).`;
+    } else if (metrics.criticalStockProducts && metrics.criticalStockProducts.length > 0) {
+      stockText = `📦 **Producto con menos stock:** ${metrics.criticalStockProducts[0].name} con **${metrics.criticalStockProducts[0].stock} unidad(es)**.`;
     } else {
-      const listStr = metrics.criticalStockProducts.map((p) => `• ${p}`).join("\n");
-      return `⚠️ **Informe de Stock Crítico**\n\nTenés **${metrics.criticalStockProducts.length} producto(s)** con 5 o menos unidades en inventario:\n\n${listStr}\n\n💡 *Recomendación:* Te sugiero realizar la reposición con tu proveedor o pausar la pauta publicitaria en estos ítems para no cancelar pedidos.`;
+      stockText = `📦 **Stock:** Tenés un inventario de ${metrics.productsCount} productos con niveles de stock saludables.`;
     }
-  }
 
-  // B) CONSULTA DE CARRITOS
-  if (q.includes("carrito") || q.includes("abandon") || q.includes("pendiente") || q.includes("checkout")) {
-    if (metrics.abandonedCartsCount === 0 || metrics.abandonedCartsValue === 0) {
-      return `✨ **Estado de Carritos: Impecable**\n\nNo registrás carritos abandonados en las últimas 48 horas en tu tienda. Todos los clientes que iniciaron el checkout concretaron la compra.\n\n💡 *Tip comercial:* Tu embudo de checkout está convirtiendo de diez. Es un excelente momento para traer más tráfico a la tienda.`;
+    let cartText = "";
+    if (metrics.abandonedCartsCount > 0) {
+      cartText = `🛒 **Carritos abandonados:** Tenés **ARS $${metrics.abandonedCartsAmount.toLocaleString()}** acumulados en **${metrics.abandonedCartsCount} carrito(s)** pendiente(s).`;
     } else {
-      return `🛒 **Recuperación de Carritos Pendientes**\n\nActualmente tenés **${metrics.abandonedCartsCount} carrito(s) abandonado(s)** acumulando un valor recuperable de **${formatARS(metrics.abandonedCartsValue)}**.\n\n💡 *Acción recomendada:* Andá a la pestaña *WhatsApp & Alertas* para enviarles un recordatorio directo de compra y recuperar estos ingresos.`;
+      cartText = `🛒 **Carritos abandonados:** Actualmente tenés **ARS $0 en carritos abandonados** (0 carritos pendientes).`;
     }
+
+    return `${stockText}\n\n${cartText}\n\n¿Querés que prepare un mensaje para intentar recuperar esas ventas por WhatsApp?`;
   }
 
-  // C) CONSULTA DE VENTAS / PROYECCIÓN
-  if (q.includes("venta") || q.includes("hoy") || q.includes("proyecci") || q.includes("factur") || q.includes("ingreso") || q.includes("monto")) {
-    const statusMsg = metrics.ordersToday > 0
-      ? `¡Buen ritmo comercial! Llevás ${metrics.ordersToday} venta(s) cerrada(s) hoy.`
-      : `En lo que va del día no tenés ventas pagadas aún. Te recomiendo hacer una historia activa en Instagram impulsando tu producto estrella.`;
-
-    return `📈 **Balance Comercial en Tiempo Real**\n\n• **Ventas Concretadas Hoy:** ${formatARS(metrics.salesToday)} (${metrics.ordersToday} órdenes)\n• **Proyección Cierre Semanal:** ${formatARS(metrics.salesWeekProjected)}\n• **Tasa de Conversión Estimada:** ${metrics.conversionRateEst}\n\n${statusMsg}`;
+  // SOLO STOCK
+  if (isStockQuery) {
+    if (metrics.lowestStockItem) {
+      return `📦 **Estado de Stock:**\n\nEl producto con menos unidades es **${metrics.lowestStockItem.name}** con **${metrics.lowestStockItem.stock} unidad(es)**.\n\nTotal de productos en nivel crítico (≤ 5 unidades): **${metrics.criticalStockProducts.length}**.`;
+    }
+    return `📦 **Estado de Stock:** Tu tienda tiene ${metrics.productsCount} productos con niveles de inventario óptimos.`;
   }
 
-  // D) CONSULTA DE ESTRATEGIAS / IDEAS
-  if (q.includes("estrategia") || q.includes("idea") || q.includes("consejo") || q.includes("aumentar") || q.includes("ayuda") || q.includes("recomend")) {
-    const cartAdvice = metrics.abandonedCartsCount > 0
-      ? `Tenés **${formatARS(metrics.abandonedCartsValue)}** estancados en ${metrics.abandonedCartsCount} carritos. Mandales un mensaje de recuperación.`
-      : `Tu embudo de pago está impecable sin carritos trabados. Mandá tráfico directo.`;
-
-    const stockAdvice = metrics.criticalStockProducts.length > 0
-      ? `Tenés ${metrics.criticalStockProducts.length} productos en stock bajo. Reponé stock antes de pausar o promocionar.`
-      : `Tu catálogo tiene stock 100% disponible para campañas agresivas.`;
-
-    return `💡 **3 Estrategias Comerciales Recomendadas:**\n\n1. **Recuperación Inmediata:** ${cartAdvice}\n2. **Urgencia Comercial:** Ofrecé envío bonificado por las próximas 12 horas en compras superiores a $30.000.\n3. **Optimización de Inventario:** ${stockAdvice}`;
+  // SOLO CARRITOS
+  if (isCartQuery) {
+    if (metrics.abandonedCartsCount > 0) {
+      return `🛒 **Carritos Recuperables:**\n\nTenés **${metrics.abandonedCartsCount} carrito(s) abandonado(s)** acumulando **ARS $${metrics.abandonedCartsAmount.toLocaleString()}**.\n\nPodés ir a la pestaña 'WhatsApp & Reportes' para enviarles un recordatorio de compra.`;
+    }
+    return `🛒 **Carritos Abandonados:** Tenés **ARS $0** en carritos pendientes (**0 carritos abandonados** actualmente).`;
   }
 
-  // E) CONSULTA GENERAL
-  return `🇦🇷 **Resumen General de tu Tienda**\n\n• **Ventas de Hoy:** ${formatARS(metrics.salesToday)} (${metrics.ordersToday} órdenes)\n• **Carritos Pendientes:** ${formatARS(metrics.abandonedCartsValue)} (${metrics.abandonedCartsCount} carritos)\n• **Productos en Stock Bajo:** ${metrics.criticalStockProducts.length}\n• **Proyección Semanal:** ${formatARS(metrics.salesWeekProjected)}\n\n¿En cuál de estas áreas querés profundizar? Podés preguntarme sobre stock, carritos o sugerencias de venta.`;
+  // SOLO VENTAS
+  if (isSalesQuery) {
+    return `📊 **Ventas de Hoy:**\n\nLlevás **ARS $${metrics.totalSales.toLocaleString()}** en **${metrics.todayOrdersCount} orden(es)** hoy.\n\nProyección a fin de semana: **ARS $${(metrics.totalSales * 7.2).toLocaleString(undefined, { maximumFractionDigits: 0 })}**.`;
+  }
+
+  // ESTRATEGIA
+  if (isStrategyQuery) {
+    if (metrics.abandonedCartsCount > 0) {
+      return `💡 **Estrategia Recomendada:**\n\nTu mayor oportunidad hoy es recuperar los **${metrics.abandonedCartsCount} carritos abandonados** (acumulan **ARS $${metrics.abandonedCartsAmount.toLocaleString()}**). Te aconsejo enviar un cupón por WhatsApp.`;
+    }
+    return `💡 **Estrategia Recomendada:**\n\nPodés lanzar una oferta relámpago o promocionar tu producto estrella en redes sociales para incrementar el flujo de caja.`;
+  }
+
+  // RESUMEN GENERAL
+  return `🇦🇷 **Estado de tu tienda:**\n• **Ventas Hoy:** ARS $${metrics.totalSales.toLocaleString()} (${metrics.todayOrdersCount} órdenes)\n• **Carritos Abandonados:** ARS $${metrics.abandonedCartsAmount.toLocaleString()} (${metrics.abandonedCartsCount} carritos)\n• **Producto menor stock:** ${metrics.lowestStockItem ? `${metrics.lowestStockItem.name} (${metrics.lowestStockItem.stock} u.)` : "Stock OK"}\n\n¿En qué área querés profundizar?`;
 }
 
-export async function POST(request: Request) {
+export async function GET() {
   try {
-    const body = await request.json().catch(() => ({}));
-    const { query = "", store_id = "8293155", action } = body;
+    const { data: store } = await supabase.from("stores").select("*").limit(1).single();
+    
+    let metrics = {
+      totalSales: 0,
+      todayOrdersCount: 0,
+      abandonedCartsCount: 0,
+      abandonedCartsAmount: 0,
+      lowestStockItem: null,
+      criticalStockProducts: [],
+      productsCount: 0
+    };
 
-    // Obtener métricas reales
-    const metrics = await fetchStoreRealMetrics(store_id);
-
-    // Si el front solo pide el objeto de métricas
-    if (action === "metrics") {
-      return NextResponse.json({ success: true, metrics });
+    if (store?.store_id && store?.access_token) {
+      metrics = await fetchStoreMetrics(store.store_id, store.access_token);
     }
 
-    // Intentar consulta con Gemini AI si la API Key está configurada
+    return NextResponse.json({ success: true, metrics });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const { message } = await req.json();
+    const { data: store } = await supabase.from("stores").select("*").limit(1).single();
+
+    let metrics = {
+      totalSales: 0,
+      todayOrdersCount: 0,
+      abandonedCartsCount: 0,
+      abandonedCartsAmount: 0,
+      lowestStockItem: null,
+      criticalStockProducts: [],
+      productsCount: 0
+    };
+
+    if (store?.store_id && store?.access_token) {
+      metrics = await fetchStoreMetrics(store.store_id, store.access_token);
+    }
+
     const geminiKey = process.env.GEMINI_API_KEY;
-    if (geminiKey && query) {
+
+    if (geminiKey) {
       try {
-        const promptSystem = `Sos Nevux Copilot IA, el Gerente Comercial 24/7 de esta tienda de Tiendanube. Tu tono es "CEO Argentino": profesional, directo, cálido, humano y enfocado en la rentabilidad.
+        const prompt = `
+sos el Nevux Copilot IA, un gerente comercial para e-commerce en Argentina.
+Tono: CEO Argentino (profesional, directo, claro, cálido, voseo argentino suave).
+DEBES responder de forma DIRECTA Y ESPECÍFICA a la consulta del usuario. No des un resumen genérico si el usuario te preguntó algo específico.
 
-MÉTRICAS REALES DE LA TIENDA EN TIEMPO REAL:
-- Ventas Concretadas Hoy: $${metrics.salesToday} ARS (${metrics.ordersToday} órdenes)
-- Proyección Semanal Estimada: $${metrics.salesWeekProjected} ARS
-- Carritos Abandonados Recuperables: ${metrics.abandonedCartsCount} carritos por un valor total de $${metrics.abandonedCartsValue} ARS
-- Productos con Stock Crítico (<= 5 unidades): ${metrics.criticalStockProducts.length === 0 ? "Ninguno (Stock saludable)" : metrics.criticalStockProducts.join(", ")}
+DATOS DE TIENDANUBE EN TIEMPO REAL:
+- Ventas Hoy: ARS $${metrics.totalSales} (${metrics.todayOrdersCount} órdenes pagadas)
+- Carritos Abandonados: ${metrics.abandonedCartsCount} carritos acumulando ARS $${metrics.abandonedCartsAmount}
+- Producto con Menos Stock: ${metrics.lowestStockItem ? `${metrics.lowestStockItem.name} (${metrics.lowestStockItem.stock} unidades)` : "Ninguno en riesgo"}
+- Total Productos en Stock Crítico (<= 5 unidades): ${metrics.criticalStockProducts.length}
 
-INSTRUCCIÓN CRÍTICA:
-Responde de forma DIRECTA, ESPECÍFICA y CONCRETA a la consulta del comerciante: "${query}".
-- Si pregunta por stock, responde ÚNICAMENTE sobre el stock real (listando productos o felicitando por tener stock saludable).
-- Si pregunta por carritos abandonados, responde ÚNICAMENTE sobre los carritos y el valor acumulado de los carritos.
-- Si pregunta por ventas o proyección, responde sobre la facturación de hoy y la proyección.
-- NUNCA des un mensaje genérico de bienvenida cuando te hacen una pregunta específica.
-- Usá formato Markdown con negritas y emojis profesionales de e-commerce.`;
+CONSULTA DEL COMERCIANTE:
+"${message}"
+
+INSTRUCCIONES:
+- Respondé directamente a las dudas puntuales manifestadas en la consulta.
+- Si pregunta por stock y carritos, mencioná ambos datos explícitamente en el primer párrafo.
+`;
 
         const geminiRes = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
@@ -233,40 +221,28 @@ Responde de forma DIRECTA, ESPECÍFICA y CONCRETA a la consulta del comerciante:
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              contents: [{ parts: [{ text: promptSystem }] }],
-              generationConfig: { temperature: 0.2, maxOutputTokens: 500 },
-            }),
+              contents: [{ parts: [{ text: prompt }] }]
+            })
           }
         );
 
         if (geminiRes.ok) {
           const geminiData = await geminiRes.json();
-          const aiText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (aiText) {
-            return NextResponse.json({
-              success: true,
-              reply: aiText,
-              metrics,
-            });
+          const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text && text.trim().length > 0) {
+            return NextResponse.json({ reply: text });
           }
         }
-      } catch (e: any) {
-        console.warn("Error en llamada Gemini, usando respuesta inteligente local:", e.message);
+      } catch (geminiErr) {
+        console.error("Gemini fallback:", geminiErr);
       }
     }
 
-    // Fallback local con detección precisa de intención
-    const reply = smartLocalCopilotReply(query, metrics);
+    const reply = smartLocalCopilotReply(message, metrics);
+    return NextResponse.json({ reply });
 
-    return NextResponse.json({
-      success: true,
-      reply,
-      metrics,
-    });
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: "Error en Nevux Copilot API", details: err.message },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    console.error("Error in virtual-salesman POST:", error);
+    return NextResponse.json({ reply: "Tuve un inconveniente de conexión con Tiendanube. ¿Probamos de nuevo?" }, { status: 500 });
   }
-          }
+      }
