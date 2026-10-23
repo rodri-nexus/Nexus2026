@@ -133,14 +133,14 @@ const proFeatures: ProFeature[] = [
     badge: "BETA",
   },
   {
-    label: "💬 Asistente de Ventas (IA)",
+    label: "💬 Nevux Copilot IA",
     desc: "Vendedor virtual 24/7.",
     href: "/dashboard/vendedor-ia",
     icon: MessageSquare,
     badge: "NUEVO",
   },
   {
-    label: "🤖 Asistente de Soporte (IA)",
+    label: "🤖 NevuxBot AI",
     desc: "NevuxBot CRM + WhatsApp.",
     href: "/dashboard/nevuxbot",
     icon: Bot,
@@ -278,7 +278,6 @@ export default function DashboardClient({
         const list = Array.isArray(data) ? data : data.categories || [];
         setCategories(list);
       } else {
-        // Fallback si no hay endpoint directo de categorías
         const prodRes = await fetch(`/api/products?storeId=${store.store_id}`);
         if (prodRes.ok) {
           const prodData = await prodRes.json();
@@ -343,7 +342,6 @@ export default function DashboardClient({
     window.location.href = href;
   };
 
-  // Helper blindado que soporta todos los formatos de imagen de Tiendanube
   const getProductImage = (p: Product): string => {
     if (p.image_url && typeof p.image_url === "string") return p.image_url;
 
@@ -1881,4 +1879,4 @@ export default function DashboardClient({
       </AnimatePresence>
     </div>
   );
-         }
+    }
