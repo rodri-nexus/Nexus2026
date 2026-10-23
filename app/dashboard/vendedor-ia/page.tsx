@@ -576,4 +576,4 @@ export default function VendedorIAPage() {
       </main>
     </div>
   );
-    }
+          }
