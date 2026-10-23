@@ -701,7 +701,7 @@ export default function VendedorIAPage() {
             </div>
 
             <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 16 }}>
-              <label style={{ display: "flex", alignItems: "center", justifyBetween: "space-between", gap: 12, cursor: "pointer" }}>
+              <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, cursor: "pointer" }}>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Reporte Diario a las 20:00 hs</div>
                   <div style={{ fontSize: 13, color: "#64748b" }}>Recibí un resumen diario de ventas, carritos y recomendaciones en tu WhatsApp.</div>
@@ -716,7 +716,7 @@ export default function VendedorIAPage() {
             </div>
 
             <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 16 }}>
-              <label style={{ display: "flex", alignItems: "center", justifyBetween: "space-between", gap: 12, cursor: "pointer" }}>
+              <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, cursor: "pointer" }}>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Alertas Instantáneas de Stock Crítico</div>
                   <div style={{ fontSize: 13, color: "#64748b" }}>Notificar al instante cuando un producto tenga 5 o menos unidades en inventario.</div>
@@ -731,7 +731,7 @@ export default function VendedorIAPage() {
             </div>
 
             <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 16 }}>
-              <label style={{ display: "flex", alignItems: "center", justifyBetween: "space-between", gap: 12, cursor: "pointer" }}>
+              <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, cursor: "pointer" }}>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Recuperación Automática de Carritos</div>
                   <div style={{ fontSize: 13, color: "#64748b" }}>Permitir a Copilot preparar los mensajes de recuperación para enviar con 1 clic.</div>
@@ -836,4 +836,4 @@ export default function VendedorIAPage() {
       )}
     </div>
   );
-}
+    }
