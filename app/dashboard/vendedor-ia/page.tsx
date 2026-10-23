@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import DashboardHeader from "@/components/DashboardHeader";
-import SideMenu from "@/components/SideMenu";
-import CentroAyuda from "@/components/CentroAyuda";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import { 
   Bot, 
   Send, 
@@ -12,18 +10,156 @@ import {
   AlertTriangle, 
   ShoppingCart, 
   Settings, 
-  MessageSquare, 
   Zap, 
   CheckCircle2, 
   Info,
-  Layers
+  Layers,
+  LayoutDashboard,
+  Package,
+  HelpCircle,
+  Search,
+  Bell,
+  Store
 } from "lucide-react";
+
+// Sidebar integrada
+function SideMenu() {
+  const navItems = [
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Carritos Abandonados", href: "/dashboard/carritos", icon: ShoppingCart },
+    { label: "Productos & Stock", href: "/dashboard/productos", icon: Package },
+    { label: "Copilot IA", href: "/dashboard/vendedor-ia", icon: Bot, active: true },
+    { label: "Configuración", href: "/dashboard/configuracion", icon: Settings },
+  ];
+
+  return (
+    <aside style={{ width: "260px", backgroundColor: "#ffffff", borderRight: "1.5px solid #e5e7eb", display: "flex", flexDirection: "column", height: "100vh", position: "sticky", top: 0, zIndex: 20 }}>
+      {/* Brand Header */}
+      <div style={{ padding: "20px 24px", borderBottom: "1.5px solid #f3f4f6", display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: "800", fontSize: "18px" }}>
+          N
+        </div>
+        <div>
+          <span style={{ fontSize: "18px", fontWeight: "700", color: "#111827", letterSpacing: "-0.02em" }}>Nevux</span>
+          <span style={{ fontSize: "10px", backgroundColor: "#ecfdf5", color: "#10B981", fontWeight: "700", padding: "2px 6px", borderRadius: "4px", marginLeft: "6px" }}>SaaS</span>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav style={{ padding: "16px 12px", flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
+        <div style={{ padding: "0 12px 8px 12px", fontSize: "11px", fontWeight: "600", color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          Menú Principal
+        </div>
+        {navItems.map((item, idx) => {
+          const Icon = item.icon;
+          const isActive = item.active;
+          return (
+            <Link key={idx} href={item.href} style={{ textDecoration: "none" }}>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "10px 12px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: isActive ? "600" : "500",
+                color: isActive ? "#10B981" : "#4b5563",
+                backgroundColor: isActive ? "#ecfdf5" : "transparent",
+                transition: "all 0.15s ease",
+                cursor: "pointer"
+              }}>
+                <Icon size={18} color={isActive ? "#10B981" : "#6b7280"} />
+                <span>{item.label}</span>
+                {isActive && (
+                  <div style={{ marginLeft: "auto", width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#10B981" }} />
+                )}
+              </div>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Footer Store Info */}
+      <div style={{ padding: "16px", borderTop: "1.5px solid #f3f4f6", backgroundColor: "#fafafa" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Store size={18} color="#4b5563" />
+          </div>
+          <div style={{ flex: 1, overflow: "hidden" }}>
+            <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Tiendanube Conectada</div>
+            <div style={{ fontSize: "11px", color: "#10B981", fontWeight: "500" }}>● En línea</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+// Dashboard Header integrado
+function DashboardHeader() {
+  return (
+    <header style={{ height: "64px", backgroundColor: "#ffffff", borderBottom: "1.5px solid #e5e7eb", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", position: "sticky", top: 0, zIndex: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", width: "320px" }}>
+        <div style={{ position: "relative", width: "100%" }}>
+          <Search size={16} color="#9ca3af" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
+          <input 
+            type="text" 
+            placeholder="Buscar órdenes, productos, métricas..." 
+            style={{ width: "100%", padding: "8px 12px 8px 36px", borderRadius: "8px", border: "1.5px solid #e5e7eb", fontSize: "13px", outline: "none", backgroundColor: "#fafafa" }}
+          />
+        </div>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <button style={{ background: "none", border: "none", cursor: "pointer", position: "relative", padding: "6px" }}>
+          <Bell size={20} color="#4b5563" />
+          <span style={{ position: "absolute", top: "4px", right: "4px", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#10B981" }} />
+        </button>
+        <div style={{ height: "24px", width: "1px", backgroundColor: "#e5e7eb" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#10B981", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "600", fontSize: "13px" }}>
+            NV
+          </div>
+          <div>
+            <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827" }}>Merchant Nevux</div>
+            <div style={{ fontSize: "11px", color: "#6b7280" }}>Tiendanube AR</div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+// Centro de Ayuda integrado
+function CentroAyuda() {
+  return (
+    <div style={{ backgroundColor: "#ffffff", padding: "20px", borderRadius: "12px", border: "1.5px solid #e5e7eb" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+        <div style={{ backgroundColor: "#ecfdf5", padding: "8px", borderRadius: "8px" }}>
+          <HelpCircle size={20} color="#10B981" />
+        </div>
+        <h3 style={{ fontSize: "14px", fontWeight: "600", color: "#111827", margin: 0 }}>Centro de Soporte Copilot</h3>
+      </div>
+      <p style={{ fontSize: "12px", color: "#6b7280", lineHeight: "1.5", marginBottom: "16px" }}>
+        ¿Tenés dudas de cómo potenciar las ventas con Nevux Copilot? Nuestro equipo técnico y de estrategia te apoya en tiempo real.
+      </p>
+      <a 
+        href="https://wa.me/5491122334455?text=Hola%20Nevux,%20necesito%20ayuda%20con%20el%20Copilot" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", padding: "10px", borderRadius: "8px", backgroundColor: "#ecfdf5", color: "#10B981", fontWeight: "600", fontSize: "13px", textDecoration: "none", border: "1px solid #a7f3d0" }}
+      >
+        Hablar con Soporte Oficial
+      </a>
+    </div>
+  );
+}
 
 export default function VendedorIAPage() {
   const [activeTab, setActiveTab] = useState<'chat' | 'settings' | 'mcp'>('chat');
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: '¡Hola! Soy tu Copilot de Nevux. Estoy conectado a tu Tiendanube en tiempo real. ¿Querés saber cómo vienen las ventas de hoy o qué carritos podemos recuperar?' }
+    { role: 'assistant', content: '¡Hola! Soy tu Copilot de Nevux. Estoy conectado a tu Tiendanube en tiempo real. ¿Querés saber cómo vienen las ventas de hoy, revisar el stock o recuperar carritos?' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [metrics, setMetrics] = useState<any>(null);
@@ -353,7 +489,7 @@ export default function VendedorIAPage() {
                   </div>
                 </div>
                 <div style={{ fontSize: "14px", color: "#6b7280", fontWeight: "500" }}>Stock Crítico</div>
-                <div style={{ fontSize: "28px", fontWeight: "700", color: "#f43f5e", margin: "4px 0" }}>
+                <div style={{ fontSize: "28px", fontWeight: "700", color="#f43f5e", margin: "4px 0" }}>
                   {metrics?.criticalStockProducts?.length || 0} <span style={{ fontSize: "14px", color: "#6b7280", fontWeight: "400" }}>productos</span>
                 </div>
                 <div style={{ fontSize: "12px", color: "#9ca3af" }}>
@@ -361,7 +497,7 @@ export default function VendedorIAPage() {
                 </div>
               </div>
 
-              {/* Card: Proyección Semanal (Nueva Estética) */}
+              {/* Card: Proyección Semanal */}
               <div style={{ backgroundColor: "#111827", padding: "20px", borderRadius: "12px", color: "#fff" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
                   <Bot size={18} color="#10B981" />
@@ -390,4 +526,4 @@ export default function VendedorIAPage() {
       </div>
     </div>
   );
-                }
+      }
