@@ -489,7 +489,7 @@ export default function VendedorIAPage() {
                   </div>
                 </div>
                 <div style={{ fontSize: "14px", color: "#6b7280", fontWeight: "500" }}>Stock Crítico</div>
-                <div style={{ fontSize: "28px", fontWeight: "700", color="#f43f5e", margin: "4px 0" }}>
+                <div style={{ fontSize: "28px", fontWeight: "700", color: "#f43f5e", margin: "4px 0" }}>
                   {metrics?.criticalStockProducts?.length || 0} <span style={{ fontSize: "14px", color: "#6b7280", fontWeight: "400" }}>productos</span>
                 </div>
                 <div style={{ fontSize: "12px", color: "#9ca3af" }}>
@@ -526,4 +526,4 @@ export default function VendedorIAPage() {
       </div>
     </div>
   );
-      }
+     }
