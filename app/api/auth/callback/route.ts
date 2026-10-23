@@ -10,6 +10,7 @@ interface TiendanubeStoreDetails {
   storeName: string | null;
   businessName: string | null;
   bestName: string | null;
+  storeUrl: string | null;
 }
 
 async function installStoreScript(
@@ -65,6 +66,21 @@ async function getTiendanubeStoreDetails(
       const data = await res.json();
       const email = data.email || data.customer_email || null;
 
+      // URL de la tienda
+      let storeUrl: string | null = null;
+      if (typeof data.url === "string" && data.url.trim()) {
+        let rawUrl = data.url.trim();
+        if (!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://")) {
+          rawUrl = `https://${rawUrl}`;
+        }
+        storeUrl = rawUrl;
+      } else if (
+        typeof data.original_domain === "string" &&
+        data.original_domain.trim()
+      ) {
+        storeUrl = `https://${data.original_domain.trim()}`;
+      }
+
       // Tiendanube puede devolver name como string o como objeto { es: "...", pt: "..." }
       let storeName: string | null = null;
       if (typeof data.name === "string" && data.name.trim()) {
@@ -97,6 +113,7 @@ async function getTiendanubeStoreDetails(
         storeName,
         businessName,
         bestName,
+        storeUrl,
       };
     }
   } catch (err: unknown) {
@@ -108,6 +125,7 @@ async function getTiendanubeStoreDetails(
     storeName: null,
     businessName: null,
     bestName: null,
+    storeUrl: null,
   };
 }
 
@@ -192,7 +210,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 2. Obtener datos completos de la tienda en Tiendanube (Email, Nombre comercial, Nombre tienda)
+    // 2. Obtener datos completos de la tienda en Tiendanube (Email, Nombre comercial, Nombre tienda, URL)
     const storeDetails = await getTiendanubeStoreDetails(storeId, accessToken);
     const storeEmail = storeDetails.email;
 
@@ -307,6 +325,10 @@ export async function GET(request: NextRequest) {
       is_active: true,
     };
 
+    if (storeDetails.storeUrl) {
+      upsertPayload.store_url = storeDetails.storeUrl;
+    }
+
     if (isBrandNewStore) {
       upsertPayload.installed_at = now.toISOString();
       upsertPayload.trial_started_at = now.toISOString();
@@ -407,4 +429,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-    }
+  }
