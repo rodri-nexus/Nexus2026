@@ -18,6 +18,7 @@ import {
   Bot,
   DollarSign,
   Package,
+  ExternalLink,
 } from "lucide-react";
 
 interface CopilotMetrics {
@@ -44,12 +45,15 @@ export default function VendedorIAPage() {
   const [loadingMetrics, setLoadingMetrics] = useState<boolean>(true);
   const [metrics, setMetrics] = useState<CopilotMetrics | null>(null);
 
-  // Settings state
+  // Settings state with persistence
   const [whatsappPhone, setWhatsappPhone] = useState<string>("+5491100000000");
   const [dailyReportEnabled, setDailyReportEnabled] = useState<boolean>(true);
   const [stockAlertsEnabled, setStockAlertsEnabled] = useState<boolean>(true);
   const [autoCartRecovery, setAutoCartRecovery] = useState<boolean>(true);
+  const [savingSettings, setSavingSettings] = useState<boolean>(false);
   const [savedSettings, setSavedSettings] = useState<boolean>(false);
+  const [testingWhatsapp, setTestingWhatsapp] = useState<boolean>(false);
+  const [whatsappTestSuccess, setWhatsappTestSuccess] = useState<string | null>(null);
 
   // Chat simulator state
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -64,9 +68,10 @@ export default function VendedorIAPage() {
   const [isSending, setIsSending] = useState<boolean>(false);
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
-  // Fetch real metrics on mount
+  // Fetch real metrics & settings on mount
   useEffect(() => {
     fetchLiveMetrics();
+    fetchCopilotSettings();
   }, []);
 
   useEffect(() => {
@@ -89,6 +94,21 @@ export default function VendedorIAPage() {
       console.error("Error fetching Copilot metrics:", err);
     } finally {
       setLoadingMetrics(false);
+    }
+  };
+
+  const fetchCopilotSettings = async () => {
+    try {
+      const res = await fetch("/api/ai/copilot-settings?store_id=8293155");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.whatsapp_phone) setWhatsappPhone(data.whatsapp_phone);
+        if (data.daily_report_enabled !== undefined) setDailyReportEnabled(data.daily_report_enabled);
+        if (data.stock_alerts_enabled !== undefined) setStockAlertsEnabled(data.stock_alerts_enabled);
+        if (data.auto_cart_recovery !== undefined) setAutoCartRecovery(data.auto_cart_recovery);
+      }
+    } catch (err) {
+      console.error("Error fetching Copilot settings:", err);
     }
   };
 
@@ -142,10 +162,71 @@ export default function VendedorIAPage() {
     }
   };
 
-  const handleSaveSettings = (e: React.FormEvent) => {
+  const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSavedSettings(true);
-    setTimeout(() => setSavedSettings(false), 3000);
+    setSavingSettings(true);
+    setSavedSettings(false);
+
+    try {
+      const res = await fetch("/api/ai/copilot-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          store_id: "8293155",
+          whatsapp_phone: whatsappPhone,
+          daily_report_enabled: dailyReportEnabled,
+          stock_alerts_enabled: stockAlertsEnabled,
+          auto_cart_recovery: autoCartRecovery,
+        }),
+      });
+
+      if (res.ok) {
+        setSavedSettings(true);
+        setTimeout(() => setSavedSettings(false), 3000);
+      }
+    } catch (err) {
+      console.error("Error saving Copilot settings:", err);
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  const handleTestWhatsAppReport = async () => {
+    setTestingWhatsapp(true);
+    setWhatsappTestSuccess(null);
+
+    try {
+      // Execute live daily report cron for this store
+      const res = await fetch("/api/cron/daily-report?store_id=8293155", {
+        method: "POST",
+      });
+      const data = await res.json();
+
+      if (data.results && data.results[0]?.whatsappResult?.whatsappWebUrl) {
+        const webUrl = data.results[0].whatsappResult.whatsappWebUrl;
+        setWhatsappTestSuccess(webUrl);
+        window.open(webUrl, "_blank");
+      } else {
+        // Fallback test send directly
+        const directRes = await fetch("/api/whatsapp/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone: whatsappPhone,
+            message: `🇦🇷 *PRUEBA NEVUX COPILOT*\n\nHola! Tu integración de WhatsApp Copilot está 100% activa. Recibirás tu reporte comercial diario a las 20:00 hs.`,
+          }),
+        });
+        const directData = await directRes.json();
+        if (directData.whatsappWebUrl) {
+          setWhatsappTestSuccess(directData.whatsappWebUrl);
+          window.open(directData.whatsappWebUrl, "_blank");
+        }
+      }
+    } catch (err) {
+      console.error("Error testing WhatsApp send:", err);
+    } finally {
+      setTestingWhatsapp(false);
+    }
   };
 
   const formatARS = (amount: number) => {
@@ -589,7 +670,6 @@ export default function VendedorIAPage() {
                     fontWeight: 500,
                     color: "#334155",
                     cursor: "pointer",
-                    transition: "all 0.15s",
                   }}
                 >
                   📈 Ventas de hoy & proyección
@@ -696,7 +776,7 @@ export default function VendedorIAPage() {
                 />
               </div>
               <span style={{ fontSize: 12, color: "#94a3b8", marginTop: 4, display: "block" }}>
-                Formato internacional con código de país.
+                Formato internacional con código de país (Ej: +5491100000000).
               </span>
             </div>
 
@@ -745,9 +825,10 @@ export default function VendedorIAPage() {
               </label>
             </div>
 
-            <div style={{ paddingTop: 16 }}>
+            <div style={{ paddingTop: 16, display: "flex", gap: 12, flexWrap: "wrap" }}>
               <button
                 type="submit"
+                disabled={savingSettings}
                 style={{
                   background: "#059669",
                   color: "#fff",
@@ -763,9 +844,40 @@ export default function VendedorIAPage() {
                 }}
               >
                 {savedSettings ? <Check size={18} /> : null}
-                {savedSettings ? "Configuración Guardada" : "Guardar Preferencias"}
+                {savedSettings ? "Configuración Guardada" : savingSettings ? "Guardando..." : "Guardar Preferencias"}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleTestWhatsAppReport}
+                disabled={testingWhatsapp}
+                style={{
+                  background: "#25d366",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 10,
+                  padding: "12px 20px",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <Smartphone size={18} />
+                {testingWhatsapp ? "Enviando..." : "📱 Probar envío a mi WhatsApp"}
               </button>
             </div>
+
+            {whatsappTestSuccess && (
+              <div style={{ marginTop: 12, padding: 12, background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 10, fontSize: 13, color: "#065f46" }}>
+                ✅ Reporte generado y enviado. Si no abrió la ventana automáticamente,{" "}
+                <a href={whatsappTestSuccess} target="_blank" rel="noreferrer" style={{ fontWeight: 700, color: "#047857", textDecoration: "underline" }}>
+                  hacé clic acá para abrir tu WhatsApp
+                </a>.
+              </div>
+            )}
           </form>
         </div>
       )}
@@ -836,4 +948,4 @@ export default function VendedorIAPage() {
       )}
     </div>
   );
-    }
+}
