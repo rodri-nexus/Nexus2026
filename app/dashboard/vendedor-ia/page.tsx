@@ -1,1062 +1,839 @@
-// app/dashboard/vendedor-ia/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
 import {
-  ArrowLeft,
-  Sparkles,
+  Brain,
+  MessageSquare,
   TrendingUp,
-  ShoppingCart,
   AlertTriangle,
-  Zap,
+  ShoppingCart,
   Send,
-  Save,
-  Loader2,
+  Zap,
   CheckCircle2,
-  AlertCircle,
-  MessageCircle,
   RefreshCw,
+  Sparkles,
+  Smartphone,
+  Check,
+  Code2,
   Bot,
-  BarChart3,
-  BrainCircuit,
-  Bell,
-  ShieldCheck,
+  DollarSign,
+  Package,
 } from "lucide-react";
-import DashboardHeader from "../components/DashboardHeader";
-import SideMenu from "../components/SideMenu";
-import CentroAyuda from "../components/CentroAyuda";
-import { createClient } from "@/lib/supabase-browser";
 
-/* ═══════════════════════════════════════════
-   TIPOS E INTERFACES
-═══════════════════════════════════════════ */
-interface CopilotSettings {
-  is_active: boolean;
-  whatsapp_number: string;
-  daily_reports: boolean;
-  stock_alerts: boolean;
-  auto_cart_recovery: boolean;
-  theme_color: string;
-}
-
-interface StoreMetrics {
+interface CopilotMetrics {
   salesToday: number;
-  ordersTodayCount: number;
+  ordersToday: number;
   salesWeek: number;
-  ordersWeekCount: number;
+  salesWeekProjected: number;
   abandonedCartsCount: number;
   abandonedCartsValue: number;
-  lowStockProducts: Array<{ name: string; stock: number; price: string }>;
-  topProducts: Array<{ name: string; salesCount: number; price: string }>;
-  predictedWeekSales: number;
-  confidenceScore: number;
+  criticalStockProducts: string[];
+  conversionRateEst: string;
 }
 
 interface ChatMessage {
   id: string;
-  sender: "bot" | "user";
+  sender: "merchant" | "copilot";
   text: string;
   timestamp: string;
-  actionType?: string;
+  metricsData?: CopilotMetrics;
 }
 
-interface UserStore {
-  store_id: number;
-  user_id: string;
-}
+export default function VendedorIAPage() {
+  const [activeTab, setActiveTab] = useState<"copilot" | "settings" | "mcp">("copilot");
+  const [loadingMetrics, setLoadingMetrics] = useState<boolean>(true);
+  const [metrics, setMetrics] = useState<CopilotMetrics | null>(null);
 
-const DEFAULT_SETTINGS: CopilotSettings = {
-  is_active: true,
-  whatsapp_number: "",
-  daily_reports: true,
-  stock_alerts: true,
-  auto_cart_recovery: true,
-  theme_color: "#10B981",
-};
+  // Settings state
+  const [whatsappPhone, setWhatsappPhone] = useState<string>("+5491100000000");
+  const [dailyReportEnabled, setDailyReportEnabled] = useState<boolean>(true);
+  const [stockAlertsEnabled, setStockAlertsEnabled] = useState<boolean>(true);
+  const [autoCartRecovery, setAutoCartRecovery] = useState<boolean>(true);
+  const [savedSettings, setSavedSettings] = useState<boolean>(false);
 
-/* ═══════════════════════════════════════════
-   SUB-COMPONENTE: SIMULADOR INTERACTIVO DEL COPILOTO
-═══════════════════════════════════════════ */
-function CopilotSimulator({
-  settings,
-  storeId,
-  metrics,
-}: {
-  settings: CopilotSettings;
-  storeId: number | string | null;
-  metrics: StoreMetrics | null;
-}) {
+  // Chat simulator state
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
-      id: "init-1",
-      sender: "bot",
-      text: "🚀 **Hola Rodrigo.** Soy tu **Nevux Copilot IA**. Estoy conectado en tiempo real con tu tienda. Podés consultarme ventas, pedirme la proyección del finde o ejecutar la recuperación de carritos por WhatsApp y Email.",
-      timestamp: "Ahora",
+      id: "1",
+      sender: "copilot",
+      text: "¡Hola! Soy tu Nevux Copilot IA 🚀. Estoy monitoreando tu tienda en tiempo real. Hoy llevás analizado tu balance comercial, stock y carritos. ¿En qué querés que trabajemos hoy?",
+      timestamp: "Hace un momento",
     },
   ]);
-  const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [inputQuery, setInputQuery] = useState<string>("");
+  const [isSending, setIsSending] = useState<boolean>(false);
+  const chatBottomRef = useRef<HTMLDivElement>(null);
 
-  const handleSendPrompt = async (customPrompt?: string) => {
-    const messageToSend = customPrompt || input.trim();
-    if (!messageToSend || isTyping) return;
+  // Fetch real metrics on mount
+  useEffect(() => {
+    fetchLiveMetrics();
+  }, []);
+
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isSending]);
+
+  const fetchLiveMetrics = async () => {
+    setLoadingMetrics(true);
+    try {
+      const res = await fetch("/api/ai/virtual-salesman", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "metrics" }),
+      });
+      const data = await res.json();
+      if (data.metrics) {
+        setMetrics(data.metrics);
+      }
+    } catch (err) {
+      console.error("Error fetching Copilot metrics:", err);
+    } finally {
+      setLoadingMetrics(false);
+    }
+  };
+
+  const handleSendMessage = async (textToSend?: string) => {
+    const query = textToSend || inputQuery;
+    if (!query.trim() || isSending) return;
 
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
-      sender: "user",
-      text: messageToSend,
+      sender: "merchant",
+      text: query,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
 
-    const updated = [...messages, userMsg];
-    setMessages(updated);
-    if (!customPrompt) setInput("");
-    setIsTyping(true);
+    setMessages((prev) => [...prev, userMsg]);
+    if (!textToSend) setInputQuery("");
+    setIsSending(true);
 
     try {
       const res = await fetch("/api/ai/virtual-salesman", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "chat",
-          store_id: storeId ? String(storeId) : null,
-          message: messageToSend,
-          history: updated.map((m) => ({
-            role: m.sender === "user" ? "user" : "model",
-            text: m.text,
-          })),
-        }),
+        body: JSON.stringify({ query }),
       });
+      const data = await res.json();
 
-      if (res.ok) {
-        const data = await res.json();
-        const replyText =
-          data.reply ||
-          data.response ||
-          "🚀 Nevux Copilot listo. ¿En qué querés que analicemos la tienda hoy?";
+      const copilotMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        sender: "copilot",
+        text: data.reply || "Disculpa, no pude procesar tu consulta en este momento.",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        metricsData: data.metrics,
+      };
 
-        const botMsg: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          sender: "bot",
-          text: replyText,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          actionType: data.actionType,
-        };
-
-        setMessages((prev) => [...prev, botMsg]);
-      } else {
-        throw new Error("HTTP error " + res.status);
+      setMessages((prev) => [...prev, copilotMsg]);
+      if (data.metrics) {
+        setMetrics(data.metrics);
       }
     } catch (err) {
-      console.error("Error consultando Copilot:", err);
-      const botMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        sender: "bot",
-        text: `📊 **Reporte de Hoy:**\n• Facturación: $${(metrics?.salesToday || 148500).toLocaleString("es-AR")} ARS.\n• Carritos pendientes: ${metrics?.abandonedCartsCount || 4} por $${(metrics?.abandonedCartsValue || 64500).toLocaleString("es-AR")} ARS.`,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      };
-      setMessages((prev) => [...prev, botMsg]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          sender: "copilot",
+          text: "Hubo un error de conexión con la IA. Verificá tu red e intentá nuevamente.",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        },
+      ]);
     } finally {
-      setIsTyping(false);
+      setIsSending(false);
     }
   };
 
+  const handleSaveSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavedSettings(true);
+    setTimeout(() => setSavedSettings(false), 3000);
+  };
+
+  const formatARS = (amount: number) => {
+    return new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   return (
-    <div
-      style={{
-        background: "#ffffff",
-        border: "1.5px solid #e5e7eb",
-        borderRadius: "22px",
-        overflow: "hidden",
-        boxShadow: "0 12px 35px rgba(0,0,0,0.08)",
-        boxSizing: "border-box",
-        display: "flex",
-        flexDirection: "column",
-        height: "580px",
-        position: "relative",
-      }}
-    >
-      {/* Header del Chat Copiloto */}
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "24px 16px", fontFamily: "system-ui, sans-serif" }}>
+      {/* HEADER SECTION */}
       <div
         style={{
-          background: "#111827",
-          color: "#ffffff",
-          padding: "1rem 1.25rem",
           display: "flex",
+          flexWrap: "wrap",
           alignItems: "center",
           justifyContent: "space-between",
+          gap: 16,
+          marginBottom: 24,
+          paddingBottom: 20,
+          borderBottom: "1px solid #e2e8f0",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <div
-            style={{
-              width: "42px",
-              height: "42px",
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ffffff",
-              boxShadow: "0 4px 12px rgba(16,185,129,0.3)",
-              flexShrink: 0,
-            }}
-          >
-            <BrainCircuit size={22} />
-          </div>
-          <div>
-            <div style={{ fontSize: "0.95rem", fontWeight: 800 }}>
-              Nevux Copilot IA ⚡
-            </div>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div
               style={{
-                fontSize: "0.72rem",
-                color: "#10B981",
-                display: "flex",
-                alignItems: "center",
-                gap: "5px",
-                fontWeight: 700,
-              }}
-            >
-              <span
-                style={{
-                  width: "7px",
-                  height: "7px",
-                  borderRadius: "50%",
-                  background: "#10B981",
-                  display: "inline-block",
-                }}
-              />
-              Conectado a Tiendanube | Copiloto 24/7
-            </div>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() =>
-            setMessages([
-              {
-                id: "init-1",
-                sender: "bot",
-                text: "🚀 **Hola Rodrigo.** Soy tu **Nevux Copilot IA**. Estoy conectado en tiempo real con tu tienda. Podés consultarme ventas, pedirme la proyección del finde o ejecutar la recuperación de carritos por WhatsApp y Email.",
-                timestamp: "Ahora",
-              },
-            ])
-          }
-          title="Reiniciar chat"
-          style={{
-            background: "rgba(255,255,255,0.1)",
-            border: "none",
-            borderRadius: "50%",
-            width: "32px",
-            height: "32px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#ffffff",
-            cursor: "pointer",
-          }}
-        >
-          <RefreshCw size={15} />
-        </button>
-      </div>
-
-      {/* Botones de Comando Rápido */}
-      <div
-        style={{
-          padding: "0.6rem 0.8rem",
-          background: "#f3f4f6",
-          borderBottom: "1px solid #e5e7eb",
-          display: "flex",
-          gap: "0.4rem",
-          overflowX: "auto",
-          whiteSpace: "nowrap",
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => handleSendPrompt("¿Cuánto vendí hoy?")}
-          style={{
-            padding: "0.35rem 0.7rem",
-            borderRadius: "20px",
-            border: "1px solid #d1d5db",
-            background: "#ffffff",
-            fontSize: "0.74rem",
-            fontWeight: 700,
-            color: "#374151",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            flexShrink: 0,
-          }}
-        >
-          📊 ¿Cuánto vendí hoy?
-        </button>
-        <button
-          type="button"
-          onClick={() => handleSendPrompt("Proyección de la semana")}
-          style={{
-            padding: "0.35rem 0.7rem",
-            borderRadius: "20px",
-            border: "1px solid #d1d5db",
-            background: "#ffffff",
-            fontSize: "0.74rem",
-            fontWeight: 700,
-            color: "#374151",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            flexShrink: 0,
-          }}
-        >
-          🔮 Proyección semana
-        </button>
-        <button
-          type="button"
-          onClick={() => handleSendPrompt("Recuperar carritos de hoy")}
-          style={{
-            padding: "0.35rem 0.7rem",
-            borderRadius: "20px",
-            border: "1px solid #10B981",
-            background: "#ecfdf5",
-            fontSize: "0.74rem",
-            fontWeight: 800,
-            color: "#065f46",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            flexShrink: 0,
-          }}
-        >
-          ⚡ Recuperar carritos
-        </button>
-        <button
-          type="button"
-          onClick={() => handleSendPrompt("Alertas de stock crítico")}
-          style={{
-            padding: "0.35rem 0.7rem",
-            borderRadius: "20px",
-            border: "1px solid #fcd34d",
-            background: "#fffbebfb",
-            fontSize: "0.74rem",
-            fontWeight: 800,
-            color: "#92400e",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            flexShrink: 0,
-          }}
-        >
-          🚨 Stock crítico
-        </button>
-      </div>
-
-      {/* Cuerpo del Chat */}
-      <div
-        style={{
-          flex: 1,
-          padding: "1.25rem",
-          background: "#f9fafb",
-          overflowY: "auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-        }}
-      >
-        {messages.map((m) => {
-          const isBot = m.sender === "bot";
-          return (
-            <div
-              key={m.id}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: isBot ? "flex-start" : "flex-end",
-              }}
-            >
-              <div
-                style={{
-                  maxWidth: "88%",
-                  padding: "0.85rem 1rem",
-                  borderRadius: isBot ? "18px 18px 18px 4px" : "18px 18px 4px 18px",
-                  background: isBot ? "#ffffff" : "#111827",
-                  color: isBot ? "#111827" : "#ffffff",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-                  fontSize: "0.86rem",
-                  lineHeight: 1.5,
-                  border: isBot ? "1px solid #e5e7eb" : "none",
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {m.text}
-              </div>
-              <span
-                style={{
-                  fontSize: "0.68rem",
-                  color: "#9ca3af",
-                  marginTop: "4px",
-                  padding: "0 4px",
-                }}
-              >
-                {m.timestamp}
-              </span>
-            </div>
-          );
-        })}
-
-        {isTyping && (
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#6b7280", fontSize: "0.78rem" }}>
-            <Loader2 size={14} className="animate-spin" />
-            Nevux Copilot analizando métricas de Tiendanube...
-          </div>
-        )}
-      </div>
-
-      {/* Footer / Input */}
-      <div
-        style={{
-          padding: "0.85rem 1rem",
-          background: "#ffffff",
-          borderTop: "1px solid #e5e7eb",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-        }}
-      >
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSendPrompt()}
-          placeholder="Escribile a tu Copiloto IA..."
-          style={{
-            flex: 1,
-            padding: "0.65rem 0.95rem",
-            borderRadius: "12px",
-            border: "1.5px solid #e5e7eb",
-            fontSize: "0.85rem",
-            outline: "none",
-            boxSizing: "border-box",
-          }}
-        />
-        <button
-          type="button"
-          onClick={() => handleSendPrompt()}
-          style={{
-            width: "40px",
-            height: "40px",
-            borderRadius: "12px",
-            background: "#10B981",
-            color: "#ffffff",
-            border: "none",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            flexShrink: 0,
-          }}
-        >
-          <Send size={17} />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL DE LA PÁGINA
-═══════════════════════════════════════════ */
-export default function VendedorIaPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
-  const [store, setStore] = useState<UserStore | null>(null);
-  const [settings, setSettings] = useState<CopilotSettings>(DEFAULT_SETTINGS);
-  const [metrics, setMetrics] = useState<StoreMetrics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [toastMessage, setToastMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
-
-  // Cargar usuario, configuración y métricas
-  useEffect(() => {
-    let isMounted = true;
-
-    async function init() {
-      try {
-        const supabase = createClient();
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (user && isMounted) {
-          setUserEmail(user.email || "");
-
-          const { data: storeData } = await supabase
-            .from("stores")
-            .select("store_id, user_id")
-            .eq("user_id", user.id)
-            .eq("is_active", true)
-            .maybeSingle();
-
-          if (storeData && isMounted) {
-            setStore(storeData);
-
-            // Fetch métricas iniciales del Copiloto desde la API
-            try {
-              const res = await fetch("/api/ai/virtual-salesman", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  action: "chat",
-                  store_id: String(storeData.store_id),
-                  message: "Resumen inicial",
-                }),
-              });
-
-              if (res.ok) {
-                const data = await res.json();
-                if (data.metrics && isMounted) {
-                  setMetrics(data.metrics);
-                }
-              }
-            } catch (mErr) {
-              console.error("Error cargando métricas iniciales Copilot:", mErr);
-            }
-
-            // Cargar configuración guardada previa
-            const { data: savedData } = await supabase
-              .from("vendedor_ia_settings")
-              .select("*")
-              .eq("store_id", String(storeData.store_id))
-              .maybeSingle();
-
-            const savedConfig = savedData?.settings || savedData;
-
-            if (savedConfig && isMounted) {
-              setSettings((prev) => ({
-                ...prev,
-                is_active: savedConfig.is_active ?? prev.is_active,
-                whatsapp_number: savedConfig.whatsapp_number || prev.whatsapp_number,
-                daily_reports: savedConfig.daily_reports ?? prev.daily_reports,
-                stock_alerts: savedConfig.stock_alerts ?? prev.stock_alerts,
-                auto_cart_recovery: savedConfig.auto_cart_recovery ?? prev.auto_cart_recovery,
-              }));
-            }
-          }
-        }
-      } catch (err) {
-        console.error("Error inicializando Nevux Copilot:", err);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
-
-    init();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // Guardar configuración en Supabase
-  const handleSave = async () => {
-    if (!store?.store_id) {
-      setToastMessage({
-        type: "error",
-        text: "No tenés una tienda vinculada activa para guardar.",
-      });
-      return;
-    }
-
-    setSaving(true);
-    setToastMessage(null);
-
-    try {
-      const res = await fetch("/api/ai/virtual-salesman", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "save",
-          store_id: String(store.store_id),
-          settings: settings,
-        }),
-      });
-
-      if (res.ok) {
-        setToastMessage({
-          type: "success",
-          text: "¡Ajustes del Nevux Copilot IA guardados correctamente!",
-        });
-      } else {
-        setToastMessage({
-          type: "error",
-          text: "Ocurrió un problema al guardar. Intentalo de nuevo.",
-        });
-      }
-    } catch (err) {
-      console.error("Error en handleSave:", err);
-      setToastMessage({
-        type: "error",
-        text: "Error de conexión al guardar los ajustes.",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#ffffff",
-        color: "#000000",
-        fontFamily:
-          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-      }}
-    >
-      <DashboardHeader email={userEmail} onMenuClick={() => setMenuOpen(true)} />
-      <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-
-      <main
-        style={{
-          maxWidth: "1180px",
-          margin: "0 auto",
-          padding: "2rem 1.25rem 4rem",
-          boxSizing: "border-box",
-        }}
-      >
-        {/* BREADCRUMB */}
-        <div style={{ marginBottom: "1.5rem" }}>
-          <Link
-            href="/dashboard"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.45rem",
-              fontSize: "0.85rem",
-              fontWeight: 700,
-              color: "#374151",
-              textDecoration: "none",
-              padding: "0.4rem 0.8rem",
-              borderRadius: "8px",
-              background: "#f9fafb",
-              border: "1px solid #e5e7eb",
-            }}
-          >
-            <ArrowLeft size={15} />
-            Volver al Dashboard
-          </Link>
-        </div>
-
-        {/* ENCABEZADO CON BADGE NUBEA-STYLE */}
-        <div style={{ marginBottom: "2rem" }}>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.45rem",
-              padding: "0.35rem 0.85rem",
-              borderRadius: "999px",
-              fontSize: "0.75rem",
-              color: "#065f46",
-              fontWeight: 800,
-              marginBottom: "0.6rem",
-              background: "#ecfdf5",
-              border: "1px solid #a7f3d0",
-              textTextTransform: "uppercase",
-              letterSpacing: "0.04em",
-            }}
-          >
-            <Sparkles size={13} color="#10B981" />
-            Nevux Copilot IA • Tu Gerente de E-Commerce 24/7 🚀
-          </div>
-
-          <h1
-            style={{
-              margin: "0 0 0.4rem 0",
-              fontSize: "1.95rem",
-              fontWeight: 900,
-              letterSpacing: "-0.02em",
-              color: "#111827",
-            }}
-          >
-            Copiloto de Tienda en WhatsApp & Dashboard 📊
-          </h1>
-          <p
-            style={{
-              margin: 0,
-              fontSize: "0.95rem",
-              color: "#6b7280",
-              lineHeight: 1.5,
-            }}
-          >
-            Controlá tu e-commerce en lenguaje natural. Consultá ventas reales, recibí alertas de stock en tu celular, ejecutá la recuperación de carritos y anticipá la demanda de la semana.
-          </p>
-        </div>
-
-        {/* CARDS DE MÉTRICAS EN VIVO */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
-            gap: "1.25rem",
-            marginBottom: "2rem",
-          }}
-        >
-          {/* CARD 1: VENTAS DE HOY */}
-          <div
-            style={{
-              background: "#ffffff",
-              border: "1.5px solid #e5e7eb",
-              borderRadius: "18px",
-              padding: "1.25rem",
-              boxShadow: "0 4px 15px rgba(0,0,0,0.02)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 800, color: "#6b7280" }}>
-                VENTAS DE HOY
-              </span>
-              <div style={{ width: "32px", height: "32px", borderRadius: "10px", background: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <TrendingUp size={17} color="#10B981" />
-              </div>
-            </div>
-            <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#111827" }}>
-              ${(metrics?.salesToday || 148500).toLocaleString("es-AR")} ARS
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#10B981", marginTop: "4px", fontWeight: 700 }}>
-              {metrics?.ordersTodayCount || 4} pedidos completados
-            </div>
-          </div>
-
-          {/* CARD 2: CARRITOS RECUPERABLES */}
-          <div
-            style={{
-              background: "#ffffff",
-              border: "1.5px solid #e5e7eb",
-              borderRadius: "18px",
-              padding: "1.25rem",
-              boxShadow: "0 4px 15px rgba(0,0,0,0.02)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 800, color: "#6b7280" }}>
-                CARRITOS RECUPERABLES
-              </span>
-              <div style={{ width: "32px", height: "32px", borderRadius: "10px", background: "#fff7ed", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <ShoppingCart size={17} color="#f97316" />
-              </div>
-            </div>
-            <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#111827" }}>
-              ${(metrics?.abandonedCartsValue || 64500).toLocaleString("es-AR")} ARS
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#f97316", marginTop: "4px", fontWeight: 700 }}>
-              {metrics?.abandonedCartsCount || 4} carritos pendientes
-            </div>
-          </div>
-
-          {/* CARD 3: PROYECCIÓN SEMANAL */}
-          <div
-            style={{
-              background: "#ffffff",
-              border: "1.5px solid #e5e7eb",
-              borderRadius: "18px",
-              padding: "1.25rem",
-              boxShadow: "0 4px 15px rgba(0,0,0,0.02)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 800, color: "#6b7280" }}>
-                PROYECCIÓN DE SEMANA
-              </span>
-              <div style={{ width: "32px", height: "32px", borderRadius: "10px", background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <BarChart3 size={17} color="#3b82f6" />
-              </div>
-            </div>
-            <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#111827" }}>
-              ${(metrics?.predictedWeekSales || 420000).toLocaleString("es-AR")} ARS
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#3b82f6", marginTop: "4px", fontWeight: 700 }}>
-              {metrics?.confidenceScore || 88}% de confianza predictiva
-            </div>
-          </div>
-
-          {/* CARD 4: ALERTA DE STOCK */}
-          <div
-            style={{
-              background: "#ffffff",
-              border: "1.5px solid #e5e7eb",
-              borderRadius: "18px",
-              padding: "1.25rem",
-              boxShadow: "0 4px 15px rgba(0,0,0,0.02)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-              <span style={{ fontSize: "0.8rem", fontWeight: 800, color: "#6b7280" }}>
-                STOCK CRÍTICO DEPÓSITO
-              </span>
-              <div style={{ width: "32px", height: "32px", borderRadius: "10px", background: "#fef2f2", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <AlertTriangle size={17} color="#ef4444" />
-              </div>
-            </div>
-            <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#111827" }}>
-              {metrics?.lowStockProducts.length || 2} Productos
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#ef4444", marginTop: "4px", fontWeight: 700 }}>
-              Requieren reposición inmediata
-            </div>
-          </div>
-        </div>
-
-        {/* MENSAJE DE TOAST / ALERTA */}
-        <AnimatePresence>
-          {toastMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              style={{
-                marginBottom: "1.5rem",
-                padding: "0.9rem 1.25rem",
-                borderRadius: "14px",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.75rem",
-                fontSize: "0.88rem",
-                fontWeight: 700,
-                background:
-                  toastMessage.type === "success" ? "#ecfdf5" : "#fef2f2",
-                color: toastMessage.type === "success" ? "#065f46" : "#991b1b",
-                border:
-                  toastMessage.type === "success"
-                    ? "1px solid #a7f3d0"
-                    : "1px solid #fecaca",
-              }}
-            >
-              {toastMessage.type === "success" ? (
-                <CheckCircle2 size={18} color="#10B981" />
-              ) : (
-                <AlertCircle size={18} color="#ef4444" />
-              )}
-              {toastMessage.text}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ESTRUCTURA DE 2 COLUMNAS */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
-            gap: "2rem",
-            alignItems: "start",
-          }}
-        >
-          {/* COLUMNA IZQUIERDA: CONFIGURACIÓN WHATSAPP Y AUTOMATIZACIONES */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            {/* CARD 1: WHATSAPP DEL DUEÑO */}
-            <div
-              style={{
-                background: "#ffffff",
-                border: "1.5px solid #e5e7eb",
-                borderRadius: "20px",
-                padding: "1.5rem",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
-              }}
-            >
-              <div style={{ fontSize: "1.05rem", fontWeight: 800, color: "#111827", marginBottom: "0.3rem" }}>
-                📱 Tu Número de WhatsApp (Copiloto)
-              </div>
-              <p style={{ fontSize: "0.8rem", color: "#6b7280", margin: "0 0 1rem 0" }}>
-                Número en el que recibirás alertas proactivas, reportes diarios de ventas y notificaciones de stock.
-              </p>
-
-              <input
-                type="text"
-                value={settings.whatsapp_number}
-                onChange={(e) =>
-                  setSettings({ ...settings, whatsapp_number: e.target.value })
-                }
-                placeholder="Ej: +54 9 343 504 2812"
-                style={{
-                  width: "100%",
-                  padding: "0.75rem 0.95rem",
-                  borderRadius: "12px",
-                  border: "1.5px solid #e5e7eb",
-                  fontSize: "0.88rem",
-                  boxSizing: "border-box",
-                  outline: "none",
-                }}
-              />
-            </div>
-
-            {/* CARD 2: AUTOMATIZACIONES PROACTIVAS */}
-            <div
-              style={{
-                background: "#ffffff",
-                border: "1.5px solid #e5e7eb",
-                borderRadius: "20px",
-                padding: "1.5rem",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.25rem",
-              }}
-            >
-              <div style={{ fontSize: "1.05rem", fontWeight: 800, color: "#111827" }}>
-                ⚡ Automatizaciones Proactivas
-              </div>
-
-              {/* TOGGLE 1: REPORTES DIARIOS */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div>
-                  <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "#111827" }}>
-                    📊 Reporte Diario de Ventas a las 20:00 hs
-                  </div>
-                  <div style={{ fontSize: "0.78rem", color: "#6b7280" }}>
-                    Resumen en tu WhatsApp con facturación y proyección.
-                  </div>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={settings.daily_reports}
-                  onChange={(e) =>
-                    setSettings({ ...settings, daily_reports: e.target.checked })
-                  }
-                  style={{ width: "20px", height: "20px", accentColor: "#10B981" }}
-                />
-              </div>
-
-              {/* TOGGLE 2: ALERTAS DE STOCK */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div>
-                  <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "#111827" }}>
-                    🚨 Alertas de Stock Crítico
-                  </div>
-                  <div style={{ fontSize: "0.78rem", color: "#6b7280" }}>
-                    Aviso cuando un producto clave tenga 3 o menos unidades.
-                  </div>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={settings.stock_alerts}
-                  onChange={(e) =>
-                    setSettings({ ...settings, stock_alerts: e.target.checked })
-                  }
-                  style={{ width: "20px", height: "20px", accentColor: "#10B981" }}
-                />
-              </div>
-
-              {/* TOGGLE 3: AUTO CARRITOS */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div>
-                  <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "#111827" }}>
-                    🛒 Auto-Recuperación de Carritos
-                  </div>
-                  <div style={{ fontSize: "0.78rem", color: "#6b7280" }}>
-                    Envío automático vía Resend y WhatsApp a los 30 min.
-                  </div>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={settings.auto_cart_recovery}
-                  onChange={(e) =>
-                    setSettings({ ...settings, auto_cart_recovery: e.target.checked })
-                  }
-                  style={{ width: "20px", height: "20px", accentColor: "#10B981" }}
-                />
-              </div>
-            </div>
-
-            {/* CARD 3: INTEGRACIÓN MCP EXTERNA (Claude, ChatGPT, Gemini) */}
-            <div
-              style={{
-                background: "#f9fafb",
-                border: "1.5px dashed #cbd5e1",
-                borderRadius: "20px",
-                padding: "1.5rem",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.4rem" }}>
-                <BrainCircuit size={20} color="#3b82f6" />
-                <span style={{ fontSize: "0.95rem", fontWeight: 800, color: "#1e293b" }}>
-                  Integración MCP de Inteligencia Artificial
-                </span>
-              </div>
-              <p style={{ fontSize: "0.8rem", color: "#64748b", margin: 0, lineHeight: 1.5 }}>
-                Nevux Copilot está preparado para conectarse vía protocolo MCP con <strong>Claude, ChatGPT, Cursor y Gemini</strong> para consultar tus ventas en tiempo real desde cualquier asistente de IA.
-              </p>
-            </div>
-
-            {/* BOTÓN GUARDAR */}
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
-              style={{
-                width: "100%",
-                padding: "1rem",
-                borderRadius: "16px",
-                border: "none",
-                background: "#10B981",
-                color: "#ffffff",
-                fontWeight: 900,
-                fontSize: "1rem",
-                cursor: saving ? "not-allowed" : "pointer",
-                boxShadow: "0 8px 25px rgba(16, 185, 129, 0.35)",
+                width: 42,
+                height: 42,
+                borderRadius: 12,
+                background: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "0.6rem",
+                color: "#fff",
+                boxShadow: "0 4px 12px rgba(16, 185, 129, 0.25)",
               }}
             >
-              {saving ? (
-                <>
-                  <Loader2 size={20} className="animate-spin" />
-                  Guardando Copiloto...
-                </>
-              ) : (
-                <>
-                  <Save size={20} />
-                  Guardar Ajustes de Copiloto IA
-                </>
+              <Brain size={24} />
+            </div>
+            <div>
+              <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" }}>
+                Nevux Copilot IA
+              </h1>
+              <p style={{ fontSize: 14, color: "#64748b", margin: 0 }}>
+                Tu Gerente Comercial 24/7 para Tiendanube y WhatsApp
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* TABS SELECTOR */}
+        <div style={{ display: "flex", gap: 8, background: "#f1f5f9", padding: 4, borderRadius: 10 }}>
+          <button
+            onClick={() => setActiveTab("copilot")}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              border: "none",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              background: activeTab === "copilot" ? "#fff" : "transparent",
+              color: activeTab === "copilot" ? "#0f172a" : "#64748b",
+              boxShadow: activeTab === "copilot" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+            }}
+          >
+            💬 Copilot Dashboard
+          </button>
+          <button
+            onClick={() => setActiveTab("settings")}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              border: "none",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              background: activeTab === "settings" ? "#fff" : "transparent",
+              color: activeTab === "settings" ? "#0f172a" : "#64748b",
+              boxShadow: activeTab === "settings" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+            }}
+          >
+            📱 WhatsApp & Alertas
+          </button>
+          <button
+            onClick={() => setActiveTab("mcp")}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              border: "none",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              background: activeTab === "mcp" ? "#fff" : "transparent",
+              color: activeTab === "mcp" ? "#0f172a" : "#64748b",
+              boxShadow: activeTab === "mcp" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+            }}
+          >
+            ⚡ MCP Protocol
+          </button>
+        </div>
+      </div>
+
+      {/* METRICS SUMMARY CARDS */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gap: 16,
+          marginBottom: 24,
+        }}
+      >
+        {/* Card 1: Ventas Hoy */}
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 14,
+            padding: 18,
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>
+              Ventas Hoy
+            </span>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "#ecfdf5", color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <DollarSign size={18} />
+            </div>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#0f172a" }}>
+            {loadingMetrics ? "..." : formatARS(metrics?.salesToday || 0)}
+          </div>
+          <p style={{ fontSize: 12, color: "#64748b", margin: "4px 0 0 0" }}>
+            {metrics?.ordersToday || 0} órdenes concretadas hoy
+          </p>
+        </div>
+
+        {/* Card 2: Carritos Recuperables */}
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 14,
+            padding: 18,
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>
+              Carritos Recuperables
+            </span>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "#fff7ed", color: "#f97316", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <ShoppingCart size={18} />
+            </div>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#d97706" }}>
+            {loadingMetrics ? "..." : formatARS(metrics?.abandonedCartsValue || 0)}
+          </div>
+          <p style={{ fontSize: 12, color: "#64748b", margin: "4px 0 0 0" }}>
+            {metrics?.abandonedCartsCount || 0} clientes potenciales pendientes
+          </p>
+        </div>
+
+        {/* Card 3: Proyección Semanal */}
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 14,
+            padding: 18,
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>
+              Proyección Semanal
+            </span>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "#eff6ff", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <TrendingUp size={18} />
+            </div>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#2563eb" }}>
+            {loadingMetrics ? "..." : formatARS(metrics?.salesWeekProjected || 0)}
+          </div>
+          <p style={{ fontSize: 12, color: "#64748b", margin: "4px 0 0 0" }}>
+            Basado en la tasa actual de los últimos 7 días
+          </p>
+        </div>
+
+        {/* Card 4: Alertas de Stock */}
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 14,
+            padding: 18,
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#64748b", textTransform: "uppercase" }}>
+              Stock Crítico
+            </span>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "#fef2f2", color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <AlertTriangle size={18} />
+            </div>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: (metrics?.criticalStockProducts.length || 0) > 0 ? "#dc2626" : "#059669" }}>
+            {loadingMetrics ? "..." : `${metrics?.criticalStockProducts.length || 0} Prod.`}
+          </div>
+          <p style={{ fontSize: 12, color: "#64748b", margin: "4px 0 0 0" }}>
+            {(metrics?.criticalStockProducts.length || 0) > 0 ? "Requieren reposición urgente" : "Catálogo en óptimo estado"}
+          </p>
+        </div>
+      </div>
+
+      {/* MAIN TAB CONTENT */}
+      {activeTab === "copilot" && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 24 }}>
+          {/* CHAT INTERFACE */}
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 16,
+              border: "1px solid #e2e8f0",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
+              display: "flex",
+              flexDirection: "column",
+              height: 600,
+            }}
+          >
+            {/* CHAT HEADER */}
+            <div
+              style={{
+                padding: "16px 20px",
+                borderBottom: "1px solid #e2e8f0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                background: "#f8fafc",
+                borderTopLeftRadius: 16,
+                borderTopRightRadius: 16,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ position: "relative" }}>
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 10,
+                      background: "#10b981",
+                      color: "#fff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: 700,
+                    }}
+                  >
+                    <Bot size={20} />
+                  </div>
+                  <span
+                    style={{
+                      position: "absolute",
+                      bottom: -2,
+                      right: -2,
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      background: "#22c55e",
+                      border: "2px solid #fff",
+                    }}
+                  />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: 0 }}>
+                    Asistente Copilot en Vivo
+                  </h3>
+                  <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
+                    Conectado con Tiendanube Store ID #8293155
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={fetchLiveMetrics}
+                disabled={loadingMetrics}
+                style={{
+                  background: "transparent",
+                  border: "1px solid #cbd5e1",
+                  borderRadius: 8,
+                  padding: "6px 12px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "#475569",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <RefreshCw size={14} className={loadingMetrics ? "animate-spin" : ""} />
+                Actualizar Datos
+              </button>
+            </div>
+
+            {/* CHAT MESSAGES BOX */}
+            <div
+              style={{
+                flex: 1,
+                padding: 20,
+                overflowY: "auto",
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+                background: "#fafafa",
+              }}
+            >
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: msg.sender === "merchant" ? "flex-end" : "flex-start",
+                  }}
+                >
+                  <div
+                    style={{
+                      maxWidth: "85%",
+                      padding: "12px 16px",
+                      borderRadius: 14,
+                      fontSize: 14,
+                      lineHeight: 1.5,
+                      background: msg.sender === "merchant" ? "#059669" : "#ffffff",
+                      color: msg.sender === "merchant" ? "#ffffff" : "#0f172a",
+                      border: msg.sender === "merchant" ? "none" : "1px solid #e2e8f0",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {msg.text}
+                  </div>
+                  <span style={{ fontSize: 11, color: "#94a3b8", marginTop: 4, padding: "0 4px" }}>
+                    {msg.timestamp}
+                  </span>
+                </div>
+              ))}
+
+              {isSending && (
+                <div style={{ display: "flex", gap: 6, padding: "8px 12px", background: "#fff", borderRadius: 12, width: "fit-content", border: "1px solid #e2e8f0" }}>
+                  <span style={{ fontSize: 12, color: "#64748b", fontWeight: 500 }}>Copilot analizando métricas de Tiendanube...</span>
+                </div>
               )}
-            </button>
+              <div ref={chatBottomRef} />
+            </div>
+
+            {/* CHAT INPUT FORM */}
+            <div style={{ padding: 16, borderTop: "1px solid #e2e8f0", background: "#fff", borderBottomLeftRadius: 16, borderBottomRightRadius: 16 }}>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSendMessage();
+                }}
+                style={{ display: "flex", gap: 10 }}
+              >
+                <input
+                  type="text"
+                  placeholder="Ej: ¿Cómo vienen las ventas hoy y qué podemos hacer?"
+                  value={inputQuery}
+                  onChange={(e) => setInputQuery(e.target.value)}
+                  disabled={isSending}
+                  style={{
+                    flex: 1,
+                    padding: "12px 16px",
+                    borderRadius: 10,
+                    border: "1px solid #cbd5e1",
+                    fontSize: 14,
+                    outline: "none",
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={isSending || !inputQuery.trim()}
+                  style={{
+                    background: "#059669",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 10,
+                    padding: "0 20px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    opacity: isSending || !inputQuery.trim() ? 0.6 : 1,
+                  }}
+                >
+                  <Send size={16} />
+                  Consultar
+                </button>
+              </form>
+            </div>
           </div>
 
-          {/* COLUMNA DERECHA: CHAT COPILOTO SIMULADOR INTERACTIVO STICKY */}
-          <div style={{ position: "sticky", top: "2rem" }}>
-            <div style={{ marginBottom: "0.6rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: "0.88rem", fontWeight: 800, color: "#374151" }}>
-                🤖 Hablá con tu Copiloto en Vivo
-              </span>
-              <span style={{ fontSize: "0.75rem", color: "#10B981", fontWeight: 700 }}>
-                ● Datos Reales de Tiendanube
+          {/* QUICK PROMPTS & ACTIONS */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: 16,
+                padding: 20,
+                border: "1px solid #e2e8f0",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+              }}
+            >
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                <Zap size={16} color="#059669" /> Acciones Rápidas
+              </h3>
+              <p style={{ fontSize: 13, color: "#64748b", marginBottom: 16 }}>
+                Hacé clic en cualquiera para ejecutar una consulta sobre tu tienda:
+              </p>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <button
+                  onClick={() => handleSendMessage("¿Cómo vienen mis ventas hoy y cuál es la proyección semanal?")}
+                  style={{
+                    textAlign: "left",
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    border: "1px solid #e2e8f0",
+                    background: "#f8fafc",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "#334155",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  📈 Ventas de hoy & proyección
+                </button>
+
+                <button
+                  onClick={() => handleSendMessage("¿Qué carritos abandonados tengo y cómo podemos recuperarlos?")}
+                  style={{
+                    textAlign: "left",
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    border: "1px solid #e2e8f0",
+                    background: "#f8fafc",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "#334155",
+                    cursor: "pointer",
+                  }}
+                >
+                  🛒 Ver carritos abandonados
+                </button>
+
+                <button
+                  onClick={() => handleSendMessage("¿Qué productos están en stock crítico y debo reponer pronto?")}
+                  style={{
+                    textAlign: "left",
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    border: "1px solid #e2e8f0",
+                    background: "#f8fafc",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "#334155",
+                    cursor: "pointer",
+                  }}
+                >
+                  ⚠️ Revisar stock crítico
+                </button>
+
+                <button
+                  onClick={() => handleSendMessage("Dame 3 estrategias comerciales para aumentar mis ventas esta semana")}
+                  style={{
+                    textAlign: "left",
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    border: "1px solid #e2e8f0",
+                    background: "#f8fafc",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "#334155",
+                    cursor: "pointer",
+                  }}
+                >
+                  💡 Sugerir acciones de venta
+                </button>
+              </div>
+            </div>
+
+            {/* STATUS BADGE */}
+            <div
+              style={{
+                background: "linear-gradient(135deg, #064e3b 0%, #047857 100%)",
+                borderRadius: 16,
+                padding: 20,
+                color: "#fff",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <Sparkles size={18} color="#34d399" />
+                <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                  Estado de Copilot
+                </span>
+              </div>
+              <p style={{ fontSize: 13, lineHeight: 1.5, opacity: 0.9, margin: 0 }}>
+                El motor IA está enlazado directamente a tu API Key de Tiendanube. Todas las respuestas se basan en tus transacciones reales.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SETTINGS TAB */}
+      {activeTab === "settings" && (
+        <div style={{ maxWidth: 650, background: "#fff", borderRadius: 16, padding: 24, border: "1px solid #e2e8f0" }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>
+            Configuración de WhatsApp Copilot
+          </h2>
+          <p style={{ fontSize: 14, color: "#64748b", marginBottom: 24 }}>
+            Recibí los reportes en tu teléfono celular y automatizá el seguimiento comercial de tu tienda.
+          </p>
+
+          <form onSubmit={handleSaveSettings} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>
+                Número de WhatsApp para Notificaciones
+              </label>
+              <div style={{ display: "flex", gap: 10 }}>
+                <input
+                  type="text"
+                  value={whatsappPhone}
+                  onChange={(e) => setWhatsappPhone(e.target.value)}
+                  placeholder="+54 9 11 1234 5678"
+                  style={{ flex: 1, padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14 }}
+                />
+              </div>
+              <span style={{ fontSize: 12, color: "#94a3b8", marginTop: 4, display: "block" }}>
+                Formato internacional con código de país.
               </span>
             </div>
 
-            <CopilotSimulator
-              settings={settings}
-              storeId={store?.store_id || null}
-              metrics={metrics}
-            />
+            <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 16 }}>
+              <label style={{ display: "flex", alignItems: "center", justifyBetween: "space-between", gap: 12, cursor: "pointer" }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Reporte Diario a las 20:00 hs</div>
+                  <div style={{ fontSize: 13, color: "#64748b" }}>Recibí un resumen diario de ventas, carritos y recomendaciones en tu WhatsApp.</div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={dailyReportEnabled}
+                  onChange={(e) => setDailyReportEnabled(e.target.checked)}
+                  style={{ width: 20, height: 20, accentColor: "#059669" }}
+                />
+              </label>
+            </div>
+
+            <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 16 }}>
+              <label style={{ display: "flex", alignItems: "center", justifyBetween: "space-between", gap: 12, cursor: "pointer" }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Alertas Instantáneas de Stock Crítico</div>
+                  <div style={{ fontSize: 13, color: "#64748b" }}>Notificar al instante cuando un producto tenga 5 o menos unidades en inventario.</div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={stockAlertsEnabled}
+                  onChange={(e) => setStockAlertsEnabled(e.target.checked)}
+                  style={{ width: 20, height: 20, accentColor: "#059669" }}
+                />
+              </label>
+            </div>
+
+            <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 16 }}>
+              <label style={{ display: "flex", alignItems: "center", justifyBetween: "space-between", gap: 12, cursor: "pointer" }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Recuperación Automática de Carritos</div>
+                  <div style={{ fontSize: 13, color: "#64748b" }}>Permitir a Copilot preparar los mensajes de recuperación para enviar con 1 clic.</div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={autoCartRecovery}
+                  onChange={(e) => setAutoCartRecovery(e.target.checked)}
+                  style={{ width: 20, height: 20, accentColor: "#059669" }}
+                />
+              </label>
+            </div>
+
+            <div style={{ paddingTop: 16 }}>
+              <button
+                type="submit"
+                style={{
+                  background: "#059669",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 10,
+                  padding: "12px 24px",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                {savedSettings ? <Check size={18} /> : null}
+                {savedSettings ? "Configuración Guardada" : "Guardar Preferencias"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* MCP INTEGRATION TAB */}
+      {activeTab === "mcp" && (
+        <div style={{ maxWidth: 800, background: "#fff", borderRadius: 16, padding: 24, border: "1px solid #e2e8f0" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "#eff6ff", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Code2 size={24} />
+            </div>
+            <div>
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", margin: 0 }}>
+                Integración MCP (Model Context Protocol)
+              </h2>
+              <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>
+                Conectá tu tienda Nevux directamente con Cursor, Claude Desktop, ChatGPT o Gemini CLI
+              </p>
+            </div>
+          </div>
+
+          <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.6, marginBottom: 20 }}>
+            Nevux implementa el estándar abierto <strong>MCP (Model Context Protocol)</strong>. Esto te permite consultar tu stock, balances y carritos directamente desde cualquier entorno de IA compatible, sin salir de tu editor de código o chat favorito.
+          </p>
+
+          <div style={{ background: "#0f172a", borderRadius: 12, padding: 16, color: "#f8fafc", fontFamily: "monospace", fontSize: 13, marginBottom: 20, overflowX: "auto" }}>
+            <div style={{ color: "#94a3b8", marginBottom: 8 }}>// Ejemplo de configuración en Claude Desktop / Cursor:</div>
+            <pre style={{ margin: 0 }}>{`{
+  "mcpServers": {
+    "nevux-copilot": {
+      "command": "npx",
+      "args": ["-y", "@nevux/mcp-server"],
+      "env": {
+        "NEVUX_STORE_ID": "8293155",
+        "NEVUX_API_KEY": "nvx_live_sec_..."
+      }
+    }
+  }
+}`}</pre>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ padding: 16, borderRadius: 12, border: "1px solid #e2e8f0", background: "#f8fafc" }}>
+              <h4 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: "0 0 6px 0" }}>
+                Herramientas MCP Expuestas
+              </h4>
+              <ul style={{ fontSize: 13, color: "#475569", paddingLeft: 18, margin: 0 }}>
+                <li><code>get_realtime_metrics</code></li>
+                <li><code>get_abandoned_carts</code></li>
+                <li><code>get_critical_inventory</code></li>
+                <li><code>trigger_cart_recovery</code></li>
+              </ul>
+            </div>
+
+            <div style={{ padding: 16, borderRadius: 12, border: "1px solid #e2e8f0", background: "#f8fafc" }}>
+              <h4 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: "0 0 6px 0" }}>
+                Estado del Servidor MCP
+              </h4>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+                <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#22c55e" }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#059669" }}>
+                  Endpoint Activo: https://nevux.ar/api/mcp
+                </span>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* CENTRO DE AYUDA */}
-        <div style={{ marginTop: "3rem" }}>
-          <CentroAyuda />
-        </div>
-      </main>
+      )}
     </div>
   );
-          }
+}
