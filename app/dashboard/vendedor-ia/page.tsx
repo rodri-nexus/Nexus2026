@@ -19,141 +19,10 @@ import {
   HelpCircle,
   Search,
   Bell,
-  Store
+  Store,
+  Menu,
+  X
 } from "lucide-react";
-
-// Sidebar integrada
-function SideMenu() {
-  const navItems = [
-    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Carritos Abandonados", href: "/dashboard/carritos", icon: ShoppingCart },
-    { label: "Productos & Stock", href: "/dashboard/productos", icon: Package },
-    { label: "Copilot IA", href: "/dashboard/vendedor-ia", icon: Bot, active: true },
-    { label: "Configuración", href: "/dashboard/configuracion", icon: Settings },
-  ];
-
-  return (
-    <aside style={{ width: "260px", backgroundColor: "#ffffff", borderRight: "1.5px solid #e5e7eb", display: "flex", flexDirection: "column", height: "100vh", position: "sticky", top: 0, zIndex: 20 }}>
-      {/* Brand Header */}
-      <div style={{ padding: "20px 24px", borderBottom: "1.5px solid #f3f4f6", display: "flex", alignItems: "center", gap: "10px" }}>
-        <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: "800", fontSize: "18px" }}>
-          N
-        </div>
-        <div>
-          <span style={{ fontSize: "18px", fontWeight: "700", color: "#111827", letterSpacing: "-0.02em" }}>Nevux</span>
-          <span style={{ fontSize: "10px", backgroundColor: "#ecfdf5", color: "#10B981", fontWeight: "700", padding: "2px 6px", borderRadius: "4px", marginLeft: "6px" }}>SaaS</span>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <nav style={{ padding: "16px 12px", flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
-        <div style={{ padding: "0 12px 8px 12px", fontSize: "11px", fontWeight: "600", color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-          Menú Principal
-        </div>
-        {navItems.map((item, idx) => {
-          const Icon = item.icon;
-          const isActive = item.active;
-          return (
-            <Link key={idx} href={item.href} style={{ textDecoration: "none" }}>
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                padding: "10px 12px",
-                borderRadius: "8px",
-                fontSize: "14px",
-                fontWeight: isActive ? "600" : "500",
-                color: isActive ? "#10B981" : "#4b5563",
-                backgroundColor: isActive ? "#ecfdf5" : "transparent",
-                transition: "all 0.15s ease",
-                cursor: "pointer"
-              }}>
-                <Icon size={18} color={isActive ? "#10B981" : "#6b7280"} />
-                <span>{item.label}</span>
-                {isActive && (
-                  <div style={{ marginLeft: "auto", width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#10B981" }} />
-                )}
-              </div>
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Footer Store Info */}
-      <div style={{ padding: "16px", borderTop: "1.5px solid #f3f4f6", backgroundColor: "#fafafa" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Store size={18} color="#4b5563" />
-          </div>
-          <div style={{ flex: 1, overflow: "hidden" }}>
-            <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Tiendanube Conectada</div>
-            <div style={{ fontSize: "11px", color: "#10B981", fontWeight: "500" }}>● En línea</div>
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-// Dashboard Header integrado
-function DashboardHeader() {
-  return (
-    <header style={{ height: "64px", backgroundColor: "#ffffff", borderBottom: "1.5px solid #e5e7eb", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", position: "sticky", top: 0, zIndex: 10 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", width: "320px" }}>
-        <div style={{ position: "relative", width: "100%" }}>
-          <Search size={16} color="#9ca3af" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
-          <input 
-            type="text" 
-            placeholder="Buscar órdenes, productos, métricas..." 
-            style={{ width: "100%", padding: "8px 12px 8px 36px", borderRadius: "8px", border: "1.5px solid #e5e7eb", fontSize: "13px", outline: "none", backgroundColor: "#fafafa" }}
-          />
-        </div>
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-        <button style={{ background: "none", border: "none", cursor: "pointer", position: "relative", padding: "6px" }}>
-          <Bell size={20} color="#4b5563" />
-          <span style={{ position: "absolute", top: "4px", right: "4px", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#10B981" }} />
-        </button>
-        <div style={{ height: "24px", width: "1px", backgroundColor: "#e5e7eb" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#10B981", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "600", fontSize: "13px" }}>
-            NV
-          </div>
-          <div>
-            <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827" }}>Merchant Nevux</div>
-            <div style={{ fontSize: "11px", color: "#6b7280" }}>Tiendanube AR</div>
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-}
-
-// Centro de Ayuda integrado
-function CentroAyuda() {
-  return (
-    <div style={{ backgroundColor: "#ffffff", padding: "20px", borderRadius: "12px", border: "1.5px solid #e5e7eb" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-        <div style={{ backgroundColor: "#ecfdf5", padding: "8px", borderRadius: "8px" }}>
-          <HelpCircle size={20} color="#10B981" />
-        </div>
-        <h3 style={{ fontSize: "14px", fontWeight: "600", color: "#111827", margin: 0 }}>Centro de Soporte Copilot</h3>
-      </div>
-      <p style={{ fontSize: "12px", color: "#6b7280", lineHeight: "1.5", marginBottom: "16px" }}>
-        ¿Tenés dudas de cómo potenciar las ventas con Nevux Copilot? Nuestro equipo técnico y de estrategia te apoya en tiempo real.
-      </p>
-      <a 
-        href="https://wa.me/5491122334455?text=Hola%20Nevux,%20necesito%20ayuda%20con%20el%20Copilot" 
-        target="_blank" 
-        rel="noopener noreferrer"
-        style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", padding: "10px", borderRadius: "8px", backgroundColor: "#ecfdf5", color: "#10B981", fontWeight: "600", fontSize: "13px", textDecoration: "none", border: "1px solid #a7f3d0" }}
-      >
-        Hablar con Soporte Oficial
-      </a>
-    </div>
-  );
-}
 
 export default function VendedorIAPage() {
   const [activeTab, setActiveTab] = useState<'chat' | 'settings' | 'mcp'>('chat');
@@ -163,7 +32,8 @@ export default function VendedorIAPage() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [metrics, setMetrics] = useState<any>(null);
-  
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   // Settings state
   const [settings, setSettings] = useState({
     whatsapp_phone: "",
@@ -232,32 +102,144 @@ export default function VendedorIAPage() {
     }
   };
 
+  const navItems = [
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Carritos Abandonados", href: "/dashboard/carritos", icon: ShoppingCart },
+    { label: "Productos & Stock", href: "/dashboard/productos", icon: Package },
+    { label: "Copilot IA", href: "/dashboard/vendedor-ia", icon: Bot, active: true },
+    { label: "Configuración", href: "/dashboard/configuracion", icon: Settings },
+  ];
+
   return (
     <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#f9fafb", fontFamily: "sans-serif" }}>
-      <SideMenu />
       
+      {/* Dynamic Mobile & Desktop Styles */}
+      <style jsx global>{`
+        @media (max-width: 768px) {
+          .nevux-desktop-sidebar { display: none !important; }
+          .nevux-main-grid { grid-template-columns: 1fr !important; }
+          .nevux-tab-bar { flex-wrap: wrap !important; width: 100% !important; justify: center; }
+          .nevux-header-title-box { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+          .nevux-chat-box { height: 480px !important; }
+        }
+      `}</style>
+
+      {/* Sidebar Desktop */}
+      <aside className="nevux-desktop-sidebar" style={{ width: "260px", backgroundColor: "#ffffff", borderRight: "1.5px solid #e5e7eb", display: "flex", flexDirection: "column", height: "100vh", position: "sticky", top: 0, zIndex: 20 }}>
+        <div style={{ padding: "20px 24px", borderBottom: "1.5px solid #f3f4f6", display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: "800", fontSize: "18px" }}>
+            N
+          </div>
+          <div>
+            <span style={{ fontSize: "18px", fontWeight: "700", color: "#111827", letterSpacing: "-0.02em" }}>Nevux</span>
+            <span style={{ fontSize: "10px", backgroundColor: "#ecfdf5", color: "#10B981", fontWeight: "700", padding: "2px 6px", borderRadius: "4px", marginLeft: "6px" }}>SaaS</span>
+          </div>
+        </div>
+
+        <nav style={{ padding: "16px 12px", flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
+          <div style={{ padding: "0 12px 8px 12px", fontSize: "11px", fontWeight: "600", color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            Menú Principal
+          </div>
+          {navItems.map((item, idx) => {
+            const Icon = item.icon;
+            const isActive = item.active;
+            return (
+              <Link key={idx} href={item.href} style={{ textDecoration: "none" }}>
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  padding: "10px 12px",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  fontWeight: isActive ? "600" : "500",
+                  color: isActive ? "#10B981" : "#4b5563",
+                  backgroundColor: isActive ? "#ecfdf5" : "transparent",
+                  transition: "all 0.15s ease",
+                  cursor: "pointer"
+                }}>
+                  <Icon size={18} color={isActive ? "#10B981" : "#6b7280"} />
+                  <span>{item.label}</span>
+                </div>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div style={{ padding: "16px", borderTop: "1.5px solid #f3f4f6", backgroundColor: "#fafafa" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Store size={18} color="#4b5563" />
+            </div>
+            <div style={{ flex: 1, overflow: "hidden" }}>
+              <div style={{ fontSize: "13px", fontWeight: "600", color: "#111827" }}>Tiendanube Conectada</div>
+              <div style={{ fontSize: "11px", color: "#10B981", fontWeight: "500" }}>● En línea</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Mobile Navigation Drawer */}
+      {mobileMenuOpen && (
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 50, display: "flex" }}>
+          <div style={{ width: "280px", backgroundColor: "#fff", height: "100%", padding: "20px", display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <span style={{ fontSize: "18px", fontWeight: "700", color: "#10B981" }}>Nevux</span>
+              <button onClick={() => setMobileMenuOpen(false)} style={{ background: "none", border: "none" }}><X size={24} /></button>
+            </div>
+            {navItems.map((item, idx) => (
+              <Link key={idx} href={item.href} onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: "none", padding: "12px 0", color: item.active ? "#10B981" : "#374151", fontWeight: item.active ? "700" : "500", display: "flex", gap: "10px" }}>
+                <item.icon size={20} />
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Main Content Area */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        <DashboardHeader />
         
-        <main style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
+        {/* Dashboard Header */}
+        <header style={{ height: "64px", backgroundColor: "#ffffff", borderBottom: "1.5px solid #e5e7eb", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", position: "sticky", top: 0, zIndex: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button 
+              onClick={() => setMobileMenuOpen(true)}
+              style={{ display: "flex", border: "none", background: "none", cursor: "pointer", padding: "4px" }}
+              aria-label="Toggle Navigation"
+            >
+              <Menu size={22} color="#374151" />
+            </button>
+            <div style={{ fontWeight: "700", fontSize: "16px", color: "#111827" }}>Nevux SaaS</div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#10B981", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "600", fontSize: "13px" }}>
+              NV
+            </div>
+          </div>
+        </header>
+        
+        <main style={{ padding: "16px", maxWidth: "1200px", margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
+          
           {/* Header de la sección */}
-          <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div className="nevux-header-title-box" style={{ marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <h1 style={{ fontSize: "24px", fontWeight: "700", color: "#111827", marginBottom: "4px" }}>
+              <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#111827", margin: "0 0 4px 0" }}>
                 Nevux Copilot IA
               </h1>
-              <p style={{ color: "#6b7280", fontSize: "14px" }}>
+              <p style={{ color: "#6b7280", fontSize: "13px", margin: 0 }}>
                 Tu asistente comercial inteligente conectado a Tiendanube.
               </p>
             </div>
-            <div style={{ display: "flex", gap: "8px", backgroundColor: "#fff", padding: "4px", borderRadius: "8px", border: "1.5px solid #e5e7eb" }}>
+
+            <div className="nevux-tab-bar" style={{ display: "flex", gap: "6px", backgroundColor: "#fff", padding: "4px", borderRadius: "8px", border: "1.5px solid #e5e7eb" }}>
               <button 
                 onClick={() => setActiveTab('chat')}
                 style={{ 
-                  padding: "8px 16px", borderRadius: "6px", fontSize: "14px", fontWeight: "500", transition: "all 0.2s",
+                  padding: "6px 12px", borderRadius: "6px", fontSize: "13px", fontWeight: "600",
                   backgroundColor: activeTab === 'chat' ? "#10B981" : "transparent",
-                  color: activeTab === 'chat' ? "#fff" : "#6b7280",
-                  border: "none", cursor: "pointer"
+                  color: activeTab === 'chat' ? "#fff" : "#6b7280", border: "none", cursor: "pointer"
                 }}
               >
                 Chat Live
@@ -265,10 +247,9 @@ export default function VendedorIAPage() {
               <button 
                 onClick={() => setActiveTab('settings')}
                 style={{ 
-                  padding: "8px 16px", borderRadius: "6px", fontSize: "14px", fontWeight: "500", transition: "all 0.2s",
+                  padding: "6px 12px", borderRadius: "6px", fontSize: "13px", fontWeight: "600",
                   backgroundColor: activeTab === 'settings' ? "#10B981" : "transparent",
-                  color: activeTab === 'settings' ? "#fff" : "#6b7280",
-                  border: "none", cursor: "pointer"
+                  color: activeTab === 'settings' ? "#fff" : "#6b7280", border: "none", cursor: "pointer"
                 }}
               >
                 WhatsApp & Reportes
@@ -276,10 +257,9 @@ export default function VendedorIAPage() {
               <button 
                 onClick={() => setActiveTab('mcp')}
                 style={{ 
-                  padding: "8px 16px", borderRadius: "6px", fontSize: "14px", fontWeight: "500", transition: "all 0.2s",
+                  padding: "6px 12px", borderRadius: "6px", fontSize: "13px", fontWeight: "600",
                   backgroundColor: activeTab === 'mcp' ? "#10B981" : "transparent",
-                  color: activeTab === 'mcp' ? "#fff" : "#6b7280",
-                  border: "none", cursor: "pointer"
+                  color: activeTab === 'mcp' ? "#fff" : "#6b7280", border: "none", cursor: "pointer"
                 }}
               >
                 Conexión MCP
@@ -287,27 +267,28 @@ export default function VendedorIAPage() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 350px", gap: "24px" }}>
+          {/* Grid Principal */}
+          <div className="nevux-main-grid" style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "20px" }}>
             
-            {/* Columna Izquierda: Acción Principal */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-              
+            {/* Columna Izquierda */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               <AnimatePresence mode="wait">
                 {activeTab === 'chat' && (
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                    style={{ backgroundColor: "#fff", borderRadius: "12px", border: "1.5px solid #e5e7eb", height: "600px", display: "flex", flexDirection: "column", overflow: "hidden" }}
+                    className="nevux-chat-box"
+                    style={{ backgroundColor: "#fff", borderRadius: "12px", border: "1.5px solid #e5e7eb", height: "550px", display: "flex", flexDirection: "column", overflow: "hidden" }}
                   >
-                    <div style={{ padding: "16px", borderBottom: "1.5px solid #e5e7eb", display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div style={{ padding: "14px 16px", borderBottom: "1.5px solid #e5e7eb", display: "flex", alignItems: "center", gap: "10px" }}>
                       <div style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#10B981" }}></div>
-                      <span style={{ fontWeight: "600", color: "#374151" }}>Copilot Online</span>
+                      <span style={{ fontWeight: "600", color: "#374151", fontSize: "14px" }}>Copilot Online</span>
                     </div>
                     
-                    <div style={{ flex: 1, padding: "20px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <div style={{ flex: 1, padding: "16px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px" }}>
                       {messages.map((msg, i) => (
-                        <div key={i} style={{ alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: "80%" }}>
+                        <div key={i} style={{ alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: "85%" }}>
                           <div style={{ 
-                            padding: "12px 16px", borderRadius: "12px", fontSize: "14px", lineHeight: "1.5",
+                            padding: "10px 14px", borderRadius: "12px", fontSize: "13px", lineHeight: "1.5",
                             backgroundColor: msg.role === 'user' ? "#10B981" : "#f3f4f6",
                             color: msg.role === 'user' ? "#fff" : "#1f2937",
                             border: msg.role === 'user' ? "none" : "1.5px solid #e5e7eb"
@@ -319,19 +300,19 @@ export default function VendedorIAPage() {
                       {isLoading && <div style={{ color: "#9ca3af", fontSize: "12px", fontStyle: "italic" }}>El Copilot está analizando tu tienda...</div>}
                     </div>
 
-                    <div style={{ padding: "16px", borderTop: "1.5px solid #e5e7eb", display: "flex", gap: "8px" }}>
+                    <div style={{ padding: "12px", borderTop: "1.5px solid #e5e7eb", display: "flex", gap: "8px" }}>
                       <input 
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                         placeholder="Preguntale al Copilot (ej: ¿Cómo vienen las ventas?)"
-                        style={{ flex: 1, padding: "10px 16px", borderRadius: "8px", border: "1.5px solid #e5e7eb", outline: "none", fontSize: "14px" }}
+                        style={{ flex: 1, padding: "10px 12px", borderRadius: "8px", border: "1.5px solid #e5e7eb", outline: "none", fontSize: "13px" }}
                       />
                       <button 
                         onClick={sendMessage}
-                        style={{ backgroundColor: "#10B981", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", fontWeight: "600" }}
+                        style={{ backgroundColor: "#10B981", color: "#fff", border: "none", padding: "10px 16px", borderRadius: "8px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", fontWeight: "600", fontSize: "13px" }}
                       >
-                        <Send size={16} /> Enviar
+                        <Send size={15} /> Enviar
                       </button>
                     </div>
                   </motion.div>
@@ -340,53 +321,53 @@ export default function VendedorIAPage() {
                 {activeTab === 'settings' && (
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                    style={{ backgroundColor: "#fff", borderRadius: "12px", border: "1.5px solid #e5e7eb", padding: "24px" }}
+                    style={{ backgroundColor: "#fff", borderRadius: "12px", border: "1.5px solid #e5e7eb", padding: "20px" }}
                   >
-                    <h2 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
-                      <Settings size={20} color="#10B981" /> Configuración de Notificaciones
+                    <h2 style={{ fontSize: "16px", fontWeight: "600", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                      <Settings size={18} color="#10B981" /> Configuración de Notificaciones
                     </h2>
                     
-                    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                       <div>
-                        <label style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#374151", marginBottom: "8px" }}>Tu número de WhatsApp (con código de país, ej: 54911...)</label>
+                        <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#374151", marginBottom: "6px" }}>WhatsApp (ej: 54911...)</label>
                         <input 
                           type="text"
                           value={settings.whatsapp_phone}
                           onChange={(e) => setSettings({...settings, whatsapp_phone: e.target.value})}
                           placeholder="5491122334455"
-                          style={{ width: "100%", padding: "10px 16px", borderRadius: "8px", border: "1.5px solid #e5e7eb", outline: "none" }}
+                          style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1.5px solid #e5e7eb", outline: "none", fontSize: "13px", boxSizing: "border-box" }}
                         />
                       </div>
 
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px", backgroundColor: "#f9fafb", borderRadius: "8px" }}>
                         <div>
-                          <div style={{ fontWeight: "600", fontSize: "14px" }}>Reporte Diario Automático</div>
-                          <div style={{ fontSize: "12px", color: "#6b7280" }}>Recibí un resumen de ventas a las 20:00hs.</div>
+                          <div style={{ fontWeight: "600", fontSize: "13px" }}>Reporte Diario Automático</div>
+                          <div style={{ fontSize: "11px", color: "#6b7280" }}>Resumen diario por WhatsApp a las 20:00hs.</div>
                         </div>
                         <input 
                           type="checkbox" 
                           checked={settings.daily_report_enabled}
                           onChange={(e) => setSettings({...settings, daily_report_enabled: e.target.checked})}
-                          style={{ width: "20px", height: "20px", accentColor: "#10B981" }}
+                          style={{ width: "18px", height: "18px", accentColor: "#10B981" }}
                         />
                       </div>
 
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px", backgroundColor: "#f9fafb", borderRadius: "8px" }}>
                         <div>
-                          <div style={{ fontWeight: "600", fontSize: "14px" }}>Alertas de Stock Crítico</div>
-                          <div style={{ fontSize: "12px", color: "#6b7280" }}>Avisame cuando un producto se esté agotando.</div>
+                          <div style={{ fontWeight: "600", fontSize: "13px" }}>Alertas de Stock Crítico</div>
+                          <div style={{ fontSize: "11px", color: "#6b7280" }}>Aviso automático al agotarse stock.</div>
                         </div>
                         <input 
                           type="checkbox" 
                           checked={settings.stock_alerts_enabled}
                           onChange={(e) => setSettings({...settings, stock_alerts_enabled: e.target.checked})}
-                          style={{ width: "20px", height: "20px", accentColor: "#10B981" }}
+                          style={{ width: "18px", height: "18px", accentColor: "#10B981" }}
                         />
                       </div>
 
                       <button 
                         onClick={saveSettings}
-                        style={{ backgroundColor: "#10B981", color: "#fff", border: "none", padding: "12px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", marginTop: "10px" }}
+                        style={{ backgroundColor: "#10B981", color: "#fff", border: "none", padding: "10px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px", marginTop: "4px" }}
                       >
                         Guardar Configuración
                       </button>
@@ -397,133 +378,139 @@ export default function VendedorIAPage() {
                 {activeTab === 'mcp' && (
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                    style={{ backgroundColor: "#fff", borderRadius: "12px", border: "1.5px solid #e5e7eb", padding: "24px" }}
+                    style={{ backgroundColor: "#fff", borderRadius: "12px", border: "1.5px solid #e5e7eb", padding: "20px" }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
-                      <div style={{ backgroundColor: "#ecfdf5", padding: "10px", borderRadius: "10px" }}>
-                        <Layers size={24} color="#10B981" />
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+                      <div style={{ backgroundColor: "#ecfdf5", padding: "8px", borderRadius: "8px" }}>
+                        <Layers size={20} color="#10B981" />
                       </div>
                       <div>
-                        <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#111827" }}>Model Context Protocol (MCP)</h2>
-                        <span style={{ fontSize: "12px", color: "#10B981", fontWeight: "600" }}>ESTADO: ACTIVO & SEGURO</span>
+                        <h2 style={{ fontSize: "16px", fontWeight: "600", color: "#111827", margin: 0 }}>Model Context Protocol (MCP)</h2>
+                        <span style={{ fontSize: "11px", color: "#10B981", fontWeight: "600" }}>ESTADO: ACTIVO & SEGURO</span>
                       </div>
                     </div>
 
-                    <p style={{ color: "#4b5563", fontSize: "14px", lineHeight: "1.6", marginBottom: "20px" }}>
-                      Nevux utiliza el protocolo <strong>MCP</strong> para permitir que modelos de lenguaje avanzado (como Claude 3.5 o GPT-4o) comprendan el contexto de tu tienda de manera segura y estandarizada.
+                    <p style={{ color: "#4b5563", fontSize: "13px", lineHeight: "1.5", marginBottom: "16px" }}>
+                      Nevux utiliza el protocolo <strong>MCP</strong> para integrar modelos de inteligencia artificial como Claude o GPT directamente con los datos reales de tu Tiendanube de forma 100% privada.
                     </p>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
-                      <div style={{ padding: "16px", border: "1.5px solid #e5e7eb", borderRadius: "10px" }}>
-                        <Zap size={18} color="#10B981" style={{ marginBottom: "8px" }} />
-                        <div style={{ fontWeight: "600", fontSize: "14px", marginBottom: "4px" }}>Acceso a Datos Live</div>
-                        <div style={{ fontSize: "12px", color: "#6b7280" }}>La IA no adivina, lee directamente tus órdenes y stock.</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px", marginBottom: "16px" }}>
+                      <div style={{ padding: "12px", border: "1.5px solid #e5e7eb", borderRadius: "8px" }}>
+                        <Zap size={16} color="#10B981" style={{ marginBottom: "4px" }} />
+                        <div style={{ fontWeight: "600", fontSize: "13px" }}>Datos en Tiempo Real</div>
+                        <div style={{ fontSize: "11px", color: "#6b7280" }}>Lectura directa de tu catálogo, carritos y métricas.</div>
                       </div>
-                      <div style={{ padding: "16px", border: "1.5px solid #e5e7eb", borderRadius: "10px" }}>
-                        <CheckCircle2 size={18} color="#10B981" style={{ marginBottom: "8px" }} />
-                        <div style={{ fontWeight: "600", fontSize: "14px", marginBottom: "4px" }}>Privacidad de Grado Bancario</div>
-                        <div style={{ fontSize: "12px", color: "#6b7280" }}>Tus credenciales nunca se comparten con la IA.</div>
+                      <div style={{ padding: "12px", border: "1.5px solid #e5e7eb", borderRadius: "8px" }}>
+                        <CheckCircle2 size={16} color="#10B981" style={{ marginBottom: "4px" }} />
+                        <div style={{ fontWeight: "600", fontSize: "13px" }}>Seguridad Integrada</div>
+                        <div style={{ fontSize: "11px", color: "#6b7280" }}>Tus credenciales no se comparten con terceros.</div>
                       </div>
-                    </div>
-
-                    <div style={{ padding: "16px", backgroundColor: "#eff6ff", borderRadius: "10px", border: "1px solid #dbeafe" }}>
-                      <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "#1e40af", fontWeight: "600", fontSize: "14px", marginBottom: "4px" }}>
-                        <Info size={16} /> Tip del CEO
-                      </div>
-                      <p style={{ fontSize: "13px", color: "#1e40af", opacity: 0.9 }}>
-                        El MCP permite que Nevux sea compatible con herramientas como Cursor o Claude Desktop. Si sos desarrollador, podés conectar tu propio agente a la API de Nevux.
-                      </p>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-
             </div>
 
-            {/* Columna Derecha: Métricas en Tiempo Real */}
+            {/* Columna Derecha: Métricas */}
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               
-              {/* Card: Ventas Hoy */}
-              <div style={{ backgroundColor: "#fff", padding: "20px", borderRadius: "12px", border: "1.5px solid #e5e7eb" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-                  <div style={{ backgroundColor: "#ecfdf5", padding: "8px", borderRadius: "8px" }}>
-                    <TrendingUp size={20} color="#10B981" />
+              {/* Ventas Hoy */}
+              <div style={{ backgroundColor: "#fff", padding: "16px", borderRadius: "12px", border: "1.5px solid #e5e7eb" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                  <div style={{ backgroundColor: "#ecfdf5", padding: "6px", borderRadius: "6px" }}>
+                    <TrendingUp size={18} color="#10B981" />
                   </div>
-                  <span style={{ fontSize: "12px", color: "#10B981", fontWeight: "600", backgroundColor: "#d1fae5", padding: "2px 8px", borderRadius: "12px" }}>
+                  <span style={{ fontSize: "11px", color: "#10B981", fontWeight: "600", backgroundColor: "#d1fae5", padding: "2px 6px", borderRadius: "10px" }}>
                     Live
                   </span>
                 </div>
-                <div style={{ fontSize: "14px", color: "#6b7280", fontWeight: "500" }}>Ventas de Hoy</div>
-                <div style={{ fontSize: "28px", fontWeight: "700", color: "#111827", margin: "4px 0" }}>
+                <div style={{ fontSize: "13px", color: "#6b7280", fontWeight: "500" }}>Ventas de Hoy</div>
+                <div style={{ fontSize: "24px", fontWeight: "700", color: "#111827", margin: "2px 0" }}>
                   ARS ${metrics?.totalSales?.toLocaleString() || "0"}
                 </div>
-                <div style={{ fontSize: "12px", color: "#9ca3af" }}>
-                  Sincronizado hace segundos
-                </div>
+                <div style={{ fontSize: "11px", color: "#9ca3af" }}>Sincronizado con Tiendanube</div>
               </div>
 
-              {/* Card: Carritos */}
-              <div style={{ backgroundColor: "#fff", padding: "20px", borderRadius: "12px", border: "1.5px solid #e5e7eb" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-                  <div style={{ backgroundColor: "#eff6ff", padding: "8px", borderRadius: "8px" }}>
-                    <ShoppingCart size={20} color="#3b82f6" />
+              {/* Carritos */}
+              <div style={{ backgroundColor: "#fff", padding: "16px", borderRadius: "12px", border: "1.5px solid #e5e7eb" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                  <div style={{ backgroundColor: "#eff6ff", padding: "6px", borderRadius: "6px" }}>
+                    <ShoppingCart size={18} color="#3b82f6" />
                   </div>
                 </div>
-                <div style={{ fontSize: "14px", color: "#6b7280", fontWeight: "500" }}>Carritos Recuperables</div>
-                <div style={{ fontSize: "28px", fontWeight: "700", color: "#111827", margin: "4px 0" }}>
+                <div style={{ fontSize: "13px", color: "#6b7280", fontWeight: "500" }}>Carritos Recuperables</div>
+                <div style={{ fontSize: "24px", fontWeight: "700", color: "#111827", margin: "2px 0" }}>
                   {metrics?.abandonedCartsCount || 0}
                 </div>
                 <button 
-                  onClick={() => setInput("¿Cómo puedo recuperar los carritos abandonados?")}
-                  style={{ fontSize: "12px", color: "#3b82f6", background: "none", border: "none", padding: 0, cursor: "pointer", fontWeight: "600" }}
+                  onClick={() => { setActiveTab('chat'); setInput("¿Cómo puedo recuperar los carritos abandonados?"); }}
+                  style={{ fontSize: "11px", color: "#3b82f6", background: "none", border: "none", padding: 0, cursor: "pointer", fontWeight: "600" }}
                 >
                   Recuperar ahora →
                 </button>
               </div>
 
-              {/* Card: Stock Crítico */}
-              <div style={{ backgroundColor: "#fff", padding: "20px", borderRadius: "12px", border: "1.5px solid #e5e7eb" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-                  <div style={{ backgroundColor: "#fff1f2", padding: "8px", borderRadius: "8px" }}>
-                    <AlertTriangle size={20} color="#f43f5e" />
+              {/* Stock Crítico */}
+              <div style={{ backgroundColor: "#fff", padding: "16px", borderRadius: "12px", border: "1.5px solid #e5e7eb" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                  <div style={{ backgroundColor: "#fff1f2", padding: "6px", borderRadius: "6px" }}>
+                    <AlertTriangle size={18} color="#f43f5e" />
                   </div>
                 </div>
-                <div style={{ fontSize: "14px", color: "#6b7280", fontWeight: "500" }}>Stock Crítico</div>
-                <div style={{ fontSize: "28px", fontWeight: "700", color: "#f43f5e", margin: "4px 0" }}>
-                  {metrics?.criticalStockProducts?.length || 0} <span style={{ fontSize: "14px", color: "#6b7280", fontWeight: "400" }}>productos</span>
+                <div style={{ fontSize: "13px", color: "#6b7280", fontWeight: "500" }}>Stock Crítico</div>
+                <div style={{ fontSize: "24px", fontWeight: "700", color: "#f43f5e", margin: "2px 0" }}>
+                  {metrics?.criticalStockProducts?.length || 0} <span style={{ fontSize: "12px", color: "#6b7280", fontWeight: "400" }}>productos</span>
                 </div>
-                <div style={{ fontSize: "12px", color: "#9ca3af" }}>
-                  {metrics?.criticalStockProducts?.length > 0 ? "Requiere reposición inmediata" : "Inventario saludable"}
+                <div style={{ fontSize: "11px", color: "#9ca3af" }}>
+                  {metrics?.criticalStockProducts?.length > 0 ? "Requiere reposición rápida" : "Inventario saludable"}
                 </div>
               </div>
 
-              {/* Card: Proyección Semanal */}
-              <div style={{ backgroundColor: "#111827", padding: "20px", borderRadius: "12px", color: "#fff" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-                  <Bot size={18} color="#10B981" />
-                  <span style={{ fontSize: "13px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em" }}>Proyección IA</span>
+              {/* Proyección Semanal */}
+              <div style={{ backgroundColor: "#111827", padding: "16px", borderRadius: "12px", color: "#fff" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "12px" }}>
+                  <Bot size={16} color="#10B981" />
+                  <span style={{ fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em" }}>Proyección IA</span>
                 </div>
-                <div style={{ fontSize: "14px", color: "#9ca3af", marginBottom: "4px" }}>Cierre de semana estimado</div>
-                <div style={{ fontSize: "24px", fontWeight: "700", color: "#fff", marginBottom: "12px" }}>
+                <div style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "2px" }}>Cierre de semana estimado</div>
+                <div style={{ fontSize: "22px", fontWeight: "700", color: "#fff", marginBottom: "10px" }}>
                   ARS ${(metrics?.totalSales * 7.2 || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 </div>
-                <div style={{ height: "4px", width: "100%", backgroundColor: "#374151", borderRadius: "2px", overflow: "hidden", marginBottom: "8px" }}>
+                <div style={{ height: "4px", width: "100%", backgroundColor: "#374151", borderRadius: "2px", overflow: "hidden", marginBottom: "6px" }}>
                   <motion.div 
                     initial={{ width: 0 }} animate={{ width: "65%" }}
                     style={{ height: "100%", backgroundColor: "#10B981" }}
                   />
                 </div>
                 <div style={{ fontSize: "11px", color: "#9ca3af", display: "flex", justifyContent: "space-between" }}>
-                  <span>Basado en tendencia actual</span>
+                  <span>Tendencia en vivo</span>
                   <span style={{ color: "#10B981" }}>+12% vs ayer</span>
                 </div>
               </div>
 
-              <CentroAyuda />
+              {/* Soporte */}
+              <div style={{ backgroundColor: "#ffffff", padding: "16px", borderRadius: "12px", border: "1.5px solid #e5e7eb" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                  <HelpCircle size={18} color="#10B981" />
+                  <h3 style={{ fontSize: "13px", fontWeight: "600", color: "#111827", margin: 0 }}>Soporte Copilot</h3>
+                </div>
+                <p style={{ fontSize: "11px", color: "#6b7280", lineHeight: "1.4", marginBottom: "12px" }}>
+                  ¿Necesitás asistencia técnica o comercial? Consultanos directo por WhatsApp.
+                </p>
+                <a 
+                  href="https://wa.me/5491122334455?text=Hola%20Nevux,%20necesito%20ayuda" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "6px", width: "100%", padding: "8px", borderRadius: "6px", backgroundColor: "#ecfdf5", color: "#10B981", fontWeight: "600", fontSize: "12px", textDecoration: "none", border: "1px solid #a7f3d0", boxSizing: "border-box" }}
+                >
+                  Hablar con Soporte Oficial
+                </a>
+              </div>
+
             </div>
           </div>
         </main>
       </div>
     </div>
   );
-     }
+        }
