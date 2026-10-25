@@ -108,7 +108,6 @@ const SolidCTA = ({ text }: { text: string }) => (
   </div>
 );
 
-// Componente para el Guión Escena por Escena
 const ScriptScene = ({ time, title, visual, text, voice, isCTA = false }: { time: string, title: string, visual: string, text: string, voice: string, isCTA?: boolean }) => (
   <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 12, padding: 16, marginBottom: 16, width: '100%', boxSizing: 'border-box' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
@@ -205,47 +204,8 @@ const MartesContent = () => (
       { time: '19:00', action: 'Story 3 (Compartir Reel) + CTA', type: 'story' }
     ]} />
 
-    {/* GUIÓN DEL REEL */}
-    <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24 }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24, textAlign: 'center' }}>1️⃣ GUIÓN DEL REEL</h3>
-      
-      <ScriptScene 
-        time="0-4s" title="HOOK — Tráfico desperdiciado"
-        visual="Celular mostrando una Tiendanube. El usuario navega unos segundos y desliza hacia arriba para cerrar la pestaña sin comprar nada."
-        text="El 97% de tus visitas se van sin comprar nada 🚪"
-        voice="De cada cien personas que entran a tu Tiendanube, noventa y siete se van con las manos vacías y sin dejarte su contacto."
-      />
-      <ScriptScene 
-        time="4-9s" title="PROBLEMA — Plata perdida"
-        visual="Se muestra la interfaz de Meta Ads gastando dinero en publicidad y un contador de visitas que no se convierte en contactos."
-        text="Anuncios caros + Visitas anónimas = Dinero tirado 📉"
-        voice="Pagas por traerlos, pero si no compran al instante, los perdiste para siempre porque no tenés ni su mail ni su WhatsApp."
-      />
-      <ScriptScene 
-        time="9-17s" title="SOLUCIÓN — Widget Raspá y Gana"
-        visual="Aparece la tarjeta interactiva de 'Raspá y Gana' de Nevux. Un dedo raspa la superficie gris y revela '¡GANASTE 15% OFF!'. Inmediatamente pide ingresar WhatsApp o Mail."
-        text="🎮 Widget Raspá y Gana — Captación Gamificada"
-        voice="Con el widget Raspá y Gana de Nevux, transformás la captación en un juego irresistible. El cliente raspa en pantalla, se entusiasma y te deja su WhatsApp feliz para reclamar su premio."
-        isCTA={true}
-      />
-      <ScriptScene 
-        time="17-23s" title="BENEFICIO — Base de datos caliente"
-        visual="Un panel de contactos de Nevux sumando leads en tiempo real con iconos de WhatsApp y Mail ingresando continuamente."
-        text="Base de contactos creciendo en piloto automático 🚀"
-        voice="Ahora tenés una lista de clientes calientes a los que podés escribirles por WhatsApp o email marketing cuando quieras."
-      />
-      <ScriptScene 
-        time="23-28s" title="CTA FINAL"
-        visual="Fondo oscuro con el logo de Nevux arriba a la izquierda, la frase '50 Widgets + 6 funciones para impulsar tu Tiendanube' en una placa esmeralda destacada."
-        text="50 Widgets + 6 funciones · Comentá LEADS 👇"
-        voice="Accedé a 50 Widgets y 6 funciones para impulsar tu Tiendanube. Comentá LEADS y te muestro cómo activarlo en dos minutos."
-        isCTA={true}
-      />
-    </div>
-
-    {/* PORTADA REEL */}
     <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>2️⃣ PORTADA DEL REEL (4:5)</h3>
+      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>PORTADA DEL REEL (4:5)</h3>
       <SlideCard slideNum={1} totalSlides={1}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, alignSelf: 'center', backgroundColor: '#10B981', padding: '4px 10px', borderRadius: 12 }}>
           <Play size={12} color="#000" />
@@ -260,30 +220,6 @@ const MartesContent = () => (
         </div>
       </SlideCard>
     </div>
-
-    {/* STORIES MARTES */}
-    <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>3️⃣ HISTORIAS (VERTICAL 9:16)</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-        <StoryCard slideNum={1} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 24, fontWeight: 900, textAlign: 'center', marginTop: 40, lineHeight: 1.2 }}>¿Qué pasa cuando alguien entra a tu tienda y NO compra?</h2>
-          <PollSticker op1="Pierdo la plata de Ads 💸" op2="Le pido su WhatsApp 📲" />
-        </StoryCard>
-
-        <StoryCard slideNum={2} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 40 }}>Duele pagar por clics que miran dos productos y se van para siempre...</h2>
-          <EmojiSlider emoji="🫠" />
-        </StoryCard>
-
-        <StoryCard slideNum={3} totalSlides={4}>
-          <div style={{ textAlign: 'center', marginTop: 40 }}>
-            <Gift size={48} color="#10B981" style={{ margin: '0 auto 16px auto' }} />
-            <h2 style={{ color: '#FFF', fontSize: 20, fontWeight: 900, margin: '0 0 12px 0', lineHeight: 1.3 }}>Transformá tu tienda en un juego y capturá sus datos al instante 👇</h2>
-          </div>
-          <LinkSticker text="VER CÓMO FUNCIONA" />
-        </StoryCard>
-      </div>
-    </div>
   </div>
 );
 
@@ -293,15 +229,115 @@ const MartesContent = () => (
 const MiercolesContent = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', width: '100%' }}>
     <ScheduleBanner day="MIÉRCOLES" schedules={[
-      { time: '10:00', action: 'Story 1 (Fricción apps)', type: 'story' },
-      { time: '11:30', action: 'Carrusel Fidelización', type: 'post' }
+      { time: '10:00', action: 'Story 1 (Fricción apps genéricas)', type: 'story' },
+      { time: '11:30', action: 'Carrusel Recompensas VIP (5 slides)', type: 'post' },
+      { time: '16:00', action: 'Story 2 y 3 (Lock/Unlock Widgets)', type: 'story' },
+      { time: '19:30', action: 'Story 4 (FOMO competencia)', type: 'story' }
     ]} />
+
+    {/* CARRUSEL MIÉRCOLES */}
     <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>HISTORIAS (VERTICAL 9:16)</h3>
-      <StoryCard slideNum={1} totalSlides={4}>
-        <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 20 }}>¿Hace cuánto usás la misma app de widgets?</h2>
-        <PollSticker op1="Hace meses ⏱️" op2="La instalé recién" />
-      </StoryCard>
+      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>1️⃣ POST PRINCIPAL (CARRUSEL)</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        
+        <SlideCard slideNum={1} totalSlides={5}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}><span style={{ fontSize: 14 }}>🛑</span><span style={{ color: '#EF4444', fontWeight: 900, fontSize: 11 }}>BASTA DE PAGAR POR NADA</span></div>
+          <h2 style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 900, lineHeight: 1.15, margin: '0 0 12px 0' }}>Por qué deberías<br/><span style={{ color: '#EF4444' }}>ELIMINAR</span> tu app de widgets hoy mismo.</h2>
+          <p style={{ color: '#D1D5DB', fontSize: 13, margin: '0 0 16px 0' }}>Hay una verdad incómoda en Tiendanube... 👉</p>
+          <SlideCTA text="DESLIZÁ →" />
+        </SlideCard>
+
+        <SlideCard slideNum={2} totalSlides={5}>
+          <h2 style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 900, lineHeight: 1.2, margin: '0 0 20px 0' }}>Tu tienda se ve <span style={{ color: '#EF4444' }}>idéntica</span> a tu competencia.</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+            <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 8, padding: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: 20 }}>🛒</span>
+              <div>
+                <p style={{ color: '#FFF', fontSize: 12, fontWeight: 800, margin: '0 0 2px 0' }}>Tienda Genérica A</p>
+                <p style={{ color: '#9CA3AF', fontSize: 10, margin: 0 }}>Mismos pop-ups aburridos</p>
+              </div>
+            </div>
+            <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 8, padding: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: 20 }}>🛒</span>
+              <div>
+                <p style={{ color: '#FFF', fontSize: 12, fontWeight: 800, margin: '0 0 2px 0' }}>Tu Tienda (Actual)</p>
+                <p style={{ color: '#9CA3AF', fontSize: 10, margin: 0 }}>Pagas todos los meses por lo mismo</p>
+              </div>
+            </div>
+          </div>
+          <SlideCTA text="¿CÓMO LO CAMBIAMOS? →" />
+        </SlideCard>
+
+        <SlideCard slideNum={3} totalSlides={5}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+            <Gift size={40} color="#10B981" style={{ marginBottom: 16 }} />
+            <h2 style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 900, lineHeight: 1.2, margin: '0 0 12px 0' }}>La única app que te premia por quedarte.</h2>
+            <p style={{ color: '#D1D5DB', fontSize: 13, margin: 0 }}>Presentamos el <strong style={{ color: '#10B981' }}>Programa de Recompensas</strong> Nevux. Cuanto más tiempo la usás, más única es tu tienda.</p>
+          </div>
+          <SlideCTA text="MIRÁ LO QUE DESBLOQUEÁS →" />
+        </SlideCard>
+
+        <SlideCard slideNum={4} totalSlides={5}>
+          <h2 style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 900, lineHeight: 1.2, margin: '0 0 20px 0' }}>Tu progreso VIP:</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid #10B981', borderRadius: 8, padding: 12 }}>
+              <p style={{ color: '#10B981', fontSize: 11, fontWeight: 900, margin: '0 0 4px 0' }}>MES 1 🔓</p>
+              <p style={{ color: '#FFF', fontSize: 12, margin: 0 }}>Acceso a 50 Widgets Base</p>
+            </div>
+            <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 8, padding: 12 }}>
+              <p style={{ color: '#FBBF24', fontSize: 11, fontWeight: 900, margin: '0 0 4px 0' }}>MES 3 👑</p>
+              <p style={{ color: '#FFF', fontSize: 12, margin: 0 }}>Widget Premium Exclusivo (No a la venta)</p>
+            </div>
+            <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 8, padding: 12 }}>
+              <p style={{ color: '#60A5FA', fontSize: 11, fontWeight: 900, margin: '0 0 4px 0' }}>MES 6 💎</p>
+              <p style={{ color: '#FFF', fontSize: 12, margin: 0 }}>Nueva función VIP secreta</p>
+            </div>
+          </div>
+          <SlideCTA text="ÚLTIMO PASO →" />
+        </SlideCard>
+
+        <SlideCard slideNum={5} totalSlides={5}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+            <Award size={48} color="#10B981" style={{ marginBottom: 16 }} />
+            <h2 style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 900, lineHeight: 1.1, margin: '0 0 12px 0' }}>Desmarcáte de tu competencia HOY.</h2>
+            <p style={{ color: '#D1D5DB', fontSize: 13, margin: '0 0 24px 0' }}>Instalá Nevux y empezá tu camino VIP con 7 días gratis.</p>
+            <SolidCTA text="OBTENER 50 WIDGETS AHORA" />
+          </div>
+        </SlideCard>
+
+      </div>
+    </div>
+
+    {/* STORIES MIÉRCOLES */}
+    <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
+      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>2️⃣ HISTORIAS (VERTICAL 9:16)</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        
+        <StoryCard slideNum={1} totalSlides={4}>
+          <h2 style={{ color: '#FFF', fontSize: 24, fontWeight: 900, textAlign: 'center', marginTop: 40, lineHeight: 1.2 }}>¿Hace cuánto tiempo usás la misma app de widgets genéricos?</h2>
+          <PollSticker op1="Hace meses ⏱️" op2="La instalé recién" />
+        </StoryCard>
+
+        <StoryCard slideNum={2} totalSlides={4}>
+          <h2 style={{ color: '#FFF', fontSize: 24, fontWeight: 900, textAlign: 'center', marginTop: 40, lineHeight: 1.2 }}>¿Y qué te dieron a cambio por tu lealtad además de cobrarte?</h2>
+          <p style={{ color: '#9CA3AF', fontSize: 14, textAlign: 'center', margin: '12px 0 0 0' }}>Nosotros sabemos la respuesta...</p>
+          <EmojiSlider emoji="💸" />
+        </StoryCard>
+
+        <StoryCard slideNum={3} totalSlides={4}>
+          <div style={{ textAlign: 'center', marginTop: 40 }}>
+            <Crown size={48} color="#FBBF24" style={{ margin: '0 auto 16px auto' }} />
+            <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, margin: '0 0 12px 0', lineHeight: 1.2 }}>En Nevux, tu lealtad se recompensa con exclusividad.</h2>
+            <p style={{ color: '#D1D5DB', fontSize: 14, lineHeight: 1.4 }}>Mes a mes desbloqueás widgets VIP que tu competencia NO puede comprar.</p>
+          </div>
+        </StoryCard>
+
+        <StoryCard slideNum={4} totalSlides={4}>
+          <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 40, lineHeight: 1.3 }}>Tu competencia ya está desbloqueando widgets únicos que vos no tenés.</h2>
+          <LinkSticker text="VER RECOMPENSAS NEVUX" />
+        </StoryCard>
+
+      </div>
     </div>
   </div>
 );
@@ -310,7 +346,7 @@ const MiercolesContent = () => (
 const COPIES = {
   LUNES: `🔴 Tu Tiendanube tiene un problema que no se ve en las métricas de Meta...\n\nNevux reemplaza todo eso con 50 Widgets de alta conversión. 7 días gratis.\n👉 Comentá "WIDGET"`,
   MARTES: `¿Sabías que el 97% de las personas que entran a tu Tiendanube se van sin comprar nada y sin dejarte sus datos? 🚪💸\n\nInvertís en Meta Ads, Google y contenido para atraer tráfico a tu tienda online. Las visitas llegan, miran dos productos... y cierran la pestaña. Sin un mecanismo de captación inmediata, esa plata que invertiste en traerlos se pierde para siempre.\n\n💡 La solución: Gamificación con el Widget "Raspá y Gana" de Nevux.\n\nEn lugar de mostrar un pop-up aburrido que la gente cierra por inercia, Nevux transforma la captación de contactos en una experiencia interactiva irresistible:\n\n1️⃣ El cliente entra a tu Tiendanube y ve una tarjeta de "Raspá y Gana".\n2️⃣ Raspa en la pantalla con el dedo para descubrir su premio (ej: 15% OFF o Envío Gratis).\n3️⃣ Para reclamar el cupón, ingresa su WhatsApp o Email.\n\n🚀 El resultado: Pasás de tener visitas anónimas a construir una base de datos hiper-calificada en piloto automático, lista para remarketing por WhatsApp o Email Marketing.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "LEADS" abajo y te enviamos por privado el paso a paso para activarlo en menos de 2 minutos.`,
-  MIÉRCOLES: `🎁 ¿Tu app de widgets te recompensa por quedarte? La nuestra sí...\n\nDesbloqueá widgets premium exclusivos.\n👉 Comentá "FIDELIDAD"`
+  MIÉRCOLES: `¿Tu app actual de widgets te cobra todos los meses pero tu tienda sigue viéndose igual a la de tu competencia? 📉\n\nLa mayoría de las apps en Tiendanube son puramente transaccionales: pagás tu suscripción mes a mes y listo. No hay incentivos, no hay evolución. Mientras tanto, tu tienda se ve idéntica a las de otras 10,000 marcas que usan exactamente la misma app genérica.\n\n💡 En Nevux cambiamos las reglas del juego con nuestro Programa de Recompensas.\n\nSomos la PRIMERA app de Tiendanube que te premia por tu fidelidad. ¿Cómo funciona?\n🔓 Mes 1: Accedés al instante a los 50 Widgets Base de alta conversión.\n🎁 Mes a mes: Vas desbloqueando Widgets Premium Exclusivos que NO están a la venta en ningún lado.\n\n🚀 El resultado: Cuanto más tiempo usás Nevux, más única y personalizada se vuelve tu tienda. Tu competencia nunca podrá copiar tus estrategias de conversión porque simplemente no tendrán acceso a tus widgets VIP.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "FIDELIDAD" abajo y te enviamos por privado cómo reclamar tu primera recompensa hoy mismo.`
 };
 
 // ============================================================
@@ -318,7 +354,7 @@ const COPIES = {
 // ============================================================
 export default function MarketingAssetsPage() {
   const [activeTab, setActiveTab] = useState<'instagram'>('instagram');
-  const [openDay, setOpenDay] = useState<string>('MARTES'); // Empieza en Martes por defecto
+  const [openDay, setOpenDay] = useState<string>('MIÉRCOLES'); // Empieza en Miércoles por defecto
   const [copied, setCopied] = useState(false);
 
   const copyCaption = async (text: string) => {
@@ -374,4 +410,4 @@ export default function MarketingAssetsPage() {
       </div>
     </div>
   );
-        }
+  }
