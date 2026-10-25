@@ -423,7 +423,7 @@ const MiercolesCarouselSlides = () => (
       <SlideCard slideNum={4} totalSlides={5}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <Crown size={20} color="#8B5CF6" />
-          <span style={{ fontSize: 14, fontWeight 900, color: '#FFFFFF' }}>Mes 12+ · Nivel VIP</span>
+          <span style={{ fontSize: 14, fontWeight: 900, color: '#FFFFFF' }}>Mes 12+ · Nivel VIP</span>
         </div>
 
         <div style={{ backgroundColor: '#0B1512', border: '1px solid rgba(139,92,246,0.4)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
@@ -805,4 +805,4 @@ export default function MarketingAssetsPage() {
       )}
     </div>
   );
-        }
+      }
