@@ -11,7 +11,6 @@ import {
   Clock,
   Layers,
   Film,
-  ImageIcon,
   Maximize2,
   X,
   Mic,
@@ -27,367 +26,916 @@ import {
   Sparkles,
   Camera,
   AlertTriangle,
-  ArrowRight,
   TrendingDown,
-  Timer,
   CheckCircle2,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Copy,
+  Check
 } from 'lucide-react';
 
-// ============================================================================
-// 1. LOGO OFICIAL NEVUX V2 (REPLICA EXACTA IMAGEN 2: BLANCO/PLATA/DEGRADADO)
-// ============================================================================
-const NevuxIsotypeV2 = ({ size = 32 }: { size?: number }) => (
+// ============================================================
+// LOGO OFICIAL NEVUX (réplica exacta de tu isotipo blanco)
+// ============================================================
+const NevuxIsotype = ({ size = 28 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="nvxRightWhiteGrad" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="nPillarRight" x1="70" y1="15" x2="70" y2="85" gradientUnits="userSpaceOnUse">
         <stop offset="0%" stopColor="#FFFFFF" />
-        <stop offset="50%" stopColor="#A3A3A3" />
-        <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+        <stop offset="70%" stopColor="#D1D5DB" />
+        <stop offset="100%" stopColor="#6B7280" stopOpacity="0.3" />
       </linearGradient>
-      <linearGradient id="nvxDiagWhiteGrad" x1="0" y1="0" x2="1" y2="1">
+      <linearGradient id="nDiag" x1="20" y1="20" x2="85" y2="95" gradientUnits="userSpaceOnUse">
         <stop offset="0%" stopColor="#FFFFFF" />
-        <stop offset="60%" stopColor="#FFFFFF" />
-        <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+        <stop offset="55%" stopColor="#F3F4F6" />
+        <stop offset="100%" stopColor="#9CA3AF" stopOpacity="0.4" />
       </linearGradient>
     </defs>
-    {/* Pilar Izquierdo (Blanco Puro) */}
-    <rect x="25" y="20" width="14" height="60" fill="#FFFFFF" />
-    {/* Pilar Derecho (Degradado a Negro) */}
-    <rect x="71" y="20" width="14" height="40" fill="url(#nvxRightWhiteGrad)" />
-    {/* Diagonal (Blanca a Degradado oscuro) */}
-    <path d="M25 20 L85 95 L71 95 L25 35 Z" fill="url(#nvxDiagWhiteGrad)" />
+    {/* Left pillar */}
+    <rect x="22" y="18" width="15" height="64" rx="2" fill="#FFFFFF" />
+    {/* Right pillar (fades down) */}
+    <rect x="68" y="18" width="15" height="42" rx="2" fill="url(#nPillarRight)" />
+    {/* Diagonal bar */}
+    <path
+      d="M29 22 L78 88"
+      stroke="url(#nDiag)"
+      strokeWidth="15"
+      strokeLinecap="round"
+    />
   </svg>
 );
 
-// Header para Carruseles (Réplica exacta Imagen 1)
-const InstagramHeaderBrand = () => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-    <div style={{ 
-      width: 44, height: 44, borderRadius: '50%', border: '1px solid #374151', 
-      display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#020a07' 
-    }}>
-      <span style={{ color: '#FFFFFF', fontWeight: 900, fontSize: 18 }}>N</span>
-    </div>
-    <span style={{ color: '#FFFFFF', fontWeight: 800, fontSize: 22, letterSpacing: '0.05em', fontFamily: 'system-ui, sans-serif' }}>
-      NEVUX
-    </span>
-  </div>
-);
-
-// Header General de la App Admin
-const NevuxAdminHeader = () => (
+const BrandHeader = () => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-    <NevuxIsotypeV2 size={28} />
-    <span style={{ color: '#FFFFFF', fontWeight: 800, fontSize: 18, letterSpacing: '0.05em' }}>
+    <div style={{
+      width: 36,
+      height: 36,
+      borderRadius: '50%',
+      backgroundColor: '#0a0a0a',
+      border: '1.5px solid #2a2a2a',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden'
+    }}>
+      <NevuxIsotype size={22} />
+    </div>
+    <span style={{
+      color: '#FFFFFF',
+      fontWeight: 800,
+      fontSize: 16,
+      letterSpacing: '0.08em',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    }}>
       NEVUX
     </span>
   </div>
 );
 
-// ============================================================================
-// 2. COMPONENTE DE SLIDES VISUALES (1080 x 1350 px - Formato 4:5 Instagram)
-// ============================================================================
-const VisualSlide = ({ children }: { children: React.ReactNode }) => (
+// ============================================================
+// SLIDE CARD — formato vertical limpio para captura
+// ============================================================
+const SlideCard = ({
+  children,
+  slideNum,
+  totalSlides
+}: {
+  children: React.ReactNode;
+  slideNum: number;
+  totalSlides: number;
+}) => (
   <div style={{
-    width: 1080,
-    height: 1350, // Proporción 4:5 vertical real
-    backgroundColor: '#010604', // Fondo súper dark exacto
-    border: '1px solid rgba(16, 185, 129, 0.2)', // Borde sutil
-    borderRadius: 64, // Bordes muy redondeados como imagen 1
-    position: 'relative',
-    overflow: 'hidden',
-    padding: '80px',
+    width: '100%',
+    maxWidth: 420,
+    margin: '0 auto',
+    aspectRatio: '4 / 5',
+    backgroundColor: '#050d0a',
+    backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.12) 0%, transparent 55%)',
+    borderRadius: 28,
+    border: '1px solid rgba(16,185,129,0.25)',
+    padding: '28px 24px 24px 24px',
     display: 'flex',
     flexDirection: 'column',
-    boxShadow: '0 40px 100px rgba(0,0,0,0.8)',
-    // Radial gradient glow superior verde
-    background: 'radial-gradient(circle at 50% -20%, rgba(16, 185, 129, 0.15) 0%, #010604 60%)'
+    position: 'relative',
+    overflow: 'hidden',
+    boxShadow: '0 12px 40px rgba(0,0,0,0.55)'
   }}>
-    {/* Top Header */}
-    <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 60 }}>
-      <InstagramHeaderBrand />
+    {/* Header brand */}
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+      <BrandHeader />
+      <span style={{
+        fontSize: 11,
+        color: '#4B5563',
+        fontWeight: 700,
+        letterSpacing: '0.05em'
+      }}>
+        {slideNum}/{totalSlides}
+      </span>
     </div>
-    
-    {/* Slide Content */}
+
+    {/* Content */}
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
       {children}
     </div>
   </div>
 );
 
-const SlideButton = ({ text }: { text: string }) => (
+const SlideCTA = ({ text }: { text: string }) => (
   <div style={{
-    width: '100%',
-    padding: '36px',
-    backgroundColor: 'rgba(16, 185, 129, 0.05)',
-    border: '2px solid rgba(16, 185, 129, 0.3)',
-    borderRadius: 24,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginTop: 'auto',
-    marginBottom: 40
+    width: '100%',
+    padding: '14px 0',
+    borderRadius: 14,
+    border: '1.5px solid rgba(16,185,129,0.35)',
+    backgroundColor: 'rgba(16,185,129,0.06)',
+    textAlign: 'center'
   }}>
-    <span style={{ color: '#10B981', fontSize: 32, fontWeight: 800, letterSpacing: '0.05em' }}>
+    <span style={{
+      color: '#10B981',
+      fontSize: 14,
+      fontWeight: 800,
+      letterSpacing: '0.06em'
+    }}>
       {text}
     </span>
   </div>
 );
 
-// ============================================================================
-// 3. GENERADOR DE CARRUSELES (LUNES)
-// ============================================================================
-const LunesCarousel = () => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 80, alignItems: 'center', transform: 'scale(0.4)', transformOrigin: 'top center', marginBottom: '-5500px' }}>
-    
-    {/* SLIDE 1 (RÉPLICA EXACTA IMAGEN 1) */}
-    <VisualSlide>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 40 }}>
-        <span style={{ fontSize: 32 }}>🚨</span>
-        <span style={{ color: '#EF4444', fontWeight: 900, fontSize: 26, letterSpacing: '0.1em' }}>
-          ALERTA PARA DUEÑOS DE TIENDA
+// ============================================================
+// CARRUSEL LUNES — 5 SLIDES APILADOS VERTICALMENTE
+// ============================================================
+const LunesCarouselSlides = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 32, padding: '0 8px' }}>
+
+    {/* ===== SLIDE 1 — HOOK ===== */}
+    <div>
+      <div style={{ textAlign: 'center', marginBottom: 12 }}>
+        <span style={{
+          backgroundColor: '#EF4444',
+          color: '#FFF',
+          padding: '5px 14px',
+          borderRadius: 20,
+          fontSize: 11,
+          fontWeight: 900,
+          letterSpacing: '0.04em'
+        }}>
+          SLIDE 1 · HOOK
         </span>
       </div>
-      <h1 style={{ color: '#FFFFFF', fontSize: 90, fontWeight: 900, lineHeight: 1.1, margin: '0 0 40px 0', letterSpacing: '-0.02em' }}>
-        Tu tienda pierde<br/>ventas <span style={{ color: '#10B981' }}>MIENTRAS<br/>dormís.</span>
-      </h1>
-      <p style={{ color: '#E5E7EB', fontSize: 44, lineHeight: 1.4, margin: 0, fontWeight: 400 }}>
-        Y no es culpa de tus Ads. Te muestro el error exacto 👉
-      </p>
-      <SlideButton text="DESLIZÁ ➔" />
-    </VisualSlide>
-
-    {/* SLIDE 2 (Problema visual) */}
-    <VisualSlide>
-      <h1 style={{ color: '#FFFFFF', fontSize: 80, fontWeight: 900, lineHeight: 1.1, margin: '0 0 60px 0' }}>
-        El problema no es tu tráfico.<br/><span style={{ color: '#9CA3AF', fontWeight: 700 }}>Es lo que pasa después.</span>
-      </h1>
-      
-      {/* Dense UI Mockup */}
-      <div style={{ backgroundColor: '#0B1512', border: '2px solid #1F2937', borderRadius: 40, padding: 48, position: 'relative' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #1F2937', paddingBottom: 24, marginBottom: 32 }}>
-          <span style={{ color: '#FFFFFF', fontSize: 32, fontWeight: 800 }}>Métricas de hoy</span>
-          <span style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: '#EF4444', padding: '12px 24px', borderRadius: 20, fontSize: 24, fontWeight: 800 }}>
-            <TrendingDown size={28} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 10 }} /> 0.8% Conversión
+      <SlideCard slideNum={1} totalSlides={5}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+          <span style={{ fontSize: 16 }}>🚨</span>
+          <span style={{
+            color: '#EF4444',
+            fontWeight: 900,
+            fontSize: 12,
+            letterSpacing: '0.08em'
+          }}>
+            ALERTA PARA DUEÑOS DE TIENDA
           </span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 32 }}>
-            <span style={{ color: '#9CA3AF' }}>Visitas Meta Ads:</span>
-            <span style={{ color: '#FFFFFF', fontWeight: 800 }}>1,450</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 32 }}>
-            <span style={{ color: '#9CA3AF' }}>Agregados al carrito:</span>
-            <span style={{ color: '#FFFFFF', fontWeight: 800 }}>84</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 32, color: '#EF4444' }}>
-            <span style={{ fontWeight: 800 }}>Carritos abandonados:</span>
-            <span style={{ fontWeight: 900 }}>72 🚨</span>
-          </div>
-        </div>
-      </div>
-      <p style={{ color: '#E5E7EB', fontSize: 38, lineHeight: 1.5, margin: '60px 0 0 0', textAlign: 'center' }}>
-        Instalar <strong style={{ color: '#EF4444' }}>10 apps distintas</strong> enlentece tu tienda y aleja a los compradores.
-      </p>
-      <SlideButton text="LA SOLUCIÓN ➔" />
-    </VisualSlide>
 
-    {/* SLIDE 3 (Solución Nevux) */}
-    <VisualSlide>
-      <h1 style={{ color: '#FFFFFF', fontSize: 80, fontWeight: 900, lineHeight: 1.1, margin: '0 0 60px 0' }}>
-        Nevux resuelve esto<br/>en <span style={{ color: '#10B981' }}>2 minutos.</span>
-      </h1>
-      
-      {/* Mockup Panel Nevux */}
-      <div style={{ backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.5)', borderRadius: 40, padding: 48, flex: 1, boxShadow: '0 20px 60px rgba(16,185,129,0.15)' }}>
-        <div style={{ color: '#10B981', fontSize: 24, fontWeight: 900, letterSpacing: '0.1em', marginBottom: 32 }}>
-          PANEL DE CONTROL NEVUX
-        </div>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          {/* Widget 1 */}
-          <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 24, padding: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ color: '#FFFFFF', fontSize: 32, fontWeight: 800, marginBottom: 8 }}>Barra de Envío Gratis</div>
-              <div style={{ color: '#9CA3AF', fontSize: 24 }}>Aumenta el ticket promedio.</div>
-            </div>
-            <div style={{ backgroundColor: '#10B981', width: 80, height: 40, borderRadius: 20, position: 'relative' }}>
-              <div style={{ width: 32, height: 32, backgroundColor: '#FFF', borderRadius: '50%', position: 'absolute', right: 4, top: 4 }}></div>
-            </div>
-          </div>
+        <h2 style={{
+          color: '#FFFFFF',
+          fontSize: 32,
+          fontWeight: 900,
+          lineHeight: 1.15,
+          margin: '0 0 16px 0',
+          letterSpacing: '-0.02em'
+        }}>
+          Tu tienda pierde<br />
+          ventas <span style={{ color: '#10B981' }}>MIENTRAS<br />dormís.</span>
+        </h2>
 
-          {/* Widget 2 */}
-          <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 24, padding: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ color: '#FFFFFF', fontSize: 32, fontWeight: 800, marginBottom: 8 }}>Chatbot IA 24/7</div>
-              <div style={{ color: '#9CA3AF', fontSize: 24 }}>Responde dudas de noche.</div>
-            </div>
-            <div style={{ backgroundColor: '#10B981', width: 80, height: 40, borderRadius: 20, position: 'relative' }}>
-              <div style={{ width: 32, height: 32, backgroundColor: '#FFF', borderRadius: '50%', position: 'absolute', right: 4, top: 4 }}></div>
-            </div>
-          </div>
-          
-          <div style={{ textAlign: 'center', color: '#10B981', fontSize: 28, fontWeight: 800, marginTop: 16 }}>
-            + 48 WIDGETS DE ALTA CONVERSIÓN
-          </div>
-        </div>
-      </div>
-      <SlideButton text="ÚLTIMO PASO ➔" />
-    </VisualSlide>
-
-    {/* SLIDE 4 (CTA FINAL) */}
-    <VisualSlide>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-        <div style={{ width: 160, height: 160, backgroundColor: 'rgba(16,185,129,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 40, border: '4px solid #10B981' }}>
-          <CheckCircle2 size={80} color="#10B981" />
-        </div>
-        <h1 style={{ color: '#FFFFFF', fontSize: 90, fontWeight: 900, lineHeight: 1.1, margin: '0 0 32px 0' }}>
-          Empezá a recuperar<br/>ventas hoy mismo.
-        </h1>
-        <p style={{ color: '#9CA3AF', fontSize: 40, margin: '0 0 80px 0', lineHeight: 1.4 }}>
-          Instalalo en 1 clic. Sin tocar código.<br/>Sin tarjeta de crédito.
+        <p style={{
+          color: '#D1D5DB',
+          fontSize: 15,
+          lineHeight: 1.5,
+          margin: '0 0 24px 0',
+          fontWeight: 400
+        }}>
+          Y no es culpa de tus Ads. Te muestro el error exacto 👉
         </p>
-        
-        <div style={{ backgroundColor: '#10B981', color: '#000000', padding: '40px 80px', borderRadius: 32, fontSize: 48, fontWeight: 900, width: '100%' }}>
-          PROBAR 7 DÍAS GRATIS
-        </div>
-        <div style={{ color: '#6B7280', fontSize: 28, marginTop: 40, fontWeight: 700 }}>
-          Link en nuestro perfil.
-        </div>
-      </div>
 
-      <div style={{ borderTop: '2px solid #1F2937', paddingTop: 40, marginTop: 'auto', textAlign: 'center' }}>
-        <span style={{ color: '#10B981', fontSize: 32, fontWeight: 800 }}>
-          50 Widgets + 6 funciones para impulsar tu Tiendanube
+        <SlideCTA text="DESLIZÁ →" />
+      </SlideCard>
+    </div>
+
+    {/* ===== SLIDE 2 — PROBLEMA ===== */}
+    <div>
+      <div style={{ textAlign: 'center', marginBottom: 12 }}>
+        <span style={{
+          backgroundColor: '#F59E0B',
+          color: '#000',
+          padding: '5px 14px',
+          borderRadius: 20,
+          fontSize: 11,
+          fontWeight: 900,
+          letterSpacing: '0.04em'
+        }}>
+          SLIDE 2 · PROBLEMA
         </span>
       </div>
-    </VisualSlide>
+      <SlideCard slideNum={2} totalSlides={5}>
+        <h2 style={{
+          color: '#FFFFFF',
+          fontSize: 26,
+          fontWeight: 900,
+          lineHeight: 1.2,
+          margin: '0 0 20px 0'
+        }}>
+          El problema no es tu tráfico.
+        </h2>
+        <p style={{
+          color: '#9CA3AF',
+          fontSize: 14,
+          margin: '0 0 20px 0',
+          lineHeight: 1.4
+        }}>
+          Es lo que pasa cuando el cliente llega a tu tienda.
+        </p>
 
+        {/* Mock métricas */}
+        <div style={{
+          backgroundColor: '#0B1512',
+          border: '1px solid #1F2937',
+          borderRadius: 16,
+          padding: 16,
+          marginBottom: 16
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderBottom: '1px solid #1F2937',
+            paddingBottom: 10,
+            marginBottom: 12
+          }}>
+            <span style={{ color: '#FFFFFF', fontSize: 13, fontWeight: 800 }}>Métricas de hoy</span>
+            <span style={{
+              backgroundColor: 'rgba(239,68,68,0.15)',
+              color: '#EF4444',
+              padding: '4px 10px',
+              borderRadius: 8,
+              fontSize: 11,
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4
+            }}>
+              <TrendingDown size={12} /> 0.8% conv.
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+              <span style={{ color: '#9CA3AF' }}>Visitas Meta Ads</span>
+              <span style={{ color: '#FFFFFF', fontWeight: 800 }}>1.450</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+              <span style={{ color: '#9CA3AF' }}>Agregados al carrito</span>
+              <span style={{ color: '#FFFFFF', fontWeight: 800 }}>84</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+              <span style={{ color: '#EF4444', fontWeight: 700 }}>Carritos abandonados</span>
+              <span style={{ color: '#EF4444', fontWeight: 900 }}>72 🚨</span>
+            </div>
+          </div>
+        </div>
+
+        <p style={{
+          color: '#D1D5DB',
+          fontSize: 13,
+          lineHeight: 1.45,
+          margin: '0 0 16px 0',
+          textAlign: 'center'
+        }}>
+          Tener <strong style={{ color: '#EF4444' }}>10 apps instaladas</strong> enlentece tu tienda y aleja compradores.
+        </p>
+
+        <SlideCTA text="LA SOLUCIÓN →" />
+      </SlideCard>
+    </div>
+
+    {/* ===== SLIDE 3 — IMPLICACIÓN ===== */}
+    <div>
+      <div style={{ textAlign: 'center', marginBottom: 12 }}>
+        <span style={{
+          backgroundColor: '#EF4444',
+          color: '#FFF',
+          padding: '5px 14px',
+          borderRadius: 20,
+          fontSize: 11,
+          fontWeight: 900,
+          letterSpacing: '0.04em'
+        }}>
+          SLIDE 3 · IMPLICACIÓN
+        </span>
+      </div>
+      <SlideCard slideNum={3} totalSlides={5}>
+        <h2 style={{
+          color: '#FFFFFF',
+          fontSize: 26,
+          fontWeight: 900,
+          lineHeight: 1.2,
+          margin: '0 0 12px 0'
+        }}>
+          Cada día sin optimizar, quemás plata en Ads.
+        </h2>
+
+        <div style={{
+          backgroundColor: '#0B1512',
+          border: '1px solid rgba(239,68,68,0.35)',
+          borderRadius: 16,
+          padding: 20,
+          margin: '16px 0',
+          textAlign: 'center'
+        }}>
+          <p style={{ color: '#9CA3AF', fontSize: 12, margin: '0 0 8px 0' }}>
+            Si gastás en Meta y convertís al 0.8%
+          </p>
+          <p style={{
+            color: '#EF4444',
+            fontSize: 28,
+            fontWeight: 900,
+            margin: '0 0 4px 0',
+            lineHeight: 1.1
+          }}>
+            Estás tirando el 99%
+          </p>
+          <p style={{ color: '#9CA3AF', fontSize: 13, margin: 0 }}>
+            de tu inversión a la basura
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+          {[
+            'Carritos abandonados sin recuperar',
+            'Cero urgencia ni prueba social',
+            'Tienda lenta por multi-apps',
+            'Nadie responde dudas a la noche'
+          ].map((item, i) => (
+            <div key={i} style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              backgroundColor: '#0B1512',
+              borderRadius: 10,
+              padding: '10px 14px',
+              border: '1px solid #1F2937'
+            }}>
+              <span style={{ color: '#EF4444', fontSize: 14, fontWeight: 900 }}>✗</span>
+              <span style={{ color: '#D1D5DB', fontSize: 13 }}>{item}</span>
+            </div>
+          ))}
+        </div>
+
+        <SlideCTA text="CÓMO SE ARREGLA →" />
+      </SlideCard>
+    </div>
+
+    {/* ===== SLIDE 4 — SOLUCIÓN ===== */}
+    <div>
+      <div style={{ textAlign: 'center', marginBottom: 12 }}>
+        <span style={{
+          backgroundColor: '#10B981',
+          color: '#000',
+          padding: '5px 14px',
+          borderRadius: 20,
+          fontSize: 11,
+          fontWeight: 900,
+          letterSpacing: '0.04em'
+        }}>
+          SLIDE 4 · SOLUCIÓN
+        </span>
+      </div>
+      <SlideCard slideNum={4} totalSlides={5}>
+        <h2 style={{
+          color: '#FFFFFF',
+          fontSize: 26,
+          fontWeight: 900,
+          lineHeight: 1.2,
+          margin: '0 0 8px 0'
+        }}>
+          Nevux lo resuelve<br />
+          en <span style={{ color: '#10B981' }}>2 minutos.</span>
+        </h2>
+        <p style={{ color: '#9CA3AF', fontSize: 13, margin: '0 0 16px 0' }}>
+          50 Widgets + 6 funciones de IA · 1 sola app
+        </p>
+
+        {/* Panel mock */}
+        <div style={{
+          backgroundColor: '#020a07',
+          border: '1.5px solid rgba(16,185,129,0.4)',
+          borderRadius: 16,
+          padding: 14,
+          marginBottom: 16,
+          boxShadow: '0 8px 24px rgba(16,185,129,0.1)'
+        }}>
+          <div style={{
+            color: '#10B981',
+            fontSize: 10,
+            fontWeight: 900,
+            letterSpacing: '0.1em',
+            marginBottom: 12
+          }}>
+            PANEL NEVUX · WIDGETS ACTIVOS
+          </div>
+
+          {[
+            { name: 'Barra de Envío Gratis', desc: 'Sube el ticket promedio' },
+            { name: 'Contador de Urgencia', desc: 'Cierra ventas ahora' },
+            { name: 'Chatbot IA 24/7', desc: 'Responde de noche solo' },
+            { name: 'Reseñas con Estrellas', desc: 'Genera confianza ya' }
+          ].map((w, i) => (
+            <div key={i} style={{
+              backgroundColor: '#0B1512',
+              border: '1px solid #1F2937',
+              borderRadius: 10,
+              padding: '10px 12px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: i < 3 ? 8 : 0
+            }}>
+              <div>
+                <div style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 800 }}>{w.name}</div>
+                <div style={{ color: '#6B7280', fontSize: 10 }}>{w.desc}</div>
+              </div>
+              {/* Toggle on */}
+              <div style={{
+                width: 36,
+                height: 20,
+                borderRadius: 10,
+                backgroundColor: '#10B981',
+                position: 'relative',
+                flexShrink: 0
+              }}>
+                <div style={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: '50%',
+                  backgroundColor: '#FFF',
+                  position: 'absolute',
+                  right: 2,
+                  top: 2
+                }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <SlideCTA text="EMPEZAR GRATIS →" />
+      </SlideCard>
+    </div>
+
+    {/* ===== SLIDE 5 — CTA ===== */}
+    <div>
+      <div style={{ textAlign: 'center', marginBottom: 12 }}>
+        <span style={{
+          backgroundColor: '#10B981',
+          color: '#000',
+          padding: '5px 14px',
+          borderRadius: 20,
+          fontSize: 11,
+          fontWeight: 900,
+          letterSpacing: '0.04em'
+        }}>
+          SLIDE 5 · CTA FINAL
+        </span>
+      </div>
+      <SlideCard slideNum={5} totalSlides={5}>
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            width: 64,
+            height: 64,
+            borderRadius: '50%',
+            backgroundColor: 'rgba(16,185,129,0.12)',
+            border: '2px solid #10B981',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 20
+          }}>
+            <CheckCircle2 size={32} color="#10B981" />
+          </div>
+
+          <h2 style={{
+            color: '#FFFFFF',
+            fontSize: 28,
+            fontWeight: 900,
+            lineHeight: 1.15,
+            margin: '0 0 12px 0'
+          }}>
+            Empezá a recuperar<br />ventas hoy mismo.
+          </h2>
+
+          <p style={{
+            color: '#9CA3AF',
+            fontSize: 14,
+            lineHeight: 1.45,
+            margin: '0 0 24px 0'
+          }}>
+            Instalación en 1 clic. Sin código.<br />Sin tarjeta de crédito.
+          </p>
+
+          <div style={{
+            width: '100%',
+            backgroundColor: '#10B981',
+            color: '#000000',
+            padding: '16px 0',
+            borderRadius: 14,
+            fontSize: 16,
+            fontWeight: 900,
+            letterSpacing: '0.02em',
+            marginBottom: 10
+          }}>
+            PROBAR 7 DÍAS GRATIS
+          </div>
+
+          <p style={{ color: '#6B7280', fontSize: 12, margin: '0 0 20px 0' }}>
+            Link en nuestro perfil
+          </p>
+        </div>
+
+        <div style={{
+          borderTop: '1px solid #1F2937',
+          paddingTop: 14,
+          textAlign: 'center'
+        }}>
+          <span style={{ color: '#10B981', fontSize: 12, fontWeight: 800 }}>
+            50 Widgets + 6 funciones para impulsar tu Tiendanube
+          </span>
+        </div>
+      </SlideCard>
+    </div>
   </div>
 );
 
-// ============================================================================
-// 4. ESTRUCTURA PRINCIPAL DE LA PÁGINA
-// ============================================================================
+// ============================================================
+// COPY LUNES
+// ============================================================
+const LUNES_CAPTION = `🔴 Tu Tiendanube tiene un problema que no se ve en las métricas de Meta.
+
+Recibís visitas todos los días. Los Ads funcionan. La gente llega a tu tienda. Pero el carrito queda abandonado, el checkout no se completa y la conversión no pasa del 1%.
+
+¿Sabés cuánto te cuesta eso? Si invertís en tráfico y tu tienda no convierte, estás pagando dos veces: la publicidad Y la venta perdida. Y lo peor: cada app extra que instalás para "solucionarlo" hace tu tienda más lenta y aleja más clientes.
+
+Nevux reemplaza todo eso con 50 Widgets de alta conversión + 6 funciones de IA en una sola app liviana. Envío gratis, urgencia, reseñas, chatbot, búsqueda por voz... todo en 2 minutos.
+
+✅ 7 días gratis sin tarjeta
+✅ Instalación en 1 clic desde la App Store de Tiendanube
+✅ Sin tocar código
+
+👉 Comentá "WIDGET" y te mando el link directo por DM.
+
+#Tiendanube #Ecommerce #VentasOnline #Nevux #Widgets #ConversionRate #TiendaOnline #Emprendedores #MarketingDigital #Nuvemshop`;
+
+// ============================================================
+// PAGE PRINCIPAL
+// ============================================================
 export default function MarketingAssetsPage() {
   const [activeTab, setActiveTab] = useState<'meta' | 'appstore' | 'instagram'>('instagram');
-  const [fullscreenBanner, setFullscreenBanner] = useState<number | null>(null);
-  const [openDay, setOpenDay] = useState<string | null>('LUNES');
-  const [viewMode, setViewMode] = useState<'plan' | 'visual'>('plan');
+  const [viewMode, setViewMode] = useState<'plan' | 'visual'>('visual');
+  const [copied, setCopied] = useState(false);
+  const [openDay, setOpenDay] = useState<string>('LUNES');
+
+  const copyCaption = async () => {
+    try {
+      await navigator.clipboard.writeText(LUNES_CAPTION);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback silent
+    }
+  };
 
   return (
-    <div style={{ backgroundColor: '#020a07', color: '#F3F4F6', minHeight: '100vh', padding: '32px 24px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      
-      {/* HEADER PRINCIPAL */}
-      <div style={{ maxWidth: 1280, margin: '0 auto 32px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-            <NevuxAdminHeader />
-            <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10B981', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700, border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-              ASSETS OFICIALES V2
-            </span>
-          </div>
-          <h1 style={{ fontSize: 28, fontWeight: 900, color: '#FFFFFF', margin: 0 }}>
-            Planificador & Generador de Contenidos
-          </h1>
-        </div>
+    <div style={{
+      backgroundColor: '#020a07',
+      color: '#F3F4F6',
+      minHeight: '100vh',
+      padding: '20px 12px 60px 12px',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    }}>
 
-        {/* TABS NAVEGACIÓN */}
-        <div style={{ display: 'flex', backgroundColor: '#0B1512', padding: 4, borderRadius: 12, border: '1px solid #1F2937' }}>
-          <button onClick={() => setActiveTab('meta')} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 8, border: 'none', backgroundColor: activeTab === 'meta' ? '#10B981' : 'transparent', color: activeTab === 'meta' ? '#000000' : '#9CA3AF', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
-            <Video size={16} /> Meta Ads
-          </button>
-          <button onClick={() => setActiveTab('appstore')} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 8, border: 'none', backgroundColor: activeTab === 'appstore' ? '#10B981' : 'transparent', color: activeTab === 'appstore' ? '#000000' : '#9CA3AF', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
-            <Layout size={16} /> App Store
-          </button>
-          <button onClick={() => setActiveTab('instagram')} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 8, border: 'none', backgroundColor: activeTab === 'instagram' ? '#10B981' : 'transparent', color: activeTab === 'instagram' ? '#000000' : '#9CA3AF', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
-            <Instagram size={16} /> Instagram Plan
-          </button>
+      {/* ===== HEADER ADMIN ===== */}
+      <div style={{ maxWidth: 480, margin: '0 auto 20px auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <NevuxIsotype size={24} />
+          <span style={{ color: '#FFFFFF', fontWeight: 800, fontSize: 16, letterSpacing: '0.06em' }}>NEVUX</span>
+          <span style={{
+            backgroundColor: 'rgba(16,185,129,0.15)',
+            color: '#10B981',
+            padding: '3px 8px',
+            borderRadius: 12,
+            fontSize: 10,
+            fontWeight: 700,
+            border: '1px solid rgba(16,185,129,0.3)'
+          }}>
+            ASSETS V2
+          </span>
         </div>
+        <h1 style={{ fontSize: 20, fontWeight: 900, color: '#FFFFFF', margin: '0 0 4px 0' }}>
+          Generador de Carruseles
+        </h1>
+        <p style={{ color: '#6B7280', fontSize: 12, margin: 0 }}>
+          Slides apilados verticales · Listos para captura
+        </p>
       </div>
 
-      {/* CONTENIDO TAB INSTAGRAM (PLAN + GENERADOR VISUAL) */}
+      {/* ===== TABS ===== */}
+      <div style={{
+        maxWidth: 480,
+        margin: '0 auto 16px auto',
+        display: 'flex',
+        backgroundColor: '#0B1512',
+        padding: 4,
+        borderRadius: 12,
+        border: '1px solid #1F2937'
+      }}>
+        {([
+          { id: 'meta' as const, label: 'Meta Ads', icon: <Video size={14} /> },
+          { id: 'appstore' as const, label: 'App Store', icon: <Layout size={14} /> },
+          { id: 'instagram' as const, label: 'Instagram', icon: <Instagram size={14} /> }
+        ]).map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              padding: '10px 8px',
+              borderRadius: 8,
+              border: 'none',
+              backgroundColor: activeTab === tab.id ? '#10B981' : 'transparent',
+              color: activeTab === tab.id ? '#000' : '#9CA3AF',
+              fontWeight: 700,
+              fontSize: 12,
+              cursor: 'pointer'
+            }}
+          >
+            {tab.icon} {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ===== TAB INSTAGRAM ===== */}
       {activeTab === 'instagram' && (
-        <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
-          
-          <div style={{ display: 'flex', gap: 16, backgroundColor: '#0B1512', padding: 12, borderRadius: 16, border: '1px solid #1F2937' }}>
-            <button 
-              onClick={() => setViewMode('plan')} 
-              style={{ flex: 1, padding: 16, borderRadius: 12, border: 'none', backgroundColor: viewMode === 'plan' ? '#1F2937' : 'transparent', color: '#FFF', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+        <div style={{ maxWidth: 480, margin: '0 auto' }}>
+
+          {/* Sub-tabs plan / visual */}
+          <div style={{
+            display: 'flex',
+            gap: 8,
+            marginBottom: 20,
+            backgroundColor: '#0B1512',
+            padding: 4,
+            borderRadius: 12,
+            border: '1px solid #1F2937'
+          }}>
+            <button
+              onClick={() => setViewMode('plan')}
+              style={{
+                flex: 1,
+                padding: '12px 8px',
+                borderRadius: 8,
+                border: 'none',
+                backgroundColor: viewMode === 'plan' ? '#1F2937' : 'transparent',
+                color: viewMode === 'plan' ? '#FFF' : '#6B7280',
+                fontWeight: 800,
+                fontSize: 12,
+                cursor: 'pointer'
+              }}
             >
-              <Layout size={20} color={viewMode === 'plan' ? '#10B981' : '#9CA3AF'} />
-              Ver Guiones y Estrategia
+              📋 Guiones
             </button>
-            <button 
-              onClick={() => setViewMode('visual')} 
-              style={{ flex: 1, padding: 16, borderRadius: 12, border: 'none', backgroundColor: viewMode === 'visual' ? '#10B981' : 'transparent', color: viewMode === 'visual' ? '#000' : '#9CA3AF', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+            <button
+              onClick={() => setViewMode('visual')}
+              style={{
+                flex: 1,
+                padding: '12px 8px',
+                borderRadius: 8,
+                border: 'none',
+                backgroundColor: viewMode === 'visual' ? '#10B981' : 'transparent',
+                color: viewMode === 'visual' ? '#000' : '#6B7280',
+                fontWeight: 800,
+                fontSize: 12,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6
+              }}
             >
-              <Camera size={20} />
-              📸 Generador Visual de Carruseles
+              <Camera size={14} /> Carruseles Visuales
             </button>
           </div>
 
+          {/* ===== MODO VISUAL ===== */}
           {viewMode === 'visual' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-              <div style={{ backgroundColor: '#0B1512', border: '1px solid rgba(16, 185, 129, 0.4)', borderRadius: 16, padding: 24, textAlign: 'center' }}>
-                <h3 style={{ fontSize: 24, fontWeight: 900, color: '#10B981', margin: '0 0 8px 0' }}>Estudio de Carruseles Nevux</h3>
-                <p style={{ color: '#9CA3AF', fontSize: 15, margin: 0 }}>
-                  Las imágenes están a escala 1080x1350px. Usá una extensión de captura (Full Page Screen Capture) para guardarlas, o recortá la pantalla.
-                </p>
+            <div>
+              {/* Day selector */}
+              <div style={{
+                display: 'flex',
+                gap: 6,
+                marginBottom: 20,
+                overflowX: 'auto',
+                paddingBottom: 4
+              }}>
+                {['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'].map(day => {
+                  const isCarousel = ['LUNES', 'MIÉRCOLES', 'DOMINGO'].includes(day);
+                  const isActive = openDay === day;
+                  return (
+                    <button
+                      key={day}
+                      onClick={() => setOpenDay(day)}
+                      style={{
+                        flexShrink: 0,
+                        padding: '8px 12px',
+                        borderRadius: 20,
+                        border: isActive ? 'none' : '1px solid #1F2937',
+                        backgroundColor: isActive ? '#10B981' : '#0B1512',
+                        color: isActive ? '#000' : isCarousel ? '#D1D5DB' : '#4B5563',
+                        fontWeight: 800,
+                        fontSize: 11,
+                        cursor: isCarousel ? 'pointer' : 'default',
+                        opacity: isCarousel ? 1 : 0.5
+                      }}
+                    >
+                      {day.slice(0, 3)}
+                      {isCarousel ? ' 📸' : ' 🎬'}
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* LUNES - Carrusel Stackeado */}
-              <div style={{ backgroundColor: '#020a07', border: '1px solid #1F2937', borderRadius: 24, padding: '40px 0', overflow: 'hidden' }}>
-                <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                  <span style={{ backgroundColor: '#EF4444', color: '#FFF', padding: '6px 16px', borderRadius: 20, fontWeight: 900, fontSize: 14 }}>
-                    CARRUSEL LUNES (URGENCIA)
-                  </span>
-                </div>
-                
-                {/* RENDER DEL CARRUSEL */}
-                <LunesCarousel />
+              {/* LUNES VISUAL */}
+              {openDay === 'LUNES' && (
+                <div>
+                  {/* Instrucciones */}
+                  <div style={{
+                    backgroundColor: '#0B1512',
+                    border: '1px solid rgba(16,185,129,0.3)',
+                    borderRadius: 12,
+                    padding: 14,
+                    marginBottom: 24,
+                    textAlign: 'center'
+                  }}>
+                    <p style={{ color: '#10B981', fontSize: 13, fontWeight: 800, margin: '0 0 4px 0' }}>
+                      📸 Carrusel Lunes · 5 slides
+                    </p>
+                    <p style={{ color: '#9CA3AF', fontSize: 12, margin: 0, lineHeight: 1.4 }}>
+                      Scrolleá hacia abajo. Cada slide está completo y listo para captura de pantalla.
+                    </p>
+                  </div>
 
-                {/* COPY DEBAJO DE LAS IMAGENES */}
-                <div style={{ maxWidth: 800, margin: '2000px auto 0 auto', backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 16, padding: 32 }}>
-                  <h4 style={{ color: '#10B981', fontSize: 16, fontWeight: 900, marginBottom: 16 }}>COPY / DESCRIPCIÓN PARA LUNES:</h4>
-                  <p style={{ color: '#D1D5DB', fontSize: 15, lineHeight: 1.6, whiteSpace: 'pre-wrap', margin: 0 }}>
-                    🔴 Tu Tiendanube tiene un problema que no se ve en las métricas de Meta.<br/><br/>
-                    Recibís visitas todos los días. Los Ads funcionan. Pero el carrito queda abandonado y la conversión no pasa del 1%.<br/><br/>
-                    ¿Sabés cuánto te cuesta eso? Si invertís en tráfico y tu tienda no convierte, estás pagando dos veces: la publicidad Y la venta perdida.<br/><br/>
-                    Nevux reemplaza las 10 apps lentas con 50 Widgets de alta conversión + 6 funciones de IA en una sola app liviana. Envío gratis, urgencia, reseñas... todo en 2 minutos.<br/><br/>
-                    ✅ 7 días gratis sin tarjeta<br/>
-                    ✅ Instalación en 1 clic<br/><br/>
-                    👉 Comentá "WIDGET" y te mando el link directo.
+                  {/* SLIDES APILADOS */}
+                  <LunesCarouselSlides />
+
+                  {/* COPY DEBAJO */}
+                  <div style={{
+                    marginTop: 40,
+                    backgroundColor: '#0B1512',
+                    border: '1px solid #1F2937',
+                    borderRadius: 16,
+                    padding: 20
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: 14
+                    }}>
+                      <h4 style={{
+                        color: '#10B981',
+                        fontSize: 13,
+                        fontWeight: 900,
+                        margin: 0,
+                        letterSpacing: '0.04em'
+                      }}>
+                        📝 COPY / DESCRIPCIÓN · LUNES
+                      </h4>
+                      <button
+                        onClick={copyCaption}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          backgroundColor: copied ? '#10B981' : '#1F2937',
+                          color: copied ? '#000' : '#D1D5DB',
+                          border: 'none',
+                          borderRadius: 8,
+                          padding: '8px 12px',
+                          fontSize: 11,
+                          fontWeight: 800,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {copied ? <Check size={12} /> : <Copy size={12} />}
+                        {copied ? 'Copiado' : 'Copiar'}
+                      </button>
+                    </div>
+                    <pre style={{
+                      margin: 0,
+                      fontSize: 12,
+                      color: '#D1D5DB',
+                      lineHeight: 1.6,
+                      whiteSpace: 'pre-wrap',
+                      fontFamily: 'system-ui, sans-serif'
+                    }}>
+                      {LUNES_CAPTION}
+                    </pre>
+                  </div>
+                </div>
+              )}
+
+              {/* Otros días - placeholder */}
+              {openDay !== 'LUNES' && (
+                <div style={{
+                  backgroundColor: '#0B1512',
+                  border: '1px solid #1F2937',
+                  borderRadius: 16,
+                  padding: 40,
+                  textAlign: 'center'
+                }}>
+                  <Camera size={32} color="#4B5563" style={{ marginBottom: 12 }} />
+                  <p style={{ color: '#9CA3AF', fontSize: 14, margin: 0 }}>
+                    {['MIÉRCOLES', 'DOMINGO'].includes(openDay)
+                      ? `Carrusel de ${openDay} — lo armamos a continuación`
+                      : `${openDay} es Reel — te paso el guión en modo Guiones`}
                   </p>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
+          {/* ===== MODO PLAN / GUIONES ===== */}
           {viewMode === 'plan' && (
-            <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 16, padding: 32, textAlign: 'center' }}>
-              <Instagram size={48} color="#10B981" style={{ marginBottom: 16 }} />
-              <h2 style={{ fontSize: 24, color: '#FFF', fontWeight: 800 }}>El plan semanal estratégico está activo.</h2>
-              <p style={{ color: '#9CA3AF', fontSize: 16 }}>
-                Pasá al modo "Generador Visual" arriba para ver los carruseles listos para captura.
+            <div style={{
+              backgroundColor: '#0B1512',
+              border: '1px solid #1F2937',
+              borderRadius: 16,
+              padding: 24,
+              textAlign: 'center'
+            }}>
+              <Instagram size={36} color="#10B981" style={{ marginBottom: 12 }} />
+              <h3 style={{ color: '#FFF', fontSize: 16, fontWeight: 800, margin: '0 0 8px 0' }}>
+                Plan semanal activo
+              </h3>
+              <p style={{ color: '#9CA3AF', fontSize: 13, margin: '0 0 16px 0', lineHeight: 1.4 }}>
+                Andá a <strong style={{ color: '#10B981' }}>Carruseles Visuales</strong> para ver y capturar los slides del Lunes.
               </p>
+              <button
+                onClick={() => setViewMode('visual')}
+                style={{
+                  backgroundColor: '#10B981',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: 10,
+                  padding: '12px 20px',
+                  fontWeight: 800,
+                  fontSize: 13,
+                  cursor: 'pointer'
+                }}
+              >
+                Ver Carruseles Visuales →
+              </button>
             </div>
           )}
         </div>
       )}
 
-      {/* TABS DE META Y APP STORE (Para mantener la app funcional) */}
+      {/* ===== TABS META / APPSTORE placeholder ===== */}
       {(activeTab === 'meta' || activeTab === 'appstore') && (
-        <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 16, padding: 64, textAlign: 'center', marginTop: 40 }}>
-          <h2 style={{ color: '#10B981', fontSize: 24, fontWeight: 800 }}>
-            Sección {activeTab.toUpperCase()} preservada correctamente.
-          </h2>
-          <p style={{ color: '#9CA3AF' }}>Todo el código de Meta y Tiendanube quedó intacto. Cambiá al Tab de Instagram para ver el nuevo generador.</p>
+        <div style={{
+          maxWidth: 480,
+          margin: '40px auto 0 auto',
+          backgroundColor: '#0B1512',
+          border: '1px solid #1F2937',
+          borderRadius: 16,
+          padding: 40,
+          textAlign: 'center'
+        }}>
+          <p style={{ color: '#10B981', fontWeight: 800, fontSize: 15, margin: '0 0 8px 0' }}>
+            Sección {activeTab.toUpperCase()} OK
+          </p>
+          <p style={{ color: '#6B7280', fontSize: 13, margin: 0 }}>
+            Volvé a Instagram para el generador de carruseles.
+          </p>
         </div>
       )}
-
     </div>
   );
-                  }
+          }
