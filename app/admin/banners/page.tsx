@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import {
   Video, Instagram, Layout, Film, Camera, CheckCircle2,
-  Copy, Check, Gift, Award, Crown, Clock, BarChart2, MessageCircle, Link2, Play, Smile
+  Copy, Check, Gift, Award, Crown, Clock, BarChart2, MessageCircle, Link2, Play, Smile,
+  Mic, FileText
 } from 'lucide-react';
 
 // ============================================================
@@ -69,7 +70,9 @@ const SlideCard = ({ children, slideNum, totalSlides }: { children: React.ReactN
   <div style={{ width: '100%', maxWidth: 340, margin: '0 auto', aspectRatio: '4 / 5', backgroundColor: '#050d0a', backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.14) 0%, transparent 60%)', borderRadius: 24, border: '1px solid rgba(16,185,129,0.3)', paddingTop: 20, paddingRight: 16, paddingBottom: 16, paddingLeft: 16, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', boxShadow: '0 12px 32px rgba(0,0,0,0.6)', boxSizing: 'border-box' }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexShrink: 0 }}>
       <BrandHeader />
-      <span style={{ fontSize: 10, color: '#6B7280', fontWeight: 700, letterSpacing: '0.05em' }}>{slideNum}/{totalSlides}</span>
+      {totalSlides > 1 && (
+        <span style={{ fontSize: 10, color: '#6B7280', fontWeight: 700, letterSpacing: '0.05em' }}>{slideNum}/{totalSlides}</span>
+      )}
     </div>
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, width: '100%', boxSizing: 'border-box' }}>
       {children}
@@ -77,10 +80,8 @@ const SlideCard = ({ children, slideNum, totalSlides }: { children: React.ReactN
   </div>
 );
 
-// StoryCard: Formato 9:16 vertical, un poco más angosto para celular
 const StoryCard = ({ children, slideNum, totalSlides }: { children: React.ReactNode; slideNum: number; totalSlides: number }) => (
   <div style={{ width: '100%', maxWidth: 280, margin: '0 auto', aspectRatio: '9 / 16', backgroundColor: '#050d0a', backgroundImage: 'radial-gradient(ellipse at 50% 100%, rgba(16,185,129,0.15) 0%, transparent 60%)', borderRadius: 28, border: '1px solid rgba(16,185,129,0.3)', paddingTop: 16, paddingRight: 16, paddingBottom: 24, paddingLeft: 16, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', boxShadow: '0 12px 32px rgba(0,0,0,0.6)', boxSizing: 'border-box' }}>
-    {/* IG Story Progress Bars */}
     <div style={{ display: 'flex', gap: 4, marginBottom: 16, flexShrink: 0 }}>
       {Array.from({ length: totalSlides }).map((_, i) => (
         <div key={i} style={{ flex: 1, height: 2, backgroundColor: i < slideNum ? '#FFF' : 'rgba(255,255,255,0.3)', borderRadius: 2 }} />
@@ -107,6 +108,42 @@ const SolidCTA = ({ text }: { text: string }) => (
   </div>
 );
 
+// Componente para el Guión Escena por Escena
+const ScriptScene = ({ time, title, visual, text, voice, isCTA = false }: { time: string, title: string, visual: string, text: string, voice: string, isCTA?: boolean }) => (
+  <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 12, padding: 16, marginBottom: 16, width: '100%', boxSizing: 'border-box' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+      <span style={{ backgroundColor: isCTA ? '#10B981' : '#F87171', color: isCTA ? '#000' : '#000', fontWeight: 900, fontSize: 11, padding: '4px 10px', borderRadius: 12 }}>{time}</span>
+      <span style={{ color: '#FFF', fontWeight: 900, fontSize: 14 }}>{title}</span>
+    </div>
+    
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+          <Video size={14} color="#10B981" />
+          <span style={{ color: '#10B981', fontSize: 10, fontWeight: 800, letterSpacing: '0.05em' }}>VISUAL</span>
+        </div>
+        <p style={{ color: '#D1D5DB', fontSize: 12, margin: 0, lineHeight: 1.4 }}>{visual}</p>
+      </div>
+
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+          <FileText size={14} color="#FBBF24" />
+          <span style={{ color: '#FBBF24', fontSize: 10, fontWeight: 800, letterSpacing: '0.05em' }}>TEXTO EN PANTALLA</span>
+        </div>
+        <p style={{ color: '#D1D5DB', fontSize: 12, margin: 0, lineHeight: 1.4 }}>{text}</p>
+      </div>
+
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+          <Mic size={14} color="#60A5FA" />
+          <span style={{ color: '#60A5FA', fontSize: 10, fontWeight: 800, letterSpacing: '0.05em' }}>VOZ EN OFF</span>
+        </div>
+        <p style={{ color: '#9CA3AF', fontSize: 12, margin: 0, lineHeight: 1.4 }}>{voice}</p>
+      </div>
+    </div>
+  </div>
+);
+
 // Mocks de Stickers para Stories
 const PollSticker = ({ op1, op2 }: { op1: string, op2: string }) => (
   <div style={{ backgroundColor: '#FFF', borderRadius: 12, padding: '4px', display: 'flex', flexDirection: 'column', gap: 4, width: '100%', boxSizing: 'border-box', marginTop: 'auto', marginBottom: 20 }}>
@@ -130,13 +167,6 @@ const EmojiSlider = ({ emoji }: { emoji: string }) => (
   </div>
 );
 
-const QuestionBox = ({ question }: { question: string }) => (
-  <div style={{ backgroundColor: '#FFF', borderRadius: 16, overflow: 'hidden', width: '100%', margin: 'auto auto 20px auto' }}>
-    <div style={{ padding: '16px', textAlign: 'center', fontWeight: 800, color: '#000', fontSize: 14 }}>{question}</div>
-    <div style={{ backgroundColor: '#F3F4F6', padding: '12px 16px', color: '#9CA3AF', fontSize: 13 }}>Escribe tu respuesta...</div>
-  </div>
-);
-
 // ============================================================
 // DÍA 1: LUNES (Carrusel + Stories)
 // ============================================================
@@ -149,7 +179,6 @@ const LunesContent = () => (
       { time: '18:30', action: 'Story 3 (Demo) + Story 4 (CTA)', type: 'story' }
     ]} />
 
-    {/* CARRUSEL LUNES */}
     <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
       <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>1️⃣ POST PRINCIPAL (CARRUSEL)</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -159,50 +188,6 @@ const LunesContent = () => (
           <p style={{ color: '#D1D5DB', fontSize: 13, margin: '0 0 16px 0' }}>Y no es culpa de tus Ads. Te muestro el error exacto 👉</p>
           <SlideCTA text="DESLIZÁ →" />
         </SlideCard>
-        
-        <SlideCard slideNum={2} totalSlides={5}>
-          <h2 style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 900, lineHeight: 1.2, margin: '0 0 12px 0' }}>El problema no es tu tráfico.</h2>
-          <div style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 12, padding: 12, marginBottom: 12 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #1F2937', paddingBottom: 6, marginBottom: 8 }}><span style={{ color: '#FFF', fontSize: 11, fontWeight: 800 }}>Métricas</span><span style={{ color: '#EF4444', fontSize: 10, fontWeight: 800 }}>0.8% conv.</span></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}><span style={{ color: '#EF4444', fontWeight: 700 }}>Abandonos</span><span style={{ color: '#EF4444', fontWeight: 900 }}>72 🚨</span></div>
-          </div>
-          <p style={{ color: '#D1D5DB', fontSize: 11, textAlign: 'center' }}>Tener <strong style={{ color: '#EF4444' }}>10 apps instaladas</strong> enlentece tu tienda.</p>
-          <SlideCTA text="LA SOLUCIÓN →" />
-        </SlideCard>
-
-        <SlideCard slideNum={5} totalSlides={5}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-            <CheckCircle2 size={32} color="#10B981" style={{ marginBottom: 12 }} />
-            <h2 style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 900, margin: '0 0 8px 0' }}>Empezá a recuperar ventas hoy.</h2>
-            <SolidCTA text="PROBAR 7 DÍAS GRATIS" />
-          </div>
-        </SlideCard>
-      </div>
-    </div>
-
-    {/* STORIES LUNES */}
-    <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>2️⃣ HISTORIAS (VERTICAL 9:16)</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-        <StoryCard slideNum={1} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 20 }}>¿Cuántas visitas tuvo tu tienda ayer?</h2>
-          <PollSticker op1="Más de 500 🔥" op2="Muy pocas 🥲" />
-        </StoryCard>
-
-        <StoryCard slideNum={2} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 20 }}>¿Y cuántas de esas visitas compraron?</h2>
-          <p style={{ color: '#9CA3AF', fontSize: 13, textAlign: 'center', margin: '12px 0 0 0' }}>Si la respuesta te duele...</p>
-          <EmojiSlider emoji="😬" />
-        </StoryCard>
-
-        <StoryCard slideNum={4} totalSlides={4}>
-          <div style={{ textAlign: 'center', marginTop: 20 }}>
-            <CheckCircle2 size={40} color="#10B981" style={{ margin: '0 auto 12px auto' }} />
-            <h2 style={{ color: '#FFF', fontSize: 26, fontWeight: 900, margin: '0 0 12px 0' }}>Probá Nevux hoy.</h2>
-            <p style={{ color: '#D1D5DB', fontSize: 14 }}>7 días gratis. Sin tarjeta. Instalación en 1 clic.</p>
-          </div>
-          <LinkSticker text="APP STORE TIENDANUBE" />
-        </StoryCard>
       </div>
     </div>
   </div>
@@ -214,50 +199,88 @@ const LunesContent = () => (
 const MartesContent = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', width: '100%' }}>
     <ScheduleBanner day="MARTES" schedules={[
-      { time: '10:00', action: 'Story 1 (Contexto)', type: 'story' },
-      { time: '15:00', action: 'Story 2 (Encuesta)', type: 'story' },
-      { time: '19:30', action: 'Reel 0 a 12 ventas', type: 'post' },
-      { time: '20:00', action: 'Story 3 (Repost Reel) + Story 4', type: 'story' }
+      { time: '10:00', action: 'Story 1 (Problema de captación)', type: 'story' },
+      { time: '12:00', action: 'Story 2 (Gamificación)', type: 'story' },
+      { time: '18:00', action: 'Reel: Raspá y Gana', type: 'post' },
+      { time: '19:00', action: 'Story 3 (Compartir Reel) + CTA', type: 'story' }
     ]} />
 
-    {/* REEL MARTES */}
+    {/* GUIÓN DEL REEL */}
+    <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24 }}>
+      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24, textAlign: 'center' }}>1️⃣ GUIÓN DEL REEL</h3>
+      
+      <ScriptScene 
+        time="0-4s" title="HOOK — Tráfico desperdiciado"
+        visual="Celular mostrando una Tiendanube. El usuario navega unos segundos y desliza hacia arriba para cerrar la pestaña sin comprar nada."
+        text="El 97% de tus visitas se van sin comprar nada 🚪"
+        voice="De cada cien personas que entran a tu Tiendanube, noventa y siete se van con las manos vacías y sin dejarte su contacto."
+      />
+      <ScriptScene 
+        time="4-9s" title="PROBLEMA — Plata perdida"
+        visual="Se muestra la interfaz de Meta Ads gastando dinero en publicidad y un contador de visitas que no se convierte en contactos."
+        text="Anuncios caros + Visitas anónimas = Dinero tirado 📉"
+        voice="Pagas por traerlos, pero si no compran al instante, los perdiste para siempre porque no tenés ni su mail ni su WhatsApp."
+      />
+      <ScriptScene 
+        time="9-17s" title="SOLUCIÓN — Widget Raspá y Gana"
+        visual="Aparece la tarjeta interactiva de 'Raspá y Gana' de Nevux. Un dedo raspa la superficie gris y revela '¡GANASTE 15% OFF!'. Inmediatamente pide ingresar WhatsApp o Mail."
+        text="🎮 Widget Raspá y Gana — Captación Gamificada"
+        voice="Con el widget Raspá y Gana de Nevux, transformás la captación en un juego irresistible. El cliente raspa en pantalla, se entusiasma y te deja su WhatsApp feliz para reclamar su premio."
+        isCTA={true}
+      />
+      <ScriptScene 
+        time="17-23s" title="BENEFICIO — Base de datos caliente"
+        visual="Un panel de contactos de Nevux sumando leads en tiempo real con iconos de WhatsApp y Mail ingresando continuamente."
+        text="Base de contactos creciendo en piloto automático 🚀"
+        voice="Ahora tenés una lista de clientes calientes a los que podés escribirles por WhatsApp o email marketing cuando quieras."
+      />
+      <ScriptScene 
+        time="23-28s" title="CTA FINAL"
+        visual="Fondo oscuro con el logo de Nevux arriba a la izquierda, la frase '50 Widgets + 6 funciones para impulsar tu Tiendanube' en una placa esmeralda destacada."
+        text="50 Widgets + 6 funciones · Comentá LEADS 👇"
+        voice="Accedé a 50 Widgets y 6 funciones para impulsar tu Tiendanube. Comentá LEADS y te muestro cómo activarlo en dos minutos."
+        isCTA={true}
+      />
+    </div>
+
+    {/* PORTADA REEL */}
     <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>1️⃣ POST PRINCIPAL (REEL 🎬)</h3>
-      <StoryCard slideNum={1} totalSlides={1}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, alignSelf: 'center', backgroundColor: '#EF4444', padding: '4px 10px', borderRadius: 12 }}>
-          <Play size={12} color="#FFF" />
-          <span style={{ color: '#FFF', fontWeight: 900, fontSize: 10 }}>REEL COVER</span>
+      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>2️⃣ PORTADA DEL REEL (4:5)</h3>
+      <SlideCard slideNum={1} totalSlides={1}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, alignSelf: 'center', backgroundColor: '#10B981', padding: '4px 10px', borderRadius: 12 }}>
+          <Play size={12} color="#000" />
+          <span style={{ color: '#000', fontWeight: 900, fontSize: 10 }}>REEL COVER</span>
         </div>
-        <h2 style={{ color: '#FFFFFF', fontSize: 32, fontWeight: 900, textAlign: 'center', lineHeight: 1.1, marginTop: 40 }}>
-          0 → 12 VENTAS<br/><span style={{ color: '#10B981' }}>EN 24HS</span>
+        <h2 style={{ color: '#FFFFFF', fontSize: 26, fontWeight: 900, textAlign: 'center', lineHeight: 1.15, marginTop: 20 }}>
+          EL <span style={{ color: '#10B981' }}>97%</span> DE TUS VISITAS SE VAN...
         </h2>
-        <div style={{ marginTop: 'auto', backgroundColor: 'rgba(0,0,0,0.5)', padding: 12, borderRadius: 12 }}>
-          <p style={{ color: '#FFF', fontSize: 12, margin: 0, fontWeight: 700 }}>@nevux.app</p>
-          <p style={{ color: '#D1D5DB', fontSize: 11, margin: '4px 0 0 0' }}>El problema no es tu tráfico. Es la velocidad y confianza de tu tienda...</p>
+        <p style={{ color: '#D1D5DB', fontSize: 16, textAlign: 'center', fontWeight: 700, margin: '16px 0 0 0' }}>Y no te dejan ni el WhatsApp. 📉</p>
+        <div style={{ marginTop: 'auto', textAlign: 'center', borderTop: '1px solid #1F2937', paddingTop: 16 }}>
+          <span style={{ color: '#9CA3AF', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Widget Raspá y Gana</span>
         </div>
-      </StoryCard>
+      </SlideCard>
     </div>
 
     {/* STORIES MARTES */}
     <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>2️⃣ HISTORIAS (VERTICAL 9:16)</h3>
+      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>3️⃣ HISTORIAS (VERTICAL 9:16)</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
         <StoryCard slideNum={1} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 24, fontWeight: 900, textAlign: 'center', marginTop: 40 }}>¿Cuál es tu tasa de conversión actual?</h2>
-          <PollSticker op1="Menos del 1% 📉" op2="Más del 2% 🚀" />
+          <h2 style={{ color: '#FFF', fontSize: 24, fontWeight: 900, textAlign: 'center', marginTop: 40, lineHeight: 1.2 }}>¿Qué pasa cuando alguien entra a tu tienda y NO compra?</h2>
+          <PollSticker op1="Pierdo la plata de Ads 💸" op2="Le pido su WhatsApp 📲" />
+        </StoryCard>
+
+        <StoryCard slideNum={2} totalSlides={4}>
+          <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 40 }}>Duele pagar por clics que miran dos productos y se van para siempre...</h2>
+          <EmojiSlider emoji="🫠" />
         </StoryCard>
 
         <StoryCard slideNum={3} totalSlides={4}>
           <div style={{ textAlign: 'center', marginTop: 40 }}>
-            <Play size={40} color="#10B981" style={{ margin: '0 auto 16px auto' }} />
-            <h2 style={{ color: '#FFF', fontSize: 20, fontWeight: 900, margin: '0 0 12px 0' }}>Mirá lo que pasa en 24hs con Nevux activado 👇</h2>
+            <Gift size={48} color="#10B981" style={{ margin: '0 auto 16px auto' }} />
+            <h2 style={{ color: '#FFF', fontSize: 20, fontWeight: 900, margin: '0 0 12px 0', lineHeight: 1.3 }}>Transformá tu tienda en un juego y capturá sus datos al instante 👇</h2>
           </div>
-          <LinkSticker text="VER REEL COMPLETO" />
-        </StoryCard>
-
-        <StoryCard slideNum={4} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 30, marginBottom: 20 }}>¿Querés que te ayude a configurar los widgets?</h2>
-          <QuestionBox question="Contame cuál es tu nicho 👇" />
+          <LinkSticker text="VER CÓMO FUNCIONA" />
         </StoryCard>
       </div>
     </div>
@@ -271,38 +294,22 @@ const MiercolesContent = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', width: '100%' }}>
     <ScheduleBanner day="MIÉRCOLES" schedules={[
       { time: '10:00', action: 'Story 1 (Fricción apps)', type: 'story' },
-      { time: '11:30', action: 'Carrusel Fidelización', type: 'post' },
-      { time: '16:00', action: 'Story 2 y 3 (Beneficios)', type: 'story' },
-      { time: '19:30', action: 'Story 4 (FOMO competencia)', type: 'story' }
+      { time: '11:30', action: 'Carrusel Fidelización', type: 'post' }
     ]} />
-
-    {/* STORIES MIÉRCOLES */}
     <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>2️⃣ HISTORIAS (VERTICAL 9:16)</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-        <StoryCard slideNum={1} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 20 }}>¿Hace cuánto usás la misma app de widgets?</h2>
-          <PollSticker op1="Hace meses ⏱️" op2="La instalé recién" />
-        </StoryCard>
-
-        <StoryCard slideNum={2} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 20 }}>¿Y qué te dieron a cambio además de cobrarte?</h2>
-          <EmojiSlider emoji="💸" />
-        </StoryCard>
-
-        <StoryCard slideNum={4} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 20, fontWeight: 900, textAlign: 'center', marginTop: 20, lineHeight: 1.3 }}>Tu competencia ya está desbloqueando widgets únicos que vos no tenés.</h2>
-          <LinkSticker text="VER RECOMPENSAS NEVUX" />
-        </StoryCard>
-      </div>
+      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>HISTORIAS (VERTICAL 9:16)</h3>
+      <StoryCard slideNum={1} totalSlides={4}>
+        <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 20 }}>¿Hace cuánto usás la misma app de widgets?</h2>
+        <PollSticker op1="Hace meses ⏱️" op2="La instalé recién" />
+      </StoryCard>
     </div>
   </div>
 );
 
-// COPIES (Recortados por brevedad)
+// COPIES COMPLETOS
 const COPIES = {
   LUNES: `🔴 Tu Tiendanube tiene un problema que no se ve en las métricas de Meta...\n\nNevux reemplaza todo eso con 50 Widgets de alta conversión. 7 días gratis.\n👉 Comentá "WIDGET"`,
-  MARTES: `⚡ De 0 a 12 ventas en 24 horas. Sin cambiar la tienda.\n\nInstaló Nevux, activó 4 widgets estratégicos y eliminó el resto de apps.\n👉 Comentá "RESULTADOS"`,
+  MARTES: `¿Sabías que el 97% de las personas que entran a tu Tiendanube se van sin comprar nada y sin dejarte sus datos? 🚪💸\n\nInvertís en Meta Ads, Google y contenido para atraer tráfico a tu tienda online. Las visitas llegan, miran dos productos... y cierran la pestaña. Sin un mecanismo de captación inmediata, esa plata que invertiste en traerlos se pierde para siempre.\n\n💡 La solución: Gamificación con el Widget "Raspá y Gana" de Nevux.\n\nEn lugar de mostrar un pop-up aburrido que la gente cierra por inercia, Nevux transforma la captación de contactos en una experiencia interactiva irresistible:\n\n1️⃣ El cliente entra a tu Tiendanube y ve una tarjeta de "Raspá y Gana".\n2️⃣ Raspa en la pantalla con el dedo para descubrir su premio (ej: 15% OFF o Envío Gratis).\n3️⃣ Para reclamar el cupón, ingresa su WhatsApp o Email.\n\n🚀 El resultado: Pasás de tener visitas anónimas a construir una base de datos hiper-calificada en piloto automático, lista para remarketing por WhatsApp o Email Marketing.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "LEADS" abajo y te enviamos por privado el paso a paso para activarlo en menos de 2 minutos.`,
   MIÉRCOLES: `🎁 ¿Tu app de widgets te recompensa por quedarte? La nuestra sí...\n\nDesbloqueá widgets premium exclusivos.\n👉 Comentá "FIDELIDAD"`
 };
 
@@ -311,7 +318,7 @@ const COPIES = {
 // ============================================================
 export default function MarketingAssetsPage() {
   const [activeTab, setActiveTab] = useState<'instagram'>('instagram');
-  const [openDay, setOpenDay] = useState<string>('LUNES');
+  const [openDay, setOpenDay] = useState<string>('MARTES'); // Empieza en Martes por defecto
   const [copied, setCopied] = useState(false);
 
   const copyCaption = async (text: string) => {
@@ -354,7 +361,7 @@ export default function MarketingAssetsPage() {
         {/* CAJA DE COPY GLOBAL DEL DÍA */}
         <div style={{ marginTop: 24, backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 12, padding: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <h4 style={{ color: '#10B981', fontSize: 11, fontWeight: 900, margin: 0 }}>📝 COPY POST PRINCIPAL ({openDay})</h4>
+            <h4 style={{ color: '#10B981', fontSize: 11, fontWeight: 900, margin: 0 }}>📝 COPY POST ({openDay})</h4>
             <button onClick={() => copyCaption(COPIES[openDay as keyof typeof COPIES])} style={{ display: 'flex', alignItems: 'center', gap: 4, backgroundColor: copied ? '#10B981' : '#1F2937', color: copied ? '#000' : '#D1D5DB', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 10, fontWeight: 800 }}>
               {copied ? <Check size={10} /> : <Copy size={10} />} {copied ? 'Copiado' : 'Copiar'}
             </button>
