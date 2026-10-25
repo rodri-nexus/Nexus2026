@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import {
   Video, CheckCircle2, Copy, Check, Gift, Award, Crown, Clock,
-  Link2, Play, Mic, FileText, Shield, Star, Users, TrendingUp
+  Link2, Play, Mic, FileText, Shield, Star, Users, Zap, Moon, Smartphone
 } from 'lucide-react';
 
 // ============================================================
@@ -169,7 +169,7 @@ const QuestionBox = ({ question }: { question: string }) => (
 );
 
 // ============================================================
-// DÍA 1: LUNES
+// DÍAS ANTERIORES (resumen visual — ya aprobados)
 // ============================================================
 const LunesContent = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', width: '100%' }}>
@@ -191,9 +191,6 @@ const LunesContent = () => (
   </div>
 );
 
-// ============================================================
-// DÍA 2: MARTES
-// ============================================================
 const MartesContent = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', width: '100%' }}>
     <ScheduleBanner day="MARTES" schedules={[
@@ -221,9 +218,6 @@ const MartesContent = () => (
   </div>
 );
 
-// ============================================================
-// DÍA 3: MIÉRCOLES
-// ============================================================
 const MiercolesContent = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', width: '100%' }}>
     <ScheduleBanner day="MIÉRCOLES" schedules={[
@@ -234,29 +228,16 @@ const MiercolesContent = () => (
     ]} />
     <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
       <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>1️⃣ POST PRINCIPAL (CARRUSEL)</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-        <SlideCard slideNum={1} totalSlides={5}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}><span style={{ fontSize: 14 }}>🛑</span><span style={{ color: '#EF4444', fontWeight: 900, fontSize: 11 }}>BASTA DE PAGAR POR NADA</span></div>
-          <h2 style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 900, lineHeight: 1.15, margin: '0 0 12px 0' }}>Por qué deberías<br/><span style={{ color: '#EF4444' }}>ELIMINAR</span> tu app de widgets hoy mismo.</h2>
-          <p style={{ color: '#D1D5DB', fontSize: 13, margin: '0 0 16px 0' }}>Hay una verdad incómoda en Tiendanube... 👉</p>
-          <SlideCTA text="DESLIZÁ →" />
-        </SlideCard>
-        <SlideCard slideNum={5} totalSlides={5}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-            <Award size={48} color="#10B981" style={{ marginBottom: 16 }} />
-            <h2 style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 900, lineHeight: 1.1, margin: '0 0 12px 0' }}>Desmarcáte de tu competencia HOY.</h2>
-            <p style={{ color: '#D1D5DB', fontSize: 13, margin: '0 0 24px 0' }}>Instalá Nevux y empezá tu camino VIP con 7 días gratis.</p>
-            <SolidCTA text="OBTENER 50 WIDGETS AHORA" />
-          </div>
-        </SlideCard>
-      </div>
+      <SlideCard slideNum={1} totalSlides={5}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}><span style={{ fontSize: 14 }}>🛑</span><span style={{ color: '#EF4444', fontWeight: 900, fontSize: 11 }}>BASTA DE PAGAR POR NADA</span></div>
+        <h2 style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 900, lineHeight: 1.15, margin: '0 0 12px 0' }}>Por qué deberías<br/><span style={{ color: '#EF4444' }}>ELIMINAR</span> tu app de widgets hoy mismo.</h2>
+        <p style={{ color: '#D1D5DB', fontSize: 13, margin: '0 0 16px 0' }}>Hay una verdad incómoda en Tiendanube... 👉</p>
+        <SlideCTA text="DESLIZÁ →" />
+      </SlideCard>
     </div>
   </div>
 );
 
-// ============================================================
-// DÍA 4: JUEVES (Reel Confianza + Stories)
-// ============================================================
 const JuevesContent = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', width: '100%' }}>
     <ScheduleBanner day="JUEVES" schedules={[
@@ -265,53 +246,8 @@ const JuevesContent = () => (
       { time: '18:30', action: 'Reel: Widgets de Confianza', type: 'post' },
       { time: '19:00', action: 'Story 3 (Repost Reel) + Story 4 (CTA)', type: 'story' }
     ]} />
-
-    {/* GUIÓN DEL REEL */}
-    <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24 }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24, textAlign: 'center' }}>1️⃣ GUIÓN DEL REEL</h3>
-
-      <ScriptScene
-        time="0-4s"
-        title="HOOK — Carrito abandonado"
-        visual="Pantalla de checkout de una Tiendanube. El cursor/dedo duda sobre 'Comprar' y de repente cierra la pestaña. Corte rápido a una notificación de 'Carrito abandonado'."
-        text="Llenó el carrito... y se fue 🛒💨"
-        voice="Tu cliente ya eligió el producto, ya puso el talle, ya llegó al checkout... y igual se fue sin comprar."
-      />
-      <ScriptScene
-        time="4-9s"
-        title="PROBLEMA — Cero confianza"
-        visual="Montaje rápido de una tienda 'vacía' de prueba social: sin reseñas, sin sellos, sin contador de stock, sin 'otros lo están comprando'. El visitante mira con cara de duda."
-        text="Sin reseñas + sin sellos + sin urgencia real = Desconfianza"
-        voice="No es que no le guste tu producto. Es que tu tienda no le da ninguna prueba de que puede confiar en vos. Y en e-commerce, sin confianza no hay venta."
-      />
-      <ScriptScene
-        time="9-17s"
-        title="SOLUCIÓN — Widgets de Prueba Social"
-        visual="Se activan en pantalla, uno tras otro, los widgets de Nevux: estrellas de reseñas, '12 personas viendo esto', sello de compra segura, barra de envío gratis, stock restante. El checkout se 'llena' de confianza."
-        text="🛡️ Reseñas · Compradores en vivo · Sellos · Stock real"
-        voice="Con los widgets de prueba social de Nevux, tu tienda habla por vos: muestra reseñas reales, actividad en vivo y sellos de seguridad exactamente cuando el cliente está por decidir."
-        isCTA={true}
-      />
-      <ScriptScene
-        time="17-23s"
-        title="BENEFICIO — Más checkouts cerrados"
-        visual="Panel simple tipo métrica: tasa de abandono bajando y pedidos confirmados subiendo. Animación de una notificación de nueva venta."
-        text="Menos abandono · Más pedidos cerrados 📈"
-        voice="Dejás de perder ventas en el último paso. El cliente ve que otros ya compraron, que el sitio es seguro, y termina la compra con tranquilidad."
-      />
-      <ScriptScene
-        time="23-28s"
-        title="CTA FINAL"
-        visual="Fondo oscuro, logo Nevux arriba a la izquierda, placa esmeralda con el slogan y CTA de comentario."
-        text="50 Widgets + 6 funciones · Comentá CONFIANZA 👇"
-        voice="Accedé a 50 Widgets y 6 funciones para impulsar tu Tiendanube. Comentá CONFIANZA y te muestro cómo activar la prueba social en tu tienda en minutos."
-        isCTA={true}
-      />
-    </div>
-
-    {/* PORTADA REEL 4:5 */}
     <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>2️⃣ PORTADA DEL REEL (4:5)</h3>
+      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>PORTADA DEL REEL (4:5)</h3>
       <SlideCard slideNum={1} totalSlides={1}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, alignSelf: 'center', backgroundColor: '#10B981', padding: '4px 10px', borderRadius: 12 }}>
           <Play size={12} color="#000" />
@@ -331,48 +267,168 @@ const JuevesContent = () => (
         </div>
       </SlideCard>
     </div>
+  </div>
+);
 
-    {/* STORIES JUEVES */}
+// ============================================================
+// DÍA 5: VIERNES (Carrusel Piloto Automático + Stories)
+// ============================================================
+const ViernesContent = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', width: '100%' }}>
+    <ScheduleBanner day="VIERNES" schedules={[
+      { time: '10:00', action: 'Story 1 (Encuesta finde)', type: 'story' },
+      { time: '12:00', action: 'Story 2 (Dolor: tienda apagada)', type: 'story' },
+      { time: '17:30', action: 'Carrusel Piloto Automático (5 slides)', type: 'post' },
+      { time: '20:00', action: 'Story 3 (Checklist) + Story 4 (CTA)', type: 'story' }
+    ]} />
+
+    {/* CARRUSEL VIERNES */}
     <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>3️⃣ HISTORIAS (VERTICAL 9:16)</h3>
+      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>1️⃣ POST PRINCIPAL (CARRUSEL)</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+        {/* Slide 1 — Hook */}
+        <SlideCard slideNum={1} totalSlides={5}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}>
+            <span style={{ fontSize: 14 }}>🌙</span>
+            <span style={{ color: '#10B981', fontWeight: 900, fontSize: 11 }}>MODO FIN DE SEMANA</span>
+          </div>
+          <h2 style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 900, lineHeight: 1.15, margin: '0 0 12px 0' }}>
+            Este finde tu tienda<br/>puede vender<br/><span style={{ color: '#10B981' }}>sin vos.</span>
+          </h2>
+          <p style={{ color: '#D1D5DB', fontSize: 13, margin: '0 0 16px 0' }}>
+            O puede quedar en silencio total. La diferencia son 5 widgets. 👉
+          </p>
+          <SlideCTA text="DESLIZÁ →" />
+        </SlideCard>
+
+        {/* Slide 2 — El problema */}
+        <SlideCard slideNum={2} totalSlides={5}>
+          <h2 style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 900, lineHeight: 1.25, margin: '0 0 16px 0' }}>
+            Lo que pasa cuando <span style={{ color: '#EF4444' }}>no</span> dejás nada activado:
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
+            {[
+              { icon: '😴', t: 'Cero urgencia real en la tienda' },
+              { icon: '🛒', t: 'Carritos abandonados sin recuperación' },
+              { icon: '📵', t: 'Nadie te escribe por WhatsApp' },
+              { icon: '📉', t: 'El domingo mirás métricas en rojo' }
+            ].map((row, i) => (
+              <div key={i} style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 8, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 16 }}>{row.icon}</span>
+                <span style={{ color: '#D1D5DB', fontSize: 12, fontWeight: 600 }}>{row.t}</span>
+              </div>
+            ))}
+          </div>
+          <SlideCTA text="LA SOLUCIÓN →" />
+        </SlideCard>
+
+        {/* Slide 3 — Kit de 5 widgets */}
+        <SlideCard slideNum={3} totalSlides={5}>
+          <h2 style={{ color: '#FFFFFF', fontSize: 18, fontWeight: 900, lineHeight: 1.25, margin: '0 0 14px 0' }}>
+            El kit <span style={{ color: '#10B981' }}>Piloto Automático</span> de Nevux:
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+            {[
+              { n: '01', t: 'Countdown de oferta', d: 'Cierra ventas con deadline real' },
+              { n: '02', t: 'Stock restante', d: 'Escasez limpia, sin mentiras' },
+              { n: '03', t: 'Barra de envío gratis', d: 'Sube el ticket promedio' },
+              { n: '04', t: 'WhatsApp flotante', d: 'Atención 24/7 sin estar online' },
+              { n: '05', t: 'Raspá y Gana', d: 'Captura leads todo el finde' }
+            ].map((w, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 8, padding: '8px 10px' }}>
+                <span style={{ color: '#10B981', fontWeight: 900, fontSize: 12, minWidth: 22 }}>{w.n}</span>
+                <div style={{ textAlign: 'left' }}>
+                  <p style={{ color: '#FFF', fontSize: 12, fontWeight: 800, margin: 0 }}>{w.t}</p>
+                  <p style={{ color: '#9CA3AF', fontSize: 10, margin: 0 }}>{w.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <SlideCTA text="CÓMO SE VE →" />
+        </SlideCard>
+
+        {/* Slide 4 — Resultado */}
+        <SlideCard slideNum={4} totalSlides={5}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
+              <Moon size={22} color="#10B981" />
+              <Zap size={22} color="#FBBF24" />
+            </div>
+            <h2 style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 900, lineHeight: 1.2, margin: '0 0 14px 0', textAlign: 'center' }}>
+              Vos en modo descanso.<br/>Tu tienda en modo venta.
+            </h2>
+            <div style={{ backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.35)', borderRadius: 12, padding: 14, textAlign: 'center' }}>
+              <p style={{ color: '#10B981', fontSize: 12, fontWeight: 800, margin: '0 0 6px 0' }}>LO QUE SIGUE TRABAJANDO</p>
+              <p style={{ color: '#D1D5DB', fontSize: 12, margin: 0, lineHeight: 1.5 }}>
+                Urgencia · Escasez · Upsell de envío · Leads · WhatsApp
+              </p>
+            </div>
+          </div>
+          <SlideCTA text="ACTIVALO HOY →" />
+        </SlideCard>
+
+        {/* Slide 5 — CTA */}
+        <SlideCard slideNum={5} totalSlides={5}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+            <Smartphone size={40} color="#10B981" style={{ marginBottom: 14 }} />
+            <h2 style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 900, lineHeight: 1.15, margin: '0 0 10px 0' }}>
+              Dejá el finde en piloto automático.
+            </h2>
+            <p style={{ color: '#D1D5DB', fontSize: 13, margin: '0 0 20px 0' }}>
+              50 Widgets + 6 funciones para impulsar tu Tiendanube. 7 días gratis.
+            </p>
+            <SolidCTA text="ACTIVAR PILOTO AUTOMÁTICO" />
+          </div>
+        </SlideCard>
+
+      </div>
+    </div>
+
+    {/* STORIES VIERNES */}
+    <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
+      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>2️⃣ HISTORIAS (VERTICAL 9:16)</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
         <StoryCard slideNum={1} totalSlides={4}>
           <h2 style={{ color: '#FFF', fontSize: 24, fontWeight: 900, textAlign: 'center', marginTop: 36, lineHeight: 1.2 }}>
-            ¿Tu tienda muestra reseñas reales en el checkout?
+            ¿Tu tienda sigue vendiendo cuando vos no estás?
           </h2>
-          <PollSticker op1="Sí, las tengo activas ✅" op2="No... todavía no 😬" />
+          <PollSticker op1="Sí, está blindada 🔥" op2="Si no estoy, no vende 😴" />
         </StoryCard>
 
         <StoryCard slideNum={2} totalSlides={4}>
           <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 36, lineHeight: 1.25 }}>
-            ¿Cuántos carritos se te abandonan por semana?
+            ¿Cuánto te duele abrir el panel el domingo y ver todo quieto?
           </h2>
-          <p style={{ color: '#9CA3AF', fontSize: 13, textAlign: 'center', margin: '12px 0 0 0' }}>
-            Si el número te duele, el problema es confianza.
-          </p>
-          <EmojiSlider emoji="😰" />
+          <EmojiSlider emoji="🫠" />
         </StoryCard>
 
         <StoryCard slideNum={3} totalSlides={4}>
-          <div style={{ textAlign: 'center', marginTop: 32 }}>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 16 }}>
-              <Star size={28} color="#FBBF24" />
-              <Users size={28} color="#10B981" />
-              <Shield size={28} color="#60A5FA" />
-            </div>
-            <h2 style={{ color: '#FFF', fontSize: 20, fontWeight: 900, margin: '0 0 12px 0', lineHeight: 1.3 }}>
-              Reseñas + actividad en vivo + sellos de seguridad = más ventas cerradas
+          <div style={{ textAlign: 'center', marginTop: 28 }}>
+            <h2 style={{ color: '#FFF', fontSize: 18, fontWeight: 900, margin: '0 0 16px 0', lineHeight: 1.3 }}>
+              Checklist express antes del finde:
             </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left' }}>
+              {['Countdown de oferta activo', 'Stock restante visible', 'Barra de envío gratis', 'Botón WhatsApp flotante', 'Raspá y Gana captando leads'].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 8, padding: '8px 10px' }}>
+                  <CheckCircle2 size={14} color="#10B981" />
+                  <span style={{ color: '#D1D5DB', fontSize: 11, fontWeight: 600 }}>{item}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <LinkSticker text="VER EL REEL COMPLETO" />
         </StoryCard>
 
         <StoryCard slideNum={4} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 30, marginBottom: 16, lineHeight: 1.25 }}>
-            ¿Qué widget de confianza te falta activar?
-          </h2>
-          <QuestionBox question="Contame y te ayudo a elegirlo 👇" />
+          <div style={{ textAlign: 'center', marginTop: 36 }}>
+            <Zap size={40} color="#10B981" style={{ margin: '0 auto 14px auto' }} />
+            <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, margin: '0 0 10px 0', lineHeight: 1.25 }}>
+              Activá el piloto automático en minutos.
+            </h2>
+            <p style={{ color: '#D1D5DB', fontSize: 13, margin: '0 0 8px 0' }}>7 días gratis · Sin tarjeta</p>
+          </div>
+          <LinkSticker text="ABRIR NEVUX EN TIENDANUBE" />
         </StoryCard>
 
       </div>
@@ -387,14 +443,15 @@ const COPIES = {
   LUNES: `🔴 Tu Tiendanube tiene un problema que no se ve en las métricas de Meta...\n\nNevux reemplaza todo eso con 50 Widgets de alta conversión. 7 días gratis.\n👉 Comentá "WIDGET"`,
   MARTES: `¿Sabías que el 97% de las personas que entran a tu Tiendanube se van sin comprar nada y sin dejarte sus datos? 🚪💸\n\nInvertís en Meta Ads, Google y contenido para atraer tráfico a tu tienda online. Las visitas llegan, miran dos productos... y cierran la pestaña. Sin un mecanismo de captación inmediata, esa plata que invertiste en traerlos se pierde para siempre.\n\n💡 La solución: Gamificación con el Widget "Raspá y Gana" de Nevux.\n\nEn lugar de mostrar un pop-up aburrido que la gente cierra por inercia, Nevux transforma la captación de contactos en una experiencia interactiva irresistible:\n\n1️⃣ El cliente entra a tu Tiendanube y ve una tarjeta de "Raspá y Gana".\n2️⃣ Raspa en la pantalla con el dedo para descubrir su premio (ej: 15% OFF o Envío Gratis).\n3️⃣ Para reclamar el cupón, ingresa su WhatsApp o Email.\n\n🚀 El resultado: Pasás de tener visitas anónimas a construir una base de datos hiper-calificada en piloto automático, lista para remarketing por WhatsApp o Email Marketing.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "LEADS" abajo y te enviamos por privado el paso a paso para activarlo en menos de 2 minutos.`,
   MIÉRCOLES: `¿Tu app actual de widgets te cobra todos los meses pero tu tienda sigue viéndose igual a la de tu competencia? 📉\n\nLa mayoría de las apps en Tiendanube son puramente transaccionales: pagás tu suscripción mes a mes y listo. No hay incentivos, no hay evolución. Mientras tanto, tu tienda se ve idéntica a las de otras 10,000 marcas que usan exactamente la misma app genérica.\n\n💡 En Nevux cambiamos las reglas del juego con nuestro Programa de Recompensas.\n\nSomos la PRIMERA app de Tiendanube que te premia por tu fidelidad. ¿Cómo funciona?\n🔓 Mes 1: Accedés al instante a los 50 Widgets Base de alta conversión.\n🎁 Mes a mes: Vas desbloqueando Widgets Premium Exclusivos que NO están a la venta en ningún lado.\n\n🚀 El resultado: Cuanto más tiempo usás Nevux, más única y personalizada se vuelve tu tienda. Tu competencia nunca podrá copiar tus estrategias de conversión porque simplemente no tendrán acceso a tus widgets VIP.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "FIDELIDAD" abajo y te enviamos por privado cómo reclamar tu primera recompensa hoy mismo.`,
-  JUEVES: `Llenó el carrito... eligió el talle... llegó al checkout... y se fue. 🛒💨\n\n¿Te suena familiar? No siempre es el precio. En la mayoría de los casos es una sola cosa: tu tienda no genera suficiente confianza en el momento exacto de decidir.\n\nSin reseñas visibles, sin actividad en vivo, sin sellos de compra segura y sin señales de stock real, el cerebro del comprador frena. Y cuando frena en el checkout, perdés la venta que ya tenías casi cerrada.\n\n💡 La solución: Widgets de Prueba Social de Nevux.\n\nActivás en minutos:\n⭐ Reseñas y valoraciones en puntos clave del funnel\n👀 Contadores de "personas viendo esto ahora"\n🛡️ Sellos de seguridad y garantía\n📦 Stock real y barras de envío gratis\n\n🚀 El resultado: el cliente deja de dudar y termina la compra. Menos abandono de carrito. Más pedidos confirmados. Más tranquilidad para tu marca.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "CONFIANZA" abajo y te mostramos cómo activar la prueba social en tu tienda en menos de 2 minutos.`
+  JUEVES: `Llenó el carrito... eligió el talle... llegó al checkout... y se fue. 🛒💨\n\n¿Te suena familiar? No siempre es el precio. En la mayoría de los casos es una sola cosa: tu tienda no genera suficiente confianza en el momento exacto de decidir.\n\nSin reseñas visibles, sin actividad en vivo, sin sellos de compra segura y sin señales de stock real, el cerebro del comprador frena. Y cuando frena en el checkout, perdés la venta que ya tenías casi cerrada.\n\n💡 La solución: Widgets de Prueba Social de Nevux.\n\nActivás en minutos:\n⭐ Reseñas y valoraciones en puntos clave del funnel\n👀 Contadores de "personas viendo esto ahora"\n🛡️ Sellos de seguridad y garantía\n📦 Stock real y barras de envío gratis\n\n🚀 El resultado: el cliente deja de dudar y termina la compra. Menos abandono de carrito. Más pedidos confirmados. Más tranquilidad para tu marca.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "CONFIANZA" abajo y te mostramos cómo activar la prueba social en tu tienda en menos de 2 minutos.`,
+  VIERNES: `Este fin de semana tu Tiendanube puede hacer dos cosas:\n\n1️⃣ Vender en piloto automático mientras vos descansás.\n2️⃣ Quedarse en silencio total hasta el lunes.\n\nLa diferencia no es magia. Son 5 widgets estratégicos trabajando 24/7.\n\n🌙 El kit Piloto Automático de Nevux:\n\n⏱️ Countdown de oferta — deadline real que cierra indecisos\n🔥 Stock restante — escasez limpia y creíble\n🚚 Barra de envío gratis — sube el ticket promedio sin esfuerzo\n💬 WhatsApp flotante — te escriben aunque no estés online\n🎮 Raspá y Gana — captura leads todo el sábado y domingo\n\nSin estas piezas, el finde se te escapa: cero urgencia, carritos abandonados sin recuperación y un domingo mirando métricas en rojo.\n\nCon Nevux las activás en minutos y tu tienda sigue vendiendo mientras vos estás en otra.s\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "PILOTO" abajo y te pasamos el checklist exacto para dejar el finde en automático (7 días gratis).`
 };
 
 // ============================================================
 // PAGE PRINCIPAL
 // ============================================================
 export default function MarketingAssetsPage() {
-  const [openDay, setOpenDay] = useState<string>('JUEVES');
+  const [openDay, setOpenDay] = useState<string>('VIERNES');
   const [copied, setCopied] = useState(false);
 
   const copyCaption = async (text: string) => {
@@ -404,6 +461,8 @@ export default function MarketingAssetsPage() {
       setTimeout(() => setCopied(false), 2000);
     } catch {}
   };
+
+  const days = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES'];
 
   return (
     <div style={{ backgroundColor: '#020a07', minHeight: '100vh', padding: '16px 10px 40px 10px', boxSizing: 'border-box' }}>
@@ -418,7 +477,7 @@ export default function MarketingAssetsPage() {
 
       <div style={{ maxWidth: 360, margin: '0 auto' }}>
         <div style={{ display: 'flex', gap: 4, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
-          {['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES'].map(day => {
+          {days.map(day => {
             const isActive = openDay === day;
             return (
               <button
@@ -446,6 +505,7 @@ export default function MarketingAssetsPage() {
         {openDay === 'MARTES' && <MartesContent />}
         {openDay === 'MIÉRCOLES' && <MiercolesContent />}
         {openDay === 'JUEVES' && <JuevesContent />}
+        {openDay === 'VIERNES' && <ViernesContent />}
 
         <div style={{ marginTop: 24, backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 12, padding: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
@@ -475,4 +535,4 @@ export default function MarketingAssetsPage() {
       </div>
     </div>
   );
-        }
+          }
