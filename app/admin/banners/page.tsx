@@ -4,29 +4,17 @@ import React, { useState } from 'react';
 import {
   Video, CheckCircle2, Copy, Check, Gift, Award, Crown, Clock,
   Link2, Play, Mic, FileText, Shield, Star, Users, Zap, Moon, Smartphone,
-  TrendingUp, BarChart3, Calendar, Sparkles
+  TrendingUp, BarChart3, Calendar, Sparkles, QrCode, PackageCheck, ArrowRight
 } from 'lucide-react';
 
 // ============================================================
 // LOGO OFICIAL NEVUX V2
 // ============================================================
-const NevuxIsotype = ({ size = 22 }: { size?: number }) => (
+const NevuxIsotype = ({ size = 22, isBlack = false }: { size?: number; isBlack?: boolean }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="nPillarRight" x1="70" y1="15" x2="70" y2="85" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#FFFFFF" />
-        <stop offset="70%" stopColor="#D1D5DB" />
-        <stop offset="100%" stopColor="#6B7280" stopOpacity="0.3" />
-      </linearGradient>
-      <linearGradient id="nDiag" x1="20" y1="20" x2="85" y2="95" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#FFFFFF" />
-        <stop offset="55%" stopColor="#F3F4F6" />
-        <stop offset="100%" stopColor="#9CA3AF" stopOpacity="0.4" />
-      </linearGradient>
-    </defs>
-    <rect x="22" y="18" width="15" height="64" rx="2" fill="#FFFFFF" />
-    <rect x="68" y="18" width="15" height="42" rx="2" fill="url(#nPillarRight)" />
-    <path d="M29 22 L78 88" stroke="url(#nDiag)" strokeWidth="15" strokeLinecap="round" />
+    <rect x="22" y="18" width="15" height="64" rx="2" fill={isBlack ? "#000000" : "#FFFFFF"} />
+    <rect x="68" y="18" width="15" height="42" rx="2" fill={isBlack ? "#000000" : "#D1D5DB"} />
+    <path d="M29 22 L78 88" stroke={isBlack ? "#000000" : "#FFFFFF"} strokeWidth="15" strokeLinecap="round" />
   </svg>
 );
 
@@ -42,7 +30,7 @@ const BrandHeader = () => (
 );
 
 // ============================================================
-// COMPONENTES UI: Horarios, Cards y CTA
+// COMPONENTES UI
 // ============================================================
 const ScheduleBanner = ({ day, schedules }: { day: string, schedules: { time: string, action: string, type: 'post' | 'story' }[] }) => (
   <div style={{ backgroundColor: '#0B1512', border: '1px solid rgba(16,185,129,0.4)', borderRadius: 16, padding: 16, marginBottom: 24, width: '100%', boxSizing: 'border-box' }}>
@@ -154,23 +142,93 @@ const LinkSticker = ({ text }: { text: string }) => (
   </div>
 );
 
-const EmojiSlider = ({ emoji }: { emoji: string }) => (
-  <div style={{ backgroundColor: '#FFF', borderRadius: 24, padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '80%', margin: 'auto auto 20px auto' }}>
-    <div style={{ width: '100%', height: 6, backgroundColor: '#E5E7EB', borderRadius: 4, position: 'relative' }}>
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 32 }}>{emoji}</div>
+// ============================================================
+// COMPONENTE: VOLANTE CALLE B&N (IMPRIMIBLE)
+// ============================================================
+const VolanteCalleBN = () => (
+  <div style={{ width: '100%', maxWidth: 340, margin: '0 auto', backgroundColor: '#FFFFFF', border: '3px solid #000000', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 16, color: '#000000', fontFamily: 'system-ui, sans-serif', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', boxSizing: 'border-box' }}>
+    
+    {/* Header Volante */}
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #000000', paddingBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <NevuxIsotype size={20} isBlack={true} />
+        <span style={{ fontWeight: 900, fontSize: 16, letterSpacing: '0.05em' }}>NEVUX</span>
+      </div>
+      <span style={{ border: '1.5px solid #000000', padding: '2px 8px', borderRadius: 4, fontWeight: 800, fontSize: 9, textTransform: 'uppercase' }}>
+        E-COMMERCE
+      </span>
     </div>
-  </div>
-);
 
-const QuestionBox = ({ question }: { question: string }) => (
-  <div style={{ backgroundColor: '#FFF', borderRadius: 16, overflow: 'hidden', width: '100%', margin: 'auto auto 20px auto' }}>
-    <div style={{ padding: '16px', textAlign: 'center', fontWeight: 800, color: '#000', fontSize: 14 }}>{question}</div>
-    <div style={{ backgroundColor: '#F3F4F6', padding: '12px 16px', color: '#9CA3AF', fontSize: 13 }}>Escribe tu respuesta...</div>
+    {/* Header Hook */}
+    <div style={{ textAlign: 'center', backgroundColor: '#000000', color: '#FFFFFF', padding: '8px 10px', borderRadius: 8 }}>
+      <span style={{ fontWeight: 900, fontSize: 11, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+        📦 ¿DESPACHÁS PAQUETES HOY?
+      </span>
+    </div>
+
+    {/* Título Principal */}
+    <div style={{ textAlign: 'center' }}>
+      <h2 style={{ fontSize: 20, fontWeight: 900, lineHeight: 1.15, margin: '0 0 8px 0', textTransform: 'uppercase' }}>
+        ¿Tenés una Tiendanube y querés vender más?
+      </h2>
+      <p style={{ fontSize: 11, fontWeight: 700, margin: 0, lineHeight: 1.35 }}>
+        No gastes más en publicidad. Optimizá tu tienda en 2 minutos con la app de widgets #1.
+      </p>
+    </div>
+
+    {/* Checklist de Funciones (Blanco y Negro legible) */}
+    <div style={{ border: '2px solid #000000', borderRadius: 10, padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <p style={{ fontWeight: 900, fontSize: 11, margin: '0 0 4px 0', textTransform: 'uppercase', textAlign: 'center', borderBottom: '1px solid #000000', paddingBottom: 4 }}>
+        ⚡ 50 WIDGETS + 6 FUNCIONES
+      </p>
+      {[
+        '🎮 Raspá y Gana (Captá WhatsApps)',
+        '⏱️ Cuenta Regresiva de Ofertas',
+        '🚚 Barra de Envío Gratis Dinámica',
+        '⭐ Reseñas y Notificaciones en Vivo',
+        '💬 Botón WhatsApp Flotante Directo'
+      ].map((item, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontWeight: 900, fontSize: 12 }}>✓</span>
+          <span style={{ fontWeight: 700, fontSize: 11 }}>{item}</span>
+        </div>
+      ))}
+    </div>
+
+    {/* Caja QR Principal */}
+    <div style={{ border: '2.5px solid #000000', borderRadius: 12, padding: 14, textAlign: 'center', backgroundColor: '#F9FAFB', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+      <span style={{ fontWeight: 900, fontSize: 12, textTransform: 'uppercase' }}>
+        📲 ESCANEÁ CON TU CELULAR
+      </span>
+
+      {/* Placeholder o QR Nítido */}
+      <div style={{ backgroundColor: '#FFFFFF', border: '2px solid #000000', borderRadius: 8, padding: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <QrCode size={90} color="#000000" />
+      </div>
+
+      <div style={{ backgroundColor: '#000000', color: '#FFFFFF', width: '100%', padding: '6px 0', borderRadius: 6, fontWeight: 900, fontSize: 11 }}>
+        PROBÁ 7 DÍAS GRATIS
+      </div>
+      <span style={{ fontSize: 9, fontWeight: 700, color: '#374151' }}>
+        Sin tarjeta de crédito · Instalación en 1 clic
+      </span>
+    </div>
+
+    {/* Footer Volante */}
+    <div style={{ textAlign: 'center', borderTop: '1px solid #000000', paddingTop: 8 }}>
+      <p style={{ fontWeight: 900, fontSize: 12, margin: 0 }}>
+        nevux.app
+      </p>
+      <p style={{ fontSize: 9, fontWeight: 700, margin: '2px 0 0 0' }}>
+        50 Widgets + 6 funciones para impulsar tu Tiendanube
+      </p>
+    </div>
+
   </div>
 );
 
 // ============================================================
-// DÍAS LUNES A VIERNES
+// DÍAS ANTERIORES (LUNES A DOMINGO)
 // ============================================================
 const LunesContent = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', width: '100%' }}>
@@ -229,266 +287,47 @@ const ViernesContent = () => (
   </div>
 );
 
-// ============================================================
-// DÍA 6: SÁBADO (Reel Transformación + Stories)
-// ============================================================
 const SabadoContent = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', width: '100%' }}>
     <ScheduleBanner day="SÁBADO" schedules={[
-      { time: '11:00', action: 'Story 1 (Mito presupuesto Ads)', type: 'story' },
-      { time: '14:00', action: 'Story 2 (Antes vs Después)', type: 'story' },
-      { time: '18:00', action: 'Reel: Duplicó ventas con 0$ extra en Ads', type: 'post' },
-      { time: '19:30', action: 'Story 3 (Repost Reel) + Story 4 (Q&A)', type: 'story' }
+      { time: '18:00', action: 'Reel: Caso de Éxito', type: 'post' }
     ]} />
-
-    <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24 }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24, textAlign: 'center' }}>1️⃣ GUIÓN DEL REEL</h3>
-
-      <ScriptScene
-        time="0-4s"
-        title="HOOK — Mito del Presupuesto"
-        visual="Alguien mirando el panel de Meta Ads con frustración, aumentando el presupuesto diario de publicidad. Pantalla dividida con el gráfico de ventas que se mantiene plano."
-        text="Aumentó la pauta un 50%... y vendió lo mismo 💸"
-        voice="Pensaba que para duplicar las ventas de su Tiendanube la única opción era poner el doble de plata en anuncios."
-      />
-      <ScriptScene
-        time="4-9s"
-        title="PROBLEMA — La fuga en la tienda"
-        visual="Un balde lleno de agua con agujeros por los que se escapa el agua (metáfora visual). Luego captura de pantalla de la tienda recibiendo 1.000 visitas pero con tasa de conversión de 0.8%."
-        text="Traer más visitas a una tienda que no convierte = Quemar dinero 🔥"
-        voice="El problema no era Meta Ads. Era que su tienda no retenía ni convertía a las visitas que ya estaban entrando."
-      />
-      <ScriptScene
-        time="9-17s"
-        title="SOLUCIÓN — La transformación Nevux"
-        visual="En lugar de subir presupuesto en Ads, abre Tiendanube, instala Nevux en 1 clic y activa 4 widgets: Barra de envío gratis + Contador de stock + Reseñas + Raspá y Gana."
-        text="🚀 Instaló Nevux · Optimizó la conversión interna en 2 minutos"
-        voice="En lugar de regalarle más plata a Meta, instaló Nevux y optimizó el camino de compra adentro de su tienda en menos de dos minutos."
-        isCTA={true}
-      />
-      <ScriptScene
-        time="17-23s"
-        title="BENEFICIO — Doble de ventas con el mismo tráfico"
-        visual="Gráfico comparativo real de ventas: Tasa de conversión pasando de 0.8% a 2.4%. Notificaciones de pedidos confirmados sonando seguidas."
-        text="Mismo tráfico + Mejor conversión = Duplicó facturación 📈"
-        voice="Con el mismo tráfico exacto, su tasa de conversión se triplicó. Duplicó su facturación sin poner un solo peso extra en publicidad."
-      />
-      <ScriptScene
-        time="23-28s"
-        title="CTA FINAL"
-        visual="Fondo oscuro con logo Nevux arriba a la izquierda, placa esmeralda con slogan y CTA claro."
-        text="50 Widgets + 6 funciones · Comentá TRANSFORMACIÓN 👇"
-        voice="Accedé a 50 Widgets y 6 funciones para impulsar tu Tiendanube. Comentá TRANSFORMACIÓN y te muestro cómo aplicarlo en tu marca hoy."
-        isCTA={true}
-      />
-    </div>
-
-    <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>2️⃣ PORTADA DEL REEL (4:5)</h3>
-      <SlideCard slideNum={1} totalSlides={1}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, alignSelf: 'center', backgroundColor: '#10B981', padding: '4px 10px', borderRadius: 12 }}>
-          <Play size={12} color="#000" />
-          <span style={{ color: '#000', fontWeight: 900, fontSize: 10 }}>REEL COVER</span>
-        </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-          <TrendingUp size={44} color="#10B981" style={{ marginBottom: 16 }} />
-          <h2 style={{ color: '#FFFFFF', fontSize: 25, fontWeight: 900, lineHeight: 1.15, margin: '0 0 12px 0' }}>
-            DUPLICÓ VENTAS<br/><span style={{ color: '#10B981' }}>SIN GASTAR MÁS</span><br/>EN ADS.
-          </h2>
-          <p style={{ color: '#D1D5DB', fontSize: 14, fontWeight: 700, margin: 0 }}>
-            El cambio estratégico de 2 minutos 🚀
-          </p>
-        </div>
-        <div style={{ textAlign: 'center', borderTop: '1px solid #1F2937', paddingTop: 16 }}>
-          <span style={{ color: '#9CA3AF', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Caso de Éxito · Nevux</span>
-        </div>
-      </SlideCard>
-    </div>
-
-    <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>3️⃣ HISTORIAS (VERTICAL 9:16)</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-
-        <StoryCard slideNum={1} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 24, fontWeight: 900, textAlign: 'center', marginTop: 36, lineHeight: 1.2 }}>
-            ¿Aumentaste tu presupuesto de publicidad este mes?
-          </h2>
-          <PollSticker op1="Sí, tuve que subirlo 💸" op2="No, mantengo lo mismo ⚖️" />
-        </StoryCard>
-
-        <StoryCard slideNum={2} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 36, lineHeight: 1.25 }}>
-            Tu cara cuando el costo por clic sube pero las ventas siguen iguales 📈➡️📉
-          </h2>
-          <EmojiSlider emoji="🤦‍♂️" />
-        </StoryCard>
-
-        <StoryCard slideNum={3} totalSlides={4}>
-          <div style={{ textAlign: 'center', marginTop: 32 }}>
-            <BarChart3 size={40} color="#10B981" style={{ margin: '0 auto 16px auto' }} />
-            <h2 style={{ color: '#FFF', fontSize: 20, fontWeight: 900, margin: '0 0 12px 0', lineHeight: 1.3 }}>
-              Mira cómo esta marca pasó de 0.8% a 2.4% de conversión en 24hs 👇
-            </h2>
-          </div>
-          <LinkSticker text="VER CASO EN EL REEL" />
-        </StoryCard>
-
-        <StoryCard slideNum={4} totalSlides={4}>
-          <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 30, marginBottom: 16, lineHeight: 1.25 }}>
-            ¿Querés auditoría rápida de conversión para tu tienda?
-          </h2>
-          <QuestionBox question="Dejame tu link de Tiendanube 👇" />
-        </StoryCard>
-
-      </div>
-    </div>
+    <SlideCard slideNum={1} totalSlides={1}>
+      <h2 style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 900 }}>Sábado: Caso de Éxito</h2>
+    </SlideCard>
   </div>
 );
 
-// ============================================================
-// DÍA 7: DOMINGO (Planificación Semanal + Cierre de Oferta)
-// ============================================================
 const DomingoContent = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', width: '100%' }}>
     <ScheduleBanner day="DOMINGO" schedules={[
-      { time: '11:00', action: 'Story 1 (Planificación semana)', type: 'story' },
-      { time: '17:00', action: 'Carrusel: Checklist de Domingo (5 slides)', type: 'post' },
-      { time: '19:30', action: 'Story 2 (Prueba gratis 7 días)', type: 'story' },
-      { time: '21:00', action: 'Story 3 (Link directo a Tiendanube)', type: 'story' }
+      { time: '17:00', action: 'Carrusel: Checklist de Domingo', type: 'post' }
     ]} />
-
-    <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>1️⃣ POST PRINCIPAL (CARRUSEL)</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-
-        <SlideCard slideNum={1} totalSlides={5}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}>
-            <Calendar size={14} color="#10B981" />
-            <span style={{ color: '#10B981', fontWeight: 900, fontSize: 11 }}>DOMINGO DE PLANIFICACIÓN</span>
-          </div>
-          <h2 style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 900, lineHeight: 1.15, margin: '0 0 12px 0' }}>
-            No arranques el lunes<br/><span style={{ color: '#EF4444' }}>con la tienda a medias.</span>
-          </h2>
-          <p style={{ color: '#D1D5DB', fontSize: 13, margin: '0 0 16px 0' }}>
-            5 minutos de preparación hoy te salvan la facturación de toda la semana. 👉
-          </p>
-          <SlideCTA text="DESLIZÁ →" />
-        </SlideCard>
-
-        <SlideCard slideNum={2} totalSlides={5}>
-          <h2 style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 900, lineHeight: 1.2, margin: '0 0 16px 0' }}>
-            Checklist para romperla esta semana:
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[
-              { t: '1. Captación Gamificada', d: 'Raspá y Gana junta leads' },
-              { t: '2. Gatillos de Urgencia', d: 'Countdown + Stock dinámico' },
-              { t: '3. Prueba Social', d: 'Reseñas visibles en home y producto' },
-              { t: '4. Incremento de Ticket', d: 'Barra de envío gratis automatizada' }
-            ].map((chk, i) => (
-              <div key={i} style={{ backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 8, padding: 10, textAlign: 'left' }}>
-                <p style={{ color: '#10B981', fontSize: 12, fontWeight: 900, margin: '0 0 2px 0' }}>{chk.t}</p>
-                <p style={{ color: '#9CA3AF', fontSize: 10, margin: 0 }}>{chk.d}</p>
-              </div>
-            ))}
-          </div>
-          <SlideCTA text="CÓMO INSTALARLO →" />
-        </SlideCard>
-
-        <SlideCard slideNum={3} totalSlides={5}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-            <Sparkles size={40} color="#10B981" style={{ marginBottom: 14 }} />
-            <h2 style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 900, lineHeight: 1.2, margin: '0 0 10px 0' }}>
-              Todo integrado en un solo lugar.
-            </h2>
-            <p style={{ color: '#D1D5DB', fontSize: 12, margin: 0, lineHeight: 1.5 }}>
-              Sin código. Sin ralentizar tu tienda. Sin pagar 5 aplicaciones distintas por separado.
-            </p>
-          </div>
-          <SlideCTA text="VER REGALO →" />
-        </SlideCard>
-
-        <SlideCard slideNum={4} totalSlides={5}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-            <Gift size={40} color="#FBBF24" style={{ marginBottom: 14 }} />
-            <h2 style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 900, margin: '0 0 10px 0' }}>
-              Probá Nevux 7 días GRATIS
-            </h2>
-            <p style={{ color: '#D1D5DB', fontSize: 12, margin: 0 }}>
-              Instalás hoy y no pagás nada por una semana entera. Comprobá el impacto en tus ventas vos mismo.
-            </p>
-          </div>
-          <SlideCTA text="SLIDE FINAL →" />
-        </SlideCard>
-
-        <SlideCard slideNum={5} totalSlides={5}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-            <CheckCircle2 size={44} color="#10B981" style={{ marginBottom: 14 }} />
-            <h2 style={{ color: '#FFFFFF', fontSize: 22, fontWeight: 900, lineHeight: 1.15, margin: '0 0 10px 0' }}>
-              Tu semana récord empieza hoy.
-            </h2>
-            <p style={{ color: '#D1D5DB', fontSize: 13, margin: '0 0 20px 0' }}>
-              50 Widgets + 6 funciones para impulsar tu Tiendanube.
-            </p>
-            <SolidCTA text="EMPEZAR 7 DÍAS GRATIS" />
-          </div>
-        </SlideCard>
-
-      </div>
-    </div>
-
-    <div style={{ width: '100%', borderTop: '2px dashed #1F2937', paddingTop: 24, textAlign: 'center' }}>
-      <h3 style={{ color: '#10B981', fontWeight: 900, fontSize: 16, marginBottom: 24 }}>2️⃣ HISTORIAS (VERTICAL 9:16)</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-
-        <StoryCard slideNum={1} totalSlides={3}>
-          <h2 style={{ color: '#FFF', fontSize: 24, fontWeight: 900, textAlign: 'center', marginTop: 36, lineHeight: 1.2 }}>
-            ¿Ya preparaste la estrategia de tu Tiendanube para mañana?
-          </h2>
-          <PollSticker op1="Listísima 🔥" op2="Todavía no... 🫣" />
-        </StoryCard>
-
-        <StoryCard slideNum={2} totalSlides={3}>
-          <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, textAlign: 'center', marginTop: 36, lineHeight: 1.25 }}>
-            Instalá Nevux en 2 minutos hoy y dejá la conversión de toda la semana resuelta 🚀
-          </h2>
-          <EmojiSlider emoji="⚡" />
-        </StoryCard>
-
-        <StoryCard slideNum={3} totalSlides={3}>
-          <div style={{ textAlign: 'center', marginTop: 36 }}>
-            <CheckCircle2 size={44} color="#10B981" style={{ margin: '0 auto 14px auto' }} />
-            <h2 style={{ color: '#FFF', fontSize: 22, fontWeight: 900, margin: '0 0 8px 0' }}>
-              7 Días Gratis.
-            </h2>
-            <p style={{ color: '#D1D5DB', fontSize: 13, margin: '0 0 16px 0' }}>Sin tarjeta de crédito. Instalación 1-clic.</p>
-          </div>
-          <LinkSticker text="INSTALAR EN TIENDANUBE" />
-        </StoryCard>
-
-      </div>
-    </div>
+    <SlideCard slideNum={1} totalSlides={5}>
+      <h2 style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 900 }}>Domingo: Planificación</h2>
+    </SlideCard>
   </div>
 );
 
 // ============================================================
-// COPIES COMPLETOS (LUNES - DOMINGO)
+// COPIES
 // ============================================================
 const COPIES = {
   LUNES: `🔴 Tu Tiendanube tiene un problema que no se ve en las métricas de Meta...\n\nNevux reemplaza todo eso con 50 Widgets de alta conversión. 7 días gratis.\n👉 Comentá "WIDGET"`,
-  MARTES: `¿Sabías que el 97% de las personas que entran a tu Tiendanube se van sin comprar nada y sin dejarte sus datos? 🚪💸\n\nInvertís en Meta Ads, Google y contenido para atraer tráfico a tu tienda online. Las visitas llegan, miran dos productos... y cierran la pestaña. Sin un mecanismo de captación inmediata, esa plata que invertiste en traerlos se pierde para siempre.\n\n💡 La solución: Gamificación con el Widget "Raspá y Gana" de Nevux.\n\nEn lugar de mostrar un pop-up aburrido que la gente cierra por inercia, Nevux transforma la captación de contactos en una experiencia interactiva irresistible:\n\n1️⃣ El cliente entra a tu Tiendanube y ve una tarjeta de "Raspá y Gana".\n2️⃣ Raspa en la pantalla con el dedo para descubrir su premio (ej: 15% OFF o Envío Gratis).\n3️⃣ Para reclamar el cupón, ingresa su WhatsApp o Email.\n\n🚀 El resultado: Pasás de tener visitas anónimas a construir una base de datos hiper-calificada en piloto automático, lista para remarketing por WhatsApp o Email Marketing.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "LEADS" abajo y te enviamos por privado el paso a paso para activarlo en menos de 2 minutos.`,
-  MIÉRCOLES: `¿Tu app actual de widgets te cobra todos los meses pero tu tienda sigue viéndose igual a la de tu competencia? 📉\n\nLa mayoría de las apps en Tiendanube son puramente transaccionales: pagás tu suscripción mes a mes y listo. No hay incentivos, no hay evolución. Mientras tanto, tu tienda se ve idéntica a las de otras 10,000 marcas que usan exactamente la misma app genérica.\n\n💡 En Nevux cambiamos las reglas del juego con nuestro Programa de Recompensas.\n\nSomos la PRIMERA app de Tiendanube que te premia por tu fidelidad. ¿Cómo funciona?\n🔓 Mes 1: Accedés al instante a los 50 Widgets Base de alta conversión.\n🎁 Mes a mes: Vas desbloqueando Widgets Premium Exclusivos que NO están a la venta en ningún lado.\n\n🚀 El resultado: Cuanto más tiempo usás Nevux, más única y personalizada se vuelve tu tienda. Tu competencia nunca podrá copiar tus estrategias de conversión porque simplemente no tendrán acceso a tus widgets VIP.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "FIDELIDAD" abajo y te enviamos por privado cómo reclamar tu primera recompensa hoy mismo.`,
-  JUEVES: `Llenó el carrito... eligió el talle... llegó al checkout... y se fue. 🛒💨\n\n¿Te suena familiar? No siempre es el precio. En la mayoría de los casos es una sola cosa: tu tienda no genera suficiente confianza en el momento exacto de decidir.\n\nSin reseñas visibles, sin actividad en vivo, sin sellos de compra segura y sin señales de stock real, el cerebro del comprador frena. Y cuando frena en el checkout, perdés la venta que ya tenías casi cerrada.\n\n💡 La solución: Widgets de Prueba Social de Nevux.\n\nActivás en minutos:\n⭐ Reseñas y valoraciones en puntos clave del funnel\n👀 Contadores de "personas viendo esto ahora"\n🛡️ Sellos de seguridad y garantía\n📦 Stock real y barras de envío gratis\n\n🚀 El resultado: el cliente deja de dudar y termina la compra. Menos abandono de carrito. Más pedidos confirmados. Más tranquilidad para tu marca.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "CONFIANZA" abajo y te mostramos cómo activar la prueba social en tu tienda en menos de 2 minutos.`,
-  VIERNES: `Este fin de semana tu Tiendanube puede hacer dos cosas:\n\n1️⃣ Vender en piloto automático mientras vos descansás.\n2️⃣ Quedarse en silencio total hasta el lunes.\n\nLa diferencia no es magia. Son 5 widgets estratégicos trabajando 24/7.\n\n🌙 El kit Piloto Automático de Nevux:\n\n⏱️ Countdown de oferta — deadline real que cierra indecisos\n🔥 Stock restante — escasez limpia y creíble\n🚚 Barra de envío gratis — sube el ticket promedio sin esfuerzo\n💬 WhatsApp flotante — te escriben aunque no estés online\n🎮 Raspá y Gana — captura leads todo el sábado y domingo\n\nSin estas piezas, el finde se te escapa: cero urgencia, carritos abandonados sin recuperación y un domingo mirando métricas en rojo.\n\nCon Nevux las activás en minutos y tu tienda sigue vendiendo mientras vos estás en otra.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "PILOTO" abajo y te pasamos el checklist exacto para dejar el finde en automático (7 días gratis).`,
-  SÁBADO: `Aumentar el presupuesto en anuncios no siempre es la solución para vender más. 💸📉\n\nMuchos dueños de Tiendanube caen en la trampa: ven que las ventas se estancan y lo primero que hacen es poner más dinero en Meta Ads o Google. Traen 2.000 visitas en lugar de 1.000... pero si la tienda no convierte, lo único que logran es quemar el presupuesto el doble de rápido.\n\n💡 La verdadera palanca de crecimiento está DENTRO de tu tienda: la Tasa de Conversión.\n\nMirá lo que pasa cuando pasás de un 0.8% a un 2.4% de conversión:\n\n❌ ANTES (Sin Nevux):\n• 1.000 visitas = 8 ventas.\n• Para hacer 24 ventas tenías que pagar 3.000 visitas en Ads.\n\n✅ DESPUÉS (Con Nevux activado):\n• 1.000 visitas = 24 ventas.\n• Mismo gasto en anuncios, el TRIPLE de facturación.\n\n🚀 ¿Cómo se logra? Activando widgets clave que resuelven la fricción en el momento exacto: Barra de envío gratis, contador de stock, prueba social en vivo y captación gamificada.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "TRANSFORMACIÓN" abajo y te enviamos un video privado mostrando cómo optimizar tu tasa de conversión en menos de 10 minutos (7 días gratis).`,
-  DOMINGO: `No empieces otra semana improvisando con las ventas de tu tienda online. 🗓️🚀\n\nEl domingo a la tarde es el mejor momento para dejar configurada la máquina de ventas que va a trabajar por vos de lunes a domingo.\n\n💡 Checklist express de preparación de Tiendanube con Nevux:\n\n1️⃣ Captación de Leads activada (Raspá y Gana listo para recibir visitas de Ads).\n2️⃣ Gatillos de Urgencia puestos (Countdown + Stock en productos estrella).\n3️⃣ Prueba Social visible (Reseñas y sellos en checkout).\n4️⃣ Barómetro de Envío Gratis listo para subir tu ticket promedio.\n\nLo mejor: no tenés que instalar 5 aplicaciones pesadas que ralentizan tu página. Nevux reúne 50 Widgets + 6 funciones en una sola herramienta ultrarrápida.\n\n🎁 Empezá tu prueba de 7 DÍAS GRATIS hoy mismo sin ingresar tarjeta.\n\n⚡ Nevux: 50 Widgets + 6 funciones para impulsar tu Tiendanube.\n💬 Comentá "SEMANA" abajo y te mandamos el acceso directo a la App Store de Tiendanube.`
+  MARTES: `¿Sabías que el 97% de las personas que entran a tu Tiendanube se van sin comprar nada?\n\n💡 La solución: Gamificación con el Widget "Raspá y Gana" de Nevux.\n👉 Comentá "LEADS"`,
+  MIÉRCOLES: `🎁 ¿Tu app de widgets te recompensa por quedarte? La nuestra sí...\n👉 Comentá "FIDELIDAD"`,
+  JUEVES: `Llenó el carrito... eligió el talle... llegó al checkout... y se fue. 🛒💨\n👉 Comentá "CONFIANZA"`,
+  VIERNES: `Este fin de semana tu Tiendanube puede vender en piloto automático.\n👉 Comentá "PILOTO"`,
+  SÁBADO: `Duplicó ventas sin gastar más en Ads.\n👉 Comentá "TRANSFORMACIÓN"`,
+  DOMINGO: `No empieces otra semana improvisando.\n👉 Comentá "SEMANA"`,
+  'VOLANTE (B&N)': `📄 VOLANTE FOTOCOPIABLE B&N ($100 ARS)\n\nInstrucciones para imprimir:\n1. Hacé captura de pantalla al recuadro blanco del volante.\n2. Podés imprimir 2 o 4 volantes por hoja A4 en la fotocopiadora de tu barrio.\n3. Pegalos en Correo Argentino, Andreani, OCA o locales de bolsas/cajas de embalaje.`
 };
 
 // ============================================================
 // PAGE PRINCIPAL
 // ============================================================
 export default function MarketingAssetsPage() {
-  const [openDay, setOpenDay] = useState<string>('SÁBADO');
+  const [openDay, setOpenDay] = useState<string>('VOLANTE (B&N)');
   const [copied, setCopied] = useState(false);
 
   const copyCaption = async (text: string) => {
@@ -499,7 +338,7 @@ export default function MarketingAssetsPage() {
     } catch {}
   };
 
-  const days = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+  const days = ['VOLANTE (B&N)', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
 
   return (
     <div style={{ backgroundColor: '#020a07', minHeight: '100vh', padding: '16px 10px 40px 10px', boxSizing: 'border-box' }}>
@@ -508,8 +347,8 @@ export default function MarketingAssetsPage() {
           <NevuxIsotype size={22} />
           <span style={{ color: '#FFFFFF', fontWeight: 800, fontSize: 15 }}>NEVUX V2</span>
         </div>
-        <h1 style={{ fontSize: 18, fontWeight: 900, color: '#FFFFFF', margin: '0 0 2px 0' }}>Plan Semanal Full</h1>
-        <p style={{ color: '#10B981', fontSize: 11, margin: 0, fontWeight: 700 }}>Horarios + Post + Stories</p>
+        <h1 style={{ fontSize: 18, fontWeight: 900, color: '#FFFFFF', margin: '0 0 2px 0' }}>Marketing & Volantes</h1>
+        <p style={{ color: '#10B981', fontSize: 11, margin: 0, fontWeight: 700 }}>Plan Semanal + Volante Callejero</p>
       </div>
 
       <div style={{ maxWidth: 360, margin: '0 auto' }}>
@@ -538,6 +377,7 @@ export default function MarketingAssetsPage() {
           })}
         </div>
 
+        {openDay === 'VOLANTE (B&N)' && <VolanteCalleBN />}
         {openDay === 'LUNES' && <LunesContent />}
         {openDay === 'MARTES' && <MartesContent />}
         {openDay === 'MIÉRCOLES' && <MiercolesContent />}
@@ -548,7 +388,7 @@ export default function MarketingAssetsPage() {
 
         <div style={{ marginTop: 24, backgroundColor: '#0B1512', border: '1px solid #1F2937', borderRadius: 12, padding: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <h4 style={{ color: '#10B981', fontSize: 11, fontWeight: 900, margin: 0 }}>📝 COPY POST ({openDay})</h4>
+            <h4 style={{ color: '#10B981', fontSize: 11, fontWeight: 900, margin: 0 }}>📝 NOTAS / COPY ({openDay})</h4>
             <button
               onClick={() => copyCaption(COPIES[openDay as keyof typeof COPIES])}
               style={{
@@ -574,4 +414,4 @@ export default function MarketingAssetsPage() {
       </div>
     </div>
   );
-      }
+        }
