@@ -73,7 +73,16 @@ export function calculatePlanStatus(store: StorePlanData): PlanStatus {
     return "cancelled";
   }
 
-  // 2. REGLA SUPREMA: Si la fecha de plan activo está en el futuro -> ACTIVO O PRÓXIMO A VENCER
+  // 2. Si el plan está marcado como expirado en DB y no tiene fecha activa futura -> EXPIRED
+  if (store.plan_status === "expired") {
+    if (!store.plan_active_until) return "expired";
+    const planEnd = new Date(store.plan_active_until);
+    if (isNaN(planEnd.getTime()) || planEnd <= now) {
+      return "expired";
+    }
+  }
+
+  // 3. REGLA SUPREMA: Si la fecha de plan activo está en el futuro -> ACTIVO O PRÓXIMO A VENCER
   if (store.plan_active_until) {
     const planEnd = new Date(store.plan_active_until);
     if (!isNaN(planEnd.getTime()) && planEnd > now) {
@@ -85,12 +94,12 @@ export function calculatePlanStatus(store: StorePlanData): PlanStatus {
     }
   }
 
-  // 3. Si el estado de la BD dice que ya está en feedback
+  // 4. Si el estado de la BD dice que ya está en feedback
   if (store.plan_status === "feedback_pending") {
     return "feedback_pending";
   }
 
-  // 4. Si está en Trial (verificación de fechas)
+  // 5. Si está en Trial (verificación de fechas)
   if (store.trial_ends_at) {
     const trialEnd = new Date(store.trial_ends_at);
     if (!isNaN(trialEnd.getTime()) && trialEnd > now) {
@@ -110,6 +119,11 @@ export function calculatePlanStatus(store: StorePlanData): PlanStatus {
  * Cantidad de días restantes.
  */
 export function getRemainingDays(store: StorePlanData): number {
+  const status = calculatePlanStatus(store);
+  if (isAppBlocked(status)) {
+    return 0;
+  }
+
   const now = new Date();
 
   if (store.plan_active_until) {
@@ -133,6 +147,11 @@ export function getRemainingDays(store: StorePlanData): number {
  * Cantidad de HORAS restantes.
  */
 export function getRemainingHours(store: StorePlanData): number {
+  const status = calculatePlanStatus(store);
+  if (isAppBlocked(status)) {
+    return 0;
+  }
+
   const now = new Date();
 
   if (store.plan_active_until) {
@@ -294,4 +313,4 @@ export async function syncPlanStatusIfNeeded(
 
 export function formatPrice(amount: number = PLAN_PRICE_ARS): string {
   return `$${amount.toLocaleString("es-AR")}`;
-                      }
+}
