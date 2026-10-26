@@ -63,7 +63,7 @@ export const PLAN_WARNING_DAYS = 3;
 // ─── FUNCIONES PURAS ──────────────────────────
 
 /**
- * Calcula el estado REAL del plan basándose prioritariamente en la fecha activa.
+ * Calcula el estado REAL del plan basándose prioritariamente en el estado explícito de la BD.
  */
 export function calculatePlanStatus(store: StorePlanData): PlanStatus {
   const now = new Date();
@@ -73,19 +73,18 @@ export function calculatePlanStatus(store: StorePlanData): PlanStatus {
     return "cancelled";
   }
 
-  // 2. Si el plan está marcado como expirado en DB y no tiene fecha activa futura -> EXPIRED
+  // 2. Si el plan figura marcado como EXPIRADO en la BD -> SIEMPRE EXPIRADO
   if (store.plan_status === "expired") {
-    if (!store.plan_active_until) return "expired";
-    const planEnd = new Date(store.plan_active_until);
-    if (isNaN(planEnd.getTime()) || planEnd <= now) {
-      return "expired";
-    }
+    return "expired";
   }
 
-  // 3. REGLA SUPREMA: Si la fecha de plan activo está en el futuro -> ACTIVO O PRÓXIMO A VENCER
+  // 3. Si la fecha de plan activo expiró
   if (store.plan_active_until) {
     const planEnd = new Date(store.plan_active_until);
-    if (!isNaN(planEnd.getTime()) && planEnd > now) {
+    if (!isNaN(planEnd.getTime())) {
+      if (planEnd <= now) {
+        return "expired";
+      }
       const daysLeft = getDaysBetween(now, planEnd);
       if (daysLeft <= PLAN_WARNING_DAYS) {
         return "expiring_soon";
@@ -313,4 +312,4 @@ export async function syncPlanStatusIfNeeded(
 
 export function formatPrice(amount: number = PLAN_PRICE_ARS): string {
   return `$${amount.toLocaleString("es-AR")}`;
-}
+        }
