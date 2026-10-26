@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { isStorePlanActive } from "@/lib/plan";
 
 export const dynamic = "force-dynamic";
 
@@ -185,6 +186,16 @@ export async function GET(req: NextRequest) {
       const parsedStoreId = parseInt(storeIdParam, 10);
       if (isNaN(parsedStoreId)) {
         return corsResponse({ error: "store_id inválido" }, 400);
+      }
+
+      // 🛡️ VERIFICAR SI EL PLAN DE LA TIENDA ESTÁ ACTIVO
+      const planActive = await isStorePlanActive(parsedStoreId);
+      if (!planActive) {
+        return corsResponse({
+          widgets: [],
+          expired: true,
+          ts: Date.now(),
+        });
       }
 
       const { data: widgets, error: publicErr } = await supabaseAdmin
