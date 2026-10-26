@@ -31,7 +31,7 @@ interface ExpiradoClientProps {
 }
 
 const PLAN_FEATURES = [
-  "Acceso a los +26 widgets de conversión activos",
+  "Acceso a los +50 widgets de conversión activos",
   "Sincronización automática con Tiendanube",
   "Personalización total: colores, textos y estilos",
   "Widgets ilimitados por tienda",
@@ -263,7 +263,7 @@ export default function ExpiradoClient({
           >
             Activá tu cuenta y desbloqueá todo el potencial de tu tienda con los{" "}
             <strong style={{ color: "#000000", opacity: 1 }}>
-              +26 widgets de conversión activos
+              +50 widgets de conversión activos
             </strong>
             .
           </p>
@@ -417,8 +417,8 @@ export default function ExpiradoClient({
                     wordBreak: "break-word",
                   }}
                 >
-                  {feature
-                }</span>
+                  {feature}
+                </span>
               </motion.div>
             ))}
           </div>
@@ -928,4 +928,4 @@ export default function ExpiradoClient({
       </div>
     </div>
   );
-          }
+        }
