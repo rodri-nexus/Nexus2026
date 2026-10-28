@@ -19,6 +19,8 @@ import {
   Loader2,
   Globe,
   ExternalLink,
+  CreditCard,
+  Zap,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
@@ -56,13 +58,15 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     flag: "🇦🇷",
     name: "Argentina",
     currency: "ARS",
-    amount: "$35.000",
-    title: "Transferencia local o Naranja X",
-    instructions: "Transferí el monto exacto en pesos argentinos por CBU o Alias.",
+    amount: "$39.900",
+    title: "Tarjeta de Crédito, Débito o Mercado Pago",
+    instructions: "Pagá de forma 100% segura con tu tarjeta o saldo disponible. Tu suscripción se activa al instante.",
+    directPayLink: "https://mpago.la/1LqFYin",
+    directPayLabel: "💳 Pagar $39.900 con Tarjeta (Mercado Pago) →",
     fields: [
-      { label: "Alias", value: "rodrigolazaro24" },
-      { label: "CBU", value: "4530000800011686104856", small: true },
-      { label: "Titular", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+      { label: "Suscripción Oficial", value: "Mercado Pago (Cobro Automático)", noCopy: true },
+      { label: "Medios Aceptados", value: "Visa, Mastercard, Débito, Mercado Pago", noCopy: true },
+      { label: "Acreditación", value: "Inmediata e Instantánea ⚡", noCopy: true },
     ],
   },
   {
@@ -440,7 +444,7 @@ export default function PagarClient({ email }: PagarClientProps) {
             }}
           >
             <Shield size={12} />
-            Pago seguro
+            Pago seguro con Tarjeta o Mercado Pago
           </div>
           <h1
             style={{
@@ -452,7 +456,7 @@ export default function PagarClient({ email }: PagarClientProps) {
               lineHeight: 1.15,
             }}
           >
-            Activá tu cuenta en <span style={{ color: "#10B981" }}>2 pasos</span>
+            Activá tu cuenta en <span style={{ color: "#10B981" }}>1 paso</span>
           </h1>
           <p
             style={{
@@ -463,7 +467,7 @@ export default function PagarClient({ email }: PagarClientProps) {
               lineHeight: 1.5,
             }}
           >
-            Seleccioná tu país, pagá en tu moneda local y subí el comprobante.
+            Elegí tu país y pagá de forma 100% automatizada con tarjeta de crédito o débito.
           </p>
         </motion.div>
 
@@ -523,7 +527,7 @@ export default function PagarClient({ email }: PagarClientProps) {
           </div>
         </div>
 
-        {/* PASO 1 — Datos de transferencia y botón directo */}
+        {/* PASO 1 — Pasarela de Pago Directa */}
         <motion.div
           key={activeConfig.id}
           initial={{ opacity: 0, y: 10 }}
@@ -613,33 +617,50 @@ export default function PagarClient({ email }: PagarClientProps) {
             </div>
           </div>
 
-          {/* Botón de Pago Directo si existe (ej: Belo Pix Brasil) */}
+          {/* BOTÓN PRINCIPAL DE COBRO CON MERCADO PAGO O PASARELA DIRECTA */}
           {activeConfig.directPayLink && (
-            <a
-              href={activeConfig.directPayLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.5rem",
-                width: "100%",
-                padding: "0.95rem 1rem",
-                background: "#000000",
-                color: "#ffffff",
-                borderRadius: "12px",
-                fontSize: "0.95rem",
-                fontWeight: 800,
-                textDecoration: "none",
-                marginBottom: "1rem",
-                boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-                boxSizing: "border-box",
-              }}
-            >
-              <span>{activeConfig.directPayLabel || "Abrir pasarela de pago"}</span>
-              <ExternalLink size={16} />
-            </a>
+            <div style={{ marginBottom: "1.25rem" }}>
+              <a
+                href={activeConfig.directPayLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.6rem",
+                  width: "100%",
+                  padding: "1.1rem 1.25rem",
+                  background: "#10B981",
+                  color: "#ffffff",
+                  borderRadius: "14px",
+                  fontSize: "1rem",
+                  fontWeight: 800,
+                  textDecoration: "none",
+                  boxShadow: "0 8px 22px rgba(16, 185, 129, 0.35)",
+                  boxSizing: "border-box",
+                  transition: "transform 0.15s ease",
+                }}
+              >
+                <CreditCard size={20} />
+                <span>{activeConfig.directPayLabel || "Pagar con Tarjeta →"}</span>
+                <ExternalLink size={16} />
+              </a>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.35rem",
+                  marginTop: "0.6rem",
+                  fontSize: "0.78rem",
+                  color: "#059669",
+                  fontWeight: 700,
+                }}
+              >
+                <Zap size={14} /> Acreditación instantánea y activación automática
+              </div>
+            </div>
           )}
 
           {activeConfig.fields.map((f) => (
@@ -678,12 +699,12 @@ export default function PagarClient({ email }: PagarClientProps) {
                 textAlign: "left",
               }}
             >
-              {activeConfig.instructions} Copiá los datos de arriba para transferir de forma segura.
+              {activeConfig.instructions}
             </p>
           </div>
         </motion.div>
 
-        {/* PASO 2 — Subir comprobante */}
+        {/* PASO 2 — Subir comprobante (Opcional si usaron transferencia o para confirmar) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -732,7 +753,7 @@ export default function PagarClient({ email }: PagarClientProps) {
                 letterSpacing: "-0.01em",
               }}
             >
-              Subí el comprobante
+              Subí tu comprobante (Si pagaste por transferencia o CBU)
             </h2>
           </div>
 
@@ -872,7 +893,7 @@ export default function PagarClient({ email }: PagarClientProps) {
               onChange={(e) => setReference(e.target.value)}
               onFocus={() => setInputFocused(true)}
               onBlur={() => setInputFocused(false)}
-              placeholder="Ej: Id de transacción o cuenta origen"
+              placeholder="Ej: ID de transacción de Mercado Pago o Banco"
               maxLength={100}
               disabled={uploading}
               style={{
@@ -910,7 +931,7 @@ export default function PagarClient({ email }: PagarClientProps) {
                 }}
               >
                 <AlertCircle size={16} color="#dc2626" style={{ flexShrink: 0, marginTop: "1px" }} />
-                <p style={{ fontSize: "0.82rem", color: "#dc2626", margin: 0, lineHeight: 1.45, textAlign: "left" }}>{error}</p>
+                <p style={{ fontSize: "0.82rem", color="#dc2626", margin: 0, lineHeight: 1.45, textAlign: "left" }}>{error}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -946,7 +967,7 @@ export default function PagarClient({ email }: PagarClientProps) {
             {uploading ? (
               <><Loader2 size={18} className="animate-spin" /> Enviando...</>
             ) : (
-              <><CheckCircle2 size={18} /> Ya pagué, enviar comprobante</>
+              <><CheckCircle2 size={18} /> Confirmar comprobante manual</>
             )}
           </button>
 
@@ -964,7 +985,7 @@ export default function PagarClient({ email }: PagarClientProps) {
             }}
           >
             <Clock size={13} />
-            Aprobamos tu pago en menos de 24hs
+            Pagos con tarjeta en Mercado Pago se activan automáticamente
           </div>
         </motion.div>
 
