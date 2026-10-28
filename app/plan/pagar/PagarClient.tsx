@@ -704,7 +704,7 @@ export default function PagarClient({ email }: PagarClientProps) {
           </div>
         </motion.div>
 
-        {/* PASO 2 — Subir comprobante (Opcional si usaron transferencia o para confirmar) */}
+        {/* PASO 2 — Subir comprobante */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -931,7 +931,9 @@ export default function PagarClient({ email }: PagarClientProps) {
                 }}
               >
                 <AlertCircle size={16} color="#dc2626" style={{ flexShrink: 0, marginTop: "1px" }} />
-                <p style={{ fontSize: "0.82rem", color="#dc2626", margin: 0, lineHeight: 1.45, textAlign: "left" }}>{error}</p>
+                <p style={{ fontSize: "0.82rem", color: "#dc2626", margin: 0, lineHeight: 1.45, textAlign: "left" }}>
+                  {error}
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -996,4 +998,4 @@ export default function PagarClient({ email }: PagarClientProps) {
       </div>
     </div>
   );
-       }
+    }
