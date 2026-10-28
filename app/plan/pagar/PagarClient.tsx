@@ -1,23 +1,14 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Copy,
   Check,
-  Upload,
-  FileText,
-  Image as ImageIcon,
-  X,
   Shield,
-  Clock,
   AlertCircle,
-  CheckCircle2,
-  Loader2,
-  Globe,
   ExternalLink,
   CreditCard,
   Zap,
@@ -25,7 +16,7 @@ import {
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 /* ═══════════════════════════════════════════
-   1. TYPES, INTERFACES & REAL PAYMENT DATA (Regla #9)
+   1. TYPES, INTERFACES & REAL PAYMENT DATA
    ═══════════════════════════════════════════ */
 interface PagarClientProps {
   email: string;
@@ -60,13 +51,26 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     currency: "ARS",
     amount: "$39.900",
     title: "Tarjeta de Crédito, Débito o Mercado Pago",
-    instructions: "Pagá de forma 100% segura con tu tarjeta o saldo disponible. Tu suscripción se activa al instante.",
+    instructions:
+      "Pagá de forma 100% segura con tu tarjeta o saldo disponible. Tu suscripción se activa al instante.",
     directPayLink: "https://mpago.la/1LqFYin",
-    directPayLabel: "💳 Pagar $39.900 con Tarjeta (Mercado Pago) →",
+    directPayLabel: "Suscribirse (ARS $39.900/mes)",
     fields: [
-      { label: "Suscripción Oficial", value: "Mercado Pago (Cobro Automático)", noCopy: true },
-      { label: "Medios Aceptados", value: "Visa, Mastercard, Débito, Mercado Pago", noCopy: true },
-      { label: "Acreditación", value: "Inmediata e Instantánea ⚡", noCopy: true },
+      {
+        label: "Suscripción Oficial",
+        value: "Mercado Pago (Cobro Automático)",
+        noCopy: true,
+      },
+      {
+        label: "Medios Aceptados",
+        value: "Visa, Mastercard, Débito, Mercado Pago",
+        noCopy: true,
+      },
+      {
+        label: "Acreditación",
+        value: "Inmediata e Instantánea ⚡",
+        noCopy: true,
+      },
     ],
   },
   {
@@ -76,12 +80,21 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     currency: "BRL",
     amount: "R$ 160",
     title: "Pagamento instantâneo via PIX",
-    instructions: "Toque no botão abaixo para pagar via Pix pelo Belo ou copie a chave.",
+    instructions:
+      "Toque no botão abaixo para pagar via Pix pelo Belo ou copie a chave.",
     directPayLink: "https://pay.belo.app/checkout?id=6a9f83282534a474802c1467",
     directPayLabel: "Pagar via PIX com Belo →",
     fields: [
-      { label: "Link de Pagamento Pix", value: "https://pay.belo.app/checkout?id=6a9f83282534a474802c1467", small: true },
-      { label: "Beneficiário", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+      {
+        label: "Link de Pagamento Pix",
+        value: "https://pay.belo.app/checkout?id=6a9f83282534a474802c1467",
+        small: true,
+      },
+      {
+        label: "Beneficiário",
+        value: "Rodrigo Lazaro Spehgt",
+        noCopy: true,
+      },
     ],
   },
   {
@@ -91,11 +104,16 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     currency: "MXN",
     amount: "$600 MXN",
     title: "Pago por DolarApp o PayPal",
-    instructions: "Envía el pago a través de DolarApp o PayPal en pesos mexicanos o USD.",
+    instructions:
+      "Envía el pago a través de DolarApp o PayPal en pesos mexicanos o USD.",
     fields: [
       { label: "DolarApp Tag", value: "$rodrigospehgt" },
       { label: "PayPal Email", value: "rodrigospehgt@gmail.com" },
-      { label: "Beneficiario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+      {
+        label: "Beneficiario",
+        value: "Rodrigo Lazaro Spehgt",
+        noCopy: true,
+      },
     ],
   },
   {
@@ -105,11 +123,16 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     currency: "COP",
     amount: "$120.000 COP",
     title: "Pago con PayPal o DolarApp",
-    instructions: "Paga con tarjeta internacional mediante PayPal o transferí a DolarApp.",
+    instructions:
+      "Paga con tarjeta internacional mediante PayPal o transferí a DolarApp.",
     fields: [
       { label: "PayPal Email", value: "rodrigospehgt@gmail.com" },
       { label: "DolarApp Tag", value: "$rodrigospehgt" },
-      { label: "Beneficiario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+      {
+        label: "Beneficiario",
+        value: "Rodrigo Lazaro Spehgt",
+        noCopy: true,
+      },
     ],
   },
   {
@@ -119,11 +142,16 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     currency: "CLP",
     amount: "$28.000 CLP",
     title: "Pago con PayPal o DolarApp",
-    instructions: "Paga en línea con tarjeta vía PayPal o transferí a DolarApp.",
+    instructions:
+      "Paga en línea con tarjeta vía PayPal o transferí a DolarApp.",
     fields: [
       { label: "PayPal Email", value: "rodrigospehgt@gmail.com" },
       { label: "DolarApp Tag", value: "$rodrigospehgt" },
-      { label: "Beneficiario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+      {
+        label: "Beneficiario",
+        value: "Rodrigo Lazaro Spehgt",
+        noCopy: true,
+      },
     ],
   },
   {
@@ -133,17 +161,22 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     currency: "USD",
     amount: "$30 USD",
     title: "PayPal o DolarApp Global",
-    instructions: "Paga con tarjeta de crédito o débito internacional vía PayPal.",
+    instructions:
+      "Paga con tarjeta de crédito o débito internacional vía PayPal.",
     fields: [
       { label: "PayPal Email", value: "rodrigospehgt@gmail.com" },
       { label: "DolarApp Tag", value: "$rodrigospehgt" },
-      { label: "Beneficiario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+      {
+        label: "Beneficiario",
+        value: "Rodrigo Lazaro Spehgt",
+        noCopy: true,
+      },
     ],
   },
 ];
 
 /* ═══════════════════════════════════════════
-   2. STYLES & AUXILIARY COMPONENTS (Regla #9)
+   2. STYLES & AUXILIARY COMPONENTS
    ═══════════════════════════════════════════ */
 function DataRow({
   label,
@@ -198,7 +231,9 @@ function DataRow({
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
-            fontFamily: small ? "'SF Mono', Monaco, Consolas, monospace" : "inherit",
+            fontFamily: small
+              ? "'SF Mono', Monaco, Consolas, monospace"
+              : "inherit",
           }}
         >
           {value}
@@ -221,10 +256,16 @@ function DataRow({
             justifyContent: "center",
             flexShrink: 0,
             transition: "all 0.2s",
-            boxShadow: copied ? "0 4px 12px rgba(16, 185, 129, 0.25)" : "0 2px 6px rgba(0, 0, 0, 0.05)",
+            boxShadow: copied
+              ? "0 4px 12px rgba(16, 185, 129, 0.25)"
+              : "0 2px 6px rgba(0, 0, 0, 0.05)",
           }}
         >
-          {copied ? <Check size={16} strokeWidth={3} /> : <Copy size={16} />}
+          {copied ? (
+            <Check size={16} strokeWidth={3} />
+          ) : (
+            <Copy size={16} />
+          )}
         </button>
       )}
     </div>
@@ -235,19 +276,11 @@ function DataRow({
    3. COMPONENTE PRINCIPAL (PagarClient)
    ═══════════════════════════════════════════ */
 export default function PagarClient({ email }: PagarClientProps) {
-  const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [selectedCountry, setSelectedCountry] = useState<string>("AR");
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [reference, setReference] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [dragActive, setDragActive] = useState(false);
-  const [inputFocused, setInputFocused] = useState(false);
 
-  const activeConfig = COUNTRIES_CONFIG.find((c) => c.id === selectedCountry) || COUNTRIES_CONFIG[0];
+  // Argentina directa y profesional (sin selector de país)
+  const activeConfig =
+    COUNTRIES_CONFIG.find((c) => c.id === "AR") || COUNTRIES_CONFIG[0];
 
   const handleCopy = useCallback(async (text: string, field: string) => {
     try {
@@ -270,82 +303,6 @@ export default function PagarClient({ email }: PagarClientProps) {
     }
   }, []);
 
-  const handleFileSelect = useCallback((selectedFile: File | null) => {
-    setError(null);
-    if (!selectedFile) return;
-
-    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-    const ALLOWED = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-
-    if (selectedFile.size > MAX_SIZE) {
-      setError("El archivo supera los 5 MB. Elegí uno más chico.");
-      return;
-    }
-
-    if (!ALLOWED.includes(selectedFile.type)) {
-      setError("Solo se permiten imágenes (JPG, PNG, WebP) o archivos PDF.");
-      return;
-    }
-
-    setFile(selectedFile);
-  }, []);
-
-  const handleDrag = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileSelect(e.dataTransfer.files[0]);
-    }
-  }, [handleFileSelect]);
-
-  const handleSubmit = async () => {
-    if (!file) {
-      setError("Subí una foto o PDF del comprobante para continuar.");
-      return;
-    }
-
-    setUploading(true);
-    setError(null);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const cleanRef = `[${activeConfig.id}] ${reference.trim()}`.trim();
-      formData.append("transfer_reference", cleanRef);
-
-      const res = await fetch("/api/plan/upload-receipt", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Error al subir el comprobante");
-      }
-
-      router.push(data.redirect || "/plan/pendiente");
-      router.refresh();
-    } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : "Error inesperado. Probá de nuevo.";
-      setError(errMsg);
-      setUploading(false);
-    }
-  };
-
-  const isPdf = file?.type === "application/pdf";
-
   return (
     <div
       style={{
@@ -353,7 +310,8 @@ export default function PagarClient({ email }: PagarClientProps) {
         width: "100%",
         maxWidth: "100vw",
         background: "linear-gradient(180deg, #ffffff 0%, #fafafa 100%)",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
         overflow: "hidden",
         boxSizing: "border-box",
@@ -367,7 +325,8 @@ export default function PagarClient({ email }: PagarClientProps) {
           right: "-150px",
           width: "400px",
           height: "400px",
-          background: "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -424,7 +383,7 @@ export default function PagarClient({ email }: PagarClientProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          style={{ textAlign: "center", marginBottom: "1.5rem" }}
+          style={{ textAlign: "center", marginBottom: "1.75rem" }}
         >
           <div
             style={{
@@ -456,7 +415,8 @@ export default function PagarClient({ email }: PagarClientProps) {
               lineHeight: 1.15,
             }}
           >
-            Activá tu cuenta en <span style={{ color: "#10B981" }}>1 paso</span>
+            Activá tu cuenta en{" "}
+            <span style={{ color: "#10B981" }}>1 paso</span>
           </h1>
           <p
             style={{
@@ -467,69 +427,13 @@ export default function PagarClient({ email }: PagarClientProps) {
               lineHeight: 1.5,
             }}
           >
-            Elegí tu país y pagá de forma 100% automatizada con tarjeta de crédito o débito.
+            Pagá de forma 100% automatizada con tarjeta de crédito o débito.
+            Activación instantánea.
           </p>
         </motion.div>
 
-        {/* SELECTOR DE PAÍS */}
-        <div style={{ marginBottom: "1.5rem" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              fontSize: "0.8rem",
-              fontWeight: 700,
-              color: "#4b5563",
-              marginBottom: "0.5rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            <Globe size={13} /> Seleccioná tu país o región:
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "0.5rem",
-            }}
-          >
-            {COUNTRIES_CONFIG.map((c) => {
-              const active = selectedCountry === c.id;
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => setSelectedCountry(c.id)}
-                  style={{
-                    padding: "0.65rem 0.5rem",
-                    border: active ? "2.5px solid #10B981" : "1.5px solid #e5e7eb",
-                    borderRadius: "12px",
-                    background: active ? "#ecfdf5" : "#ffffff",
-                    color: active ? "#059669" : "#4b5563",
-                    fontSize: "0.85rem",
-                    fontWeight: active ? 800 : 600,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "0.35rem",
-                    transition: "all 0.15s ease",
-                  }}
-                >
-                  <span style={{ fontSize: "1.1rem" }}>{c.flag}</span>
-                  <span>{c.id}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* PASO 1 — Pasarela de Pago Directa */}
+        {/* Pasarela de Pago Directa — Argentina */}
         <motion.div
-          key={activeConfig.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
@@ -581,6 +485,7 @@ export default function PagarClient({ email }: PagarClientProps) {
             </h2>
           </div>
 
+          {/* Monto */}
           <div
             style={{
               background: "linear-gradient(135deg, #10B981, #059669)",
@@ -617,7 +522,7 @@ export default function PagarClient({ email }: PagarClientProps) {
             </div>
           </div>
 
-          {/* BOTÓN PRINCIPAL DE COBRO CON MERCADO PAGO O PASARELA DIRECTA */}
+          {/* BOTÓN PRINCIPAL — Mercado Pago */}
           {activeConfig.directPayLink && (
             <div style={{ marginBottom: "1.25rem" }}>
               <a
@@ -630,11 +535,11 @@ export default function PagarClient({ email }: PagarClientProps) {
                   justifyContent: "center",
                   gap: "0.6rem",
                   width: "100%",
-                  padding: "1.1rem 1.25rem",
+                  padding: "1.15rem 1.25rem",
                   background: "#10B981",
                   color: "#ffffff",
                   borderRadius: "14px",
-                  fontSize: "1rem",
+                  fontSize: "1.05rem",
                   fontWeight: 800,
                   textDecoration: "none",
                   boxShadow: "0 8px 22px rgba(16, 185, 129, 0.35)",
@@ -643,7 +548,10 @@ export default function PagarClient({ email }: PagarClientProps) {
                 }}
               >
                 <CreditCard size={20} />
-                <span>{activeConfig.directPayLabel || "Pagar con Tarjeta →"}</span>
+                <span>
+                  {activeConfig.directPayLabel ||
+                    "Suscribirse (ARS $39.900/mes)"}
+                </span>
                 <ExternalLink size={16} />
               </a>
               <div
@@ -652,13 +560,14 @@ export default function PagarClient({ email }: PagarClientProps) {
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "0.35rem",
-                  marginTop: "0.6rem",
+                  marginTop: "0.7rem",
                   fontSize: "0.78rem",
                   color: "#059669",
                   fontWeight: 700,
                 }}
               >
-                <Zap size={14} /> Acreditación instantánea y activación automática
+                <Zap size={14} /> Acreditación instantánea y activación
+                automática
               </div>
             </div>
           )}
@@ -688,7 +597,11 @@ export default function PagarClient({ email }: PagarClientProps) {
               alignItems: "flex-start",
             }}
           >
-            <AlertCircle size={16} color="#10B981" style={{ flexShrink: 0, marginTop: "2px" }} />
+            <AlertCircle
+              size={16}
+              color="#10B981"
+              style={{ flexShrink: 0, marginTop: "2px" }}
+            />
             <p
               style={{
                 fontSize: "0.8rem",
@@ -704,298 +617,19 @@ export default function PagarClient({ email }: PagarClientProps) {
           </div>
         </motion.div>
 
-        {/* PASO 2 — Subir comprobante */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
+        {/* Footer */}
+        <div
           style={{
-            background: "white",
-            borderRadius: "20px",
-            padding: "1.5rem",
-            border: "1px solid #f3f4f6",
-            marginBottom: "1.25rem",
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.04)",
-            boxSizing: "border-box",
+            marginTop: "2rem",
+            textAlign: "center",
+            fontSize: "0.78rem",
+            color: "#000000",
+            opacity: 0.5,
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.6rem",
-              marginBottom: "1.25rem",
-            }}
-          >
-            <div
-              style={{
-                width: "28px",
-                height: "28px",
-                borderRadius: "50%",
-                background: "#10B981",
-                color: "white",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 800,
-                fontSize: "0.85rem",
-                flexShrink: 0,
-              }}
-            >
-              2
-            </div>
-            <h2
-              style={{
-                fontSize: "1.05rem",
-                fontWeight: 800,
-                color: "#000000",
-                margin: 0,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Subí tu comprobante (Si pagaste por transferencia o CBU)
-            </h2>
-          </div>
-
-          {!file ? (
-            <div
-              onDragEnter={handleDrag}
-              onDragOver={handleDrag}
-              onDragLeave={handleDrag}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              style={{
-                border: `2px dashed ${dragActive ? "#10B981" : "#e5e7eb"}`,
-                borderRadius: "14px",
-                padding: "2rem 1rem",
-                textAlign: "center",
-                cursor: "pointer",
-                background: dragActive ? "#ecfdf5" : "#f9fafb",
-                transition: "all 0.2s",
-              }}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp,application/pdf"
-                onChange={(e) => handleFileSelect(e.target.files?.[0] || null)}
-                style={{ display: "none" }}
-              />
-              <div
-                style={{
-                  width: "56px",
-                  height: "56px",
-                  borderRadius: "50%",
-                  background: "#10B981",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  margin: "0 auto 0.85rem auto",
-                  boxShadow: "0 8px 20px rgba(16, 185, 129, 0.25)",
-                }}
-              >
-                <Upload size={24} color="white" strokeWidth={2.5} />
-              </div>
-              <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#000000", margin: "0 0 0.35rem 0" }}>
-                Tocá para subir el comprobante
-              </p>
-              <p style={{ fontSize: "0.78rem", color: "#000000", opacity: 0.55, margin: 0, lineHeight: 1.5 }}>
-                Foto o PDF · Máximo 5 MB
-                <br />
-                JPG · PNG · WebP · PDF
-              </p>
-            </div>
-          ) : (
-            <div
-              style={{
-                border: "1.5px solid #10B981",
-                borderRadius: "14px",
-                padding: "1rem",
-                background: "#ecfdf5",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.85rem",
-              }}
-            >
-              <div
-                style={{
-                  width: "48px",
-                  height: "48px",
-                  borderRadius: "10px",
-                  background: "white",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                {isPdf ? <FileText size={22} color="#10B981" /> : <ImageIcon size={22} color="#10B981" />}
-              </div>
-              <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
-                <p
-                  style={{
-                    fontSize: "0.9rem",
-                    fontWeight: 700,
-                    color: "#000000",
-                    margin: "0 0 0.15rem 0",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {file.name}
-                </p>
-                <p style={{ fontSize: "0.75rem", color: "#000000", opacity: 0.6, margin: 0 }}>
-                  {(file.size / 1024 / 1024).toFixed(2)} MB
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setFile(null)}
-                disabled={uploading}
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "50%",
-                  border: "none",
-                  background: "white",
-                  color: "#000000",
-                  cursor: uploading ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  opacity: uploading ? 0.5 : 1,
-                }}
-              >
-                <X size={16} />
-              </button>
-            </div>
-          )}
-
-          {/* Referencia opcional */}
-          <div style={{ marginTop: "1rem", textAlign: "left" }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: "0.8rem",
-                fontWeight: 700,
-                color: "#000000",
-                opacity: 0.75,
-                marginBottom: "0.4rem",
-              }}
-            >
-              Número de operación o Email de pago
-            </label>
-            <input
-              type="text"
-              value={reference}
-              onChange={(e) => setReference(e.target.value)}
-              onFocus={() => setInputFocused(true)}
-              onBlur={() => setInputFocused(false)}
-              placeholder="Ej: ID de transacción de Mercado Pago o Banco"
-              maxLength={100}
-              disabled={uploading}
-              style={{
-                width: "100%",
-                padding: "0.75rem 0.9rem",
-                borderRadius: "10px",
-                border: inputFocused ? "1.5px solid #10B981" : "1px solid #e5e7eb",
-                fontSize: "0.9rem",
-                color: "#000000",
-                background: uploading ? "#f9fafb" : "white",
-                fontFamily: "inherit",
-                boxSizing: "border-box",
-                outline: "none",
-                transition: "border-color 0.2s",
-              }}
-            />
-          </div>
-
-          {/* Error */}
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                style={{
-                  marginTop: "0.85rem",
-                  padding: "0.75rem 0.9rem",
-                  background: "#fef2f2",
-                  borderRadius: "10px",
-                  border: "1px solid #fecaca",
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "0.5rem",
-                }}
-              >
-                <AlertCircle size={16} color="#dc2626" style={{ flexShrink: 0, marginTop: "1px" }} />
-                <p style={{ fontSize: "0.82rem", color: "#dc2626", margin: 0, lineHeight: 1.45, textAlign: "left" }}>
-                  {error}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-
-        {/* Botón enviar */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }}>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!file || uploading}
-            style={{
-              width: "100%",
-              padding: "1.15rem 1.5rem",
-              background: !file || uploading ? "#93c5fd" : "#10B981",
-              color: "white",
-              border: "none",
-              borderRadius: "999px",
-              fontSize: "1.05rem",
-              fontWeight: 800,
-              cursor: !file || uploading ? "not-allowed" : "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-              fontFamily: "inherit",
-              boxShadow: !file || uploading ? "none" : "0 10px 25px rgba(16, 185, 129, 0.3)",
-              opacity: !file || uploading ? 0.6 : 1,
-              transition: "background 0.2s, transform 0.15s",
-              boxSizing: "border-box",
-            }}
-          >
-            {uploading ? (
-              <><Loader2 size={18} className="animate-spin" /> Enviando...</>
-            ) : (
-              <><CheckCircle2 size={18} /> Confirmar comprobante manual</>
-            )}
-          </button>
-
-          <div
-            style={{
-              marginTop: "1rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.4rem",
-              fontSize: "0.8rem",
-              color: "#000000",
-              opacity: 0.55,
-              fontWeight: 500,
-            }}
-          >
-            <Clock size={13} />
-            Pagos con tarjeta en Mercado Pago se activan automáticamente
-          </div>
-        </motion.div>
-
-        {/* Footer */}
-        <div style={{ marginTop: "2rem", textAlign: "center", fontSize: "0.78rem", color: "#000000", opacity: 0.5 }}>
           Conectado como {email}
         </div>
       </div>
     </div>
   );
-    }
+  }
