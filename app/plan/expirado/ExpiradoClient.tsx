@@ -114,7 +114,7 @@ const FAQS = [
   },
   {
     q: "¿Cómo pago?",
-    a: "Por transferencia a Naranja X (más económico y directo). Los datos los obtenés en el siguiente paso.",
+    a: "Aceptamos tarjetas de crédito, débito y dinero en cuenta a través de Mercado Pago con suscripción automática mensual. También podés pagar por transferencia.",
   },
   {
     q: "¿Devuelven el dinero?",
@@ -343,7 +343,7 @@ export default function ExpiradoClient({
                   lineHeight: 1,
                 }}
               >
-                $35.000
+                $39.900
               </span>
               <span
                 style={{
@@ -470,7 +470,7 @@ export default function ExpiradoClient({
                 fontWeight: 500,
               }}
             >
-              Pago por transferencia · Activación en menos de 24hs
+              Pago seguro con Tarjeta o Mercado Pago · Activación instantánea
             </p>
           </div>
         </motion.div>
@@ -859,7 +859,7 @@ export default function ExpiradoClient({
             Escribinos por WhatsApp y te respondemos al instante
           </p>
           <a
-            href="https://wa.me/5493434163999?text=Hola%20Nevux%20quiero%20saber%20mas%20sobre%20el%20plan"
+            href="https://wa.me/5493435042812?text=Hola%20Nevux%20quiero%20saber%20mas%20sobre%20el%20plan"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -928,4 +928,4 @@ export default function ExpiradoClient({
       </div>
     </div>
   );
-        }
+          }
