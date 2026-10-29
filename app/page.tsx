@@ -22,6 +22,21 @@ import {
   Ban,
   Megaphone,
   Zap,
+  Ruler,
+  Palette,
+  Video,
+  ListOrdered,
+  Scale,
+  Star,
+  HelpCircle,
+  Timer,
+  ShoppingBag,
+  Paintbrush,
+  ArrowLeftRight,
+  Repeat,
+  Gift,
+  Shirt,
+  Plus,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import VariantShowcase from "@/app/components/landing/VariantShowcase";
@@ -88,17 +103,47 @@ const PAINS = [
   },
 ];
 
-const PIECES = [
-  { icon: MousePointerClick, title: "Botón de compra fijo", text: "Siempre a mano mientras bajan por la ficha." },
-  { icon: Layers, title: "Packs Llevá 2 y Llevá 3", text: "Suben el ticket con descuentos por cantidad." },
-  { icon: BadgePercent, title: "Mejor precio por transferencia", text: "El ahorro bien grande, calculado solo." },
-  { icon: Truck, title: "Entrega estimada", text: "“Llega entre el martes y el viernes”." },
-  { icon: PackageCheck, title: "Envío gratis con progreso", text: "“Te faltan $12.000 para el envío gratis”." },
-  { icon: Flame, title: "Urgencia", text: "Barra de stock que empuja la decisión." },
-  { icon: Bell, title: "Ventas en vivo", text: "Avisos de compras recientes." },
-  { icon: BadgeCheck, title: "Insignias de confianza", text: "Envío, cuotas reales y compra segura." },
-  { icon: MessageCircle, title: "Ayuda por WhatsApp", text: "Con el producto ya escrito en el mensaje." },
+const PIECE_GROUPS = [
+  {
+    name: "Vender más",
+    pieces: [
+      { icon: Layers, title: "Packs Llevá 2 y Llevá 3", text: "Suben el ticket y cambian la cantidad del carrito." },
+      { icon: BadgePercent, title: "Mejor precio por transferencia", text: "El ahorro bien grande, leído de tu tienda." },
+      { icon: Repeat, title: "Packs con precio por transferencia", text: "“Llevá 2 · $32.895 con transferencia”." },
+      { icon: Gift, title: "Combiná con", text: "Suma el producto complementario sin salir de la ficha." },
+      { icon: MousePointerClick, title: "Botón de compra fijo", text: "Siempre a mano mientras bajan por la ficha." },
+      { icon: Flame, title: "Urgencia", text: "Barra de stock que empuja la decisión." },
+      { icon: Timer, title: "Cuenta regresiva de despacho", text: "“Pedí en las próximas 2 h 14 min y sale hoy”." },
+    ],
+  },
+  {
+    name: "Confianza",
+    pieces: [
+      { icon: Truck, title: "Entrega estimada", text: "“Llega entre el martes y el viernes”." },
+      { icon: PackageCheck, title: "Envío gratis con progreso", text: "“Te faltan $12.000 para el envío gratis”." },
+      { icon: BadgeCheck, title: "Insignias de confianza", text: "Envío, cuotas sin interés reales y compra segura." },
+      { icon: Bell, title: "Ventas en vivo", text: "Avisos de compras recientes." },
+      { icon: MessageCircle, title: "Ayuda por WhatsApp", text: "Con el producto ya escrito en el mensaje." },
+      { icon: Star, title: "Reseñas de clientes", text: "Las de tus compradores, con tu diseño." },
+      { icon: HelpCircle, title: "Preguntas frecuentes", text: "Incluye la de devoluciones según la ley." },
+    ],
+  },
+  {
+    name: "Contenido de marca",
+    pieces: [
+      { icon: Ruler, title: "Calculadora de talle", text: "Pone su medida y el talle se elige solo en la ficha." },
+      { icon: Palette, title: "Galería de colores", text: "Toca una foto y se elige ese color." },
+      { icon: ArrowLeftRight, title: "Antes / después", text: "Deslizador con tus fotos del producto en uso." },
+      { icon: Video, title: "Videos verticales", text: "Tipo historia, se reproducen solos en pantalla." },
+      { icon: ListOrdered, title: "Pasos de uso", text: "“Se usa en 3 pasos”, con foto opcional." },
+      { icon: Scale, title: "Comparativa", text: "Tu marca contra la genérica, punto por punto." },
+      { icon: Megaphone, title: "Cinta de beneficios", text: "Texto animado con lo que te diferencia." },
+      { icon: Paintbrush, title: "Diseño de marca", text: "Tus colores, fondos y tipografía en cada sección." },
+    ],
+  },
 ];
+
+const PIECE_COUNT = PIECE_GROUPS.reduce((n, g) => n + g.pieces.length, 0);
 
 const FAQS = [
   {
@@ -205,9 +250,161 @@ function HeroPhone() {
   );
 }
 
+const DEMO_SIZES = [
+  { talle: "S", min: 48, max: 51 },
+  { talle: "M", min: 52, max: 55 },
+  { talle: "L", min: 56, max: 59 },
+  { talle: "XL", min: 60, max: 64 },
+];
+
+// Demo interactiva con un producto inventado: calculadora de talle, combiná con y cuenta regresiva
+function LiveDemo() {
+  const [medida, setMedida] = useState("");
+  const [talle, setTalle] = useState("M");
+  const [msg, setMsg] = useState("");
+  const [cart, setCart] = useState(0);
+  const [combo, setCombo] = useState(false);
+  const [restante, setRestante] = useState<string | null>(null);
+
+  useEffect(() => {
+    const tick = () => {
+      const n = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
+      const fin = new Date(n);
+      fin.setHours(18, 0, 0, 0);
+      const m = Math.ceil((fin.getTime() - n.getTime()) / 60000);
+      setRestante(m > 0 ? `${m >= 60 ? `${Math.floor(m / 60)} h ` : ""}${m % 60} min` : null);
+    };
+    tick();
+    const t = setInterval(tick, 30000);
+    return () => clearInterval(t);
+  }, []);
+
+  const calcular = () => {
+    const v = parseFloat(medida.replace(",", "."));
+    if (!v) return setMsg("Ingresá tu medida en cm.");
+    const hits = DEMO_SIZES.filter((r) => v >= r.min && v <= r.max);
+    const r = hits[hits.length - 1];
+    if (!r) return setMsg("Esa medida está fuera de la tabla: escribinos y te asesoramos.");
+    setTalle(r.talle);
+    setMsg(`Tu talle es ${r.talle} · ya lo elegimos en la ficha ✓`);
+  };
+
+  return (
+    <div className="relative w-full max-w-[340px] mx-auto">
+      <div className="absolute -inset-8 bg-emerald-500/15 blur-[70px] rounded-full pointer-events-none" />
+      <div className="relative rounded-[2.6rem] border-[10px] border-[#1c1c1f] bg-white text-neutral-900 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9)] overflow-hidden">
+        <div className="flex items-center justify-between px-5 pt-6 pb-3 border-b border-neutral-100">
+          <span className="text-[11px] font-black tracking-[0.3em]">URBANA</span>
+          <span className="relative">
+            <ShoppingBag className="w-5 h-5" />
+            {cart > 0 && (
+              <span className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-emerald-500 text-white text-[9px] font-black grid place-items-center">
+                {cart}
+              </span>
+            )}
+          </span>
+        </div>
+        <div className="px-5 py-4 space-y-4">
+          <div className="flex gap-3 items-center">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-neutral-800 to-neutral-950 grid place-items-center shrink-0">
+              <Shirt className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <div className="font-bold text-sm">Remera Oversize Urbana</div>
+              <div className="text-lg font-black">$24.900</div>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200 px-3 py-2.5 text-xs">
+            <span className="mr-1">📦</span>
+            {restante ? (
+              <>
+                Pedí en las próximas <b className="text-red-600">{restante}</b> y sale hoy
+              </>
+            ) : (
+              <>Pedí antes de las 18 h y sale el mismo día</>
+            )}
+          </div>
+
+          <div>
+            <div className="text-xs font-bold mb-1.5">Talle: {talle}</div>
+            <div className="flex gap-2">
+              {DEMO_SIZES.map((r) => (
+                <button
+                  key={r.talle}
+                  type="button"
+                  onClick={() => setTalle(r.talle)}
+                  className={`w-11 h-10 rounded-lg border-2 text-sm font-bold transition-colors ${
+                    talle === r.talle ? "border-emerald-500 bg-emerald-50" : "border-neutral-200"
+                  }`}
+                >
+                  {r.talle}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200 p-3">
+            <div className="text-xs font-bold mb-2">Encontrá tu talle · ancho de pecho (cm)</div>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                inputMode="decimal"
+                value={medida}
+                onChange={(e) => setMedida(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && calcular()}
+                placeholder="Ej: 57"
+                className="flex-1 min-w-0 border border-neutral-300 rounded-lg px-3 py-2 text-base"
+                aria-label="Ancho de pecho en cm"
+              />
+              <button type="button" onClick={calcular} className="bg-emerald-500 text-white font-black text-xs px-3 rounded-lg">
+                Ver mi talle
+              </button>
+            </div>
+            <p className="text-xs text-center mt-2 min-h-[16px] text-neutral-600">{msg}</p>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-dashed border-emerald-500 p-2.5">
+            <div className="w-11 h-11 rounded-lg bg-neutral-100 grid place-items-center shrink-0 text-lg">🧢</div>
+            <div className="min-w-0">
+              <div className="text-[9px] font-black tracking-wider text-emerald-600">COMBINÁ CON</div>
+              <div className="text-xs font-bold truncate">Gorra Urbana</div>
+              <div className="text-xs font-black">$12.900</div>
+            </div>
+            <button
+              type="button"
+              disabled={combo}
+              onClick={() => {
+                setCombo(true);
+                setCart((c) => c + 1);
+              }}
+              className="ml-auto shrink-0 bg-emerald-500 text-white text-[11px] font-black px-2.5 py-2 rounded-lg inline-flex items-center gap-1"
+            >
+              {combo ? "✓ Agregado" : (
+                <>
+                  <Plus className="w-3 h-3" /> Agregar
+                </>
+              )}
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setCart((c) => c + 1)}
+            className="w-full bg-neutral-900 text-white font-black text-sm py-3 rounded-xl"
+          >
+            Agregar al carrito · talle {talle}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showBar, setShowBar] = useState(false);
+  const [group, setGroup] = useState(0);
 
   // La barra fija aparece recién cuando el botón del hero ya quedó atrás
   useEffect(() => {
@@ -368,15 +565,31 @@ export default function LandingPage() {
               <span className="bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent">a tu ficha</span>
             </h2>
             <p className="text-neutral-400 text-sm sm:text-base">
-              Cada pieza usa los datos reales de tu tienda: si no ofrecés algo, no se muestra.
+              {PIECE_COUNT} piezas que usan los datos reales de tu tienda: si no ofrecés algo, no se muestra.
             </p>
           </motion.div>
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {PIECE_GROUPS.map((g, i) => (
+              <button
+                key={g.name}
+                onClick={() => setGroup(i)}
+                className={`shrink-0 px-5 py-2.5 rounded-full text-sm font-bold border transition-all ${
+                  group === i
+                    ? "bg-emerald-500 border-emerald-500 text-black shadow-lg shadow-emerald-500/20"
+                    : "bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20"
+                }`}
+              >
+                {g.name} <span className={group === i ? "text-black/60" : "text-neutral-600"}>· {g.pieces.length}</span>
+              </button>
+            ))}
+          </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {PIECES.map((p, i) => (
+            {PIECE_GROUPS[group].pieces.map((p, i) => (
               <motion.div
                 key={p.title}
-                {...fadeUp}
-                transition={{ ...fadeUp.transition, delay: (i % 3) * 0.08 }}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.04 }}
                 className="bg-gradient-to-b from-white/[0.05] to-white/[0.01] border border-white/[0.07] rounded-2xl p-5 flex gap-4"
               >
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 grid place-items-center shrink-0">
@@ -392,10 +605,42 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* 5b. DEMO INTERACTIVA */}
+      <section className="py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-14 items-center">
+          <motion.div {...fadeUp} className="text-center lg:text-left">
+            <span className="text-xs font-bold text-emerald-300 uppercase tracking-[0.18em]">Demo interactiva</span>
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-5">
+              Probalo acá.{" "}
+              <span className="bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent">Así lo vive tu cliente.</span>
+            </h2>
+            <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
+              Una ficha de ejemplo con tres piezas de Nevux funcionando de verdad. En tu tienda se arman con tus productos, tus talles y
+              tus precios.
+            </p>
+            <ul className="space-y-3 text-sm text-neutral-300 max-w-md mx-auto lg:mx-0 text-left">
+              {[
+                "Poné una medida (por ejemplo 57) y mirá cómo se elige el talle solo",
+                "Tocá “Agregar” en Combiná con: suma al carrito sin salir de la ficha",
+                "La cuenta regresiva corre en tiempo real hasta la hora de despacho",
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-3">
+                  <span className="mt-0.5 w-5 h-5 rounded-md bg-emerald-500/15 border border-emerald-500/30 grid place-items-center shrink-0">
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  </span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+          <motion.div {...fadeUp}>
+            <LiveDemo />
+          </motion.div>
+        </div>
+      </section>
+
       {/* 6. VARIANTES */}
-      <div className="bg-[#0b0c0f] border-y border-white/5">
-        <VariantShowcase checkoutUrl={MP_CHECKOUT_URL} />
-      </div>
+      <VariantShowcase checkoutUrl={MP_CHECKOUT_URL} />
 
       {/* 7. CÓMO FUNCIONA */}
       <section className="py-20 md:py-28">
@@ -452,7 +697,7 @@ export default function LandingPage() {
               {[
                 "Análisis de tu tienda por WhatsApp",
                 "Código configurado y probado en tu ficha",
-                "Las 9 piezas de conversión",
+                `Las ${PIECE_COUNT} piezas de conversión`,
                 "Ajustes cuando cambies precios o promos",
                 "Soporte por WhatsApp",
               ].map((t) => (
