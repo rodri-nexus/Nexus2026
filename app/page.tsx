@@ -34,7 +34,6 @@ export default function LandingPage() {
 
   const handleStartActivation = (e: React.FormEvent) => {
     e.preventDefault();
-    // Redirige al checkout de Mercado Pago
     window.location.href = MP_CHECKOUT_URL;
   };
 
@@ -47,7 +46,7 @@ export default function LandingPage() {
       {/* HEADER / NAVBAR */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#090d16]/80 border-b border-slate-800/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <NevuxLogo size="md" />
+          <NevuxLogo size="medium" />
 
           <div className="flex items-center gap-4">
             <a
@@ -614,7 +613,7 @@ export default function LandingPage() {
       {/* FOOTER */}
       <footer className="py-10 border-t border-slate-800/60 bg-slate-950 text-slate-500 text-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <NevuxLogo size="sm" />
+          <NevuxLogo size="small" />
 
           <div>
             © 2026 Nevux. Todos los derechos reservados.
@@ -633,4 +632,4 @@ export default function LandingPage() {
       </footer>
     </div>
   );
-              }
+}
