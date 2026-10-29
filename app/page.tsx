@@ -130,9 +130,9 @@ function BeforeAfter() {
       <div className="relative rounded-[2.6rem] border-[10px] border-[#1c1c1f] bg-[#1c1c1f] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9)] overflow-hidden">
         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-5 bg-[#1c1c1f] rounded-full z-20" />
         <div className="relative aspect-[780/1500] select-none overflow-hidden rounded-[1.9rem] bg-white">
-          <img src="/landing/hogar-antes.jpg" alt="Ficha de producto sin Nevux" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
+          <img src="/landing/caso-antes.jpg" alt="Ficha de producto sin Nevux" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
           <img
-            src="/landing/hogar-despues.jpg"
+            src="/landing/caso-despues.jpg"
             alt="Ficha de producto con Nevux"
             className="absolute inset-0 w-full h-full object-cover"
             style={{ clipPath: `inset(0 0 0 ${pos}%)` }}
@@ -167,7 +167,7 @@ function HeroPhone() {
       <div className="relative rounded-[2.6rem] border-[10px] border-[#1c1c1f] bg-[#1c1c1f] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9)] overflow-hidden">
         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-5 bg-[#1c1c1f] rounded-full z-20" />
         <div className="relative h-[480px] sm:h-[540px] overflow-hidden rounded-[1.9rem] bg-white">
-          <img src="/landing/hogar-caso.jpg" alt="Ficha de Hogar Digital con Nevux" className="nvx-hero-scroll w-full" draggable={false} />
+          <img src="/landing/caso-ficha.jpg" alt="Ficha de producto con Nevux" className="nvx-hero-scroll w-full" draggable={false} />
           <div className="absolute left-0 right-0 bottom-0 z-10 bg-white border-t border-neutral-200 px-3 py-2.5 flex items-center justify-between gap-2">
             <div className="min-w-0">
               <div className="text-[10px] font-semibold text-neutral-900 truncate">Parlante Bluetooth V8</div>
@@ -292,14 +292,14 @@ export default function LandingPage() {
       <section className="relative py-20 md:py-28 border-t border-white/5">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-14 items-center">
           <motion.div {...fadeUp} className="text-center lg:text-left order-2 lg:order-1">
-            <span className="text-xs font-bold text-emerald-300 uppercase tracking-[0.18em]">Caso real · Hogar Digital</span>
+            <span className="text-xs font-bold text-emerald-300 uppercase tracking-[0.18em]">Caso real · Tienda de tecnología</span>
             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-5">
               Mismo producto.
               <br />
               <span className="text-neutral-500">Otra ficha.</span>
             </h2>
             <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
-              Arrastrá el celular para comparar la ficha del Parlante V8 de Hogar Digital antes y después de Nevux. Misma tienda,
+              Arrastrá el celular para comparar la ficha del Parlante V8 de una tienda de tecnología antes y después de Nevux. Misma tienda,
               misma plantilla, mismo precio.
             </p>
             <ul className="space-y-3 text-sm text-neutral-300 max-w-md mx-auto lg:mx-0 text-left">
