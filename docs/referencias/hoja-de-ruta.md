@@ -50,8 +50,16 @@ Probado en Doggies (Morelia): las 6 piezas funcionan, el carrito recibe el produ
 - ✅ Insignias angostas en Brasilia y Recife: arreglado en v4. Se insertan debajo del primer bloque que ocupa al menos el 90% del ancho del formulario.
 - Logos de medios de pago: no implementado. Tiendanube ya los muestra en "Ver más detalles".
 
-## Home (más adelante)
+## Home
 
-- **Piezas simples:** beneficios, mejor precio y stock en las tarjetas de producto, preguntas frecuentes, locales y cierre.
-- **Piezas complejas:** buscador de talle por pasos y foto con puntos explicativos.
-- **Ojo con el modelo de negocio:** armar una home a medida por cliente es más un servicio que el pack de $39.900. Conviene ofrecerlo aparte.
+### Hecho (motor de `public/nevux.js`)
+
+- **Tarjetas de producto** (`tarjetas`): "Mejor precio" por transferencia y "QUEDAN N" con stock bajo, en la home, las categorías y los productos similares. El stock se lee de `data-variants` cuando la plantilla lo trae (por ejemplo, Brasilia).
+- **Secciones de la home** (`home`): beneficios (debajo del banner principal), categorías, por qué elegirnos (tarjetas tipo etiqueta), números, reseñas, preguntas frecuentes, locales y cierre. Van antes del pie de la plantilla. Ver [../home.md](../home.md).
+
+Probado en Brasilia (Hogar Digital), Recife (Wess) y Morelia (Doggies).
+
+### Pendiente
+
+- Buscador de talle por pasos y foto con puntos explicativos.
+- **Precio:** armar una home a medida por cliente es más trabajo que el pack de la ficha. Definir si va incluido o como extra.
