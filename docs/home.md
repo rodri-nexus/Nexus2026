@@ -1,6 +1,6 @@
 # Home de la tienda
 
-Las secciones de la home y las mejoras de las tarjetas de producto se configuran en el archivo de cada cliente (`public/c/<cliente>.js`), dentro de `config`.
+Las secciones de la home y las mejoras de las tarjetas de producto se configuran en `lib/clientes.ts`, dentro del `config` de cada cliente.
 Cualquier sección que no se cargue no aparece.
 
 **Regla:** todo el contenido tiene que ser real y confirmado por el cliente: números, reseñas, locales y promesas de envío.
