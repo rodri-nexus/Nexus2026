@@ -3,9 +3,11 @@
 export default function NevuxLogo({
   size = "medium",
   showText = true,
+  textColor = "#000000",
 }: {
   size?: "small" | "medium" | "large";
   showText?: boolean;
+  textColor?: string;
 }) {
   const sizes = {
     small: { icon: 24, text: "1.1rem", gap: "0.4rem" },
@@ -70,7 +72,7 @@ export default function NevuxLogo({
           style={{
             fontSize: currentSize.text,
             fontWeight: 800,
-            color: "#000000",
+            color: textColor,
             letterSpacing: "-0.03em",
             fontFamily:
               "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
