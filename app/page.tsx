@@ -19,13 +19,19 @@ import {
   HelpCircle,
   Smartphone,
   Check,
-  Copy
+  Flame,
+  Clock,
+  Eye,
+  Percent,
+  Users,
+  Award
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 export default function LandingPage() {
   const [storeUrl, setStoreUrl] = useState("");
   const [platform, setPlatform] = useState<"tiendanube" | "shopify">("tiendanube");
+  const [activeTab, setActiveTab] = useState<"sticky" | "bundles" | "urgency" | "social">("sticky");
   const [simMode, setSimMode] = useState<"antes" | "despues">("despues");
   const [selectedTemplate, setSelectedTemplate] = useState<"clasica" | "oscura" | "split">("clasica");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -42,7 +48,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 font-sans selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen bg-[#090d16] text-slate-100 font-sans selection:bg-emerald-500 selection:text-white pb-20 sm:pb-0">
       {/* HEADER / NAVBAR */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#090d16]/80 border-b border-slate-800/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
@@ -53,7 +59,7 @@ export default function LandingPage() {
               href={MP_CHECKOUT_URL}
               className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-slate-300 hover:text-white transition-colors"
             >
-              Iniciar sesión
+              Ingresar
             </a>
             <a
               href={MP_CHECKOUT_URL}
@@ -67,7 +73,7 @@ export default function LandingPage() {
       </header>
 
       {/* HERO SECTION CON ACTIVACIÓN DE TIENDA */}
-      <section className="relative pt-12 pb-20 md:pt-20 md:pb-28 overflow-hidden">
+      <section className="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-hidden">
         {/* Glow Effects */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
@@ -102,7 +108,7 @@ export default function LandingPage() {
             transition={{ delay: 0.2 }}
             className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            Multiplicá tus ventas en Tiendanube instalando el Pack Landing Pro en 60 segundos. Sin tocar código complejo y sin pagar mantenimiento mensual.
+            Multiplicá tus ventas en Tiendanube instalando el Pack Landing Pro en 60 segundos. Sin tocar código complejo y sin pagar aplicaciones pesadas.
           </motion.p>
 
           {/* FORMULARIO DE INGRESO DE TIENDA Y PLATAFORMA */}
@@ -141,7 +147,7 @@ export default function LandingPage() {
               <div className="relative flex-1">
                 <input
                   type="text"
-                  placeholder="Escribí el nombre de tu tienda (ej: mi-tienda.com)"
+                  placeholder="Escribí tu dominio (ej: mitienda.com.ar)"
                   value={storeUrl}
                   onChange={(e) => setStoreUrl(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
@@ -165,7 +171,7 @@ export default function LandingPage() {
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Sin comisiones extras
               </span>
               <span className="flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Pago seguro con Mercado Pago
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Pago seguro
               </span>
             </div>
           </motion.div>
@@ -183,152 +189,316 @@ export default function LandingPage() {
                 <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
               ))}
               <span className="font-bold text-white ml-1">4.9/5</span>
-              <span>(+120 tiendas activas en Argentina)</span>
+              <span>(+120 tiendas de Tiendanube en Argentina)</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SIMULADOR ANTES / DESPUÉS INTERACTIVO */}
-      <section className="py-16 bg-slate-950/60 border-y border-slate-800/60 relative">
+      {/* BARRA DE MÉTRICAS Y RESULTADOS */}
+      <section className="py-10 bg-slate-900/50 border-y border-slate-800/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-              Mirá el cambio en tiempo real
-            </h2>
-            <p className="text-slate-400 text-base sm:text-lg">
-              Pasá de una ficha de producto común a una página de venta que despierta el deseo de compra instantáneo.
-            </p>
-
-            {/* Selector Toggle */}
-            <div className="inline-flex p-1.5 rounded-2xl bg-slate-900 border border-slate-800 mt-6">
-              <button
-                onClick={() => setSimMode("despues")}
-                className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
-                  simMode === "despues"
-                    ? "bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                <Sparkles className="w-4 h-4" />
-                Con Nevux Pro (Alta Conversión)
-              </button>
-              <button
-                onClick={() => setSimMode("antes")}
-                className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
-                  simMode === "antes"
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                Tiendanube Estándar
-              </button>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div className="p-4">
+              <div className="text-3xl sm:text-4xl font-black text-emerald-400 mb-1">+34%</div>
+              <div className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Tasa de Conversión</div>
+            </div>
+            <div className="p-4">
+              <div className="text-3xl sm:text-4xl font-black text-blue-400 mb-1">2.1x</div>
+              <div className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Ticket Promedio</div>
+            </div>
+            <div className="p-4">
+              <div className="text-3xl sm:text-4xl font-black text-purple-400 mb-1">&lt; 15 KB</div>
+              <div className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Ultra Carga Rápida</div>
+            </div>
+            <div className="p-4">
+              <div className="text-3xl sm:text-4xl font-black text-pink-400 mb-1">60 seg</div>
+              <div className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Tiempo Instalación</div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* SIMULADOR CELULAR */}
-          <div className="max-w-sm mx-auto">
-            <div className="relative rounded-[40px] border-[8px] border-slate-800 bg-slate-950 shadow-2xl overflow-hidden min-h-[580px]">
-              {/* Notch */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-5 bg-slate-800 rounded-b-xl z-30" />
+      {/* EXPLORADOR DE FUNCIONALIDADES INTERACTIVO (4 PESTAÑAS TIPO PRAXIS) */}
+      <section className="py-20 relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-4">
+              Miralo por dentro
+            </h2>
+            <p className="text-slate-400 text-base sm:text-lg">
+              Explorá cada uno de los módulos psicológicos que activan el deseo de compra instantáneo en tus clientes.
+            </p>
+          </div>
 
-              <AnimatePresence mode="wait">
-                {simMode === "despues" ? (
-                  <motion.div
-                    key="despues"
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    className="p-4 pt-8 text-left space-y-4"
-                  >
-                    {/* Header tienda */}
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                      <div className="h-4 w-20 bg-emerald-500/20 rounded animate-pulse" />
-                      <ShoppingBag className="w-4 h-4 text-emerald-400" />
-                    </div>
+          <div className="grid lg:grid-cols-12 gap-10 items-center">
+            {/* Pestañas a la izquierda */}
+            <div className="lg:col-span-6 space-y-4">
+              <button
+                onClick={() => setActiveTab("sticky")}
+                className={`w-full text-left p-5 rounded-2xl border transition-all ${
+                  activeTab === "sticky"
+                    ? "bg-slate-900 border-emerald-500/80 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/30"
+                    : "bg-slate-950/60 border-slate-800 hover:border-slate-700"
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">01 · CONVERSIÓN</span>
+                  <h3 className="text-lg font-bold text-white">Botón de Compra Fijo Mobile</h3>
+                </div>
+                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                  Acompaña todo el scroll del usuario en el celular. Permite comprar en 1 clic sin tener que volver arriba a buscar el botón.
+                </p>
+              </button>
 
-                    {/* Foto de producto */}
-                    <div className="relative h-48 bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
-                      <span className="text-xs text-slate-500 font-semibold">Imagen HQ HD</span>
-                      <div className="absolute top-2 right-2 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full uppercase">
-                        OFERTA 25% OFF
+              <button
+                onClick={() => setActiveTab("bundles")}
+                className={`w-full text-left p-5 rounded-2xl border transition-all ${
+                  activeTab === "bundles"
+                    ? "bg-slate-900 border-emerald-500/80 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/30"
+                    : "bg-slate-950/60 border-slate-800 hover:border-slate-700"
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-xs font-black text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-md">02 · TICKET PROMEDIO</span>
+                  <h3 className="text-lg font-bold text-white">Selector de Oferta Pack (Llevá 2 ó 3)</h3>
+                </div>
+                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                  Incentivá compras múltiples ofreciendo un 15% o 20% OFF llevando 2 o más unidades directo en la ficha de producto.
+                </p>
+              </button>
+
+              <button
+                onClick={() => setActiveTab("urgency")}
+                className={`w-full text-left p-5 rounded-2xl border transition-all ${
+                  activeTab === "urgency"
+                    ? "bg-slate-900 border-emerald-500/80 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/30"
+                    : "bg-slate-950/60 border-slate-800 hover:border-slate-700"
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-xs font-black text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md">03 · URGENCIA & STOCK</span>
+                  <h3 className="text-lg font-bold text-white">Barra Dinámica de Stock Limitado</h3>
+                </div>
+                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                  Genera la sensación de escasez mostrando el porcentaje vendido e impulsando la decisión de compra rápida.
+                </p>
+              </button>
+
+              <button
+                onClick={() => setActiveTab("social")}
+                className={`w-full text-left p-5 rounded-2xl border transition-all ${
+                  activeTab === "social"
+                    ? "bg-slate-900 border-emerald-500/80 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/30"
+                    : "bg-slate-950/60 border-slate-800 hover:border-slate-700"
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-xs font-black text-pink-400 bg-pink-500/10 px-2.5 py-1 rounded-md">04 · PRUEBA SOCIAL</span>
+                  <h3 className="text-lg font-bold text-white">Notificaciones de Ventas en Vivo</h3>
+                </div>
+                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                  Aparece periódicamente en la esquina de la pantalla avisando sobre ventas recientes de compradores en Argentina.
+                </p>
+              </button>
+            </div>
+
+            {/* Pantalla de celular interactiva a la derecha */}
+            <div className="lg:col-span-6 flex justify-center">
+              <div className="relative rounded-[40px] border-[8px] border-slate-800 bg-slate-950 shadow-2xl overflow-hidden w-full max-w-sm min-h-[560px] p-4 pt-8">
+                {/* Notch */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-5 bg-slate-800 rounded-b-xl z-30" />
+
+                <AnimatePresence mode="wait">
+                  {activeTab === "sticky" && (
+                    <motion.div
+                      key="tab-sticky"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="space-y-4"
+                    >
+                      <div className="h-44 bg-slate-900 rounded-2xl border border-slate-800 flex items-center justify-center">
+                        <span className="text-xs text-slate-500">Scroll del usuario...</span>
                       </div>
-                    </div>
-
-                    {/* Urgencia / Stock */}
-                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
-                      <div className="flex justify-between text-[11px] font-bold text-amber-400 mb-1">
-                        <span>🔥 ¡Pocas unidades disponibles!</span>
-                        <span>84% vendido</span>
+                      <div className="h-20 bg-slate-900/50 rounded-xl" />
+                      <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-center">
+                        <span className="text-xs font-bold text-emerald-400">⚡ El botón de compra no desaparece nunca</span>
                       </div>
-                      <div className="w-full h-1.5 bg-amber-950 rounded-full overflow-hidden">
-                        <div className="w-[84%] h-full bg-gradient-to-r from-amber-500 to-red-500 rounded-full animate-pulse" />
-                      </div>
-                    </div>
-
-                    {/* Titulo y Precio */}
-                    <div>
-                      <h3 className="text-base font-bold text-white">Zapatillas Running Pro 2.0</h3>
-                      <div className="flex items-baseline gap-2 mt-1">
-                        <span className="text-xl font-black text-emerald-400">$39.900</span>
-                        <span className="text-xs text-slate-500 line-through">$49.900</span>
-                      </div>
-                    </div>
-
-                    {/* Selector de Oferta Pack */}
-                    <div className="space-y-2">
-                      <div className="p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full border-2 border-emerald-400 flex items-center justify-center">
-                            <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                          </div>
-                          <div>
-                            <div className="text-xs font-bold text-white">Llevá 2 pares (15% EXTRA)</div>
-                            <div className="text-[10px] text-slate-400">Más vendido</div>
-                          </div>
+                      {/* Simulación Sticky Bar */}
+                      <div className="absolute bottom-3 left-3 right-3 bg-white text-slate-900 p-3 rounded-2xl shadow-xl flex items-center justify-between border border-slate-200">
+                        <div>
+                          <div className="text-xs font-bold truncate max-w-[130px]">Remera Oversize Nevux</div>
+                          <div className="text-sm font-black text-emerald-600">$29.900</div>
                         </div>
-                        <span className="text-xs font-extrabold text-emerald-400">$66.130</span>
+                        <button className="bg-emerald-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-md">
+                          COMPRAR
+                        </button>
                       </div>
-                    </div>
+                    </motion.div>
+                  )}
 
-                    {/* Insignias de confianza */}
-                    <div className="grid grid-cols-3 gap-2 text-center text-[10px] bg-slate-900 p-2.5 rounded-xl border border-slate-800 text-slate-300">
-                      <div>🚚 Envío Gratis</div>
-                      <div>💳 3 Cuotas</div>
-                      <div>🔒 Garantía</div>
-                    </div>
+                  {activeTab === "bundles" && (
+                    <motion.div
+                      key="tab-bundles"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="space-y-3 pt-4"
+                    >
+                      <div className="text-xs font-bold text-slate-400">Seleccionar Oferta Especial:</div>
 
-                    {/* Botón Flotante Sticky (Simulado) */}
-                    <div className="pt-2">
-                      <button className="w-full bg-emerald-500 text-slate-950 font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2">
-                        <span>COMPRAR AHORA EN 1 CLIC</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="antes"
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    className="p-4 pt-8 text-left space-y-4 filter opacity-60 grayscale"
-                  >
-                    <div className="h-4 w-20 bg-slate-800 rounded" />
-                    <div className="h-48 bg-slate-900 rounded-lg flex items-center justify-center border border-slate-800">
-                      <span className="text-xs text-slate-600">Foto Estándar</span>
-                    </div>
-                    <div>
-                      <div className="h-4 w-40 bg-slate-800 rounded mb-2" />
-                      <div className="h-6 w-24 bg-slate-800 rounded" />
-                    </div>
-                    <div className="h-10 bg-slate-800 rounded-lg" />
-                    <div className="h-12 bg-slate-700 rounded-lg flex items-center justify-center text-slate-400 text-xs">
-                      Agregar al carrito
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      <div className="p-3 rounded-xl border border-slate-800 bg-slate-900 flex justify-between items-center opacity-70">
+                        <div>
+                          <div className="text-xs font-bold text-white">Llevá 1 unidad</div>
+                          <div className="text-[10px] text-slate-400">Precio regular</div>
+                        </div>
+                        <span className="text-xs font-bold text-white">$29.900</span>
+                      </div>
+
+                      <div className="p-3 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 flex justify-between items-center relative">
+                        <span className="absolute -top-2.5 right-3 bg-emerald-500 text-slate-950 font-black text-[9px] px-2 py-0.5 rounded-full uppercase">
+                          MÁS VENDIDO (15% OFF)
+                        </span>
+                        <div>
+                          <div className="text-xs font-bold text-white">Llevá 2 unidades</div>
+                          <div className="text-[10px] text-emerald-400">Ahorrás $8.970</div>
+                        </div>
+                        <span className="text-xs font-black text-emerald-400">$50.830</span>
+                      </div>
+
+                      <div className="p-3 rounded-xl border border-slate-800 bg-slate-900 flex justify-between items-center">
+                        <div>
+                          <div className="text-xs font-bold text-white">Llevá 3 unidades (25% OFF)</div>
+                          <div className="text-[10px] text-slate-400">Envío gratis incluido</div>
+                        </div>
+                        <span className="text-xs font-bold text-white">$67.275</span>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {activeTab === "urgency" && (
+                    <motion.div
+                      key="tab-urgency"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="space-y-4 pt-6"
+                    >
+                      <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 space-y-2">
+                        <div className="flex justify-between items-center text-xs font-bold text-amber-400">
+                          <span className="flex items-center gap-1"><Flame className="w-4 h-4 fill-amber-400" /> Quedan pocas unidades</span>
+                          <span>88% Vendido</span>
+                        </div>
+                        <div className="w-full h-2 bg-amber-950 rounded-full overflow-hidden">
+                          <div className="w-[88%] h-full bg-gradient-to-r from-amber-500 to-red-500 rounded-full animate-pulse" />
+                        </div>
+                        <div className="text-[10px] text-slate-400 text-center pt-1">
+                          ⚡ 14 personas están mirando este producto ahora mismo
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {activeTab === "social" && (
+                    <motion.div
+                      key="tab-social"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="space-y-4 pt-12"
+                    >
+                      <div className="bg-white text-slate-900 p-3.5 rounded-2xl shadow-2xl border border-slate-200 flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-black text-xs">
+                          ✓
+                        </div>
+                        <div>
+                          <div className="text-xs text-slate-800">
+                            <strong>Sofía de Córdoba</strong> compró recién
+                          </div>
+                          <div className="text-[10px] text-slate-400">hace 3 minutos</div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CASOS DE ÉXITO / TESTIMONIOS */}
+      <section className="py-20 bg-slate-950/80 border-t border-slate-800/60">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+              Marcas que aumentaron sus ventas
+            </h2>
+            <p className="text-slate-400 text-base">
+              E-commerce en Tiendanube que transformaron sus fichas de producto con Nevux Pro.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between">
+              <div>
+                <div className="flex gap-1 text-amber-400 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400" />
+                  ))}
+                </div>
+                <p className="text-slate-300 text-sm italic mb-6">
+                  "Increíble el cambio. Solo pegamos el código y las ventas en celular se dispararon un 40% la primera semana gracias al botón fijo abajo."
+                </p>
+              </div>
+              <div className="border-t border-slate-800 pt-4 flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-white text-sm">Gonzalo A.</div>
+                  <div className="text-xs text-slate-500">Wess Indumentaria</div>
+                </div>
+                <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">+42% Ventas</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between">
+              <div>
+                <div className="flex gap-1 text-amber-400 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400" />
+                  ))}
+                </div>
+                <p className="text-slate-300 text-sm italic mb-6">
+                  "El selector de Llevá 2 y Llevá 3 nos duplicó el ticket promedio. La gente aprovecha el descuento adicional directamente."
+                </p>
+              </div>
+              <div className="border-t border-slate-800 pt-4 flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-white text-sm">Martina S.</div>
+                  <div className="text-xs text-slate-500">Kala Cosmética</div>
+                </div>
+                <span className="text-xs font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-md">2.3x Ticket</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between">
+              <div>
+                <div className="flex gap-1 text-amber-400 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400" />
+                  ))}
+                </div>
+                <p className="text-slate-300 text-sm italic mb-6">
+                  "Cero complicación técnica. En 2 minutos teníamos todo funcionando sin pagar mensualidades exorbitantes de agencias."
+                </p>
+              </div>
+              <div className="border-t border-slate-800 pt-4 flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-white text-sm">Lucas R.</div>
+                  <div className="text-xs text-slate-500">Nativo Tech Store</div>
+                </div>
+                <span className="text-xs font-bold text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-md">60s Setup</span>
+              </div>
             </div>
           </div>
         </div>
@@ -375,134 +545,6 @@ export default function LandingPage() {
               <p className="text-slate-400 text-sm leading-relaxed">
                 Tu tienda empieza a mostrar botones pegajosos, ofertas de packs y disparadores de urgencia.
               </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* MÉTODO AIDA (4 TARJETAS CON COLORES) */}
-      <section className="py-20 bg-slate-950/80 border-t border-slate-800/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-              Diseñado con el Método AIDA
-            </h2>
-            <p className="text-slate-400 text-base">
-              La estructura psicológica de conversión utilizada por los e-commerce líderes a nivel mundial.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* A - Atención */}
-            <div className="bg-slate-900 border border-emerald-500/30 p-6 rounded-2xl">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4">
-                <Zap className="w-5 h-5" />
-              </div>
-              <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Paso 1</div>
-              <h3 className="text-lg font-bold text-white mb-2">ATENCIÓN</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Capturá la atención del visitante en los primeros 3 segundos con barras fijas de urgencia y ofertas visuales.
-              </p>
-            </div>
-
-            {/* I - Interés */}
-            <div className="bg-slate-900 border border-blue-500/30 p-6 rounded-2xl">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4">
-                <TrendingUp className="w-5 h-5" />
-              </div>
-              <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Paso 2</div>
-              <h3 className="text-lg font-bold text-white mb-2">INTERÉS</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Destacá las insignias de envío gratis, cuotas sin interés y prueba social para eliminar la incertidumbre.
-              </p>
-            </div>
-
-            {/* D - Deseo */}
-            <div className="bg-slate-900 border border-purple-500/30 p-6 rounded-2xl">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4">
-                <Layers className="w-5 h-5" />
-              </div>
-              <div className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-1">Paso 3</div>
-              <h3 className="text-lg font-bold text-white mb-2">DESEO</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Incentivá la compra de más unidades proponiendo paquetes promocionales tipo "Llevá 2 con 15% OFF".
-              </p>
-            </div>
-
-            {/* A - Acción */}
-            <div className="bg-slate-900 border border-pink-500/30 p-6 rounded-2xl">
-              <div className="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-4">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <div className="text-xs font-bold text-pink-400 uppercase tracking-wider mb-1">Paso 4</div>
-              <h3 className="text-lg font-bold text-white mb-2">ACCIÓN</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                El botón de compra fija (Sticky Bar) acompaña todo el scroll del usuario en el celular para un checkout inmediato.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* PLANTILLAS INCLUIDAS */}
-      <section className="py-20 border-t border-slate-800/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-              3 Estilos visuales listos para activar
-            </h2>
-            <p className="text-slate-400 text-base">
-              Podés cambiar de plantilla con solo ajustar una variable en tu script.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Plantilla 1 */}
-            <div
-              onClick={() => setSelectedTemplate("clasica")}
-              className={`cursor-pointer bg-slate-900 p-6 rounded-2xl border transition-all ${
-                selectedTemplate === "clasica"
-                  ? "border-emerald-500 ring-2 ring-emerald-500/20"
-                  : "border-slate-800 hover:border-slate-700"
-              }`}
-            >
-              <div className="h-40 bg-slate-950 rounded-xl mb-4 border border-slate-800 flex items-center justify-center">
-                <span className="text-xs font-bold text-emerald-400">Estilo Clásico Clean</span>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-1">Plantilla Clásica</h3>
-              <p className="text-slate-400 text-xs">Ideal para tiendas de indumentaria y accesorios minimalistas.</p>
-            </div>
-
-            {/* Plantilla 2 */}
-            <div
-              onClick={() => setSelectedTemplate("oscura")}
-              className={`cursor-pointer bg-slate-900 p-6 rounded-2xl border transition-all ${
-                selectedTemplate === "oscura"
-                  ? "border-emerald-500 ring-2 ring-emerald-500/20"
-                  : "border-slate-800 hover:border-slate-700"
-              }`}
-            >
-              <div className="h-40 bg-slate-950 rounded-xl mb-4 border border-slate-800 flex items-center justify-center">
-                <span className="text-xs font-bold text-purple-400">Estilo Oscuro Premium</span>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-1">Oscura Premium</h3>
-              <p className="text-slate-400 text-xs">Perfecto para electrónica, suplementos y productos tecnologicos.</p>
-            </div>
-
-            {/* Plantilla 3 */}
-            <div
-              onClick={() => setSelectedTemplate("split")}
-              className={`cursor-pointer bg-slate-900 p-6 rounded-2xl border transition-all ${
-                selectedTemplate === "split"
-                  ? "border-emerald-500 ring-2 ring-emerald-500/20"
-                  : "border-slate-800 hover:border-slate-700"
-              }`}
-            >
-              <div className="h-40 bg-slate-950 rounded-xl mb-4 border border-slate-800 flex items-center justify-center">
-                <span className="text-xs font-bold text-blue-400">Estilo Antes & Después</span>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-1">Antes y Después</h3>
-              <p className="text-slate-400 text-xs">Diseñado para belleza, cosmética y transformaciones visibles.</p>
             </div>
           </div>
         </div>
@@ -630,6 +672,21 @@ export default function LandingPage() {
           </a>
         </div>
       </footer>
+
+      {/* BARRA STICKY MOBILE CTA (PARA LA PROPIA LANDING) */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-[#090d16]/95 backdrop-blur-lg border-t border-slate-800 z-50 flex items-center justify-between gap-3 shadow-2xl">
+        <div>
+          <div className="text-[10px] text-slate-400 font-semibold uppercase">Pack Landing Pro</div>
+          <div className="text-sm font-black text-emerald-400">$39.900 <span className="text-[10px] text-slate-400 font-normal">/mes</span></div>
+        </div>
+        <a
+          href={MP_CHECKOUT_URL}
+          className="bg-emerald-500 text-slate-950 font-black text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
+        >
+          <span>Activar Ahora</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </a>
+      </div>
     </div>
   );
-}
+            }
