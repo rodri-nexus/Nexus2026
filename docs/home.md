@@ -69,6 +69,13 @@ home: {
 },
 ```
 
-## Colores
+## Colores y tipografía
 
-Usan `color` (acento) y `marca`: `oscuro` (fondo de las secciones oscuras), `fondo`, `texto`, `borde` y `fuente`.
+Por defecto Nevux toma la marca de cada tienda, sin configurar nada:
+
+- **Color principal:** el del botón de compra de la tienda (`.js-addtocart` o `.btn-primary`).
+- **Texto sobre el color principal:** blanco u oscuro, según qué tan claro sea el color.
+- **Tipografía:** la del `<body>` de la tienda.
+- **Fondo de las secciones oscuras de la home:** el del pie de la plantilla, si es oscuro. Si no, casi negro.
+
+Para forzar otros colores: `color` (acento) y `marca` (`oscuro`, `fondo`, `texto`, `borde`, `fuente`).

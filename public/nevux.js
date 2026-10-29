@@ -6,7 +6,8 @@
 
   // ===== VALORES POR DEFECTO (cada cliente los cambia en su archivo public/c/<cliente>.js) =====
   var NEVUX = {
-    color: '#10b981',
+    // Color principal. Vacío = se toma solo del botón de compra de la tienda
+    color: '',
     urgencia: { texto: '🔥 Quedan pocas unidades', porcentaje: 84 },
     // Los descuentos tienen que existir también como promoción en Tiendanube.
     packs: [
@@ -67,6 +68,8 @@
   // ============================================================
 
   var CFG = window.NEVUX_CFG || {};
+  // Tipografía de la tienda (se toma del <body> al arrancar)
+  var FONT = 'system-ui,-apple-system,sans-serif';
   Object.keys(CFG).forEach(function (k) { NEVUX[k] = CFG[k]; });
 
   function init() {
@@ -84,11 +87,11 @@
 
     var C = NEVUX.color;
     var css =
-      '.nvx-urg{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:10px 12px;margin:0 0 14px;font:600 13px/1.3 system-ui,-apple-system,sans-serif;color:#c2410c}' +
+      '.nvx-urg{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:10px 12px;margin:0 0 14px;font:600 13px/1.3 ' + FONT + ';color:#c2410c}' +
       '.nvx-urg-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px}' +
       '.nvx-urg-bg{height:7px;background:#ffedd5;border-radius:99px;overflow:hidden}' +
       '.nvx-urg-fill{height:100%;width:0;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:99px;transition:width 1.6s ease}' +
-      '.nvx-packs{margin:0 0 14px;font-family:system-ui,-apple-system,sans-serif}' +
+      '.nvx-packs{margin:0 0 14px;font-family:' + FONT + '}' +
       '.nvx-packs-t{font-weight:700;font-size:14px;margin-bottom:8px;color:#111827}' +
       '.nvx-pack{display:flex;align-items:center;justify-content:space-between;gap:10px;border:2px solid #e5e7eb;border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;background:#fff;transition:border-color .2s,background .2s;color:#111827}' +
       '.nvx-pack.nvx-on{border-color:' + C + ';background:' + C + '12}' +
@@ -96,27 +99,27 @@
       '.nvx-pack small{font-size:12px;color:#6b7280}' +
       '.nvx-pack .nvx-pr{text-align:right;font-weight:800;font-size:14px;white-space:nowrap}' +
       '.nvx-pack .nvx-pr s{display:block;font-weight:400;font-size:11px;color:#9ca3af}' +
-      '.nvx-tag{display:inline-block;background:' + C + ';color:#fff;font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle}' +
-      '.nvx-trust{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0;padding:12px 8px;background:#f9fafb;border-radius:12px;text-align:center;font:600 11px/1.3 system-ui,-apple-system,sans-serif;color:#374151}' +
+      '.nvx-tag{display:inline-block;background:' + C + ';color:' + NEVUX.colorTexto + ';font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle}' +
+      '.nvx-trust{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0;padding:12px 8px;background:#f9fafb;border-radius:12px;text-align:center;font:600 11px/1.3 ' + FONT + ';color:#374151}' +
       '.nvx-trust span{display:block;font-size:18px;margin-bottom:2px}' +
-      '.nvx-bar{position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#fff;border-top:1px solid #e5e7eb;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 -4px 20px rgba(0,0,0,.08);transform:translateY(110%);transition:transform .3s ease;font-family:system-ui,-apple-system,sans-serif}' +
+      '.nvx-bar{position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#fff;border-top:1px solid #e5e7eb;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 -4px 20px rgba(0,0,0,.08);transform:translateY(110%);transition:transform .3s ease;font-family:' + FONT + '}' +
       '.nvx-bar.nvx-show{transform:none}' +
       '.nvx-bar-i{display:flex;align-items:center;gap:10px;min-width:0}' +
       '.nvx-bar-i img{width:42px;height:42px;border-radius:8px;object-fit:cover;flex:0 0 auto}' +
       '.nvx-bar-t{font-size:12px;font-weight:600;color:#111827;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}' +
       '.nvx-bar-p{font-size:15px;font-weight:800;color:' + C + '}' +
-      '.nvx-bar button{flex:0 0 auto;background:' + C + ';color:#fff;font-weight:800;font-size:13px;padding:12px 16px;border:0;border-radius:10px;cursor:pointer}' +
-      '.nvx-toast{position:fixed;left:12px;right:12px;top:12px;margin:0 auto;z-index:99998;max-width:300px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 25px rgba(0,0,0,.12);opacity:0;transform:translateY(-16px);transition:all .4s ease;pointer-events:none;font:13px/1.3 system-ui,-apple-system,sans-serif;color:#111827}' +
+      '.nvx-bar button{flex:0 0 auto;background:' + C + ';color:' + NEVUX.colorTexto + ';font-weight:800;font-size:13px;padding:12px 16px;border:0;border-radius:10px;cursor:pointer}' +
+      '.nvx-toast{position:fixed;left:12px;right:12px;top:12px;margin:0 auto;z-index:99998;max-width:300px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 25px rgba(0,0,0,.12);opacity:0;transform:translateY(-16px);transition:all .4s ease;pointer-events:none;font:13px/1.3 ' + FONT + ';color:#111827}' +
       '.nvx-toast.nvx-show{opacity:1;transform:none}' +
       '.nvx-toast i{font-style:normal;color:' + C + ';font-weight:800}' +
       '.nvx-toast small{display:block;font-size:11px;color:#9ca3af}' +
-      '.nvx-best{margin:0 0 14px;font-family:system-ui,-apple-system,sans-serif;color:#111827}' +
-      '.nvx-best-tag{display:inline-block;background:' + C + ';color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;border-radius:5px;padding:3px 7px}' +
+      '.nvx-best{margin:0 0 14px;font-family:' + FONT + ';color:#111827}' +
+      '.nvx-best-tag{display:inline-block;background:' + C + ';color:' + NEVUX.colorTexto + ';font-size:11px;font-weight:800;letter-spacing:.06em;border-radius:5px;padding:3px 7px}' +
       '.nvx-best-p{font-size:30px;font-weight:900;line-height:1.1;margin:4px 0 2px}' +
       '.nvx-best-p em{font-style:normal;font-size:15px;font-weight:800;color:' + C + ';margin-left:6px}' +
       '.nvx-best small{font-size:13px;color:#4b5563}' +
       '.nvx-best small b{color:' + C + '}' +
-      '.nvx-ship{border:1px solid #e5e7eb;border-radius:12px;padding:4px 12px;margin:0 0 14px;font:13px/1.35 system-ui,-apple-system,sans-serif;color:#111827}' +
+      '.nvx-ship{border:1px solid #e5e7eb;border-radius:12px;padding:4px 12px;margin:0 0 14px;font:13px/1.35 ' + FONT + ';color:#111827}' +
       '.nvx-ship-r{display:flex;gap:10px;padding:9px 0}' +
       '.nvx-ship-r + .nvx-ship-r{border-top:1px solid #f3f4f6}' +
       '.nvx-ship-r > span{font-size:18px;line-height:1}' +
@@ -124,20 +127,20 @@
       '.nvx-ship-r small{display:block;color:#6b7280;font-size:12px}' +
       '.nvx-fs-bg{height:6px;background:#f3f4f6;border-radius:99px;overflow:hidden;margin-top:6px}' +
       '.nvx-fs-bg i{display:block;height:100%;background:' + C + ';border-radius:99px}' +
-      '.nvx-wa{display:block;text-align:center;margin:-4px 0 14px;font:13px system-ui,-apple-system,sans-serif;color:#374151;text-decoration:none}' +
+      '.nvx-wa{display:block;text-align:center;margin:-4px 0 14px;font:13px ' + FONT + ';color:#374151;text-decoration:none}' +
       '.nvx-wa b{text-decoration:underline}' +
       '.nvx-c{font-family:inherit;color:#111827;margin:8px 0 18px}' +
       '.nvx-c *{box-sizing:border-box}' +
       '.nvx-sec{margin:0 0 22px}' +
       '.nvx-h{font-size:19px;font-weight:800;line-height:1.2;margin:0 0 10px;text-align:center}' +
-      '.nvx-cinta{overflow:hidden;background:' + C + ';color:#fff;border-radius:10px;margin:0 0 22px;padding:9px 0;white-space:nowrap}' +
-      '.nvx-cinta div{display:inline-block;animation:nvx-mq 28s linear infinite;font:800 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:.08em;text-transform:uppercase}' +
+      '.nvx-cinta{overflow:hidden;background:' + C + ';color:' + NEVUX.colorTexto + ';border-radius:10px;margin:0 0 22px;padding:9px 0;white-space:nowrap}' +
+      '.nvx-cinta div{display:inline-block;animation:nvx-mq 28s linear infinite;font:800 12px/1 ' + FONT + ';letter-spacing:.08em;text-transform:uppercase}' +
       '.nvx-cinta span{margin:0 14px}' +
       '@keyframes nvx-mq{to{transform:translateX(-50%)}}' +
       '.nvx-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px}' +
       '.nvx-tl-row{display:flex;gap:8px}' +
       '.nvx-tl-row input{flex:1;min-width:0;border:1px solid #d1d5db;border-radius:10px;padding:11px 12px;font-size:16px}' +
-      '.nvx-tl-row button{background:' + C + ';color:#fff;border:0;border-radius:10px;padding:11px 16px;font:800 14px system-ui,-apple-system,sans-serif;cursor:pointer;opacity:1;text-transform:none;letter-spacing:0;width:auto;height:auto}' +
+      '.nvx-tl-row button{background:' + C + ';color:' + NEVUX.colorTexto + ';border:0;border-radius:10px;padding:11px 16px;font:800 14px ' + FONT + ';cursor:pointer;opacity:1;text-transform:none;letter-spacing:0;width:auto;height:auto}' +
       '.nvx-tl-res{margin:10px 0 0;font-size:14px;text-align:center;min-height:20px}' +
       '.nvx-tl-res b{color:' + C + '}' +
       '.nvx-tl-tab{display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:6px;margin-top:10px}' +
@@ -154,7 +157,7 @@
       '.nvx-ad-bar:after{content:"↔";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;background:#fff;color:#111;display:grid;place-items:center;font-size:14px;box-shadow:0 2px 10px rgba(0,0,0,.3)}' +
       '.nvx-ad input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:ew-resize;z-index:3}' +
       '.nvx-step{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}' +
-      '.nvx-step i{flex:0 0 28px;height:28px;border-radius:50%;background:' + C + ';color:#fff;font-style:normal;font-weight:800;display:grid;place-items:center;font-size:13px}' +
+      '.nvx-step i{flex:0 0 28px;height:28px;border-radius:50%;background:' + C + ';color:' + NEVUX.colorTexto + ';font-style:normal;font-weight:800;display:grid;place-items:center;font-size:13px}' +
       '.nvx-step b{display:block;font-size:15px}' +
       '.nvx-step p{margin:2px 0 0;font-size:13px;color:#4b5563}' +
       '.nvx-step img{display:block;width:100%;border-radius:10px;margin-top:8px}' +
@@ -166,7 +169,7 @@
       '.nvx-cmp .nvx-x{color:#ef4444;font-weight:900}' +
       '.nvx-rv{margin-bottom:10px}' +
       '.nvx-rv-h{display:flex;align-items:center;gap:10px;margin-bottom:6px}' +
-      '.nvx-rv-h i{flex:0 0 34px;height:34px;border-radius:50%;background:' + C + ';color:#fff;font-style:normal;font-weight:800;display:grid;place-items:center}' +
+      '.nvx-rv-h i{flex:0 0 34px;height:34px;border-radius:50%;background:' + C + ';color:' + NEVUX.colorTexto + ';font-style:normal;font-weight:800;display:grid;place-items:center}' +
       '.nvx-rv-h small{display:block;color:#6b7280;font-size:12px}' +
       '.nvx-rv-s{color:#f59e0b;font-size:13px}' +
       '.nvx-rv p{margin:6px 0 0;font-size:14px;line-height:1.45}' +
@@ -184,15 +187,15 @@
       '.nvx-combo small{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;color:' + C + ';text-transform:uppercase}' +
       '.nvx-combo b{display:block;font-size:13px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}' +
       '.nvx-combo span{font-size:14px;font-weight:800}' +
-      '.nvx-combo button{flex:0 0 auto;margin-left:auto;background:' + C + ';color:#fff;border:0;border-radius:10px;padding:10px 12px;font:800 13px system-ui,-apple-system,sans-serif;cursor:pointer;opacity:1}' +
-      '.nvx-combo button:disabled{opacity:1;background:' + C + ';color:#fff;cursor:default}' +
+      '.nvx-combo button{flex:0 0 auto;margin-left:auto;background:' + C + ';color:' + NEVUX.colorTexto + ';border:0;border-radius:10px;padding:10px 12px;font:800 13px ' + FONT + ';cursor:pointer;opacity:1}' +
+      '.nvx-combo button:disabled{opacity:1;background:' + C + ';color:' + NEVUX.colorTexto + ';cursor:default}' +
       '.nvx-combo a{display:block;font-size:12px;color:' + C + ';font-weight:700;margin-top:2px}' +
       '.nvx-vids{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;scrollbar-width:none}' +
       '.nvx-vids::-webkit-scrollbar{display:none}' +
       '.nvx-vids > div{flex:0 0 62%;max-width:260px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;background:#111;scroll-snap-align:center}' +
       '.nvx-vids video,.nvx-vids iframe{width:100%;height:100%;object-fit:cover;border:0;display:block}' +
       '.nvx-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}' +
-      '.nvx-cols button{border:2px solid #e5e7eb;border-radius:12px;padding:0;overflow:hidden;background:#fff;cursor:pointer;text-align:center;font:700 12px system-ui,-apple-system,sans-serif;color:#111827;opacity:1}' +
+      '.nvx-cols button{border:2px solid #e5e7eb;border-radius:12px;padding:0;overflow:hidden;background:#fff;cursor:pointer;text-align:center;font:700 12px ' + FONT + ';color:#111827;opacity:1}' +
       '.nvx-cols button img{display:block;width:100%;aspect-ratio:1;object-fit:cover}' +
       '.nvx-cols button span{display:block;padding:7px 4px;text-transform:uppercase;letter-spacing:.04em}' +
       '.nvx-cols button.nvx-on{border-color:' + C + '}' +
@@ -596,7 +599,7 @@
     if (!T) return;
     var C = NEVUX.color;
     hCss('nvx-t-css',
-      '.nvx-tw{margin:6px 0 2px;font-family:system-ui,-apple-system,sans-serif}' +
+      '.nvx-tw{margin:6px 0 2px;font-family:' + FONT + '}' +
       '.nvx-tc{background:' + C + '14;border-radius:8px;padding:6px 8px;line-height:1.15}' +
       '.nvx-tc span{display:block;font-size:9px;font-weight:800;letter-spacing:.08em;color:' + C + '}' +
       '.nvx-tc b{display:block;font-size:17px;font-weight:900;color:#111827}' +
@@ -636,13 +639,15 @@
     var H = NEVUX.home;
     if (!H || !window.LS || LS.template !== 'home' || document.querySelector('.nvh')) return;
     var C = NEVUX.color, M = NEVUX.marca || {};
+    // Acento legible sobre las secciones oscuras (si la marca es oscura, se usa blanco)
+    var CA = luz(C) < 0.1 ? '#ffffff' : C;
     var oscuro = M.oscuro || '#0d0d0f', claro = M.fondo || '#ffffff', texto = M.texto || '#111827', borde = M.borde || '#ececec';
     hCss('nvx-h-css',
       '.nvh{font-family:' + (M.fuente || 'inherit') + ';color:' + texto + ';background:' + claro + '}' +
       '.nvh *{box-sizing:border-box}' +
       '.nvh-sec{padding:46px 16px}' +
       '.nvh-in{max-width:1100px;margin:0 auto}' +
-      '.nvh-eb{font:800 11px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:' + C + ';text-align:center;margin:0 0 10px}' +
+      '.nvh-eb{font:800 11px/1.2 ' + FONT + ';letter-spacing:.18em;text-transform:uppercase;color:' + C + ';text-align:center;margin:0 0 10px}' +
       '.nvh-h{font-size:clamp(25px,6.5vw,40px);font-weight:900;line-height:1.06;text-align:center;margin:0 0 10px;letter-spacing:-.01em;text-transform:uppercase}' +
       '.nvh-p{text-align:center;opacity:.7;font-size:15px;line-height:1.5;margin:0 auto 26px;max-width:560px}' +
       '.nvh-dark{background:' + oscuro + ';color:#fff}' +
@@ -666,7 +671,8 @@
       '.nvh-tag small{display:block;margin-top:14px;padding-top:10px;border-top:1px dashed #cdc5b4;font:700 10px/1.2 ui-monospace,monospace;letter-spacing:.14em;color:#6b7280;text-transform:uppercase}' +
       '.nvh-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}' +
       '.nvh-nums div{text-align:center;padding:20px 10px;border-radius:16px;background:rgba(255,255,255,.07)}' +
-      '.nvh-nums b{display:block;font-size:32px;font-weight:900;color:' + C + ';line-height:1.1}' +
+      '.nvh-nums b{display:block;font-size:32px;font-weight:900;color:' + CA + ';line-height:1.1}' +
+      '.nvh-dark .nvh-eb{color:' + CA + '}' +
       '.nvh-nums small{font-size:13px;opacity:.75}' +
       '.nvh-rev{flex:0 0 84%;max-width:360px;scroll-snap-align:start;background:' + claro + ';color:' + texto + ';border:1px solid ' + borde + ';border-radius:18px;padding:18px}' +
       '.nvh-rev .s{color:#f59e0b;font-size:14px;letter-spacing:2px}' +
@@ -685,10 +691,10 @@
       '.nvh-loc{background:' + claro + ';border:1px solid ' + borde + ';border-radius:18px;overflow:hidden}' +
       '.nvh-loc img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}' +
       '.nvh-loc>div{padding:16px}' +
-      '.nvh-loc small{font:800 10px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:' + C + '}' +
+      '.nvh-loc small{font:800 10px/1.2 ' + FONT + ';letter-spacing:.14em;text-transform:uppercase;color:' + C + '}' +
       '.nvh-loc b{display:block;font-size:21px;font-weight:900;margin:6px 0;text-transform:uppercase}' +
       '.nvh-loc p{font-size:13px;opacity:.7;margin:0 0 14px}' +
-      '.nvh-btn{display:inline-flex;align-items:center;gap:8px;background:#111;color:#fff!important;border-radius:999px;padding:12px 20px;font:800 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:.1em;text-transform:uppercase;text-decoration:none!important}' +
+      '.nvh-btn{display:inline-flex;align-items:center;gap:8px;background:#111;color:#fff!important;border-radius:999px;padding:12px 20px;font:800 12px/1 ' + FONT + ';letter-spacing:.1em;text-transform:uppercase;text-decoration:none!important}' +
       '.nvh-dark .nvh-btn{background:#fff;color:#111!important}' +
       '.nvh-cierre{text-align:center;border-radius:32px 32px 0 0}');
 
@@ -762,7 +768,47 @@
     }
   }
 
+  // Colores y tipografía de la tienda: Nevux se viste con la marca del cliente, no con la propia
+  function hexDe(c) {
+    var m = String(c || '').match(/rgba?\(([^)]+)\)/);
+    if (!m) return /^#[0-9a-f]{6}$/i.test(c) ? c : null;
+    var v = m[1].split(',').map(function (x) { return parseFloat(x); });
+    if (v.length > 3 && v[3] === 0) return null;
+    return '#' + v.slice(0, 3).map(function (x) { return ('0' + Math.round(x).toString(16)).slice(-2); }).join('');
+  }
+  function luz(hex) {
+    var v = [1, 3, 5].map(function (i) {
+      var c = parseInt(hex.substr(i, 2), 16) / 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  }
+  function detectarMarca() {
+    var f = document.body && getComputedStyle(document.body).fontFamily;
+    if (f) FONT = f;
+    if (!hexDe(NEVUX.color)) {
+      NEVUX.color = '';
+      ['.js-addtocart', '.btn-primary', '.btn-add-to-cart', 'button[type="submit"]'].some(function (sel) {
+        var el = document.querySelector(sel);
+        if (!el) return false;
+        var cs = getComputedStyle(el);
+        var c = [cs.backgroundColor, cs.borderTopColor].map(hexDe).filter(function (x) { return x && luz(x) < 0.85; })[0];
+        if (c) NEVUX.color = c;
+        return !!c;
+      });
+      if (!NEVUX.color) NEVUX.color = '#111827';
+    }
+    NEVUX.colorTexto = luz(NEVUX.color) > 0.45 ? '#111827' : '#ffffff';
+    var M = NEVUX.marca = NEVUX.marca || {};
+    if (!M.oscuro) {
+      var ft = document.querySelector('footer.js-footer');
+      var fc = ft && hexDe(getComputedStyle(ft).backgroundColor);
+      if (fc && luz(fc) < 0.08) M.oscuro = fc;
+    }
+  }
+
   function arrancar() {
+    detectarMarca();
     initHome();
     initTarjetas();
     init();
