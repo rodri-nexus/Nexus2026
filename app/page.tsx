@@ -111,7 +111,7 @@ const FAQS = [
   },
   {
     q: "¿Hace más lenta mi tienda?",
-    a: "No. Es un solo archivo liviano (menos de 20 KB) que se carga cuando la página ya está lista, sin apps pesadas.",
+    a: "No. Es un solo archivo liviano (menos de 35 KB) que se carga cuando la página ya está lista, sin apps pesadas.",
   },
   {
     q: "¿Los precios y descuentos son reales?",

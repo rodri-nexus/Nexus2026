@@ -22,15 +22,17 @@ Se construye de a una tanda y cada pieza se prueba sobre una ficha real antes de
 - Barra de envío gratis
 - Ayuda por WhatsApp
 
-### Tanda 2: contenido de marca
+### Hecho (código maestro v4): tanda 2, contenido de marca
 
-1. **Calculadora de talle** que elige sola el talle en la ficha (idea de Doggies, mejorada).
-2. **Antes / Después** con deslizador y fotos del cliente.
-3. **Comparativa** marca vs. alternativa.
-4. **Cinta animada** de beneficios.
-5. **Reseñas reales** del cliente.
-6. **Preguntas frecuentes**, con la de cambios y devoluciones precargada.
-7. **"Se usa en N pasos".**
+Todas las piezas se configuran en `NEVUX` y se pueden cambiar por producto con `porProducto`.
+
+- **Cinta animada** de beneficios (`cinta`).
+- **Calculadora de talle** (`talles`). Elige sola el talle en la ficha: toca el botón `.js-insta-variant[data-option]` y, si no lo encuentra, cambia el `select`. Si la medida cae entre dos talles, elige el más grande. Probado en Recife (Wess) y Morelia (Doggies).
+- **Antes / Después** con deslizador (`antesDespues`).
+- **Pasos de uso** con foto opcional (`pasos`).
+- **Comparativa** marca vs. alternativa (`comparativa`).
+- **Reseñas** (`resenas`). El sello "Compra verificada" solo aparece con `verificada: true`.
+- **Preguntas frecuentes** (`faq`), más la pregunta de arrepentimiento según el art. 34 de la Ley 24.240 (`faqDevoluciones`).
 
 ### Tanda 3: visual y venta cruzada
 
@@ -43,7 +45,7 @@ Se construye de a una tanda y cada pieza se prueba sobre una ficha real antes de
 
 ### Arreglos conocidos
 
-- En la plantilla Brasilia (Hogar Digital), las insignias de confianza quedan a media columna. Hay que insertarlas fuera de la grilla del botón.
+- ✅ Insignias angostas en Brasilia y Recife: arreglado en v4. Se insertan debajo del primer bloque que ocupa al menos el 90% del ancho del formulario.
 - Logos de medios de pago: no implementado. Tiendanube ya los muestra en "Ver más detalles".
 
 ## Home (más adelante)
