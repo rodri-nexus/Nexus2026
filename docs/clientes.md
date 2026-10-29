@@ -34,7 +34,7 @@ Cada tienda instala Nevux con **una sola línea**. El código y la configuració
 
 | Cliente | Archivo | Estado | Pendiente |
 |---|---|---|---|
-| Hogar Digital (Marcelo) | `c/hogar-digital.js` | Apagado | Datos de envío, WhatsApp, crear la promoción por cantidad (15% y 25%) y permiso para la landing |
+| Hogar Digital (Marcelo) | `c/hogar-digital.js` | Apagado | Confirmar la promoción por cantidad (15% y 25%), decidir urgencia y avisos de venta, permiso para la landing y contenido de la home |
 
 ## Cobro mensual
 
