@@ -11,25 +11,21 @@ import {
   ShoppingBag,
   Star,
   MessageCircle,
-  TrendingUp,
   Store,
   ChevronDown,
   Flame,
-  Clock,
-  Eye,
-  Percent,
   Check,
-  RefreshCw,
-  X,
-  HelpCircle,
   Layers,
-  BarChart3
+  TrendingUp,
+  Award,
+  ArrowUpRight
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
+import PhoneMockup from "@/app/components/landing/PhoneMockup";
 
 export default function LandingPage() {
   const [storeUrl, setStoreUrl] = useState("");
-  const [activeTab, setActiveTab] = useState<"sticky" | "bundles" | "urgency" | "social">("sticky");
+  const [activeStep, setActiveStep] = useState<number>(1);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const MP_CHECKOUT_URL = "https://mpago.la/1LqFYin";
@@ -44,10 +40,10 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-emerald-500 selection:text-black pb-20 sm:pb-0">
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-emerald-500 selection:text-black pb-24 sm:pb-0">
       
-      {/* 1. HEADER STICKY */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#0a0a0a]/90 border-b border-[#1f1f1f]">
+      {/* 1. NAVBAR STICKY */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#0a0a0a]/90 border-b border-[#1a1a1a]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
           <NevuxLogo size="medium" />
 
@@ -63,7 +59,7 @@ export default function LandingPage() {
             </a>
             <a
               href={MP_CHECKOUT_URL}
-              className="bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 flex items-center gap-2"
+              className="bg-emerald-500 hover:bg-emerald-400 text-black font-black px-5 py-2.5 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 flex items-center gap-2"
             >
               <Zap className="w-4 h-4 fill-black" />
               Obtener Pack Pro
@@ -73,28 +69,28 @@ export default function LandingPage() {
       </header>
 
       {/* 2. HERO SECTION */}
-      <section className="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-hidden border-b border-[#1f1f1f]">
-        {/* Resplandor Esmeralda central */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
+      <section className="relative pt-12 pb-16 md:pt-24 md:pb-28 overflow-hidden border-b border-[#1a1a1a]">
+        {/* Glow Central */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[160px] pointer-events-none" />
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
           
-          {/* Badge Lanzamiento */}
+          {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#111111] border border-[#222222] text-emerald-400 text-xs sm:text-sm font-semibold mb-8"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#141414] border border-[#262626] text-emerald-400 text-xs sm:text-sm font-semibold mb-8"
           >
             <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
             <span>Código Maestro CSS+JS v1.0 para Tiendanube</span>
           </motion.div>
 
-          {/* Título Principal */}
+          {/* Headline Editorial */}
           <motion.h1
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.08] mb-6"
+            className="text-4xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.06] mb-6"
           >
             Transformá tu Tiendanube en una{" "}
             <span className="text-emerald-400 underline decoration-emerald-500/40 decoration-4 underline-offset-8">
@@ -107,21 +103,21 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-base sm:text-xl text-neutral-400 max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="text-base sm:text-xl text-neutral-400 max-w-2xl mx-auto mb-10 leading-relaxed font-normal"
           >
-            Multiplicá tus ventas en celular pegando 1 solo código en tu tienda. Sin pagar agencias costosas y sin instalar aplicaciones pesadas.
+            Multiplicá tus ventas en celulares pegando 1 solo código en tu tienda. Sin programadores, sin comisiones por venta y sin aplicaciones pesadas.
           </motion.p>
 
-          {/* Formulario de Activación Directa */}
+          {/* Formulario de Ingreso de Dominio */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="max-w-xl mx-auto bg-[#111111] border border-[#222222] p-4 sm:p-6 rounded-2xl shadow-2xl mb-10"
+            className="max-w-xl mx-auto bg-[#141414] border border-[#262626] p-4 sm:p-6 rounded-2xl shadow-2xl mb-10"
           >
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold px-3 py-1 rounded-lg flex items-center gap-1.5">
-                <Store className="w-3.5 h-3.5" /> Exclusivo para Tiendanube Argentina
+                <Store className="w-3.5 h-3.5" /> Para Tiendanube Argentina
               </span>
             </div>
 
@@ -131,24 +127,24 @@ export default function LandingPage() {
                 placeholder="Escribí el link de tu tienda (ej: mitienda.com.ar)"
                 value={storeUrl}
                 onChange={(e) => setStoreUrl(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-[#262626] rounded-xl px-4 py-3.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full bg-[#0a0a0a] border border-[#2d2d2d] rounded-xl px-4 py-3.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition-colors"
                 required
               />
               <button
                 type="submit"
-                className="bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold px-6 py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 whitespace-nowrap"
+                className="bg-emerald-500 hover:bg-emerald-400 text-black font-black px-6 py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 <span>Activar Mi Tienda</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
 
-            <div className="flex items-center justify-center gap-4 sm:gap-6 mt-4 text-[11px] sm:text-xs text-neutral-400 border-t border-[#1f1f1f] pt-4">
+            <div className="flex items-center justify-center gap-4 sm:gap-6 mt-4 text-[11px] sm:text-xs text-neutral-400 border-t border-[#222222] pt-4">
               <span className="flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Instalación 60s
               </span>
               <span className="flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Sin comisiones
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> 0% Comisiones
               </span>
               <span className="flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Mercado Pago
@@ -156,13 +152,13 @@ export default function LandingPage() {
             </div>
           </motion.div>
 
-          {/* Social Proof */}
+          {/* Rating Proof */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-neutral-400 text-xs sm:text-sm">
             <div className="flex -space-x-2">
-              <div className="w-8 h-8 rounded-full bg-[#1a1a1a] border-2 border-[#0a0a0a] flex items-center justify-center font-bold text-[10px] text-emerald-400">GA</div>
-              <div className="w-8 h-8 rounded-full bg-[#1a1a1a] border-2 border-[#0a0a0a] flex items-center justify-center font-bold text-[10px] text-emerald-400">WS</div>
-              <div className="w-8 h-8 rounded-full bg-[#1a1a1a] border-2 border-[#0a0a0a] flex items-center justify-center font-bold text-[10px] text-emerald-400">NK</div>
-              <div className="w-8 h-8 rounded-full bg-[#1a1a1a] border-2 border-[#0a0a0a] flex items-center justify-center font-bold text-[10px] text-emerald-400">TN</div>
+              <div className="w-8 h-8 rounded-full bg-[#1f1f1f] border-2 border-[#0a0a0a] flex items-center justify-center font-bold text-[10px] text-emerald-400">GA</div>
+              <div className="w-8 h-8 rounded-full bg-[#1f1f1f] border-2 border-[#0a0a0a] flex items-center justify-center font-bold text-[10px] text-emerald-400">WS</div>
+              <div className="w-8 h-8 rounded-full bg-[#1f1f1f] border-2 border-[#0a0a0a] flex items-center justify-center font-bold text-[10px] text-emerald-400">NK</div>
+              <div className="w-8 h-8 rounded-full bg-[#1f1f1f] border-2 border-[#0a0a0a] flex items-center justify-center font-bold text-[10px] text-emerald-400">TN</div>
             </div>
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
@@ -177,7 +173,7 @@ export default function LandingPage() {
       </section>
 
       {/* 3. BARRA DE MÉTRICAS */}
-      <section className="py-8 bg-[#111111] border-b border-[#1f1f1f]">
+      <section className="py-8 bg-[#141414] border-b border-[#1a1a1a]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div className="p-2">
@@ -200,8 +196,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 4. SECCIÓN EXPLORADOR DE FUNCIONALIDADES (ESTILO PRAXIS) */}
-      <section className="py-20 relative border-b border-[#1f1f1f]">
+      {/* 4. DEMO INTERACTIVA CON CELULAR REALISTA (ESTILO PRAXIS) */}
+      <section className="py-20 relative border-b border-[#1a1a1a]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           
           <div className="text-center max-w-2xl mx-auto mb-16">
@@ -212,20 +208,20 @@ export default function LandingPage() {
               Una landing de Nevux, de punta a punta.
             </h2>
             <p className="text-neutral-400 text-sm sm:text-base">
-              Hacé clic en los módulos para ver cómo se transforma la experiencia de tu cliente en el celular.
+              Seleccioná cada módulo para ver en tiempo real cómo se transforma la experiencia de compra en el celular.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-12 gap-10 items-center">
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
             
-            {/* Pestañas de la izquierda */}
+            {/* Izquierda: Selectores Narrativos */}
             <div className="lg:col-span-6 space-y-4">
               
               <button
-                onClick={() => setActiveTab("sticky")}
-                className={`w-full text-left p-5 rounded-2xl border transition-all ${
-                  activeTab === "sticky"
-                    ? "bg-[#111111] border-emerald-500 shadow-xl shadow-emerald-500/5 ring-1 ring-emerald-500"
+                onClick={() => setActiveStep(1)}
+                className={`w-full text-left p-6 rounded-2xl border transition-all ${
+                  activeStep === 1
+                    ? "bg-[#141414] border-emerald-500 shadow-xl shadow-emerald-500/5 ring-1 ring-emerald-500"
                     : "bg-[#0a0a0a] border-[#222222] hover:border-[#333333]"
                 }`}
               >
@@ -233,19 +229,19 @@ export default function LandingPage() {
                   <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">
                     01 · CONVERSIÓN
                   </span>
-                  {activeTab === "sticky" && <span className="text-xs text-emerald-400 font-bold">Activo</span>}
+                  {activeStep === 1 && <span className="text-xs text-emerald-400 font-bold">Viendo en demo</span>}
                 </div>
                 <h3 className="text-lg font-bold text-white mb-1">Botón de Compra Pegajoso (Sticky Bar)</h3>
                 <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                  Permanece fijo en la parte inferior del celular durante todo el scroll. El cliente puede agregar al carrito en cualquier momento sin volver arriba.
+                  Permanece visible en la parte inferior del celular durante todo el scroll. Tu cliente puede comprar en 1 clic desde cualquier lugar de la página.
                 </p>
               </button>
 
               <button
-                onClick={() => setActiveTab("bundles")}
-                className={`w-full text-left p-5 rounded-2xl border transition-all ${
-                  activeTab === "bundles"
-                    ? "bg-[#111111] border-emerald-500 shadow-xl shadow-emerald-500/5 ring-1 ring-emerald-500"
+                onClick={() => setActiveStep(2)}
+                className={`w-full text-left p-6 rounded-2xl border transition-all ${
+                  activeStep === 2
+                    ? "bg-[#141414] border-emerald-500 shadow-xl shadow-emerald-500/5 ring-1 ring-emerald-500"
                     : "bg-[#0a0a0a] border-[#222222] hover:border-[#333333]"
                 }`}
               >
@@ -253,19 +249,19 @@ export default function LandingPage() {
                   <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">
                     02 · TICKET PROMEDIO
                   </span>
-                  {activeTab === "bundles" && <span className="text-xs text-emerald-400 font-bold">Activo</span>}
+                  {activeStep === 2 && <span className="text-xs text-emerald-400 font-bold">Viendo en demo</span>}
                 </div>
                 <h3 className="text-lg font-bold text-white mb-1">Selector de Ofertas Pack (Llevá 2 ó 3)</h3>
                 <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                  Incentivá compras múltiples ofreciendo un 15% o 25% OFF llevando más de 1 unidad. Sube directo tu ticket promedio de venta.
+                  Ofrece descuentos acumulativos por llevar más unidades (ej: 15% OFF en la 2da unidad). Incrementa el valor promedio de cada carrito.
                 </p>
               </button>
 
               <button
-                onClick={() => setActiveTab("urgency")}
-                className={`w-full text-left p-5 rounded-2xl border transition-all ${
-                  activeTab === "urgency"
-                    ? "bg-[#111111] border-emerald-500 shadow-xl shadow-emerald-500/5 ring-1 ring-emerald-500"
+                onClick={() => setActiveStep(3)}
+                className={`w-full text-left p-6 rounded-2xl border transition-all ${
+                  activeStep === 3
+                    ? "bg-[#141414] border-emerald-500 shadow-xl shadow-emerald-500/5 ring-1 ring-emerald-500"
                     : "bg-[#0a0a0a] border-[#222222] hover:border-[#333333]"
                 }`}
               >
@@ -273,19 +269,19 @@ export default function LandingPage() {
                   <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">
                     03 · URGENCIA Y STOCK
                   </span>
-                  {activeTab === "urgency" && <span className="text-xs text-emerald-400 font-bold">Activo</span>}
+                  {activeStep === 3 && <span className="text-xs text-emerald-400 font-bold">Viendo en demo</span>}
                 </div>
-                <h3 className="text-lg font-bold text-white mb-1">Barra Dinámica de Stock Limitado</h3>
+                <h3 className="text-lg font-bold text-white mb-1">Barra Dinámica de Escasez de Stock</h3>
                 <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                  Muestra el porcentaje vendido ("🔥 Quedan pocas unidades · 84% vendido") para gatillar la decisión de compra inmediata.
+                  Muestra la barra de progreso ("🔥 88% vendido · Quedan pocas unidades") gatillando la necesidad de compra inmediata.
                 </p>
               </button>
 
               <button
-                onClick={() => setActiveTab("social")}
-                className={`w-full text-left p-5 rounded-2xl border transition-all ${
-                  activeTab === "social"
-                    ? "bg-[#111111] border-emerald-500 shadow-xl shadow-emerald-500/5 ring-1 ring-emerald-500"
+                onClick={() => setActiveStep(4)}
+                className={`w-full text-left p-6 rounded-2xl border transition-all ${
+                  activeStep === 4
+                    ? "bg-[#141414] border-emerald-500 shadow-xl shadow-emerald-500/5 ring-1 ring-emerald-500"
                     : "bg-[#0a0a0a] border-[#222222] hover:border-[#333333]"
                 }`}
               >
@@ -293,140 +289,19 @@ export default function LandingPage() {
                   <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">
                     04 · PRUEBA SOCIAL
                   </span>
-                  {activeTab === "social" && <span className="text-xs text-emerald-400 font-bold">Activo</span>}
+                  {activeStep === 4 && <span className="text-xs text-emerald-400 font-bold">Viendo en demo</span>}
                 </div>
                 <h3 className="text-lg font-bold text-white mb-1">Notificaciones de Ventas en Vivo</h3>
                 <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                  Muestra alertas flotantes con ventas simuladas en tiempo real ("Sofía de Córdoba compró recién") para generar máxima confianza.
+                  Muestra pequeñas alertas flotantes con compras recientes de clientes reales en Argentina, generando confianza instantánea.
                 </p>
               </button>
 
             </div>
 
-            {/* Mockup de Celular Animado */}
-            <div className="lg:col-span-6 flex justify-center">
-              <div className="relative rounded-[40px] border-[8px] border-[#222222] bg-white text-black shadow-2xl overflow-hidden w-full max-w-sm min-h-[580px] p-4 pt-8 flex flex-col justify-between">
-                
-                {/* Dynamic Island / Notch */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-5 bg-[#222222] rounded-b-xl z-30" />
-
-                {/* Header del producto simulado */}
-                <div className="border-b border-gray-100 pb-3">
-                  <div className="flex justify-between items-center text-xs text-gray-400 font-bold mb-1">
-                    <span>MI TIENDA PRO</span>
-                    <ShoppingBag className="w-4 h-4 text-black" />
-                  </div>
-                  <div className="w-full h-32 bg-gray-100 rounded-xl flex items-center justify-center relative overflow-hidden">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-emerald-500/20 rounded-full mx-auto mb-1 flex items-center justify-center">
-                        <Sparkles className="w-8 h-8 text-emerald-600" />
-                      </div>
-                      <span className="text-[10px] text-gray-500 font-semibold">Foto de tu producto</span>
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                    <div className="text-xs text-gray-400 font-semibold">Categoría Premium</div>
-                    <div className="text-base font-extrabold text-gray-900">Producto Estrella Nevux</div>
-                    <div className="text-sm font-black text-emerald-600">$38.900 ARS</div>
-                  </div>
-                </div>
-
-                {/* Vista previa según pestaña activa */}
-                <div className="flex-1 py-3 flex flex-col justify-center">
-                  <AnimatePresence mode="wait">
-                    {activeTab === "sticky" && (
-                      <motion.div
-                        key="demo-sticky"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="space-y-3 text-center"
-                      >
-                        <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-800 font-medium">
-                          👇 Al hacer scroll, la barra inferior fija le permite comprar en 1 clic desde cualquier parte de la página.
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {activeTab === "bundles" && (
-                      <motion.div
-                        key="demo-bundles"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="space-y-2"
-                      >
-                        <div className="text-[11px] font-bold text-gray-700">Elegí tu pack:</div>
-                        <div className="p-2.5 rounded-xl border border-gray-200 bg-gray-50 flex justify-between items-center text-xs">
-                          <span className="font-medium text-gray-600">1 unidad</span>
-                          <span className="font-bold text-gray-900">$38.900</span>
-                        </div>
-                        <div className="p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/60 flex justify-between items-center text-xs relative">
-                          <span className="absolute -top-2 right-2 bg-emerald-500 text-white font-black text-[8px] px-1.5 py-0.5 rounded-full uppercase">
-                            MÁS ELEGIDO
-                          </span>
-                          <div>
-                            <div className="font-bold text-emerald-900">Llevá 2 · 15% OFF</div>
-                            <div className="text-[9px] text-emerald-600">Ahorrás $11.670</div>
-                          </div>
-                          <span className="font-extrabold text-emerald-700">$66.130</span>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {activeTab === "urgency" && (
-                      <motion.div
-                        key="demo-urgency"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2 text-xs"
-                      >
-                        <div className="flex justify-between font-bold text-amber-900 text-[11px]">
-                          <span className="flex items-center gap-1"><Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500" /> ¡Pocas unidades!</span>
-                          <span>84% vendido</span>
-                        </div>
-                        <div className="w-full h-2 bg-amber-200 rounded-full overflow-hidden">
-                          <div className="w-[84%] h-full bg-amber-500 rounded-full" />
-                        </div>
-                        <div className="text-[10px] text-amber-700 text-center font-medium">
-                          ⚡ 12 personas están viendo esto ahora
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {activeTab === "social" && (
-                      <motion.div
-                        key="demo-social"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="p-3 bg-gray-900 text-white rounded-xl shadow-lg border border-gray-800 flex items-center gap-3 text-xs"
-                      >
-                        <div className="w-7 h-7 rounded-full bg-emerald-500 text-black flex items-center justify-center font-bold text-[10px]">
-                          ✓
-                        </div>
-                        <div>
-                          <div className="font-bold text-white text-[11px]">Martina de Córdoba</div>
-                          <div className="text-[10px] text-gray-400">Compró recién hace 2 minutos</div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Sticky Bar Simulator (fijo abajo del celular) */}
-                <div className="bg-black text-white p-3 rounded-2xl shadow-2xl flex items-center justify-between border border-gray-800 mt-2">
-                  <div>
-                    <div className="text-[10px] text-gray-400 font-semibold truncate max-w-[110px]">Producto Estrella</div>
-                    <div className="text-xs font-black text-emerald-400">$38.900</div>
-                  </div>
-                  <button className="bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs px-3.5 py-2 rounded-xl">
-                    Agregar al carrito
-                  </button>
-                </div>
-
-              </div>
+            {/* Derecha: Mockup Celular Realista */}
+            <div className="lg:col-span-6 flex justify-center sticky top-28">
+              <PhoneMockup activeStep={activeStep} />
             </div>
 
           </div>
@@ -434,15 +309,15 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 5. SECCIÓN POR QUÉ VENDE (ESTRATEGIA AIDA) */}
-      <section className="py-20 bg-[#111111] border-b border-[#1f1f1f]">
+      {/* 5. SECCIÓN POR QUÉ VENDE (MODELO AIDA) */}
+      <section className="py-20 bg-[#141414] border-b border-[#1a1a1a]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
               Por qué vende
             </h2>
             <p className="text-neutral-400 text-sm sm:text-base">
-              Una ficha optimizada psicológicamente convierte visitas frías en compradores decididos.
+              Una ficha optimizada psicológicamente convierte visitas frías en clientes decididos.
             </p>
           </div>
 
@@ -454,7 +329,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-base font-bold text-white mb-2">Atracción</h3>
               <p className="text-neutral-400 text-xs leading-relaxed">
-                El botón pegajoso móvil retiene la atención inmediata sin perder al cliente en el scroll largo.
+                El botón pegajoso retiene al usuario en la experiencia sin perder la posibilidad de compra.
               </p>
             </div>
 
@@ -464,7 +339,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-base font-bold text-white mb-2">Interés</h3>
               <p className="text-neutral-400 text-xs leading-relaxed">
-                Barras de stock y contadores despiertan curiosidad y muestran alta demanda del producto.
+                Indicadores de alta demanda muestran que otros clientes están comprando en este momento.
               </p>
             </div>
 
@@ -474,7 +349,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-base font-bold text-white mb-2">Deseo</h3>
               <p className="text-neutral-400 text-xs leading-relaxed">
-                Packs acumulativos (Llevá 2 ó 3) hacen percibir un ahorro inmediato irresistible.
+                Packs promocionales (Llevá 2 ó 3) hacen percibir un ahorro claro que acelera la orden.
               </p>
             </div>
 
@@ -484,7 +359,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-base font-bold text-white mb-2">Acción</h3>
               <p className="text-neutral-400 text-xs leading-relaxed">
-                Notificaciones en vivo eliminan el miedo de compra y aceleran el paso al checkout.
+                Notificaciones dinámicas eliminan dudas de seguridad y aceleran el paso al checkout.
               </p>
             </div>
 
@@ -492,12 +367,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 6. TABLA COMPARATIVA: NEVUX VS OTROS */}
-      <section className="py-20 border-b border-[#1f1f1f]">
+      {/* 6. TABLA COMPARATIVA */}
+      <section className="py-20 border-b border-[#1a1a1a]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-white mb-4">¿Por qué elegir Nevux Pro?</h2>
-            <p className="text-neutral-400 text-sm">Comparado con otras alternativas del mercado en Argentina.</p>
+            <h2 className="text-3xl font-extrabold text-white mb-2">Nevux Pro vs. Alternativas</h2>
+            <p className="text-neutral-400 text-sm">Compará la propuesta directa para tu Tiendanube.</p>
           </div>
 
           <div className="overflow-x-auto">
@@ -521,13 +396,13 @@ export default function LandingPage() {
                   <td className="py-4 px-4 font-medium text-white">Tiempo de instalación</td>
                   <td className="py-4 px-4 font-extrabold text-emerald-400 bg-emerald-500/5">60 segundos</td>
                   <td className="py-4 px-4 text-neutral-500">15 a 30 días</td>
-                  <td className="py-4 px-4 text-neutral-500">Horas configurando</td>
+                  <td className="py-4 px-4 text-neutral-500">Configuración larga</td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-4 font-medium text-white">Impacto en velocidad</td>
-                  <td className="py-4 px-4 font-extrabold text-emerald-400 bg-emerald-500/5">Cero (&lt;15KB)</td>
+                  <td className="py-4 px-4 font-medium text-white">Peso en la tienda</td>
+                  <td className="py-4 px-4 font-extrabold text-emerald-400 bg-emerald-500/5">&lt;15 KB (Ultra ligero)</td>
                   <td className="py-4 px-4 text-neutral-500">Variable</td>
-                  <td className="py-4 px-4 text-neutral-500">Lenta la tienda</td>
+                  <td className="py-4 px-4 text-neutral-500">Lenta la carga</td>
                 </tr>
                 <tr>
                   <td className="py-4 px-4 font-medium text-white">Comisiones por venta</td>
@@ -542,14 +417,14 @@ export default function LandingPage() {
       </section>
 
       {/* 7. PASOS DE ACTIVACIÓN */}
-      <section className="py-20 bg-[#111111] border-b border-[#1f1f1f]">
+      <section className="py-20 bg-[#141414] border-b border-[#1a1a1a]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
               Cómo se pone en tu tienda
             </h2>
             <p className="text-neutral-400 text-sm sm:text-base">
-              Tres pasos simples. Sin tocar código complejo y 100% automático.
+              Tres pasos simples. Sin tocar código complejo.
             </p>
           </div>
 
@@ -560,7 +435,7 @@ export default function LandingPage() {
               </span>
               <h3 className="text-lg font-bold text-white mb-2">Comprás tu Licencia</h3>
               <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                Completás la suscripción en Mercado Pago y recibís el acceso inmediato a tu Código Maestro CSS+JS.
+                Completás la suscripción en Mercado Pago y accedés inmediatamente al código de tu tienda.
               </p>
             </div>
 
@@ -570,7 +445,7 @@ export default function LandingPage() {
               </span>
               <h3 className="text-lg font-bold text-white mb-2">Pegás el Código</h3>
               <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                Vas a Configuración &gt; Edición avanzada de CSS en tu Tiendanube y pegás el script con 1 solo clic.
+                Ingresás a Configuración &gt; Edición avanzada de CSS en tu Tiendanube y pegás el script con 1 clic.
               </p>
             </div>
 
@@ -580,7 +455,7 @@ export default function LandingPage() {
               </span>
               <h3 className="text-lg font-bold text-white mb-2">Multiplicás Ventas</h3>
               <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                Tu tienda activa al instante los botones pegajosos, ofertas pack y contadores de urgencia.
+                Tu tienda activa al instante los botones pegajosos, ofertas de packs y disparadores de urgencia.
               </p>
             </div>
           </div>
@@ -588,7 +463,7 @@ export default function LandingPage() {
       </section>
 
       {/* 8. TESTIMONIOS */}
-      <section className="py-20 border-b border-[#1f1f1f]">
+      <section className="py-20 border-b border-[#1a1a1a]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl font-extrabold text-white mb-4">Marcas que ya venden más</h2>
@@ -597,7 +472,7 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             
-            <div className="bg-[#111111] border border-[#222222] p-6 rounded-2xl flex flex-col justify-between">
+            <div className="bg-[#141414] border border-[#222222] p-6 rounded-2xl flex flex-col justify-between">
               <div>
                 <div className="flex gap-1 text-emerald-400 mb-4">
                   {[...Array(5)].map((_, i) => (
@@ -619,7 +494,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="bg-[#111111] border border-[#222222] p-6 rounded-2xl flex flex-col justify-between">
+            <div className="bg-[#141414] border border-[#222222] p-6 rounded-2xl flex flex-col justify-between">
               <div>
                 <div className="flex gap-1 text-emerald-400 mb-4">
                   {[...Array(5)].map((_, i) => (
@@ -641,7 +516,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="bg-[#111111] border border-[#222222] p-6 rounded-2xl flex flex-col justify-between">
+            <div className="bg-[#141414] border border-[#222222] p-6 rounded-2xl flex flex-col justify-between">
               <div>
                 <div className="flex gap-1 text-emerald-400 mb-4">
                   {[...Array(5)].map((_, i) => (
@@ -668,20 +543,20 @@ export default function LandingPage() {
       </section>
 
       {/* 9. GARANTÍA DE SATISFACCIÓN */}
-      <section className="py-12 bg-[#111111] border-b border-[#1f1f1f]">
+      <section className="py-12 bg-[#141414] border-b border-[#1a1a1a]">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-4">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <h3 className="text-xl font-extrabold text-white mb-2">Garantía de Devolución de 7 Días</h3>
           <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed max-w-xl mx-auto">
-            Probá el Pack Landing Pro en tu Tiendanube durante 7 días. Si no estás 100% satisfecho con la transformación visual de tus fichas, te devolvemos el 100% de tu dinero inmediatamente.
+            Probá el Pack Landing Pro en tu Tiendanube durante 7 días. Si no estás satisfecho con la transformación visual de tus fichas de producto, te devolvemos el 100% de tu dinero inmediatamente.
           </p>
         </div>
       </section>
 
       {/* 10. PREGUNTAS FRECUENTES (FAQ) */}
-      <section className="py-20 border-b border-[#1f1f1f]">
+      <section className="py-20 border-b border-[#1a1a1a]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-extrabold text-white mb-2">Preguntas Frecuentes</h2>
@@ -692,31 +567,31 @@ export default function LandingPage() {
             {[
               {
                 q: "¿Necesito conocimientos de programación?",
-                a: "Para nada. Te entregamos un archivo con el código listo. Solo tenés que copiarlo y pegarlo en 'Configuración > Edición avanzada de CSS' de tu Tiendanube. Tardás 60 segundos."
+                a: "Para nada. Te entregamos un código listo. Solo tenés que copiarlo y pegarlo en 'Configuración > Edición avanzada de CSS' dentro de tu panel de Tiendanube. Tardás 60 segundos."
               },
               {
                 q: "¿Afecta la velocidad de carga de mi tienda?",
-                a: "No. El código pesa menos de 15KB y se ejecuta de manera ultrarrápida en el celular de tus clientes, manteniendo tu tienda veloz."
+                a: "No. El código pesa menos de 15KB y se ejecuta de forma asíncrona en el celular de tus clientes, manteniendo tu tienda ultra veloz."
               },
               {
-                q: "¿Puedo personalizar los colores y textos?",
-                a: "Sí. El código trae variables muy sencillas donde podés cambiar los colores del botón y los porcentajes de descuento de los packs."
+                q: "¿Puedo personalizar colores y descuentos?",
+                a: "Sí. El script cuenta con variables simples donde podés modificar los colores principales del botón e indicar los porcentajes de descuento deseados."
               },
               {
                 q: "¿Cómo funciona el cobro?",
-                a: "Es una suscripción mensual recurrente de $39.900 ARS procesada a través de Mercado Pago. Podés cancelar en cualquier momento sin compromisos."
+                a: "Es una suscripción mensual recurrente de $39.900 ARS cobrada mediante Mercado Pago. Podés cancelar cuando quieras sin permanencia mínima."
               }
             ].map((faq, idx) => (
-              <div key={idx} className="bg-[#111111] border border-[#222222] rounded-2xl overflow-hidden">
+              <div key={idx} className="bg-[#141414] border border-[#222222] rounded-2xl overflow-hidden">
                 <button
                   onClick={() => toggleFaq(idx)}
-                  className="w-full p-5 text-left font-bold text-white flex justify-between items-center text-xs sm:text-sm hover:bg-[#1a1a1a] transition-colors"
+                  className="w-full p-5 text-left font-bold text-white flex justify-between items-center text-xs sm:text-sm hover:bg-[#1f1f1f] transition-colors"
                 >
                   <span>{faq.q}</span>
                   <ChevronDown className={`w-4 h-4 text-emerald-400 transition-transform ${openFaq === idx ? "rotate-180" : ""}`} />
                 </button>
                 {openFaq === idx && (
-                  <div className="p-5 pt-0 text-neutral-400 text-xs sm:text-sm border-t border-[#1f1f1f] leading-relaxed">
+                  <div className="p-5 pt-0 text-neutral-400 text-xs sm:text-sm border-t border-[#222222] leading-relaxed">
                     {faq.a}
                   </div>
                 )}
@@ -726,10 +601,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 11. BLOQUE DE PRECIO / PRICING CARD */}
+      {/* 11. BLOQUE DE PRICING CHECKOUT */}
       <section className="py-20 relative overflow-hidden">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="bg-[#111111] border-2 border-emerald-500 rounded-3xl p-8 sm:p-12 text-center shadow-2xl shadow-emerald-500/10">
+          <div className="bg-[#141414] border-2 border-emerald-500 rounded-3xl p-8 sm:p-12 text-center shadow-2xl shadow-emerald-500/10">
             
             <span className="inline-block bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-6">
               Oferta Lanzamiento 2026
@@ -767,27 +642,27 @@ export default function LandingPage() {
               </li>
               <li className="flex items-center gap-3">
                 <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>Notificaciones de Ventas en Vivo Alertas</span>
+                <span>Notificaciones de Ventas en Vivo simuladas</span>
               </li>
             </ul>
 
             <a
               href={MP_CHECKOUT_URL}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-base px-8 py-4 rounded-xl shadow-xl shadow-emerald-500/20 transition-all hover:scale-105"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base px-8 py-4 rounded-xl shadow-xl shadow-emerald-500/20 transition-all hover:scale-105"
             >
-              <span>ACTIVAR AHORA EN MERCADO PAGO</span>
+              <span>ACTIVAR AHORA CON MERCADO PAGO</span>
               <ArrowRight className="w-5 h-5" />
             </a>
 
             <p className="text-[11px] text-neutral-500 mt-4">
-              Pago 100% seguro con Mercado Pago. Cancelás cuando quieras con 1 clic.
+              Cobro seguro procesado por Mercado Pago. Podés cancelar con 1 clic.
             </p>
           </div>
         </div>
       </section>
 
       {/* 12. FOOTER */}
-      <footer className="py-10 border-t border-[#1f1f1f] bg-[#0a0a0a] text-neutral-500 text-xs">
+      <footer className="py-10 border-t border-[#1a1a1a] bg-[#0a0a0a] text-neutral-500 text-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <NevuxLogo size="small" />
 
@@ -808,14 +683,14 @@ export default function LandingPage() {
       </footer>
 
       {/* 13. BARRA STICKY MOBILE FINAL */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-[#0a0a0a]/95 backdrop-blur-lg border-t border-[#1f1f1f] z-50 flex items-center justify-between gap-3">
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-[#0a0a0a]/95 backdrop-blur-lg border-t border-[#1a1a1a] z-50 flex items-center justify-between gap-3">
         <div>
           <div className="text-[10px] text-neutral-400 uppercase font-semibold">Pack Landing Pro</div>
           <div className="text-sm font-black text-emerald-400">$39.900 <span className="text-[10px] text-neutral-400 font-normal">/mes</span></div>
         </div>
         <a
           href={MP_CHECKOUT_URL}
-          className="bg-emerald-500 text-black font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
+          className="bg-emerald-500 text-black font-black text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
         >
           <span>Activar Ahora</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -824,4 +699,4 @@ export default function LandingPage() {
 
     </div>
   );
-    }
+          }
