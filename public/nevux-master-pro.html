@@ -1,0 +1,505 @@
+<!-- =========================================================================
+     NEVUX PACK LANDING PAGE PRO v1.0 PARA TIENDANUBE
+     Instrucciones: Copiá todo este contenido y pegalo en el panel de tu Tiendanube:
+     Configuración > Edición avanzada de CSS / Código personalizado.
+     ========================================================================= -->
+
+<style>
+  /* ==========================================
+     1. VARIABLES DE DISEÑO NEVUX
+     ========================================== */
+  :root {
+    --nevux-primary: #10b981;
+    --nevux-primary-hover: #059669;
+    --nevux-bg-dark: #090d16;
+    --nevux-card-dark: #111827;
+    --nevux-text-dark: #f9fafb;
+    --nevux-text-muted: #9ca3af;
+    --nevux-border-dark: #1f2937;
+    --nevux-accent-orange: #f59e0b;
+    --nevux-radius: 14px;
+    --nevux-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* ==========================================
+     2. BOTÓN DE COMPRA PEGAJOSO (STICKY BAR MOBILE)
+     ========================================== */
+  .nevux-sticky-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    z-index: 99999;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: var(--nevux-font);
+  }
+
+  .nevux-sticky-bar.nevux-show {
+    transform: translateY(0);
+  }
+
+  .nevux-sticky-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  .nevux-sticky-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .nevux-sticky-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .nevux-sticky-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nevux-sticky-price {
+    font-size: 15px;
+    font-weight: 800;
+    color: #10b981;
+  }
+
+  .nevux-sticky-btn {
+    background: var(--nevux-primary);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .nevux-sticky-btn:hover {
+    background: var(--nevux-primary-hover);
+  }
+
+  /* ==========================================
+     3. CAJA DE URGENCIA Y STOCK LIMITADO
+     ========================================== */
+  .nevux-urgency-box {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: var(--nevux-radius);
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-family: var(--nevux-font);
+  }
+
+  .nevux-urgency-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    color: #b45309;
+    margin-bottom: 8px;
+  }
+
+  .nevux-urgency-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: #fef3c7;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .nevux-urgency-bar-fill {
+    height: 100%;
+    width: 82%;
+    background: linear-gradient(90deg, #f59e0b, #ef4444);
+    border-radius: 99px;
+    animation: nevuxPulse 2s infinite;
+  }
+
+  @keyframes nevuxPulse {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
+  }
+
+  /* ==========================================
+     4. SELECTOR DE OFERTA PACK (LLEVÁ 2 LLEVÁ 3)
+     ========================================== */
+  .nevux-bundle-container {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-family: var(--nevux-font);
+  }
+
+  .nevux-bundle-card {
+    border: 2px solid #e5e7eb;
+    border-radius: var(--nevux-radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    background: #ffffff;
+  }
+
+  .nevux-bundle-card.active {
+    border-color: var(--nevux-primary);
+    background: rgba(16, 185, 129, 0.04);
+  }
+
+  .nevux-bundle-badge {
+    position: absolute;
+    top: -10px;
+    right: 14px;
+    background: var(--nevux-primary);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .nevux-bundle-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .nevux-bundle-radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nevux-bundle-card.active .nevux-bundle-radio {
+    border-color: var(--nevux-primary);
+  }
+
+  .nevux-bundle-card.active .nevux-bundle-radio::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background: var(--nevux-primary);
+    border-radius: 50%;
+  }
+
+  .nevux-bundle-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .nevux-bundle-subtitle {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .nevux-bundle-price {
+    text-align: right;
+  }
+
+  .nevux-bundle-main-price {
+    font-size: 15px;
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .nevux-bundle-old-price {
+    font-size: 12px;
+    color: #9ca3af;
+    text-decoration: line-through;
+  }
+
+  /* ==========================================
+     5. NOTIFICACIÓN FLOTANTE DE VENTA EN VIVO
+     ========================================== */
+  .nevux-toast-notification {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    z-index: 99990;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: var(--nevux-font);
+    max-width: 320px;
+  }
+
+  @media (max-width: 640px) {
+    .nevux-toast-notification {
+      bottom: 80px;
+      left: 16px;
+      right: 16px;
+      max-width: none;
+    }
+  }
+
+  .nevux-toast-notification.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .nevux-toast-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--nevux-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .nevux-toast-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nevux-toast-text {
+    font-size: 12px;
+    color: #374151;
+  }
+
+  .nevux-toast-text strong {
+    color: #111827;
+  }
+
+  .nevux-toast-time {
+    font-size: 10px;
+    color: #9ca3af;
+    margin-top: 2px;
+  }
+
+  /* ==========================================
+     6. INSIGNIAS DE CONFIANZA Y PAGO SEGURO
+     ========================================== */
+  .nevux-trust-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: var(--nevux-radius);
+    text-align: center;
+    font-family: var(--nevux-font);
+  }
+
+  .nevux-trust-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nevux-trust-icon {
+    font-size: 20px;
+  }
+
+  .nevux-trust-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #374151;
+  }
+</style>
+
+<script>
+  (function () {
+    'use strict';
+
+    // 1. Inyectar Insignias de Confianza
+    function initTrustBadges() {
+      const buyButtonContainer = document.querySelector('.js-product-container') || document.querySelector('form[action*="/cart/add"]');
+      if (!buyButtonContainer) return;
+
+      const trustHTML = `
+        <div class="nevux-trust-grid">
+          <div class="nevux-trust-item">
+            <span class="nevux-trust-icon">🚚</span>
+            <span class="nevux-trust-label">Envío a todo el país</span>
+          </div>
+          <div class="nevux-trust-item">
+            <span class="nevux-trust-icon">💳</span>
+            <span class="nevux-trust-label">3 Cuotas sin interés</span>
+          </div>
+          <div class="nevux-trust-item">
+            <span class="nevux-trust-icon">🔒</span>
+            <span class="nevux-trust-label">Compra Garantizada</span>
+          </div>
+        </div>
+      `;
+      buyButtonContainer.insertAdjacentHTML('beforeend', trustHTML);
+    }
+
+    // 2. Inyectar Barra de Urgencia de Stock
+    function initUrgencyBar() {
+      const priceContainer = document.querySelector('.js-price-display') || document.querySelector('.product-price') || document.querySelector('.js-product-container');
+      if (!priceContainer) return;
+
+      const urgencyHTML = `
+        <div class="nevux-urgency-box">
+          <div class="nevux-urgency-header">
+            <span>🔥 ¡Alta demanda! Quedan pocas unidades</span>
+            <span>84% vendido</span>
+          </div>
+          <div class="nevux-urgency-bar-bg">
+            <div class="nevux-urgency-bar-fill"></div>
+          </div>
+        </div>
+      `;
+      priceContainer.insertAdjacentHTML('afterend', urgencyHTML);
+    }
+
+    // 3. Inyectar Barra Pegajosa de Compra (Mobile Sticky Bar)
+    function initStickyBar() {
+      const originalBtn = document.querySelector('input[type="submit"][name="add"]') || document.querySelector('.js-prod-submit-form') || document.querySelector('.js-addtocart');
+      const productTitleEl = document.querySelector('h1') || document.querySelector('.product-name');
+      const productPriceEl = document.querySelector('.js-price-display') || document.querySelector('.product-price');
+      const productImgEl = document.querySelector('img[src*="products"]') || document.querySelector('.js-product-slide img');
+
+      if (!originalBtn) return;
+
+      const title = productTitleEl ? productTitleEl.innerText.trim() : 'Producto';
+      const price = productPriceEl ? productPriceEl.innerText.trim() : '';
+      const imgSrc = productImgEl ? productImgEl.src : '';
+
+      const stickyHTML = `
+        <div class="nevux-sticky-bar" id="nevuxStickyBar">
+          <div class="nevux-sticky-info">
+            ${imgSrc ? `<img src="${imgSrc}" class="nevux-sticky-img" alt="Producto">` : ''}
+            <div class="nevux-sticky-details">
+              <span class="nevux-sticky-title">${title}</span>
+              <span class="nevux-sticky-price">${price}</span>
+            </div>
+          </div>
+          <button class="nevux-sticky-btn" id="nevuxStickyBtn">COMPRAR AHORA</button>
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML('beforeend', stickyHTML);
+
+      const stickyBar = document.getElementById('nevuxStickyBar');
+      const stickyBtn = document.getElementById('nevuxStickyBtn');
+
+      // Scroll listener
+      window.addEventListener('scroll', function () {
+        const btnRect = originalBtn.getBoundingClientRect();
+        if (btnRect.bottom < 0) {
+          stickyBar.classList.add('nevux-show');
+        } else {
+          stickyBar.classList.remove('nevux-show');
+        }
+      });
+
+      // Click event
+      stickyBtn.addEventListener('click', function () {
+        originalBtn.click();
+      });
+    }
+
+    // 4. Inyectar Notificaciones de Ventas Simuladas en Vivo
+    function initLiveSalesToast() {
+      const buyers = [
+        { name: 'María de Córdoba', time: 'hace 2 min' },
+        { name: 'Gonzalo de Rosario', time: 'hace 5 min' },
+        { name: 'Lucía de Buenos Aires', time: 'hace 8 min' },
+        { name: 'Santiago de Mendoza', time: 'hace 12 min' },
+        { name: 'Valentina de Salta', time: 'hace 15 min' }
+      ];
+
+      const toastHTML = `
+        <div class="nevux-toast-notification" id="nevuxToast">
+          <div class="nevux-toast-icon">✓</div>
+          <div class="nevux-toast-content">
+            <span class="nevux-toast-text"><strong id="nevuxToastName">María</strong> compró este producto</span>
+            <span class="nevux-toast-time" id="nevuxToastTime">hace 2 min</span>
+          </div>
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML('beforeend', toastHTML);
+
+      const toast = document.getElementById('nevuxToast');
+      const toastName = document.getElementById('nevuxToastName');
+      const toastTime = document.getElementById('nevuxToastTime');
+
+      let index = 0;
+
+      function showNextToast() {
+        const current = buyers[index];
+        toastName.innerText = current.name;
+        toastTime.innerText = current.time;
+
+        toast.classList.add('show');
+
+        setTimeout(function () {
+          toast.classList.remove('show');
+        }, 5000);
+
+        index = (index + 1) % buyers.length;
+      }
+
+      // Primera notificación a los 4 segundos, luego cada 18 segundos
+      setTimeout(showNextToast, 4000);
+      setInterval(showNextToast, 18000);
+    }
+
+    // Inicializar todo al cargar el DOM
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        initUrgencyBar();
+        initTrustBadges();
+        initStickyBar();
+        initLiveSalesToast();
+      });
+    } else {
+      initUrgencyBar();
+      initTrustBadges();
+      initStickyBar();
+      initLiveSalesToast();
+    }
+  })();
+  </script>
