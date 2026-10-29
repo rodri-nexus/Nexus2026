@@ -761,6 +761,63 @@
       if (slider) slider.insertAdjacentHTML('afterend', ben);
       else (document.querySelector('.nvh') || footer || document.body).insertAdjacentHTML(footer || document.querySelector('.nvh') ? 'beforebegin' : 'beforeend', ben);
     }
+
+    // Cuenta regresiva: hasta la hora de corte del despacho (envio) o hasta el fin de una promo con fecha (hasta)
+    var CR = H.cuentaRegresiva;
+    var E = NEVUX.envio;
+    if (CR) {
+      CR = CR === true ? {} : CR;
+      var finPromo = CR.hasta ? new Date(CR.hasta) : null;
+      if (finPromo || (E && E.corte != null && E.dias)) {
+        hCss('nvx-cr-css',
+          '.nvh-crw{background:transparent}' +
+          '.nvh-cr{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 10px;margin:14px 16px 0;padding:14px 12px;border-radius:16px;' +
+          'background:' + C + ';color:' + NEVUX.colorTexto + ';font-family:' + FONT + ';text-align:center;box-shadow:0 10px 26px ' + C + '40}' +
+          '.nvh-cr-t{font-weight:900;font-size:15px;text-transform:uppercase;letter-spacing:.02em}' +
+          '.nvh-cr-n{display:inline-flex;gap:5px;align-items:center}' +
+          '.nvh-cr-n b{display:inline-block;min-width:44px;padding:7px 4px 5px;border-radius:10px;background:rgba(0,0,0,.2);font-size:22px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}' +
+          '.nvh-cr-n b small{display:block;font-size:9px;font-weight:700;opacity:.85;margin-top:3px;letter-spacing:.06em}' +
+          '.nvh-cr-n i{font-style:normal;font-weight:900;font-size:18px;opacity:.7}');
+        var crHtml = '<div class="nvh nvh-crw"><div class="nvh-cr"><span class="nvh-cr-t"></span><span class="nvh-cr-n"></span><span class="nvh-cr-t nvh-cr-f"></span></div></div>';
+        var slider2 = document.querySelector('[data-store="home-slider"]');
+        if (slider2) slider2.insertAdjacentHTML('afterend', crHtml);
+        else (document.querySelector('.nvh') || footer || document.body).insertAdjacentHTML(footer || document.querySelector('.nvh') ? 'beforebegin' : 'beforeend', crHtml);
+        var crBox = document.querySelector('.nvh-crw');
+        var dos = function (n) { return (n < 10 ? '0' : '') + n; };
+        var caja = function (n, l) { return '<b>' + dos(n) + '<small>' + l + '</small></b>'; };
+        var DL = ['el domingo', 'el lunes', 'el martes', 'el miércoles', 'el jueves', 'el viernes', 'el sábado'];
+        var tick = function () {
+          var ms, ini, fin;
+          if (finPromo) {
+            ms = finPromo - Date.now();
+            if (ms <= 0) { crBox.remove(); clearInterval(crTimer); return; }
+            ini = CR.texto || '🔥 La promo termina en';
+            fin = CR.textoFinal || '';
+          } else {
+            var ar = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
+            var corte = new Date(ar); corte.setHours(E.corte, 0, 0, 0);
+            if (E.dias.indexOf(ar.getDay()) > -1 && ar < corte) {
+              ms = corte - ar;
+              ini = CR.texto || '⚡ Pedí en las próximas';
+              fin = CR.textoFinal || 'y despachamos hoy';
+            } else {
+              var d = new Date(ar), k = 0;
+              do { d.setDate(d.getDate() + 1); k++; } while (E.dias.indexOf(d.getDay()) < 0 && k < 8);
+              crBox.querySelector('.nvh-cr-t').textContent = '🚚 Pedí ahora y despachamos ' + (k === 1 ? 'mañana' : DL[d.getDay()]);
+              crBox.querySelector('.nvh-cr-n').innerHTML = '';
+              crBox.querySelector('.nvh-cr-f').textContent = '';
+              return;
+            }
+          }
+          var seg = Math.floor(ms / 1000), dd = Math.floor(seg / 86400), hh = Math.floor(seg % 86400 / 3600), mm = Math.floor(seg % 3600 / 60), ss = seg % 60;
+          crBox.querySelector('.nvh-cr-t').textContent = ini;
+          crBox.querySelector('.nvh-cr-n').innerHTML = (dd ? caja(dd, 'DÍAS') + '<i>:</i>' : '') + caja(hh, 'HS') + '<i>:</i>' + caja(mm, 'MIN') + '<i>:</i>' + caja(ss, 'SEG');
+          crBox.querySelector('.nvh-cr-f').textContent = fin;
+        };
+        var crTimer = setInterval(tick, 1000);
+        tick();
+      }
+    }
   }
 
   // Colores y tipografía de la tienda: Nevux se viste con la marca del cliente, no con la propia
