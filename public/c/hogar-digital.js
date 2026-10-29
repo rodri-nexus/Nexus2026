@@ -50,6 +50,8 @@
 
       // Home
       home: {
+        // Cuenta regresiva real hasta las 18 h (hora de corte del despacho)
+        cuentaRegresiva: true,
         porQue: {
           etiqueta: 'Desde los años 80',
           titulo: 'Por qué comprar en Hogar Digital',

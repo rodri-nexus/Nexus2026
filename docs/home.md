@@ -20,6 +20,12 @@ Van antes del pie de la plantilla, en este orden. Los beneficios van debajo del 
 
 ```js
 home: {
+  // Cuenta regresiva debajo del banner principal.
+  // true = hasta la hora de corte del despacho (usa envio): "Pedí en las próximas 02:14:37 y despachamos hoy".
+  //   Pasada la hora o en días sin despacho: "Pedí ahora y despachamos mañana / el lunes".
+  // Para una promo con fecha de fin: { hasta: '2026-11-30T23:59:00-03:00', texto: '🔥 La promo termina en' }
+  cuentaRegresiva: true,
+
   // Franja de beneficios
   beneficios: [
     { icono: '💳', titulo: '3 cuotas sin interés', texto: 'Con todas las tarjetas.' },
