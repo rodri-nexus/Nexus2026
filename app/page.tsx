@@ -148,7 +148,7 @@ const PIECE_COUNT = PIECE_GROUPS.reduce((n, g) => n + g.pieces.length, 0);
 const FAQS = [
   {
     q: "¿Tengo que saber programar?",
-    a: "No. Te damos una sola línea, ya configurada para tu tienda, y la pegás en Configuración > Códigos externos de tu Tiendanube. Los cambios de precios, envíos o promociones los hacemos nosotros, sin que toques nada.",
+    a: "No. Te damos una sola línea, ya configurada para tu tienda, y la pegás en el editor de diseño de tu Tiendanube. Los cambios de precios, envíos o promociones los hacemos nosotros, sin que toques nada.",
   },
   {
     q: "¿Tengo que cambiar de plantilla?",
@@ -653,7 +653,7 @@ export default function LandingPage() {
             {[
               { n: "01", icon: MessageCircle, t: "Analizamos tu tienda", d: "Nos escribís por WhatsApp y revisamos tus fichas: qué frena la compra y qué conviene sumar." },
               { n: "02", icon: Smartphone, t: "Lo probamos en tu ficha", d: "Configuramos el código con tus datos reales y lo probamos sobre un producto tuyo antes de entregártelo." },
-              { n: "03", icon: Zap, t: "Pegás una línea y listo", d: "La pegás en Configuración > Códigos externos de tu Tiendanube. Tarda un minuto." },
+              { n: "03", icon: Zap, t: "Pegás una línea y listo", d: "La pegás en el editor de diseño de tu Tiendanube. Tarda un minuto." },
             ].map((s, i) => (
               <motion.div
                 key={s.n}
