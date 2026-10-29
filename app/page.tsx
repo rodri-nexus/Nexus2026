@@ -31,8 +31,8 @@ export default function LandingPage() {
     function fitPhone() {
       var st = $(".stage") as HTMLElement;
       var narrow = matchMedia("(max-width:820px)").matches;
-      var txtH = narrow ? ($(".txt") as HTMLElement).offsetHeight + 10 : 0;
-      var availH = st.clientHeight - txtH - (narrow ? 26 : 60);
+      var txtH = narrow ? ($(".txt") as HTMLElement)?.offsetHeight + 10 : 0;
+      var availH = st ? st.clientHeight - txtH - (narrow ? 26 : 60) : 500;
       var availW = fit.parentElement?.clientWidth || 320;
       var k = Math.max(0.4, Math.min(1.12, availH / 560, availW / 280));
       fit.style.width = 280 * k + "px";
@@ -41,7 +41,7 @@ export default function LandingPage() {
     }
 
     function measure() {
-      var h = ($(".screen") as HTMLElement).clientHeight;
+      var h = ($(".screen") as HTMLElement)?.clientHeight || 560;
       var maxY = Math.max(0, page.scrollHeight - h);
       var off = function (id: string) {
         var el = $(id) as HTMLElement;
@@ -120,7 +120,7 @@ export default function LandingPage() {
         var ts = $("#toastS");
         if (tt) tt.textContent = msgs[mi][0];
         if (ts) ts.textContent = msgs[mi][1];
-        t.classList.add("in");
+        if (t) t.classList.add("in");
         mi = (mi + 1) % msgs.length;
       }, 300);
     }
@@ -458,7 +458,7 @@ export default function LandingPage() {
         .sbar .pr{font-family:var(--f-display);font-weight:700;font-size:16px;letter-spacing:-.02em;line-height:1.1}
         .sbar .pr small{display:block;font-family:var(--f-body);font-weight:400;font-size:9.5px;color:var(--muted);letter-spacing:0}
         .sbar button{flex:0 0 auto;background:var(--fg);color:var(--bg);border:0;border-radius:99px;font:600 12px var(--f-body);padding:10px 16px}
-        .toast{position:absolute;left:12px;right:12px;bottom:68px;z-index:6;display:flex;gap:9px;align-items:center;background:var(--fg);color:var(--bg);padding:9px 12px;border-radius:12px;box-shadow:0 10px 24px -8px rgba(0,0,0,.45);opacity:0;transform:translateY(16px) scale(.97);transition:opacity .35s,transform .45s cubic-bezier(.2,1.2,.3,1);pointer-events:none}
+        .toast{position:absolute;left:12px;right:12px;bottom:68px;z-index:6;display:flex;gap:9px;align-items:center;background:var(--fg);color:var(--bg);padding:99px 12px;border-radius:12px;box-shadow:0 10px 24px -8px rgba(0,0,0,.45);opacity:0;transform:translateY(16px) scale(.97);transition:opacity .35s,transform .45s cubic-bezier(.2,1.2,.3,1);pointer-events:none}
         .toast.in{opacity:1;transform:none}
         .toast .av{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;font-weight:700;font-size:12px}
         .toast b{font-weight:600}.toast small{display:block;opacity:.65;font-size:10px}
@@ -563,7 +563,7 @@ export default function LandingPage() {
             </svg>
             Nevux
           </a>
-          <a className="btn" data-cta href="#cta">
+          <a className="btn" data-cta href="https://mpago.la/1LqFYin">
             Probar Nevux
           </a>
         </header>
@@ -574,7 +574,7 @@ export default function LandingPage() {
             Una tienda con <em>Nevux</em>, de punta a punta.
           </h1>
           <p>Deslizá y recorrela como la ve tu cliente.</p>
-          <a className="skip" href="#cta">
+          <a className="skip" href="https://mpago.la/1LqFYin">
             Saltar ↓
           </a>
         </section>
@@ -1023,7 +1023,7 @@ export default function LandingPage() {
           <h2>Tu tienda, con estos widgets.</h2>
           <p>Armalo en minutos, sin tocar código.</p>
           <div className="row">
-            <a className="btn" data-cta href="#cta">
+            <a className="btn" data-cta href="https://mpago.la/1LqFYin">
               Probar Nevux
             </a>
             <a className="btn ghost" href="#tour">
@@ -1039,4 +1039,4 @@ export default function LandingPage() {
       </div>
     </>
   );
-                                }
+      }
