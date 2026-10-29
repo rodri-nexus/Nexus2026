@@ -1,702 +1,1042 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Zap,
-  CheckCircle2,
-  ArrowRight,
-  ShieldCheck,
-  Sparkles,
-  ShoppingBag,
-  Star,
-  MessageCircle,
-  Store,
-  ChevronDown,
-  Flame,
-  Check,
-  Layers,
-  TrendingUp,
-  Award,
-  ArrowUpRight
-} from "lucide-react";
-import NevuxLogo from "@/app/components/landing/NevuxLogo";
-import PhoneMockup from "@/app/components/landing/PhoneMockup";
+import { useEffect } from "react";
 
 export default function LandingPage() {
-  const [storeUrl, setStoreUrl] = useState("");
-  const [activeStep, setActiveStep] = useState<number>(1);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  useEffect(() => {
+    // --- LÓGICA JAVASCRIPT EXACTA DEL ARCHIVO PROPORCIONADO ---
+    var $ = function (s: string, r?: Document | Element) {
+      return (r || document).querySelector(s);
+    };
+    var $$ = function (s: string, r?: Document | Element) {
+      return Array.prototype.slice.call((r || document).querySelectorAll(s));
+    };
+    var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.documentElement.classList.add("js");
 
-  const MP_CHECKOUT_URL = "https://mpago.la/1LqFYin";
+    var tour = $("#tour") as HTMLElement;
+    var chaps = $$(".chap") as HTMLElement[];
+    var segs = $$(".prog i") as HTMLElement[];
+    var page = $("#page") as HTMLElement;
+    var phone = $("#phone") as HTMLElement;
+    var fit = $("#fit") as HTMLElement;
 
-  const handleStartActivation = (e: React.FormEvent) => {
-    e.preventDefault();
-    window.location.href = MP_CHECKOUT_URL;
-  };
+    if (!tour || !page || !phone || !fit) return;
 
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
+    var active = -1,
+      cur = 0,
+      target = 0,
+      targets = [0, 0, 0, 0];
+
+    function fitPhone() {
+      var st = $(".stage") as HTMLElement;
+      var narrow = matchMedia("(max-width:820px)").matches;
+      var txtH = narrow ? ($(".txt") as HTMLElement).offsetHeight + 10 : 0;
+      var availH = st.clientHeight - txtH - (narrow ? 26 : 60);
+      var availW = fit.parentElement?.clientWidth || 320;
+      var k = Math.max(0.4, Math.min(1.12, availH / 560, availW / 280));
+      fit.style.width = 280 * k + "px";
+      fit.style.height = 560 * k + "px";
+      phone.style.transform = "scale(" + k + ")";
+    }
+
+    function measure() {
+      var h = ($(".screen") as HTMLElement).clientHeight;
+      var maxY = Math.max(0, page.scrollHeight - h);
+      var off = function (id: string) {
+        var el = $(id) as HTMLElement;
+        return Math.min(maxY, Math.max(0, (el ? el.offsetTop : 0) - 52));
+      };
+      targets = [0, off("#w-packs"), off("#w-reviews"), 0];
+      target = targets[Math.max(0, active)] || 0;
+    }
+
+    /* stock + shipping animations */
+    function countTo(el: Element, from: number, to: number, ms: number) {
+      if (reduce) {
+        el.textContent = String(to);
+        return;
+      }
+      var t0 = performance.now();
+      (function f(now) {
+        var t = Math.min(1, (now - t0) / ms);
+        el.textContent = String(Math.round(from + (to - from) * t));
+        if (t < 1) requestAnimationFrame(f);
+      })(t0);
+    }
+
+    function runShip() {
+      var f = $("#shipFill") as HTMLElement;
+      if (f) {
+        f.style.width = "0";
+        setTimeout(function () {
+          f.style.width = "82%";
+        }, 60);
+      }
+      var stockN = $("#stockN");
+      if (stockN) countTo(stockN, 12, 7, 1400);
+      var stockFill = $("#stockFill") as HTMLElement;
+      if (stockFill) stockFill.style.width = "18%";
+    }
+
+    /* packs */
+    var packData: Record<number, string[]> = {
+      1: ["$32.900", "Llevá 1"],
+      2: ["$55.930", "Llevá 2 · 15% OFF"],
+      3: ["$78.960", "Llevá 3 · 20% OFF"],
+    };
+    function selectPack(n: number) {
+      $$(".pack").forEach(function (b) {
+        (b as HTMLElement).classList.toggle(
+          "sel",
+          +(b as HTMLElement).dataset.n! === n
+        );
+      });
+      var sbPrice = $("#sbPrice");
+      var sbSub = $("#sbSub");
+      if (sbPrice) sbPrice.textContent = packData[n][0];
+      if (sbSub) sbSub.textContent = packData[n][1];
+    }
+    $$(".pack").forEach(function (b) {
+      b.addEventListener("click", function () {
+        selectPack(+(b as HTMLElement).dataset.n!);
+      });
+    });
+
+    /* toast cycle */
+    var msgs = [
+      ["Alguien de Córdoba compró 2", "hace 3 minutos"],
+      ["Alguien de Rosario compró 1", "hace 8 minutos"],
+      ["Alguien de Mendoza compró 3", "hace 12 minutos"],
+    ];
+    var mi = 0,
+      toastTimer: any = 0;
+    function showToast() {
+      var t = $("#toast");
+      if (!t) return;
+      t.classList.remove("in");
+      setTimeout(function () {
+        var tt = $("#toastT");
+        var ts = $("#toastS");
+        if (tt) tt.textContent = msgs[mi][0];
+        if (ts) ts.textContent = msgs[mi][1];
+        t.classList.add("in");
+        mi = (mi + 1) % msgs.length;
+      }, 300);
+    }
+    function startToast() {
+      stopToast();
+      setTimeout(showToast, 500);
+      toastTimer = setInterval(showToast, 3600);
+    }
+    function stopToast() {
+      clearInterval(toastTimer);
+      var t = $("#toast");
+      if (t) t.classList.remove("in");
+    }
+
+    /* scratch card */
+    var cv = $("#scratch") as HTMLCanvasElement;
+    var cx = cv ? cv.getContext("2d") : null;
+    var W = 220,
+      H = 110,
+      scTimer: any = 0,
+      scRaf = 0;
+
+    function cover() {
+      if (!cx) return;
+      cx.globalCompositeOperation = "source-over";
+      var g = cx.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, "#9aa1ad");
+      g.addColorStop(0.5, "#d3d8e0");
+      g.addColorStop(1, "#8f97a4");
+      cx.fillStyle = g;
+      cx.fillRect(0, 0, W, H);
+      cx.fillStyle = "#454b56";
+      cx.font = "700 15px Geist, Arial, sans-serif";
+      cx.textAlign = "center";
+      cx.fillText("RASPÁ ACÁ", W / 2, H / 2 + 5);
+    }
+    function scratchAt(x: number, y: number) {
+      if (!cx) return;
+      cx.globalCompositeOperation = "destination-out";
+      cx.beginPath();
+      cx.arc(x, y, 17, 0, 7);
+      cx.fill();
+    }
+    function autoScratch() {
+      cancelAnimationFrame(scRaf);
+      var t0 = performance.now(),
+        dur = reduce ? 1 : 1900,
+        rows = 4;
+      (function s(now) {
+        var t = Math.min(1, (now - t0) / dur),
+          u = t * rows,
+          row = Math.min(rows - 1, Math.floor(u)),
+          f = u - row;
+        var x = (row % 2 ? 1 - f : f) * (W + 20) - 10,
+          y = 14 + (row * (H - 28)) / (rows - 1);
+        scratchAt(x, y);
+        if (t < 1) {
+          scRaf = requestAnimationFrame(s);
+        } else {
+          var ov = $("#ov");
+          if (ov) ov.classList.add("won");
+        }
+      })(t0);
+    }
+    function startScratch() {
+      stopScratch();
+      cover();
+      var ov = $("#ov");
+      if (ov) {
+        ov.classList.remove("won");
+        ov.classList.add("on");
+      }
+      scTimer = setTimeout(autoScratch, 900);
+    }
+    function stopScratch() {
+      clearTimeout(scTimer);
+      cancelAnimationFrame(scRaf);
+      var ov = $("#ov");
+      if (ov) ov.classList.remove("on");
+    }
+    if (cv) {
+      cv.addEventListener("pointermove", function (e) {
+        if (e.buttons || e.pointerType === "touch") {
+          var r = cv.getBoundingClientRect(),
+            k = W / r.width;
+          scratchAt((e.clientX - r.left) * k, (e.clientY - r.top) * k);
+        }
+      });
+    }
+
+    /* chapters */
+    function setChapter(c: number) {
+      if (c === active) return;
+      active = c;
+      chaps.forEach(function (el, i) {
+        el.classList.toggle("on", i === c);
+      });
+      segs.forEach(function (el, i) {
+        el.classList.toggle("on", i === c);
+        el.classList.toggle("done", i < c);
+      });
+      $$("[data-w]").forEach(function (el) {
+        (el as HTMLElement).classList.toggle(
+          "hl",
+          +(el as HTMLElement).dataset.w! === c
+        );
+      });
+      target = targets[c] || 0;
+      if (c !== 3) stopScratch();
+      if (c !== 2) stopToast();
+      if (c === 0) runShip();
+      if (c === 1) {
+        selectPack(1);
+        setTimeout(function () {
+          if (active === 1) selectPack(2);
+        }, 700);
+      }
+      if (c === 2) startToast();
+      if (c === 3) startScratch();
+    }
+    function onScroll() {
+      if (!tour) return;
+      var r = tour.getBoundingClientRect(),
+        total = tour.offsetHeight - innerHeight;
+      var p = Math.min(1, Math.max(0, -r.top / total));
+      setChapter(Math.min(3, Math.floor(p * 4)));
+    }
+    function tick() {
+      cur += (target - cur) * (reduce ? 1 : 0.085);
+      if (Math.abs(target - cur) < 0.3) cur = target;
+      if (page) page.style.transform = "translate3d(0," + -cur + "px,0)";
+      requestAnimationFrame(tick);
+    }
+
+    /* reveal on scroll */
+    var io = new IntersectionObserver(
+      function (es) {
+        es.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          e.target.classList.remove("pre");
+          e.target.classList.add("in");
+          var c = $("[data-count]", e.target) as HTMLElement;
+          if (c) {
+            $$("[data-count]", e.target).forEach(function (n) {
+              countTo(
+                n,
+                0,
+                +((n as HTMLElement).dataset.count || 0),
+                1200
+              );
+            });
+          }
+          io.unobserve(e.target);
+        });
+      },
+      { threshold: 0.15 }
+    );
+    $$(".rv").forEach(function (el) {
+      if (el.getBoundingClientRect().top > innerHeight)
+        el.classList.add("pre");
+      io.observe(el);
+    });
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", function () {
+      fitPhone();
+      measure();
+      onScroll();
+    });
+
+    fitPhone();
+    measure();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () {
+        fitPhone();
+        measure();
+      });
+    }
+    onScroll();
+    if (active < 0) setChapter(0);
+    tick();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      stopToast();
+      stopScratch();
+    };
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-emerald-500 selection:text-black pb-24 sm:pb-0">
-      
-      {/* 1. NAVBAR STICKY */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#0a0a0a]/90 border-b border-[#1a1a1a]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
-          <NevuxLogo size="medium" />
+    <>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap');
+        
+        :root{
+          --bg:#EDEFF2; --fg:#0A0B0D; --muted:#5B616B; --line:#D3D8DF; --card:#FFFFFF;
+          --accent:#2F4BFF; --accent-fg:#FFFFFF; --ok:#0E9F6E; --warn:#E5484D;
+          --screen:#FFFFFF; --vis1:#F4F6FA; --vis2:#DDE3EE; --soft:#F2F4F7;
+          --f-display:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif;
+          --f-body:'Geist','Helvetica Neue',Arial,sans-serif;
+          --f-mono:'Geist Mono',ui-monospace,Menlo,Consolas,monospace;
+        }
+        @media (prefers-color-scheme: dark){
+          :root:not([data-theme="light"]){
+            --bg:#0A0B0D; --fg:#F2F3F5; --muted:#9AA1AC; --line:#24272D; --card:#121418;
+            --accent:#6F83FF; --accent-fg:#0A0B0D; --ok:#2FD39A; --warn:#FF6B6F;
+            --screen:#14161A; --vis1:#1B1E25; --vis2:#0F1115; --soft:#1B1E24; color-scheme:dark;
+          }
+        }
+        :root[data-theme="dark"]{
+          --bg:#0A0B0D; --fg:#F2F3F5; --muted:#9AA1AC; --line:#24272D; --card:#121418;
+          --accent:#6F83FF; --accent-fg:#0A0B0D; --ok:#2FD39A; --warn:#FF6B6F;
+          --screen:#14161A; --vis1:#1B1E25; --vis2:#0F1115; --soft:#1B1E24; color-scheme:dark;
+        }
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+          background:var(--bg) !important;
+          color:var(--fg) !important;
+          font-family:var(--f-body) !important;
+          font-size:16px;
+          line-height:1.55;
+          padding-left:max(16px,env(safe-area-inset-left,0px));
+          padding-right:max(16px,env(safe-area-inset-right,0px));
+          padding-block:0;
+          overflow-x:hidden;
+          margin: 0;
+        }
+        h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:-.03em;line-height:1.02;margin:0;text-wrap:balance}
+        p{margin:0}
+        em{font-style:normal;color:var(--accent)}
+        a{color:inherit}
+        :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+        .wrap{max-width:1120px;margin-inline:auto}
+        .eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 
-          <div className="flex items-center gap-4">
-            <a
-              href="https://wa.me/5493435042812?text=Hola!%20Tengo%20una%20consulta%20sobre%20Nevux%20Pro"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-2 text-xs font-semibold text-neutral-400 hover:text-white transition-colors"
-            >
-              <MessageCircle className="w-4 h-4 text-emerald-500" />
-              Soporte
-            </a>
-            <a
-              href={MP_CHECKOUT_URL}
-              className="bg-emerald-500 hover:bg-emerald-400 text-black font-black px-5 py-2.5 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 flex items-center gap-2"
-            >
-              <Zap className="w-4 h-4 fill-black" />
-              Obtener Pack Pro
-            </a>
-          </div>
-        </div>
-      </header>
+        /* header */
+        .top{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:18px}
+        .brand{display:flex;align-items:center;gap:.6rem;font-family:var(--f-display);font-weight:700;font-size:1.25rem;letter-spacing:-.02em;text-decoration:none}
+        .brand svg{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);display:block}
+        .btn{display:inline-flex;align-items:center;gap:.5rem;background:var(--fg);color:var(--bg);font-weight:600;font-size:.95rem;text-decoration:none;padding:.8rem 1.3rem;border-radius:999px;border:0;cursor:pointer;transition:transform .2s,background .2s}
+        .btn:hover{transform:translateY(-2px);background:var(--accent);color:var(--accent-fg)}
+        .btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+        .btn.ghost:hover{background:var(--card);color:var(--fg);border-color:var(--fg)}
 
-      {/* 2. HERO SECTION */}
-      <section className="relative pt-12 pb-16 md:pt-24 md:pb-28 overflow-hidden border-b border-[#1a1a1a]">
-        {/* Glow Central */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[160px] pointer-events-none" />
+        /* intro */
+        .intro{padding-block:clamp(36px,8vw,88px) clamp(28px,5vw,56px);display:grid;gap:1.4rem;justify-items:start}
+        .intro h1{font-size:clamp(2.5rem,8.2vw,6rem);max-width:13ch}
+        .intro p{color:var(--muted);font-size:1.15rem;max-width:34ch}
+        .skip{font-family:var(--f-mono);font-size:.8rem;text-decoration:none;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:2px}
+        .skip:hover{color:var(--fg);border-color:var(--fg)}
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
-          
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#141414] border border-[#262626] text-emerald-400 text-xs sm:text-sm font-semibold mb-8"
-          >
-            <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
-            <span>Código Maestro CSS+JS v1.0 para Tiendanube</span>
-          </motion.div>
+        /* tour */
+        .tour{height:calc(100svh * 4.6);position:relative}
+        .stage{position:sticky;top:env(safe-area-inset-top,0px);height:100svh;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:clamp(32px,7vw,110px);max-width:1120px;margin-inline:auto}
+        .txt{display:grid;gap:1.6rem;min-width:0}
+        .chaps{display:grid}
+        .chap{grid-area:1/1;display:grid;gap:1.1rem;align-content:center;opacity:0;visibility:hidden;transform:translateY(22px);transition:opacity .5s,transform .5s,visibility 0s .5s}
+        .chap.on{opacity:1;visibility:visible;transform:none;transition:opacity .5s .1s,transform .5s .1s}
+        .chap h2{font-size:clamp(2rem,4.6vw,3.7rem)}
+        .chap p{color:var(--muted);max-width:34ch;font-size:1.08rem}
+        .chips{display:flex;flex-wrap:wrap;gap:.5rem}
+        .chip{font-family:var(--f-mono);font-size:.74rem;padding:.35rem .7rem;border:1px solid var(--line);border-radius:999px;background:var(--card)}
+        .chip::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:.5rem;vertical-align:1px}
+        .prog{display:flex;gap:6px;max-width:320px}
+        .prog i{flex:1;height:3px;border-radius:3px;background:var(--line);position:relative;overflow:hidden}
+        .prog i::after{content:"";position:absolute;inset:0;background:var(--fg);transform:scaleX(0);transform-origin:left;transition:transform .6s}
+        .prog i.done::after,.prog i.on::after{transform:scaleX(1)}
+        .prog i.on::after{background:var(--accent)}
+        .phone-col{display:grid;justify-items:center;gap:.7rem}
+        .fit{position:relative}
+        .cap{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);letter-spacing:.06em}
 
-          {/* Headline Editorial */}
-          <motion.h1
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.06] mb-6"
-          >
-            Transformá tu Tiendanube en una{" "}
-            <span className="text-emerald-400 underline decoration-emerald-500/40 decoration-4 underline-offset-8">
-              Landing Page
-            </span>{" "}
-            de Alta Conversión
-          </motion.h1>
+        /* phone */
+        .phone{width:280px;height:560px;padding:8px;border-radius:42px;background:#050506;box-shadow:0 0 0 1px #2a2d33,0 30px 70px -20px rgba(10,11,13,.45);transform-origin:0 0;position:absolute;left:0;top:0}
+        .screen{position:relative;height:100%;border-radius:34px;overflow:hidden;background:var(--screen);color:var(--fg);font-size:12px;line-height:1.4}
+        .page{will-change:transform;padding-bottom:150px}
+        .shead{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px;font-family:var(--f-display);font-weight:700;letter-spacing:.14em;font-size:13px}
+        .shead span{font-family:var(--f-mono);font-size:10px;letter-spacing:0;font-weight:500;color:var(--muted)}
+        .w{position:relative;margin:8px 12px;transition:outline-color .3s}
+        .w.hl{outline:2px solid var(--accent);outline-offset:4px;border-radius:12px;animation:pulse 1.8s ease-in-out infinite}
+        @keyframes pulse{50%{outline-color:transparent}}
+        .wtag{position:absolute;top:-17px;left:6px;z-index:3;font-family:var(--f-mono);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--accent-fg);padding:2px 7px;border-radius:99px;opacity:0;transform:translateY(4px);transition:.3s;white-space:nowrap}
+        .w.hl .wtag{opacity:1;transform:none}
+        .ship{background:var(--soft);border-radius:10px;padding:9px 11px;display:grid;gap:6px}
+        .ship b{font-weight:600}
+        .bar{height:6px;border-radius:6px;background:var(--line);overflow:hidden}
+        .bar i{display:block;height:100%;width:0;background:var(--ok);border-radius:6px;transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+        .vis{height:218px;margin:6px 0 0;background:linear-gradient(var(--vis1),var(--vis2));position:relative;overflow:hidden}
+        .ufo{position:absolute;left:50%;bottom:34px;width:150px;height:96px;transform:translateX(-50%);animation:float 4s ease-in-out infinite}
+        @keyframes float{50%{transform:translate(-50%,-7px)}}
+        .dome{position:absolute;left:34px;top:0;width:82px;height:46px;border-radius:82px 82px 0 0;background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(160,175,205,.45));border:1px solid rgba(120,135,165,.4);border-bottom:0}
+        .hull{position:absolute;left:0;bottom:8px;width:150px;height:44px;border-radius:50%;background:linear-gradient(#fff,#b9c0cf 70%,#8c95a8);box-shadow:0 8px 14px -6px rgba(10,11,13,.35)}
+        .leds{position:absolute;left:0;right:0;bottom:22px;display:flex;justify-content:center;gap:11px}
+        .leds b{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px 2px var(--accent);animation:led 3s linear infinite}
+        .leds b:nth-child(2){animation-delay:-.6s}.leds b:nth-child(3){animation-delay:-1.2s}.leds b:nth-child(4){animation-delay:-1.8s}.leds b:nth-child(5){animation-delay:-2.4s}
+        @keyframes led{0%{filter:hue-rotate(0)}100%{filter:hue-rotate(360deg)}}
+        .mist{position:absolute;left:50%;bottom:118px;width:0;height:0}
+        .mist i{position:absolute;left:-18px;width:36px;height:36px;border-radius:50%;background:#fff;filter:blur(9px);opacity:0;animation:rise 4.5s ease-out infinite}
+        .mist i:nth-child(2){animation-delay:-1.1s;left:-30px}.mist i:nth-child(3){animation-delay:-2.2s;left:-6px}.mist i:nth-child(4){animation-delay:-3.3s;left:-24px}
+        @keyframes rise{0%{opacity:0;transform:translateY(0) scale(.6)}25%{opacity:.85}100%{opacity:0;transform:translateY(-80px) scale(2)}}
+        .badge{position:absolute;top:10px;left:12px;background:var(--fg);color:var(--bg);font-family:var(--f-mono);font-size:9px;padding:2px 8px;border-radius:99px}
+        .pinfo{padding:12px 16px 0;display:grid;gap:5px}
+        .pinfo h4{margin:0;font-family:var(--f-display);font-size:17px;line-height:1.15;letter-spacing:-.02em}
+        .stars{color:#F5A524;letter-spacing:1px;font-size:11px}
+        .price{font-family:var(--f-display);font-size:24px;font-weight:700;letter-spacing:-.03em}
+        .sub{color:var(--muted);font-size:11px}
+        .stock{display:grid;gap:6px;padding:9px 11px;border:1px solid var(--line);border-radius:10px}
+        .stock .row{display:flex;justify-content:space-between;align-items:center}
+        .stock .bar i{background:var(--warn)}
+        .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-right:6px;animation:blink 1.4s infinite}
+        @keyframes blink{50%{opacity:.25}}
+        .sec-t{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:14px 16px 0}
+        .packs{display:grid;gap:7px}
+        .pack{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;font:inherit;color:inherit;background:var(--screen);border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;cursor:pointer;position:relative;transition:border-color .25s,background .25s,transform .25s}
+        .pack small{display:block;color:var(--muted);font-size:10px}
+        .pack.sel{border-color:var(--accent);background:var(--soft);transform:scale(1.02)}
+        .pack .am{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+        .pack s{display:block;color:var(--muted);font-weight:400;font-size:10px}
+        .pack em{position:absolute;top:-8px;right:10px;background:var(--accent);color:var(--accent-fg);font-family:var(--f-mono);font-size:8px;padding:1px 6px;border-radius:99px}
+        .vid{height:96px;border-radius:10px;background:linear-gradient(135deg,#0A0B0D,#2a3045);display:grid;place-items:center;color:#fff}
+        .vid span{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center;backdrop-filter:blur(4px)}
+        .rev{display:grid;gap:7px}
+        .rc{border:1px solid var(--line);border-radius:10px;padding:9px 11px;display:grid;gap:3px}
+        .rc b{font-weight:600}
+        table.cmp{width:100%;border-collapse:collapse;font-size:11px}
+        table.cmp th,table.cmp td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:center}
+        table.cmp th:first-child,table.cmp td:first-child{text-align:left}
+        table.cmp th{font-family:var(--f-mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+        .y{color:var(--ok);font-weight:700}.n{color:var(--warn);font-weight:700}
+        .faq{display:grid;gap:0;margin:8px 16px}
+        .faq div{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}
+        .sbar{position:absolute;left:0;right:0;bottom:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px 14px;background:var(--screen);border-top:1px solid var(--line)}
+        .sbar .pr{font-family:var(--f-display);font-weight:700;font-size:16px;letter-spacing:-.02em;line-height:1.1}
+        .sbar .pr small{display:block;font-family:var(--f-body);font-weight:400;font-size:9.5px;color:var(--muted);letter-spacing:0}
+        .sbar button{flex:0 0 auto;background:var(--fg);color:var(--bg);border:0;border-radius:99px;font:600 12px var(--f-body);padding:10px 16px}
+        .toast{position:absolute;left:12px;right:12px;bottom:68px;z-index:6;display:flex;gap:9px;align-items:center;background:var(--fg);color:var(--bg);padding:9px 12px;border-radius:12px;box-shadow:0 10px 24px -8px rgba(0,0,0,.45);opacity:0;transform:translateY(16px) scale(.97);transition:opacity .35s,transform .45s cubic-bezier(.2,1.2,.3,1);pointer-events:none}
+        .toast.in{opacity:1;transform:none}
+        .toast .av{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;font-weight:700;font-size:12px}
+        .toast b{font-weight:600}.toast small{display:block;opacity:.65;font-size:10px}
+        .ov{position:absolute;inset:0;z-index:8;background:rgba(5,5,8,.6);display:grid;align-items:end;opacity:0;visibility:hidden;transition:opacity .4s,visibility 0s .4s}
+        .ov.on{opacity:1;visibility:visible;transition:opacity .4s}
+        .ovc{background:var(--screen);border-radius:24px 24px 0 0;padding:18px 16px 22px;display:grid;gap:10px;justify-items:center;text-align:center;transform:translateY(40px);transition:transform .55s cubic-bezier(.2,.9,.2,1)}
+        .ov.on .ovc{transform:none}
+        .ovc h5{margin:0;font-family:var(--f-display);font-size:20px;letter-spacing:-.03em}
+        .sc{position:relative;width:220px;height:110px;border-radius:14px;overflow:hidden;background:var(--soft);display:grid;place-items:center;align-content:center}
+        .sc .pz{font-family:var(--f-display);font-weight:800;font-size:38px;letter-spacing:-.04em;line-height:1;color:var(--accent)}
+        .sc .pz small{display:block;font-family:var(--f-body);font-weight:500;font-size:10px;letter-spacing:0;color:var(--muted);margin-top:4px}
+        .sc canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;transition:opacity .5s}
+        .ov.won .sc canvas{opacity:0;pointer-events:none}
+        .fk{width:220px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;text-align:left;color:var(--muted)}
+        .ovc .go{width:220px;background:var(--accent);color:var(--accent-fg);border-radius:99px;padding:10px;font-weight:600;opacity:.45;transition:opacity .4s}
+        .ov.won .go{opacity:1}
 
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-base sm:text-xl text-neutral-400 max-w-2xl mx-auto mb-10 leading-relaxed font-normal"
-          >
-            Multiplicá tus ventas en celulares pegando 1 solo código en tu tienda. Sin programadores, sin comisiones por venta y sin aplicaciones pesadas.
-          </motion.p>
+        /* generic sections */
+        section.blk{padding-block:clamp(56px,9vw,120px)}
+        .head{display:grid;gap:.9rem;margin-bottom:clamp(28px,5vw,56px)}
+        .head h2{font-size:clamp(2rem,5.2vw,4rem);max-width:16ch}
+        .head p{color:var(--muted);max-width:40ch;font-size:1.1rem}
+        .rv{transition:opacity .7s,transform .7s}
+        .rv.pre{opacity:0;transform:translateY(20px)}
 
-          {/* Formulario de Ingreso de Dominio */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="max-w-xl mx-auto bg-[#141414] border border-[#262626] p-4 sm:p-6 rounded-2xl shadow-2xl mb-10"
-          >
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold px-3 py-1 rounded-lg flex items-center gap-1.5">
-                <Store className="w-3.5 h-3.5" /> Para Tiendanube Argentina
-              </span>
-            </div>
+        /* marquee */
+        .mq{overflow:hidden;border-block:1px solid var(--line);padding-block:14px;display:grid;gap:10px;-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+        .mq .tr{display:flex;width:max-content;animation:mq 38s linear infinite}
+        .mq .tr.rev2{animation-direction:reverse;animation-duration:46s}
+        .mq:hover .tr{animation-play-state:paused}
+        .mq span{font-family:var(--f-display);font-weight:600;font-size:clamp(1.3rem,3.2vw,2.1rem);letter-spacing:-.02em;padding-inline:1.4rem;white-space:nowrap;display:flex;align-items:center;gap:2.8rem}
+        .mq span::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+        .mq .tr.rev2 span{color:var(--muted)}
+        @keyframes mq{to{transform:translateX(-50%)}}
 
-            <form onSubmit={handleStartActivation} className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="text"
-                placeholder="Escribí el link de tu tienda (ej: mitienda.com.ar)"
-                value={storeUrl}
-                onChange={(e) => setStoreUrl(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-[#2d2d2d] rounded-xl px-4 py-3.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition-colors"
-                required
-              />
-              <button
-                type="submit"
-                className="bg-emerald-500 hover:bg-emerald-400 text-black font-black px-6 py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 whitespace-nowrap"
-              >
-                <span>Activar Mi Tienda</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
+        /* numbers */
+        .nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;border-top:1px solid var(--fg);padding-top:1.6rem}
+        .nums div{display:grid;gap:.3rem}
+        .nums b{font-family:var(--f-display);font-size:clamp(2.6rem,9vw,6.5rem);font-weight:700;letter-spacing:-.05em;line-height:.95;font-variant-numeric:tabular-nums}
+        .nums span{color:var(--muted);font-size:.95rem}
 
-            <div className="flex items-center justify-center gap-4 sm:gap-6 mt-4 text-[11px] sm:text-xs text-neutral-400 border-t border-[#222222] pt-4">
-              <span className="flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Instalación 60s
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> 0% Comisiones
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Mercado Pago
-              </span>
-            </div>
-          </motion.div>
+        /* groups */
+        .groups{display:grid}
+        .gr{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.4fr) minmax(0,1.5fr);gap:1.4rem;align-items:baseline;padding:1.5rem .4rem;border-top:1px solid var(--line);position:relative;isolation:isolate}
+        .gr:last-child{border-bottom:1px solid var(--line)}
+        .gr::before{content:"";position:absolute;inset:0;background:var(--card);transform:scaleY(0);transform-origin:bottom;transition:transform .35s cubic-bezier(.3,.8,.2,1);z-index:-1}
+        .gr:hover::before{transform:scaleY(1)}
+        .gr h3{font-size:clamp(1.3rem,2.6vw,1.9rem)}
+        .gr p{color:var(--muted)}
+        .gr .chips{justify-content:flex-start}
 
-          {/* Rating Proof */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-neutral-400 text-xs sm:text-sm">
-            <div className="flex -space-x-2">
-              <div className="w-8 h-8 rounded-full bg-[#1f1f1f] border-2 border-[#0a0a0a] flex items-center justify-center font-bold text-[10px] text-emerald-400">GA</div>
-              <div className="w-8 h-8 rounded-full bg-[#1f1f1f] border-2 border-[#0a0a0a] flex items-center justify-center font-bold text-[10px] text-emerald-400">WS</div>
-              <div className="w-8 h-8 rounded-full bg-[#1f1f1f] border-2 border-[#0a0a0a] flex items-center justify-center font-bold text-[10px] text-emerald-400">NK</div>
-              <div className="w-8 h-8 rounded-full bg-[#1f1f1f] border-2 border-[#0a0a0a] flex items-center justify-center font-bold text-[10px] text-emerald-400">TN</div>
-            </div>
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-3.5 h-3.5 fill-emerald-400 text-emerald-400" />
-              ))}
-              <span className="font-bold text-white ml-1">4.9/5</span>
-              <span>(+120 tiendas instaladas en Argentina)</span>
-            </div>
-          </div>
+        /* steps */
+        .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(1rem,3vw,2.5rem);position:relative}
+        .steps .line{position:absolute;left:0;right:0;top:18px;height:2px;background:var(--fg);transform-origin:left;transition:transform 1.4s cubic-bezier(.3,.8,.2,1)}
+        .js .steps .line{transform:scaleX(0)}
+        .js .steps.in .line{transform:scaleX(1)}
+        .st{position:relative;display:grid;gap:.6rem;padding-top:3.2rem}
+        .st .n{position:absolute;top:0;left:0;width:38px;height:38px;border-radius:50%;background:var(--bg);border:2px solid var(--fg);display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:.85rem}
+        .st h3{font-size:1.5rem}
+        .st p{color:var(--muted)}
 
-        </div>
-      </section>
+        /* cta */
+        .cta{background:var(--fg);color:var(--bg);border-radius:clamp(20px,3vw,36px);padding:clamp(36px,7vw,96px) clamp(22px,5vw,72px);display:grid;gap:1.4rem;justify-items:start;margin-bottom:clamp(36px,6vw,72px);position:relative;overflow:hidden}
+        .cta h2{font-size:clamp(2.2rem,6.4vw,5rem);max-width:12ch}
+        .cta p{opacity:.7;max-width:36ch;font-size:1.1rem}
+        .cta .btn{background:var(--bg);color:var(--fg)}
+        .cta .btn:hover{background:var(--accent);color:var(--accent-fg)}
+        .cta .btn.ghost{background:transparent;color:var(--bg);border-color:rgba(128,128,128,.5)}
+        .cta .row{display:flex;flex-wrap:wrap;gap:.7rem}
+        .cta .orb{position:absolute;right:-8%;bottom:-40%;width:min(60vw,520px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--accent),transparent 65%);opacity:.55;filter:blur(10px);animation:drift 9s ease-in-out infinite;pointer-events:none}
+        @keyframes drift{50%{transform:translate(-6%,-8%) scale(1.08)}}
+        footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem;padding-block:0 40px;color:var(--muted);font-size:.85rem}
 
-      {/* 3. BARRA DE MÉTRICAS */}
-      <section className="py-8 bg-[#141414] border-b border-[#1a1a1a]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div className="p-2">
-              <div className="text-2xl sm:text-4xl font-black text-emerald-400 mb-0.5">+34%</div>
-              <div className="text-[11px] text-neutral-400 uppercase tracking-wider font-semibold">Tasa de Conversión</div>
-            </div>
-            <div className="p-2">
-              <div className="text-2xl sm:text-4xl font-black text-white mb-0.5">2.1x</div>
-              <div className="text-[11px] text-neutral-400 uppercase tracking-wider font-semibold">Ticket Promedio</div>
-            </div>
-            <div className="p-2">
-              <div className="text-2xl sm:text-4xl font-black text-emerald-400 mb-0.5">&lt; 15 KB</div>
-              <div className="text-[11px] text-neutral-400 uppercase tracking-wider font-semibold">Carga Ultra Rápida</div>
-            </div>
-            <div className="p-2">
-              <div className="text-2xl sm:text-4xl font-black text-white mb-0.5">60 seg</div>
-              <div className="text-[11px] text-neutral-400 uppercase tracking-wider font-semibold">Instalación Única</div>
-            </div>
-          </div>
-        </div>
-      </section>
+        @media (max-width:820px){
+          .stage{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:10px;align-content:stretch;padding-block:10px 14px}
+          .phone-col{align-self:center;order:-1}
+          .cap{display:none}
+          .txt{gap:.9rem}
+          .chap{gap:.6rem}
+          .chap h2{font-size:1.75rem}
+          .chap p{font-size:.95rem}
+          .gr{grid-template-columns:1fr;gap:.6rem}
+          .steps{grid-template-columns:1fr;gap:2rem}
+          .steps .line{left:18px;right:auto;top:0;bottom:0;width:2px;height:auto;transform-origin:top}
+          .js .steps .line{transform:scaleY(0)}
+          .js .steps.in .line{transform:scaleY(1)}
+          .st{padding-top:0;padding-left:3.4rem}
+        }
+        @media (prefers-reduced-motion: reduce){
+          html{scroll-behavior:auto}
+          *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+          .mq .tr{animation:none}
+        }
+      `}} />
 
-      {/* 4. DEMO INTERACTIVA CON CELULAR REALISTA (ESTILO PRAXIS) */}
-      <section className="py-20 relative border-b border-[#1a1a1a]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-wider">
-              Mirala por dentro
-            </span>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white mt-4 mb-4">
-              Una landing de Nevux, de punta a punta.
-            </h2>
-            <p className="text-neutral-400 text-sm sm:text-base">
-              Seleccioná cada módulo para ver en tiempo real cómo se transforma la experiencia de compra en el celular.
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-12 gap-12 items-center">
-            
-            {/* Izquierda: Selectores Narrativos */}
-            <div className="lg:col-span-6 space-y-4">
-              
-              <button
-                onClick={() => setActiveStep(1)}
-                className={`w-full text-left p-6 rounded-2xl border transition-all ${
-                  activeStep === 1
-                    ? "bg-[#141414] border-emerald-500 shadow-xl shadow-emerald-500/5 ring-1 ring-emerald-500"
-                    : "bg-[#0a0a0a] border-[#222222] hover:border-[#333333]"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">
-                    01 · CONVERSIÓN
-                  </span>
-                  {activeStep === 1 && <span className="text-xs text-emerald-400 font-bold">Viendo en demo</span>}
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Botón de Compra Pegajoso (Sticky Bar)</h3>
-                <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                  Permanece visible en la parte inferior del celular durante todo el scroll. Tu cliente puede comprar en 1 clic desde cualquier lugar de la página.
-                </p>
-              </button>
-
-              <button
-                onClick={() => setActiveStep(2)}
-                className={`w-full text-left p-6 rounded-2xl border transition-all ${
-                  activeStep === 2
-                    ? "bg-[#141414] border-emerald-500 shadow-xl shadow-emerald-500/5 ring-1 ring-emerald-500"
-                    : "bg-[#0a0a0a] border-[#222222] hover:border-[#333333]"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">
-                    02 · TICKET PROMEDIO
-                  </span>
-                  {activeStep === 2 && <span className="text-xs text-emerald-400 font-bold">Viendo en demo</span>}
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Selector de Ofertas Pack (Llevá 2 ó 3)</h3>
-                <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                  Ofrece descuentos acumulativos por llevar más unidades (ej: 15% OFF en la 2da unidad). Incrementa el valor promedio de cada carrito.
-                </p>
-              </button>
-
-              <button
-                onClick={() => setActiveStep(3)}
-                className={`w-full text-left p-6 rounded-2xl border transition-all ${
-                  activeStep === 3
-                    ? "bg-[#141414] border-emerald-500 shadow-xl shadow-emerald-500/5 ring-1 ring-emerald-500"
-                    : "bg-[#0a0a0a] border-[#222222] hover:border-[#333333]"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">
-                    03 · URGENCIA Y STOCK
-                  </span>
-                  {activeStep === 3 && <span className="text-xs text-emerald-400 font-bold">Viendo en demo</span>}
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Barra Dinámica de Escasez de Stock</h3>
-                <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                  Muestra la barra de progreso ("🔥 88% vendido · Quedan pocas unidades") gatillando la necesidad de compra inmediata.
-                </p>
-              </button>
-
-              <button
-                onClick={() => setActiveStep(4)}
-                className={`w-full text-left p-6 rounded-2xl border transition-all ${
-                  activeStep === 4
-                    ? "bg-[#141414] border-emerald-500 shadow-xl shadow-emerald-500/5 ring-1 ring-emerald-500"
-                    : "bg-[#0a0a0a] border-[#222222] hover:border-[#333333]"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">
-                    04 · PRUEBA SOCIAL
-                  </span>
-                  {activeStep === 4 && <span className="text-xs text-emerald-400 font-bold">Viendo en demo</span>}
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Notificaciones de Ventas en Vivo</h3>
-                <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                  Muestra pequeñas alertas flotantes con compras recientes de clientes reales en Argentina, generando confianza instantánea.
-                </p>
-              </button>
-
-            </div>
-
-            {/* Derecha: Mockup Celular Realista */}
-            <div className="lg:col-span-6 flex justify-center sticky top-28">
-              <PhoneMockup activeStep={activeStep} />
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* 5. SECCIÓN POR QUÉ VENDE (MODELO AIDA) */}
-      <section className="py-20 bg-[#141414] border-b border-[#1a1a1a]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-              Por qué vende
-            </h2>
-            <p className="text-neutral-400 text-sm sm:text-base">
-              Una ficha optimizada psicológicamente convierte visitas frías en clientes decididos.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-6">
-            
-            <div className="bg-[#0a0a0a] border border-[#222222] p-6 rounded-2xl">
-              <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-black rounded-xl flex items-center justify-center mb-4 text-sm">
-                A
-              </div>
-              <h3 className="text-base font-bold text-white mb-2">Atracción</h3>
-              <p className="text-neutral-400 text-xs leading-relaxed">
-                El botón pegajoso retiene al usuario en la experiencia sin perder la posibilidad de compra.
-              </p>
-            </div>
-
-            <div className="bg-[#0a0a0a] border border-[#222222] p-6 rounded-2xl">
-              <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-black rounded-xl flex items-center justify-center mb-4 text-sm">
-                I
-              </div>
-              <h3 className="text-base font-bold text-white mb-2">Interés</h3>
-              <p className="text-neutral-400 text-xs leading-relaxed">
-                Indicadores de alta demanda muestran que otros clientes están comprando en este momento.
-              </p>
-            </div>
-
-            <div className="bg-[#0a0a0a] border border-[#222222] p-6 rounded-2xl">
-              <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-black rounded-xl flex items-center justify-center mb-4 text-sm">
-                D
-              </div>
-              <h3 className="text-base font-bold text-white mb-2">Deseo</h3>
-              <p className="text-neutral-400 text-xs leading-relaxed">
-                Packs promocionales (Llevá 2 ó 3) hacen percibir un ahorro claro que acelera la orden.
-              </p>
-            </div>
-
-            <div className="bg-[#0a0a0a] border border-[#222222] p-6 rounded-2xl">
-              <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-black rounded-xl flex items-center justify-center mb-4 text-sm">
-                A
-              </div>
-              <h3 className="text-base font-bold text-white mb-2">Acción</h3>
-              <p className="text-neutral-400 text-xs leading-relaxed">
-                Notificaciones dinámicas eliminan dudas de seguridad y aceleran el paso al checkout.
-              </p>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* 6. TABLA COMPARATIVA */}
-      <section className="py-20 border-b border-[#1a1a1a]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-white mb-2">Nevux Pro vs. Alternativas</h2>
-            <p className="text-neutral-400 text-sm">Compará la propuesta directa para tu Tiendanube.</p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead>
-                <tr className="border-b border-[#222222] text-neutral-400">
-                  <th className="py-4 px-4 font-semibold">Característica</th>
-                  <th className="py-4 px-4 font-bold text-emerald-400 bg-emerald-500/5 rounded-t-xl">Nevux Pro</th>
-                  <th className="py-4 px-4 font-semibold">Agencia Web</th>
-                  <th className="py-4 px-4 font-semibold">Apps Pesadas</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#1f1f1f] text-neutral-300">
-                <tr>
-                  <td className="py-4 px-4 font-medium text-white">Inversión mensual</td>
-                  <td className="py-4 px-4 font-black text-emerald-400 bg-emerald-500/5">$39.900 ARS</td>
-                  <td className="py-4 px-4 text-neutral-500">$200.000+ ARS</td>
-                  <td className="py-4 px-4 text-neutral-500">$60.000+ ARS</td>
-                </tr>
-                <tr>
-                  <td className="py-4 px-4 font-medium text-white">Tiempo de instalación</td>
-                  <td className="py-4 px-4 font-extrabold text-emerald-400 bg-emerald-500/5">60 segundos</td>
-                  <td className="py-4 px-4 text-neutral-500">15 a 30 días</td>
-                  <td className="py-4 px-4 text-neutral-500">Configuración larga</td>
-                </tr>
-                <tr>
-                  <td className="py-4 px-4 font-medium text-white">Peso en la tienda</td>
-                  <td className="py-4 px-4 font-extrabold text-emerald-400 bg-emerald-500/5">&lt;15 KB (Ultra ligero)</td>
-                  <td className="py-4 px-4 text-neutral-500">Variable</td>
-                  <td className="py-4 px-4 text-neutral-500">Lenta la carga</td>
-                </tr>
-                <tr>
-                  <td className="py-4 px-4 font-medium text-white">Comisiones por venta</td>
-                  <td className="py-4 px-4 font-extrabold text-emerald-400 bg-emerald-500/5">0% Sin comisiones</td>
-                  <td className="py-4 px-4 text-neutral-500">0%</td>
-                  <td className="py-4 px-4 text-neutral-500">2% a 5% extra</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. PASOS DE ACTIVACIÓN */}
-      <section className="py-20 bg-[#141414] border-b border-[#1a1a1a]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-              Cómo se pone en tu tienda
-            </h2>
-            <p className="text-neutral-400 text-sm sm:text-base">
-              Tres pasos simples. Sin tocar código complejo.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-[#0a0a0a] border border-[#222222] p-8 rounded-2xl relative">
-              <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-md mb-4 inline-block">
-                PASO 1
-              </span>
-              <h3 className="text-lg font-bold text-white mb-2">Comprás tu Licencia</h3>
-              <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                Completás la suscripción en Mercado Pago y accedés inmediatamente al código de tu tienda.
-              </p>
-            </div>
-
-            <div className="bg-[#0a0a0a] border border-[#222222] p-8 rounded-2xl relative">
-              <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-md mb-4 inline-block">
-                PASO 2
-              </span>
-              <h3 className="text-lg font-bold text-white mb-2">Pegás el Código</h3>
-              <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                Ingresás a Configuración &gt; Edición avanzada de CSS en tu Tiendanube y pegás el script con 1 clic.
-              </p>
-            </div>
-
-            <div className="bg-[#0a0a0a] border border-[#222222] p-8 rounded-2xl relative">
-              <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-md mb-4 inline-block">
-                PASO 3
-              </span>
-              <h3 className="text-lg font-bold text-white mb-2">Multiplicás Ventas</h3>
-              <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-                Tu tienda activa al instante los botones pegajosos, ofertas de packs y disparadores de urgencia.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 8. TESTIMONIOS */}
-      <section className="py-20 border-b border-[#1a1a1a]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-extrabold text-white mb-4">Marcas que ya venden más</h2>
-            <p className="text-neutral-400 text-sm">Casos reales en Tiendanube Argentina.</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            
-            <div className="bg-[#141414] border border-[#222222] p-6 rounded-2xl flex flex-col justify-between">
-              <div>
-                <div className="flex gap-1 text-emerald-400 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-emerald-400" />
-                  ))}
-                </div>
-                <p className="text-neutral-300 text-xs sm:text-sm italic mb-6">
-                  "El botón fijo en mobile cambió todo. La mayoría de nuestro tráfico viene de Instagram y la gente ahora compra directamente sin perderse."
-                </p>
-              </div>
-              <div className="border-t border-[#222222] pt-4 flex items-center justify-between">
-                <div>
-                  <div className="font-bold text-white text-xs">Wess Indumentaria</div>
-                  <div className="text-[10px] text-neutral-500">Buenos Aires</div>
-                </div>
-                <span className="text-xs font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                  +42% Ventas
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-[#141414] border border-[#222222] p-6 rounded-2xl flex flex-col justify-between">
-              <div>
-                <div className="flex gap-1 text-emerald-400 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-emerald-400" />
-                  ))}
-                </div>
-                <p className="text-neutral-300 text-xs sm:text-sm italic mb-6">
-                  "El selector de Llevá 2 y Llevá 3 nos hizo subir el ticket promedio el primer fin de semana. Súper fácil de instalar."
-                </p>
-              </div>
-              <div className="border-t border-[#222222] pt-4 flex items-center justify-between">
-                <div>
-                  <div className="font-bold text-white text-xs">Kala Cosmética</div>
-                  <div className="text-[10px] text-neutral-500">Córdoba</div>
-                </div>
-                <span className="text-xs font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                  2.1x Ticket
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-[#141414] border border-[#222222] p-6 rounded-2xl flex flex-col justify-between">
-              <div>
-                <div className="flex gap-1 text-emerald-400 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-emerald-400" />
-                  ))}
-                </div>
-                <p className="text-neutral-300 text-xs sm:text-sm italic mb-6">
-                  "No queríamos pagar $200.000 a una agencia ni cargar la tienda con apps lentas. Esto resolvió todo en 1 minuto."
-                </p>
-              </div>
-              <div className="border-t border-[#222222] pt-4 flex items-center justify-between">
-                <div>
-                  <div className="font-bold text-white text-xs">Nativo Tech Store</div>
-                  <div className="text-[10px] text-neutral-500">Rosario</div>
-                </div>
-                <span className="text-xs font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                  60s Setup
-                </span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* 9. GARANTÍA DE SATISFACCIÓN */}
-      <section className="py-12 bg-[#141414] border-b border-[#1a1a1a]">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-4">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-          <h3 className="text-xl font-extrabold text-white mb-2">Garantía de Devolución de 7 Días</h3>
-          <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed max-w-xl mx-auto">
-            Probá el Pack Landing Pro en tu Tiendanube durante 7 días. Si no estás satisfecho con la transformación visual de tus fichas de producto, te devolvemos el 100% de tu dinero inmediatamente.
-          </p>
-        </div>
-      </section>
-
-      {/* 10. PREGUNTAS FRECUENTES (FAQ) */}
-      <section className="py-20 border-b border-[#1a1a1a]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-white mb-2">Preguntas Frecuentes</h2>
-            <p className="text-neutral-400 text-sm">Respuestas claras antes de activar tu pack.</p>
-          </div>
-
-          <div className="space-y-3">
-            {[
-              {
-                q: "¿Necesito conocimientos de programación?",
-                a: "Para nada. Te entregamos un código listo. Solo tenés que copiarlo y pegarlo en 'Configuración > Edición avanzada de CSS' dentro de tu panel de Tiendanube. Tardás 60 segundos."
-              },
-              {
-                q: "¿Afecta la velocidad de carga de mi tienda?",
-                a: "No. El código pesa menos de 15KB y se ejecuta de forma asíncrona en el celular de tus clientes, manteniendo tu tienda ultra veloz."
-              },
-              {
-                q: "¿Puedo personalizar colores y descuentos?",
-                a: "Sí. El script cuenta con variables simples donde podés modificar los colores principales del botón e indicar los porcentajes de descuento deseados."
-              },
-              {
-                q: "¿Cómo funciona el cobro?",
-                a: "Es una suscripción mensual recurrente de $39.900 ARS cobrada mediante Mercado Pago. Podés cancelar cuando quieras sin permanencia mínima."
-              }
-            ].map((faq, idx) => (
-              <div key={idx} className="bg-[#141414] border border-[#222222] rounded-2xl overflow-hidden">
-                <button
-                  onClick={() => toggleFaq(idx)}
-                  className="w-full p-5 text-left font-bold text-white flex justify-between items-center text-xs sm:text-sm hover:bg-[#1f1f1f] transition-colors"
-                >
-                  <span>{faq.q}</span>
-                  <ChevronDown className={`w-4 h-4 text-emerald-400 transition-transform ${openFaq === idx ? "rotate-180" : ""}`} />
-                </button>
-                {openFaq === idx && (
-                  <div className="p-5 pt-0 text-neutral-400 text-xs sm:text-sm border-t border-[#222222] leading-relaxed">
-                    {faq.a}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 11. BLOQUE DE PRICING CHECKOUT */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="bg-[#141414] border-2 border-emerald-500 rounded-3xl p-8 sm:p-12 text-center shadow-2xl shadow-emerald-500/10">
-            
-            <span className="inline-block bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-6">
-              Oferta Lanzamiento 2026
-            </span>
-
-            <h2 className="text-3xl sm:text-5xl font-black text-white mb-2">
-              Pack Landing Page Pro
-            </h2>
-            <p className="text-neutral-400 text-xs sm:text-sm mb-6">
-              Para Tiendanube Argentina
-            </p>
-
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <span className="text-neutral-500 line-through text-lg font-bold">$49.900</span>
-              <span className="text-4xl sm:text-6xl font-black text-white">$39.900</span>
-              <span className="text-neutral-400 font-semibold text-xs sm:text-sm">ARS / mes</span>
-            </div>
-
-            <ul className="max-w-md mx-auto space-y-3 text-left mb-8 text-xs sm:text-sm text-neutral-300">
-              <li className="flex items-center gap-3">
-                <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>Código Maestro CSS+JS listo para pegar</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>Botón de Compra Pegajoso Mobile (Sticky Bar)</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>Selector de Ofertas Pack (Llevá 2 ó 3)</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>Barra Dinámica de Urgencia y Stock</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>Notificaciones de Ventas en Vivo simuladas</span>
-              </li>
-            </ul>
-
-            <a
-              href={MP_CHECKOUT_URL}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base px-8 py-4 rounded-xl shadow-xl shadow-emerald-500/20 transition-all hover:scale-105"
-            >
-              <span>ACTIVAR AHORA CON MERCADO PAGO</span>
-              <ArrowRight className="w-5 h-5" />
-            </a>
-
-            <p className="text-[11px] text-neutral-500 mt-4">
-              Cobro seguro procesado por Mercado Pago. Podés cancelar con 1 clic.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 12. FOOTER */}
-      <footer className="py-10 border-t border-[#1a1a1a] bg-[#0a0a0a] text-neutral-500 text-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <NevuxLogo size="small" />
-
-          <div>
-            © 2026 Nevux. Todos los derechos reservados.
-          </div>
-
-          <a
-            href="https://wa.me/5493435042812?text=Hola!%20Tengo%20una%20consulta%20sobre%20Nevux%20Pro"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-emerald-400 font-bold hover:underline"
-          >
-            <MessageCircle className="w-4 h-4" />
-            Soporte WhatsApp
+      <div className="wrap">
+        <header className="top">
+          <a className="brand" href="#top" aria-label="Nevux">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <rect width="32" height="32" fill="#0A0B0D" />
+              <path d="M9 24V8h3.2l7.6 10V8H23v16h-3.2L12.2 14v10z" fill="#fff" />
+            </svg>
+            Nevux
           </a>
-        </div>
-      </footer>
+          <a className="btn" data-cta href="#cta">
+            Probar Nevux
+          </a>
+        </header>
 
-      {/* 13. BARRA STICKY MOBILE FINAL */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-[#0a0a0a]/95 backdrop-blur-lg border-t border-[#1a1a1a] z-50 flex items-center justify-between gap-3">
-        <div>
-          <div className="text-[10px] text-neutral-400 uppercase font-semibold">Pack Landing Pro</div>
-          <div className="text-sm font-black text-emerald-400">$39.900 <span className="text-[10px] text-neutral-400 font-normal">/mes</span></div>
-        </div>
-        <a
-          href={MP_CHECKOUT_URL}
-          className="bg-emerald-500 text-black font-black text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
-        >
-          <span>Activar Ahora</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </a>
+        <section className="intro" id="top">
+          <span className="eyebrow">Mirala por dentro</span>
+          <h1>
+            Una tienda con <em>Nevux</em>, de punta a punta.
+          </h1>
+          <p>Deslizá y recorrela como la ve tu cliente.</p>
+          <a className="skip" href="#cta">
+            Saltar ↓
+          </a>
+        </section>
       </div>
 
-    </div>
+      <section
+        className="tour"
+        id="tour"
+        aria-label="Recorrido por una tienda con Nevux"
+      >
+        <div className="stage">
+          <div className="txt">
+            <div className="chaps">
+              <article className="chap on">
+                <span className="eyebrow">Conversión</span>
+                <h2>
+                  Más ventas con las <em>mismas visitas</em>.
+                </h2>
+                <p>
+                  Una barra de envío gratis y un contador de stock empujan la
+                  decisión mientras la persona todavía mira el producto.
+                </p>
+                <div className="chips">
+                  <span className="chip">Barra de envío gratis</span>
+                  <span className="chip">Contador de stock</span>
+                </div>
+              </article>
+              <article className="chap">
+                <span className="eyebrow">Ticket promedio</span>
+                <h2>
+                  Que la gente <em>lleve más</em>.
+                </h2>
+                <p>
+                  Llevá 1, llevá 2: el descuento crece con la cantidad y el
+                  carrito sube solo.
+                </p>
+                <div className="chips">
+                  <span className="chip">Combos por cantidad</span>
+                </div>
+              </article>
+              <article className="chap">
+                <span className="eyebrow">Confianza</span>
+                <h2>
+                  Que <em>confíen</em> antes de comprar.
+                </h2>
+                <p>
+                  Reseñas, comparativa y avisos de compras recientes sacan la
+                  última duda.
+                </p>
+                <div className="chips">
+                  <span className="chip">Reseñas</span>
+                  <span className="chip">Comparativa</span>
+                  <span className="chip">Prueba social</span>
+                </div>
+              </article>
+              <article className="chap">
+                <span className="eyebrow">Captura</span>
+                <h2>
+                  Que no se vayan <em>sin dejar su contacto</em>.
+                </h2>
+                <p>
+                  Un Raspá y Gana ofrece 15% OFF a cambio de WhatsApp o mail. Tu
+                  base de contactos crece con cada visita.
+                </p>
+                <div className="chips">
+                  <span className="chip">Raspá y Gana</span>
+                </div>
+              </article>
+            </div>
+            <div className="prog" aria-hidden="true">
+              <i className="on"></i>
+              <i></i>
+              <i></i>
+              <i></i>
+            </div>
+          </div>
+
+          <div className="phone-col">
+            <div className="fit" id="fit">
+              <div className="phone" id="phone" aria-hidden="true">
+                <div className="screen">
+                  <div className="page" id="page">
+                    <div className="shead">
+                      BRUMA <span>Carrito (0)</span>
+                    </div>
+
+                    <div className="w ship" data-w="0">
+                      <span className="wtag">Barra de envío gratis</span>
+                      <div>
+                        <b id="shipTxt">Te faltan $7.100</b> para el envío
+                        gratis
+                      </div>
+                      <div className="bar">
+                        <i id="shipFill"></i>
+                      </div>
+                    </div>
+
+                    <div className="vis">
+                      <span className="badge">NUEVO</span>
+                      <div className="mist">
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                      </div>
+                      <div className="ufo">
+                        <div className="dome"></div>
+                        <div className="hull"></div>
+                        <div className="leds">
+                          <b></b>
+                          <b></b>
+                          <b></b>
+                          <b></b>
+                          <b></b>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pinfo">
+                      <h4>Humidificador OVNI LED con efecto niebla</h4>
+                      <div>
+                        <span className="stars">★★★★★</span>{" "}
+                        <span className="sub">4,8 · 214 opiniones</span>
+                      </div>
+                      <div className="price">$32.900</div>
+                      <div className="sub">3 cuotas sin interés de $10.967</div>
+                      <div className="sub">
+                        <b style={{ color: "var(--ok)" }}>$31.255</b> con
+                        transferencia
+                      </div>
+                    </div>
+
+                    <div className="w stock" data-w="0">
+                      <span className="wtag">Contador de stock</span>
+                      <div className="row">
+                        <span>
+                          <i className="dot"></i>
+                          <b>
+                            Quedan <span id="stockN">7</span> unidades
+                          </b>
+                        </span>
+                        <span className="sub">hoy</span>
+                      </div>
+                      <div className="bar">
+                        <i id="stockFill" style={{ width: "18%" }}></i>
+                      </div>
+                    </div>
+
+                    <div id="w-packs">
+                      <div className="sec-t">Elegí tu pack</div>
+                      <div className="w packs" data-w="1">
+                        <span className="wtag">Combos por cantidad</span>
+                        <button className="pack" type="button" data-n="1">
+                          <span>
+                            <b>Llevá 1</b>
+                            <small>Precio de lista</small>
+                          </span>
+                          <span className="am">$32.900</span>
+                        </button>
+                        <button
+                          className="pack sel"
+                          type="button"
+                          data-n="2"
+                        >
+                          <em>MÁS ELEGIDO</em>
+                          <span>
+                            <b>Llevá 2 · 15% OFF</b>
+                            <small>Ahorrás $9.870</small>
+                          </span>
+                          <span className="am">
+                            <s>$65.800</s>$55.930
+                          </span>
+                        </button>
+                        <button className="pack" type="button" data-n="3">
+                          <span>
+                            <b>Llevá 3 · 20% OFF</b>
+                            <small>Ahorrás $19.740</small>
+                          </span>
+                          <span className="am">
+                            <s>$98.700</s>$78.960
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="sec-t">Miralo en uso</div>
+                    <div className="w">
+                      <div className="vid">
+                        <span>▶</span>
+                      </div>
+                    </div>
+
+                    <div id="w-reviews">
+                      <div className="sec-t">Opiniones</div>
+                      <div className="w rev" data-w="2">
+                        <span className="wtag">Reseñas</span>
+                        <div className="rc">
+                          <span className="stars">★★★★★</span>
+                          <b>Cami R. · Rosario</b>
+                          <span className="sub">
+                            Lo uso de noche y la luz es suave. Llegó en 3 días.
+                          </span>
+                        </div>
+                        <div className="rc">
+                          <span className="stars">★★★★★</span>
+                          <b>Nico P. · Mendoza</b>
+                          <span className="sub">
+                            Silencioso y el tanque rinde toda la noche.
+                          </span>
+                        </div>
+                      </div>
+                      <div className="sec-t">OVNI vs. genérico</div>
+                      <div className="w" data-w="2">
+                        <span className="wtag">Comparativa</span>
+                        <table className="cmp">
+                          <tbody>
+                            <tr>
+                              <th></th>
+                              <th>OVNI</th>
+                              <th>Genérico</th>
+                            </tr>
+                            <tr>
+                              <td>Luz LED</td>
+                              <td className="y">✓</td>
+                              <td className="n">✕</td>
+                            </tr>
+                            <tr>
+                              <td>Apagado automático</td>
+                              <td className="y">✓</td>
+                              <td className="n">✕</td>
+                            </tr>
+                            <tr>
+                              <td>Silencioso</td>
+                              <td className="y">✓</td>
+                              <td className="n">✕</td>
+                            </tr>
+                            <tr>
+                              <td>Garantía</td>
+                              <td className="y">✓</td>
+                              <td className="n">✕</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div className="faq">
+                      <div>
+                        <span>Preguntas frecuentes</span>
+                        <span>＋</span>
+                      </div>
+                      <div>
+                        <span>Envíos</span>
+                        <span>＋</span>
+                      </div>
+                      <div>
+                        <span>Cambios</span>
+                        <span>＋</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="toast" id="toast">
+                    <span className="av">B</span>
+                    <span>
+                      <b id="toastT">Alguien de Córdoba compró 2</b>
+                      <small id="toastS">hace 3 minutos</small>
+                    </span>
+                  </div>
+
+                  <div className="sbar">
+                    <div className="pr">
+                      <span id="sbPrice">$55.930</span>
+                      <small id="sbSub">Llevá 2 · 15% OFF</small>
+                    </div>
+                    <button type="button" tabIndex={-1}>
+                      Agregar al carrito
+                    </button>
+                  </div>
+
+                  <div className="ov" id="ov">
+                    <div className="ovc">
+                      <span className="eyebrow">Antes de irte</span>
+                      <h5>¡Raspá y ganá!</h5>
+                      <div className="sc">
+                        <div className="pz">
+                          15% OFF<small>en tu primera compra</small>
+                        </div>
+                        <canvas id="scratch" width={220} height={110}></canvas>
+                      </div>
+                      <div className="fk">Tu WhatsApp o mail</div>
+                      <div className="go">Quiero mi descuento</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <span className="cap">TIENDA DE EJEMPLO</span>
+          </div>
+        </div>
+      </section>
+
+      <div className="wrap">
+        <section
+          className="blk"
+          style={{ paddingTop: "clamp(36px,6vw,72px)" }}
+        >
+          <div className="mq rv" aria-label="Algunos widgets de Nevux">
+            <div className="tr">
+              <span>Raspá y Gana</span>
+              <span>Barra de envío gratis</span>
+              <span>Contador de stock</span>
+              <span>Reseñas</span>
+              <span>Combos por cantidad</span>
+              <span>Prueba social</span>
+              <span>Captura de WhatsApp</span>
+              <span>Comparativa</span>
+              <span>Raspá y Gana</span>
+              <span>Barra de envío gratis</span>
+              <span>Contador de stock</span>
+              <span>Reseñas</span>
+              <span>Combos por cantidad</span>
+              <span>Prueba social</span>
+              <span>Captura de WhatsApp</span>
+              <span>Comparativa</span>
+            </div>
+            <div className="tr rev2">
+              <span>Más ticket</span>
+              <span>Más confianza</span>
+              <span>Más contactos</span>
+              <span>Más urgencia</span>
+              <span>Más conversión</span>
+              <span>Más ticket</span>
+              <span>Más confianza</span>
+              <span>Más contactos</span>
+              <span>Más urgencia</span>
+              <span>Más conversión</span>
+              <span>Más ticket</span>
+              <span>Más confianza</span>
+              <span>Más contactos</span>
+              <span>Más urgencia</span>
+              <span>Más conversión</span>
+              <span>Más ticket</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="blk" style={{ paddingTop: 0 }}>
+          <div className="nums rv">
+            <div>
+              <b data-count="50">50</b>
+              <span>widgets para tu tienda</span>
+            </div>
+            <div>
+              <b data-count="5">5</b>
+              <span>grupos de objetivos</span>
+            </div>
+            <div>
+              <b>1</b>
+              <span>clic para instalar</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="blk" style={{ paddingTop: 0 }}>
+          <div className="head rv">
+            <span className="eyebrow">Por qué vende</span>
+            <h2>Cada widget tiene un trabajo.</h2>
+            <p>
+              Los 50 se reparten en cinco objetivos. Elegís los que van con cada
+              categoría y no saturás la tienda.
+            </p>
+          </div>
+          <div className="groups">
+            <div className="gr rv">
+              <h3>Prueba social y urgencia</h3>
+              <p>Muestra que otros compran y que el momento es ahora.</p>
+              <div className="chips">
+                <span className="chip">Prueba social</span>
+                <span className="chip">Contador de stock</span>
+              </div>
+            </div>
+            <div className="gr rv">
+              <h3>Ticket promedio</h3>
+              <p>Hace que cada carrito valga más.</p>
+              <div className="chips">
+                <span className="chip">Combos por cantidad</span>
+                <span className="chip">Barra de envío gratis</span>
+              </div>
+            </div>
+            <div className="gr rv">
+              <h3>Captura y retención</h3>
+              <p>Convierte visitas en contactos que podés volver a escribir.</p>
+              <div className="chips">
+                <span className="chip">Raspá y Gana</span>
+              </div>
+            </div>
+            <div className="gr rv">
+              <h3>Confianza, envíos y pagos</h3>
+              <p>Responde las dudas antes de que frenen la compra.</p>
+              <div className="chips">
+                <span className="chip">Reseñas</span>
+                <span className="chip">Comparativa</span>
+              </div>
+            </div>
+            <div className="gr rv">
+              <h3>IA e interacción</h3>
+              <p>Conversa con quien visita y lo guía hacia el producto.</p>
+              <div className="chips">
+                <span className="chip">Asistente</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="blk" style={{ paddingTop: 0 }}>
+          <div className="head rv">
+            <span className="eyebrow">Cómo se pone en tu tienda</span>
+            <h2>Tres pasos y ya está.</h2>
+          </div>
+          <div className="steps rv" id="steps">
+            <div className="line"></div>
+            <div className="st">
+              <span className="n">1</span>
+              <h3>Elegís los widgets</h3>
+              <p>Los que van con tu producto y tu categoría.</p>
+            </div>
+            <div className="st">
+              <span className="n">2</span>
+              <h3>Cambiás textos y colores</h3>
+              <p>Lo dejás con la voz de tu marca.</p>
+            </div>
+            <div className="st">
+              <span className="n">3</span>
+              <h3>Lo instalás con 1 clic</h3>
+              <p>Se conecta una sola vez y queda andando.</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="cta rv" id="cta">
+          <div className="orb"></div>
+          <span className="eyebrow" style={{ color: "inherit", opacity: 0.6 }}>
+            Tu tienda
+          </span>
+          <h2>Tu tienda, con estos widgets.</h2>
+          <p>Armalo en minutos, sin tocar código.</p>
+          <div className="row">
+            <a className="btn" data-cta href="#cta">
+              Probar Nevux
+            </a>
+            <a className="btn ghost" href="#tour">
+              Ver el recorrido
+            </a>
+          </div>
+        </section>
+
+        <footer>
+          <span>Nevux © 2026</span>
+          <span>La tienda del recorrido es un ejemplo.</span>
+        </footer>
+      </div>
+    </>
   );
-          }
+                                }
