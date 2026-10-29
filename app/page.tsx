@@ -124,22 +124,53 @@ footer { text-align: center; padding: 40px 20px 60px; color: var(--mut); font-si
 .cmpr .bar:after { content: "↔"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28px; height: 28px; border-radius: 50%; background: #fff; color: #18181b; display: grid; place-items: center; font-size: 13px; }
 .cmpr input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; padding: 0; border: 0; cursor: ew-resize; }
 .vcard { width: 100%; max-width: 300px; border-radius: 20px; overflow: hidden; background: var(--card); border: 1px solid #ffffff14; }
-.vscreen { position: relative; height: 200px; display: grid; place-items: center; overflow: hidden; cursor: pointer; }
-.play { width: 62px; height: 62px; border-radius: 50%; background: #fff; color: #18181b; display: grid; place-items: center; font-size: 22px; padding-left: 3px; animation: pulse 2s infinite; }
+.vscreen { position: relative; height: 330px; display: grid; place-items: center; overflow: hidden; cursor: pointer; }
+.vscreen video, .vscreen iframe, .vscreen .vposter { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; }
+.play { position: absolute; top: 50%; left: 50%; margin: -31px 0 0 -31px; width: 62px; height: 62px; border-radius: 50%; background: #fff; color: #18181b; display: grid; place-items: center; font-size: 22px; padding-left: 3px; animation: pulse 2s infinite; z-index: 4; }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 #ffffff88; } 70% { box-shadow: 0 0 0 18px #ffffff00; } 100% { box-shadow: 0 0 0 0 #ffffff00; } }
-.fake { position: absolute; inset: 14px 60px; display: none; flex-direction: column; gap: 8px; animation: scrollfake 6s linear infinite; }
-@keyframes scrollfake { from { transform: translateY(40%); } to { transform: translateY(-60%); } }
-.fake i { display: block; height: 36px; border-radius: 8px; background: #ffffff33; flex: 0 0 auto; }
-.fake i:nth-child(3n) { height: 64px; background: #ffffff55; }
-.rec { position: absolute; top: 10px; left: 12px; font-size: 11px; font-weight: 700; display: none; align-items: center; gap: 6px; z-index: 2; }
+.rec { position: absolute; top: 10px; left: 12px; font-size: 11px; font-weight: 700; display: none; align-items: center; gap: 6px; z-index: 4; color: #fff; }
 .rec:before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: blink 1s infinite; }
 @keyframes blink { 50% { opacity: .2; } }
 .vprog { height: 4px; background: #ffffff22; }
 .vprog span { display: block; height: 100%; width: 0; background: var(--acc2); }
-.vcard.playing .fake, .vcard.playing .rec { display: flex; }
+.vcard.playing .rec { display: flex; }
 .vcard.playing .play { display: none; }
 .vcard.playing .vprog span { animation: prog var(--d) linear forwards; }
 @keyframes prog { to { width: 100%; } }
+/* mini celular del video demo */
+.mph { width: 148px; height: 296px; border: 6px solid #0a0a0a; border-radius: 24px; overflow: hidden; position: relative; background: var(--pbg); color: var(--pink); box-shadow: 0 18px 50px #0009; transition: filter .3s; }
+.vcard:not(.playing) .mph { filter: brightness(.7); }
+.mph:before { content: ""; position: absolute; top: 4px; left: 50%; width: 44px; height: 10px; margin-left: -22px; background: #0a0a0a; border-radius: 8px; z-index: 3; }
+.mscroll { padding: 20px 8px 50px; font-size: 8px; line-height: 1.4; }
+.vcard.playing .mscroll { animation: mscroll var(--d) ease-in-out forwards; }
+@keyframes mscroll { 0%, 8% { transform: none; } 45%, 55% { transform: translateY(-28%); } 92%, 100% { transform: translateY(-52%); } }
+.mbrand { font-weight: 800; letter-spacing: .25em; font-size: 7px; color: var(--pacc); }
+.mimg { height: 96px; border-radius: 9px; margin: 6px 0; display: grid; place-items: center; font-size: 40px; background: var(--pimg); position: relative; overflow: hidden; }
+.mimg.ba { background: linear-gradient(90deg, #71717a 0 50%, var(--pacc) 50% 100%); }
+.mimg.ba small { position: absolute; bottom: 4px; font-size: 6px; font-weight: 800; color: #fff; letter-spacing: .1em; }
+.mstars { color: #f5a623; font-size: 7px; }
+.mtitle { font-weight: 700; font-size: 10px; }
+.mprice { font-weight: 800; font-size: 13px; }
+.murg { color: #dc2626; font-weight: 700; font-size: 7px; margin: 4px 0 2px; }
+.murg i { display: block; height: 4px; border-radius: 4px; background: #dc262633; margin-top: 2px; overflow: hidden; }
+.murg i:after { content: ""; display: block; height: 100%; width: 60%; background: #dc2626; }
+.vcard.playing .murg i:after { animation: urg var(--d) ease-out forwards; }
+@keyframes urg { to { width: 92%; } }
+.mpack { border: 1.5px solid var(--pline); border-radius: 6px; padding: 4px 5px; margin: 4px 0; display: flex; justify-content: space-between; font-size: 7px; }
+.mpack.sel { border-color: var(--pacc); background: var(--psel); }
+.mpack b { display: block; }
+.mbadges { display: flex; gap: 3px; margin: 6px 0; flex-wrap: wrap; }
+.mbadges span { border: 1px solid var(--pline); border-radius: 5px; padding: 2px 4px; font-size: 6px; }
+.mtxt { opacity: .7; margin: 4px 0; }
+.mskel { height: 7px; border-radius: 4px; background: var(--pline); margin: 4px 0; }
+.mskel.s { width: 65%; }
+.mbar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; background: var(--pbg); border-top: 1px solid var(--pline); padding: 5px 7px; display: flex; justify-content: space-between; align-items: center; font-size: 7px; }
+.mbar span { background: var(--pbtn); color: var(--pbtnt); border-radius: 5px; padding: 4px 7px; font-weight: 700; }
+.vcard.playing .mbar span { animation: tap var(--d) linear forwards; }
+@keyframes tap { 0%, 84% { transform: none; } 87% { transform: scale(.88); } 90%, 100% { transform: none; } }
+.mtoast { position: absolute; left: 5px; right: 5px; bottom: 32px; z-index: 2; background: #18181b; color: #fff; border-radius: 7px; padding: 4px 6px; font-size: 6.5px; opacity: 0; transform: translateY(12px); }
+.vcard.playing .mtoast { animation: mtoast var(--d) ease forwards; }
+@keyframes mtoast { 0%, 25% { opacity: 0; transform: translateY(12px); } 30%, 55% { opacity: 1; transform: none; } 60%, 100% { opacity: 0; transform: translateY(12px); } }
 .vmeta { padding: 14px 16px; }
 .vmeta b { display: block; font-size: 15px; }
 .vmeta p { margin: 4px 0 0; font-size: 12px; }
@@ -157,6 +188,15 @@ const VARIANTS = [
     g2: "#047857",
     vtitle: "Demo · Clásica",
     vsub: "Sticky bar, packs, urgencia y comparativa en una ficha.",
+    // Video real: ID de YouTube (no listado) o ruta en /public, ej. "/videos/clasica.mp4"
+    youtube: "",
+    mp4: "",
+    demo: {
+      brand: "CUMBRE", emoji: "🧉", title: "Termo Cumbre 750 ml", price: "$38.900",
+      toast: "🧉 Sofía de Córdoba compró recién",
+      bg: "#ffffff", ink: "#18181b", acc: "#10B981", line: "#e4e4e7", sel: "#f0fdf4",
+      img: "radial-gradient(circle at 30% 25%, #34d399, #059669 60%, #0a0a0a)", btn: "#18181b", btnt: "#ffffff",
+    },
   },
   {
     name: "Antes y después",
@@ -168,6 +208,14 @@ const VARIANTS = [
     g2: "#d9455b",
     vtitle: "Demo · Antes y después",
     vsub: "Comparador que se arrastra, testimonios y resultados.",
+    youtube: "",
+    mp4: "",
+    demo: {
+      brand: "DERMA+", emoji: "", title: "Sérum Derma+ 30 ml", price: "$24.900",
+      toast: "✨ Lucía de Rosario compró 2 recién",
+      bg: "#ffffff", ink: "#18181b", acc: "#d9455b", line: "#e4e4e7", sel: "#fff1f2",
+      img: "", btn: "#d9455b", btnt: "#ffffff",
+    },
   },
   {
     name: "Oscura premium",
@@ -179,6 +227,14 @@ const VARIANTS = [
     g2: "#000000",
     vtitle: "Demo · Oscura premium",
     vsub: "Talles, packs y acabado dark con detalles dorados.",
+    youtube: "",
+    mp4: "",
+    demo: {
+      brand: "AURORA", emoji: "🧥", title: "Campera Aurora", price: "$89.900",
+      toast: "🧥 Martina de CABA compró recién",
+      bg: "#0a0a0a", ink: "#f4f6fb", acc: "#d4af37", line: "#27272a", sel: "#18181b",
+      img: "radial-gradient(circle at 30% 25%, #3f3f46, #18181b 60%, #000)", btn: "#d4af37", btnt: "#0a0a0a",
+    },
   },
 ];
 
@@ -197,6 +253,7 @@ export default function Page() {
   const [cmp, setCmp] = useState(50);
 
   const current = VARIANTS[variant];
+  const hasVideo = Boolean(current.mp4 || current.youtube);
 
   const changeVariant = (i: number) => {
     setVariant(i);
@@ -560,24 +617,83 @@ export default function Page() {
               </div>
             )}
 
-            {/* Bloque de video demo (placeholder) */}
+            {/* Bloque de video demo: real si hay youtube/mp4, si no, demo animada */}
             <div className={"vcard" + (playing ? " playing" : "")} style={{ ["--d" as string]: `${current.dur}s` }}>
               <div
                 className="vscreen"
                 style={{ background: `linear-gradient(135deg, ${current.g1}, ${current.g2})` }}
-                onClick={() => setPlaying(!playing)}
+                onClick={() => { if (!playing || !hasVideo) setPlaying(!playing); }}
               >
-                <span className="rec">REC</span>
-                <div className="fake"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-                <div className="play">▶</div>
+                {current.mp4 ? (
+                  playing ? (
+                    <video key={current.mp4 + "-on"} src={current.mp4} muted playsInline loop autoPlay controls />
+                  ) : (
+                    <video key={current.mp4 + "-off"} src={current.mp4 + "#t=0.1"} muted playsInline preload="metadata" />
+                  )
+                ) : current.youtube ? (
+                  playing ? (
+                    <iframe
+                      src={`https://www.youtube-nocookie.com/embed/${current.youtube}?autoplay=1&mute=1&playsinline=1&rel=0`}
+                      title={current.vtitle}
+                      allow="autoplay; encrypted-media; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <img className="vposter" src={`https://img.youtube.com/vi/${current.youtube}/hqdefault.jpg`} alt={current.vtitle} />
+                  )
+                ) : (
+                  <>
+                    <span className="rec">DEMO</span>
+                    <div
+                      className="mph"
+                      key={"demo-" + variant + "-" + playing}
+                      style={{
+                        ["--pbg" as string]: current.demo.bg,
+                        ["--pink" as string]: current.demo.ink,
+                        ["--pacc" as string]: current.demo.acc,
+                        ["--pline" as string]: current.demo.line,
+                        ["--psel" as string]: current.demo.sel,
+                        ["--pimg" as string]: current.demo.img,
+                        ["--pbtn" as string]: current.demo.btn,
+                        ["--pbtnt" as string]: current.demo.btnt,
+                      }}
+                    >
+                      <div className="mscroll">
+                        <div className="mbrand">{current.demo.brand}</div>
+                        {variant === 1 ? (
+                          <div className="mimg ba"><small>ANTES · DESPUÉS</small></div>
+                        ) : (
+                          <div className="mimg">{current.demo.emoji}</div>
+                        )}
+                        <div className="mstars">★★★★★ <span style={{ opacity: 0.6 }}>4,9</span></div>
+                        <div className="mtitle">{current.demo.title}</div>
+                        <div className="mprice">{current.demo.price}</div>
+                        <div className="murg">🔥 Quedan pocas unidades · 84% vendido<i></i></div>
+                        <div className="mpack"><div><b>Llevá 1</b>Precio de lista</div><div>{current.demo.price}</div></div>
+                        <div className="mpack sel"><div><b>Llevá 2 · 15% OFF</b>Más elegido</div><div>✓</div></div>
+                        <div className="mpack"><div><b>Llevá 3 · 25% OFF</b>Mejor precio</div><div></div></div>
+                        <div className="mbadges"><span>🚚 Envío gratis</span><span>💳 3 cuotas</span><span>🔒 Compra segura</span></div>
+                        <div className="mskel"></div>
+                        <div className="mskel s"></div>
+                        <div className="mtxt">“Llegó en 48 h, impecable.” — Ana, Paraná</div>
+                        <div className="mskel"></div>
+                        <div className="mskel s"></div>
+                        <div className="mskel"></div>
+                      </div>
+                      <div className="mtoast">{current.demo.toast}</div>
+                      <div className="mbar"><div><b>{current.demo.price}</b></div><span>Comprar</span></div>
+                    </div>
+                  </>
+                )}
+                {!playing && <div className="play">▶</div>}
               </div>
               <div className="vprog">
-                <span key={variant + "-" + playing} onAnimationEnd={() => setPlaying(false)}></span>
+                {!hasVideo && <span key={variant + "-" + playing} onAnimationEnd={() => setPlaying(false)}></span>}
               </div>
               <div className="vmeta">
                 <b>{current.vtitle} · {current.time}</b>
                 <p>{current.vsub}</p>
-                <p style={{ fontSize: "11px", opacity: 0.7 }}>Demo ilustrativa. Pronto: videos reales de tiendas.</p>
+                {!hasVideo && <p style={{ fontSize: "11px", opacity: 0.7 }}>Demo ilustrativa. Pronto: videos reales de tiendas.</p>}
               </div>
             </div>
           </div>
@@ -590,4 +706,4 @@ export default function Page() {
       <footer>Nevux · Términos y Condiciones · Política de Privacidad · © 2026</footer>
     </>
   );
-    }
+}
