@@ -249,7 +249,7 @@
     </button>
 
     <div class="code-box" id="codeSnippet">&lt;script&gt;
-/* Nevux · Pack Landing Page Pro v4 — Tiendanube
+/* Nevux · Pack Landing Page Pro v5 — Tiendanube
    Se pega en: Configuración &gt; Códigos externos &gt; Códigos de tracking &gt; "Para la tienda" */
 (function () {
   'use strict';
@@ -296,6 +296,15 @@
     faqDevoluciones: false,
     // Contenido distinto por producto: la clave es una parte de la URL del producto.
     // Lo que se ponga acá reemplaza a lo de arriba solo en ese producto.
+    // ----- Venta cruzada y marca (tanda 3) -----
+    // Producto complementario que se agrega al carrito sin salir de la ficha
+    combina: null, // ej: { url: 'https://mitienda.com/productos/huellitas/', titulo: 'Combiná con' }
+    // Videos verticales (mp4 o ID de YouTube)
+    videos: [], // ej: [{ mp4: 'https://.../video.mp4' }, { youtube: 'dQw4w9WgXcQ' }]
+    // Galería de colores: al tocar una foto se elige ese color en la ficha
+    colores: [], // ej: [{ nombre: 'Negro', foto: 'https://...' }]
+    // Diseño de marca para las secciones de Nevux
+    marca: null, // ej: { secundario: '#5a3e2b', fondo: '#fffaf3', borde: '#eadfce', texto: '#2b2118', radio: 16, fuente: 'inherit' }
     porProducto: {}, // ej: { 'remera-tejida': { talles: { ... }, antesDespues: null } }
     compradores: ['Sofía de Córdoba', 'Gonzalo de Rosario', 'Lucía de CABA', 'Martín de Mendoza', 'Valentina de La Plata'],
     boton: 'COMPRAR AHORA'
@@ -410,7 +419,35 @@
       '.nvx-faq summary:after{content:"+";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:20px;color:' + C + '}' +
       '.nvx-faq[open] summary:after{content:"−"}' +
       '.nvx-faq div{padding:0 14px 14px;font-size:14px;color:#4b5563;line-height:1.5}' +
+      '.nvx-cd b{color:#dc2626}' +
+      '.nvx-pk-t{display:block;font-size:11px;color:' + C + ';font-weight:700;margin-top:1px}' +
+      '.nvx-combo{display:flex;gap:12px;align-items:center;border:1px dashed ' + C + ';border-radius:14px;padding:10px;margin:0 0 18px;background:#fff}' +
+      '.nvx-combo img{width:64px;height:64px;border-radius:10px;object-fit:cover;flex:0 0 auto}' +
+      '.nvx-combo small{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;color:' + C + ';text-transform:uppercase}' +
+      '.nvx-combo b{display:block;font-size:13px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}' +
+      '.nvx-combo span{font-size:14px;font-weight:800}' +
+      '.nvx-combo button{flex:0 0 auto;margin-left:auto;background:' + C + ';color:#fff;border:0;border-radius:10px;padding:10px 12px;font:800 13px system-ui,-apple-system,sans-serif;cursor:pointer;opacity:1}' +
+      '.nvx-combo button:disabled{opacity:1;background:' + C + ';color:#fff;cursor:default}' +
+      '.nvx-combo a{display:block;font-size:12px;color:' + C + ';font-weight:700;margin-top:2px}' +
+      '.nvx-vids{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;scrollbar-width:none}' +
+      '.nvx-vids::-webkit-scrollbar{display:none}' +
+      '.nvx-vids &gt; div{flex:0 0 62%;max-width:260px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;background:#111;scroll-snap-align:center}' +
+      '.nvx-vids video,.nvx-vids iframe{width:100%;height:100%;object-fit:cover;border:0;display:block}' +
+      '.nvx-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}' +
+      '.nvx-cols button{border:2px solid #e5e7eb;border-radius:12px;padding:0;overflow:hidden;background:#fff;cursor:pointer;text-align:center;font:700 12px system-ui,-apple-system,sans-serif;color:#111827;opacity:1}' +
+      '.nvx-cols button img{display:block;width:100%;aspect-ratio:1;object-fit:cover}' +
+      '.nvx-cols button span{display:block;padding:7px 4px;text-transform:uppercase;letter-spacing:.04em}' +
+      '.nvx-cols button.nvx-on{border-color:' + C + '}' +
       '@media (prefers-reduced-motion: reduce){.nvx-cinta div{animation:none}}';
+    var M = NEVUX.marca;
+    if (M) {
+      var rad = M.radio != null ? M.radio + 'px' : null;
+      css += (M.fondo || M.borde || rad ? '.nvx-card,.nvx-faq,.nvx-pack,.nvx-ship,.nvx-combo,.nvx-trust{' + (M.fondo ? 'background:' + M.fondo + ';' : '') +
+          (M.borde ? 'border-color:' + M.borde + ';' : '') + (rad ? 'border-radius:' + rad + ';' : '') + '}' : '') +
+        (M.texto ? '.nvx-c,.nvx-pack,.nvx-ship,.nvx-combo,.nvx-trust,.nvx-packs-t{color:' + M.texto + '}' : '') +
+        (M.secundario ? '.nvx-h,.nvx-packs-t{color:' + M.secundario + '}.nvx-cinta{background:' + M.secundario + '}' : '') +
+        (M.fuente ? '.nvx-c,.nvx-packs,.nvx-ship,.nvx-combo,.nvx-trust,.nvx-best{font-family:' + M.fuente + '}' : '');
+    }
     var st = document.createElement('style');
     st.textContent = css;
     document.head.appendChild(st);
@@ -488,7 +525,9 @@
       var dif = Math.round((new Date(desp.toDateString()) - new Date(now.toDateString())) / 864e5);
       var cuando = dif === 0 ? 'hoy' : dif === 1 ? 'mañana' : 'el ' + DL[desp.getDay()];
       rows += '&lt;div class="nvx-ship-r"&gt;&lt;span&gt;📦&lt;/span&gt;&lt;div&gt;&lt;b&gt;Llega entre el ' + fmt(habiles(desp, E.min)) + ' y el ' +
-        fmt(habiles(desp, E.max)) + '&lt;/b&gt; ' + (E.zona || '') + '&lt;small&gt;Despachamos ' + cuando + '&lt;/small&gt;&lt;/div&gt;&lt;/div&gt;';
+        fmt(habiles(desp, E.max)) + '&lt;/b&gt; ' + (E.zona || '') + (dif === 0
+          ? '&lt;small class="nvx-cd"&gt;Pedí en las próximas &lt;b&gt;&lt;/b&gt; y sale hoy&lt;/small&gt;'
+          : '&lt;small&gt;Despachamos ' + cuando + '&lt;/small&gt;') + '&lt;/div&gt;&lt;/div&gt;';
     }
     if (NEVUX.envioGratisDesde &gt; 0 &amp;&amp; precio) {
       var falta = NEVUX.envioGratisDesde - precio;
@@ -499,6 +538,19 @@
     }
     var urgEl = root.querySelector('.nvx-urg');
     if (rows &amp;&amp; (urgEl || priceBox)) (urgEl || priceBox).insertAdjacentHTML('afterend', '&lt;div class="nvx-ship"&gt;' + rows + '&lt;/div&gt;');
+    // Cuenta regresiva hasta la hora de corte del despacho
+    var cd = root.querySelector('.nvx-cd');
+    if (cd) {
+      var tick = function () {
+        var n = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
+        var fin = new Date(n); fin.setHours(NEVUX.envio.corte, 0, 0, 0);
+        var m = Math.ceil((fin - n) / 60000);
+        if (m &lt;= 0) { cd.textContent = 'Tu pedido sale en el próximo despacho'; clearInterval(cdTimer); return; }
+        cd.querySelector('b').textContent = (m &gt;= 60 ? Math.floor(m / 60) + ' h ' : '') + (m % 60) + ' min';
+      };
+      var cdTimer = setInterval(tick, 30000);
+      tick();
+    }
 
     // 2) Selector de packs: cambia la cantidad del formulario
     var qtyInput = root.querySelector('.js-quantity-input, input[name="quantity"]');
@@ -512,7 +564,8 @@
         html += '&lt;div class="nvx-pack" data-i="' + i + '"&gt;&lt;div&gt;&lt;b&gt;' + p.titulo +
           (p.descuento ? ' · ' + p.descuento + '% OFF' : '') +
           (p.etiqueta ? '&lt;span class="nvx-tag"&gt;' + p.etiqueta + '&lt;/span&gt;' : '') + '&lt;/b&gt;&lt;small&gt;' +
-          (p.descuento ? 'Ahorrás ' + money(full - final) : 'Precio de lista') + '&lt;/small&gt;&lt;/div&gt;' +
+          (p.descuento ? 'Ahorrás ' + money(full - final) : 'Precio de lista') + '&lt;/small&gt;' +
+          (transf &gt; 0 &amp;&amp; base ? '&lt;span class="nvx-pk-t"&gt;' + money(final * (1 - transf / 100)) + ' con transferencia&lt;/span&gt;' : '') + '&lt;/div&gt;' +
           '&lt;div class="nvx-pr"&gt;' + (p.descuento ? '&lt;s&gt;' + money(full) + '&lt;/s&gt;' : '') + (base ? money(final) : '') + '&lt;/div&gt;&lt;/div&gt;';
       });
       html += '&lt;/div&gt;';
@@ -552,7 +605,29 @@
     var esc = function (t) {
       return String(t == null ? '' : t).replace(/[&amp;&lt;&gt;"]/g, function (c) { return { '&amp;': '&amp;amp;', '&lt;': '&amp;lt;', '&gt;': '&amp;gt;', '"': '&amp;quot;' }[c]; });
     };
+    // Elige una opción de variante (talle, color) en la ficha: botón de la plantilla o select
+    var elegir = function (valor) {
+      var t = String(valor).toLowerCase();
+      var btn = [].slice.call(root.querySelectorAll('.js-insta-variant[data-option], a[data-option]')).filter(function (e) {
+        return (e.getAttribute('data-option') || '').toLowerCase() === t;
+      })[0];
+      if (btn) { btn.click(); return true; }
+      var ok = false;
+      [].slice.call(root.querySelectorAll('select')).forEach(function (sel) {
+        [].slice.call(sel.options).forEach(function (o) {
+          if (!ok &amp;&amp; (o.value.toLowerCase() === t || o.text.trim().toLowerCase() === t)) {
+            sel.value = o.value;
+            sel.dispatchEvent(new Event('change', { bubbles: true }));
+            ok = true;
+          }
+        });
+      });
+      return ok;
+    };
     var cont = '';
+    if (NEVUX.combina &amp;&amp; NEVUX.combina.url) {
+      cont += '&lt;div class="nvx-combo" hidden&gt;&lt;/div&gt;';
+    }
     if (NEVUX.cinta &amp;&amp; NEVUX.cinta.length) {
       var items = NEVUX.cinta.map(function (t) { return '&lt;span&gt;' + esc(t) + '&lt;/span&gt;&lt;span&gt;·&lt;/span&gt;'; }).join('');
       cont += '&lt;div class="nvx-cinta"&gt;&lt;div&gt;' + items + items + items + items + '&lt;/div&gt;&lt;/div&gt;';
@@ -566,6 +641,13 @@
         T.tabla.map(function (r) { return '&lt;div data-t="' + esc(r.talle) + '"&gt;&lt;b&gt;' + esc(r.talle) + '&lt;/b&gt;' + (r.min === r.max ? r.min : r.min + '-' + r.max) + '&lt;/div&gt;'; }).join('') +
         '&lt;/div&gt;' + (T.nota ? '&lt;p class="nvx-small"&gt;' + esc(T.nota) + '&lt;/p&gt;' : '') + '&lt;/div&gt;&lt;/div&gt;';
     }
+    if (NEVUX.colores &amp;&amp; NEVUX.colores.length) {
+      cont += '&lt;div class="nvx-sec"&gt;&lt;div class="nvx-h"&gt;Elegí tu color&lt;/div&gt;&lt;div class="nvx-cols"&gt;' +
+        NEVUX.colores.map(function (c) {
+          return '&lt;button type="button" data-c="' + esc(c.nombre) + '"&gt;' + (c.foto ? '&lt;img src="' + esc(c.foto) + '" alt="' + esc(c.nombre) + '" loading="lazy"&gt;' : '') +
+            '&lt;span&gt;' + esc(c.nombre) + '&lt;/span&gt;&lt;/button&gt;';
+        }).join('') + '&lt;/div&gt;&lt;p class="nvx-small nvx-col-msg"&gt;&lt;/p&gt;&lt;/div&gt;';
+    }
     var AD = NEVUX.antesDespues;
     if (AD &amp;&amp; AD.antes &amp;&amp; AD.despues) {
       cont += '&lt;div class="nvx-sec"&gt;&lt;div class="nvx-h"&gt;' + esc(AD.titulo || 'Mirá la diferencia') + '&lt;/div&gt;&lt;div class="nvx-ad"&gt;' +
@@ -573,6 +655,17 @@
         '&lt;span class="nvx-ad-l" style="left:10px"&gt;ANTES&lt;/span&gt;&lt;span class="nvx-ad-l" style="right:10px;background:' + C + '"&gt;DESPUÉS&lt;/span&gt;' +
         '&lt;div class="nvx-ad-bar"&gt;&lt;/div&gt;&lt;input type="range" min="0" max="100" value="50" aria-label="Comparar antes y después"&gt;&lt;/div&gt;' +
         '&lt;p class="nvx-small"&gt;← Deslizá para comparar →&lt;/p&gt;&lt;/div&gt;';
+    }
+    if (NEVUX.videos &amp;&amp; NEVUX.videos.length) {
+      cont += '&lt;div class="nvx-sec"&gt;&lt;div class="nvx-h"&gt;Miralo en acción&lt;/div&gt;&lt;div class="nvx-vids"&gt;' +
+        NEVUX.videos.map(function (v) {
+          if (v.youtube) {
+            var id = esc(v.youtube);
+            return '&lt;div&gt;&lt;iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=' + id +
+              '&amp;controls=0&amp;playsinline=1&amp;rel=0" allow="autoplay; encrypted-media" title="Video"&gt;&lt;/iframe&gt;&lt;/div&gt;';
+          }
+          return '&lt;div&gt;&lt;video src="' + esc(v.mp4) + '" muted loop playsinline preload="metadata"' + (v.poster ? ' poster="' + esc(v.poster) + '"' : '') + '&gt;&lt;/video&gt;&lt;/div&gt;';
+        }).join('') + '&lt;/div&gt;&lt;/div&gt;';
     }
     var P = NEVUX.pasos;
     if (P &amp;&amp; P.items &amp;&amp; P.items.length) {
@@ -616,24 +709,6 @@
       if (tlBtn) {
         var tlIn = box.querySelector('.nvx-tl-row input');
         var tlRes = box.querySelector('.nvx-tl-res');
-        var elegir = function (talle) {
-          var t = talle.toLowerCase();
-          var btn = [].slice.call(root.querySelectorAll('.js-insta-variant[data-option], a[data-option]')).filter(function (e) {
-            return (e.getAttribute('data-option') || '').toLowerCase() === t;
-          })[0];
-          if (btn) { btn.click(); return true; }
-          var ok = false;
-          [].slice.call(root.querySelectorAll('select')).forEach(function (sel) {
-            [].slice.call(sel.options).forEach(function (o) {
-              if (!ok &amp;&amp; (o.value.toLowerCase() === t || o.text.trim().toLowerCase() === t)) {
-                sel.value = o.value;
-                sel.dispatchEvent(new Event('change', { bubbles: true }));
-                ok = true;
-              }
-            });
-          });
-          return ok;
-        };
         var calcular = function () {
           var v = parseFloat(String(tlIn.value).replace(',', '.'));
           box.querySelectorAll('.nvx-tl-tab div').forEach(function (d) { d.classList.remove('nvx-on'); });
@@ -651,6 +726,58 @@
         };
         tlBtn.addEventListener('click', calcular);
         tlIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); calcular(); } });
+      }
+
+      // Galería de colores
+      box.querySelectorAll('.nvx-cols button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          box.querySelectorAll('.nvx-cols button').forEach(function (x) { x.classList.toggle('nvx-on', x === b); });
+          var ok = elegir(b.getAttribute('data-c'));
+          box.querySelector('.nvx-col-msg').textContent = ok ? 'Color ' + b.getAttribute('data-c') + ' elegido en la ficha ✓' : '';
+        });
+      });
+
+      // Videos: se reproducen solo cuando están en pantalla
+      var vids = box.querySelectorAll('.nvx-vids video');
+      if (vids.length &amp;&amp; 'IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (es) {
+          es.forEach(function (e) { if (e.isIntersecting) { e.target.play().catch(function () {}); } else { e.target.pause(); } });
+        }, { threshold: 0.6 });
+        vids.forEach(function (v) { io.observe(v); });
+      }
+
+      // Combiná con: lee el producto complementario y lo agrega al carrito sin salir de la ficha
+      var combo = box.querySelector('.nvx-combo');
+      if (combo) {
+        var url;
+        try { url = location.origin + new URL(NEVUX.combina.url, location.href).pathname; } catch (e) { url = null; }
+        if (url) {
+          fetch(url).then(function (r) { return r.text(); }).then(function (h) {
+            var d = new DOMParser().parseFromString(h, 'text/html');
+            var f = d.querySelector('#product_form, .js-product-form');
+            var b = d.querySelector('.js-addtocart');
+            if (!f || !b || b.disabled || b.classList.contains('disabled')) return;
+            var nombre = (d.querySelector('.js-product-name, h1') || {}).textContent || '';
+            var pr = (d.querySelector('#price_display, .js-price-display') || {}).textContent || '';
+            var img = (d.querySelector('meta[property="og:image"]') || {}).content || '';
+            combo.innerHTML = (img ? '&lt;img src="' + esc(img.replace(/^http:/, 'https:')) + '" alt=""&gt;' : '') +
+              '&lt;div style="min-width:0"&gt;&lt;small&gt;' + esc(NEVUX.combina.titulo || 'Combiná con') + '&lt;/small&gt;&lt;b&gt;' + esc(nombre.trim()) + '&lt;/b&gt;&lt;span&gt;' + esc(pr.trim()) + '&lt;/span&gt;&lt;/div&gt;' +
+              '&lt;button type="button"&gt;Agregar +&lt;/button&gt;';
+            combo.hidden = false;
+            var btn = combo.querySelector('button');
+            btn.addEventListener('click', function () {
+              btn.disabled = true; btn.textContent = 'Agregando…';
+              var body = new URLSearchParams(new FormData(f));
+              fetch(location.origin + (f.getAttribute('action') || '/comprar/'), {
+                method: 'POST', body: body, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+              }).then(function (r) {
+                if (!r.ok) throw new Error();
+                btn.textContent = '✓ Agregado';
+                combo.querySelector('div').insertAdjacentHTML('beforeend', '&lt;a href="/comprar/"&gt;Ver carrito →&lt;/a&gt;');
+              }).catch(function () { btn.disabled = false; btn.textContent = 'Reintentar'; });
+            });
+          }).catch(function () {});
+        }
       }
 
       // Antes / después
