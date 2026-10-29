@@ -18,25 +18,11 @@ const nextConfig = {
     ],
   },
   async headers() {
+    // Motor y líneas de clientes: cache de 5 minutos, así apagar o cambiar un cliente se aplica rápido
+    const cache = [{ key: "Cache-Control", value: "public, max-age=300, must-revalidate" }];
     return [
-      {
-        // Forzar a todas las tiendas y navegadores a descargar siempre la última versión del widget
-        source: "/nevux-widget.js",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
-          },
-          {
-            key: "Access-Control-Allow-Origin",
-            value: "*",
-          },
-          {
-            key: "Access-Control-Allow-Methods",
-            value: "GET, OPTIONS",
-          },
-        ],
-      },
+      { source: "/nevux.js", headers: cache },
+      { source: "/c/:cliente*", headers: cache },
     ];
   },
 };
