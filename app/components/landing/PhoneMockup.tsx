@@ -147,7 +147,7 @@ export default function PhoneMockup({ activeStep }: PhoneMockupProps) {
                   </div>
                   <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <motion.div 
-                      initial={{ w: 0 }}
+                      initial={{ width: 0 }}
                       animate={{ width: "88%" }}
                       transition={{ duration: 1, ease: "easeOut" }}
                       className="h-full bg-red-500 rounded-full"
