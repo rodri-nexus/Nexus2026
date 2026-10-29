@@ -767,7 +767,14 @@ export default function LandingPage() {
       <footer className="py-10 border-t border-white/5 text-neutral-500 text-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <NevuxLogo size="small" textColor="#ffffff" />
-          <div>© 2026 Nevux · Optimización de fichas para Tiendanube</div>
+          <div className="text-center">
+            <div>© 2026 Nevux · Optimización de fichas para Tiendanube</div>
+            <div className="mt-2 flex items-center justify-center gap-3">
+              <a href="/arrepentimiento" className="underline hover:text-white">Botón de arrepentimiento</a>
+              <span>·</span>
+              <a href="/arrepentimiento?tipo=baja" className="underline hover:text-white">Botón de baja</a>
+            </div>
+          </div>
           <a
             href={WHATSAPP_URL}
             target="_blank"
