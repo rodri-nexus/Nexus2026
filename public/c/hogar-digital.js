@@ -1,10 +1,10 @@
 /* Nevux · Hogar Digital (hogardigital.com.ar)
-   Línea que pega el cliente en Tiendanube > Configuración > Códigos externos > Códigos de tracking > "Para la tienda":
+   Línea que pega el cliente en Tiendanube > Editar diseño > Pie de página > Sellos personalizados > "Código Javascript o HTML del sello":
    <script src="https://nevux.ar/c/hogar-digital.js" async></script> */
 (function () {
   var cliente = {
     // Interruptor: true = Nevux funcionando en la tienda · false = apagado (por ejemplo, si deja de pagar)
-    activo: false, // PENDIENTE: activar cuando Marcelo confirme que creó la promoción por cantidad (15% y 25%)
+    activo: true,
     // Dominios donde puede funcionar esta línea (sin www)
     dominios: ['hogardigital.com.ar'],
     // Configuración de la tienda: cualquier opción del motor (public/nevux.js)

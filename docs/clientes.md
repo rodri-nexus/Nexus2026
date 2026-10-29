@@ -10,7 +10,7 @@ Cada tienda instala Nevux con **una sola línea**. El código y la configuració
 | `public/c/<cliente>.js` | La línea de cada cliente: interruptor (`activo`), dominios permitidos y su configuración. |
 | `public/nevux-master-pro.html` | El portal de entrega. Con `?c=<cliente>` muestra la línea de ese cliente para copiar. |
 
-- **El cliente pega en su Tiendanube** (Configuración > Códigos externos > Códigos de tracking > "Para la tienda"):
+- **El cliente pega en su Tiendanube** (Tienda online > Editar diseño > Pie de página > Sellos personalizados > "Código Javascript o HTML del sello", y después "Publicar cambios"). El editor de CSS no sirve: no ejecuta código.
   ```html
   <script src="https://nevux.ar/c/<cliente>.js" async></script>
   ```
@@ -34,7 +34,7 @@ Cada tienda instala Nevux con **una sola línea**. El código y la configuració
 
 | Cliente | Archivo | Estado | Pendiente |
 |---|---|---|---|
-| Hogar Digital (Marcelo) | `c/hogar-digital.js` | Apagado | Confirmar la promoción por cantidad (15% y 25%), decidir urgencia y avisos de venta, permiso para la landing y contenido de la home |
+| Hogar Digital (Marcelo) | `c/hogar-digital.js` | **Prendido** | Permiso para la landing y contenido de la home |
 
 ## Cobro mensual
 
