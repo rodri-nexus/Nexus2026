@@ -34,14 +34,16 @@ Todas las piezas se configuran en `NEVUX` y se pueden cambiar por producto con `
 - **Reseñas** (`resenas`). El sello "Compra verificada" solo aparece con `verificada: true`.
 - **Preguntas frecuentes** (`faq`), más la pregunta de arrepentimiento según el art. 34 de la Ley 24.240 (`faqDevoluciones`).
 
-### Tanda 3: visual y venta cruzada
+### Hecho (código maestro v5): tanda 3, venta cruzada y marca
 
-1. Precio con transferencia dentro de cada pack (Doggies).
-2. Cuenta regresiva para el despacho en el día.
-3. "Combiná con": agregar el producto complementario sin salir de la ficha.
-4. Carrusel de videos verticales.
-5. Galería de colores.
-6. Diseño de marca: colores, fuentes y fondos del cliente.
+- **Precio con transferencia dentro de cada pack** (`pk-t`). Usa el % de transferencia de la tienda.
+- **Cuenta regresiva** "Pedí en las próximas X h Y min y sale hoy". Se activa con `envio` cuando hoy es día de despacho. Hora de Argentina; se actualiza cada 30 s.
+- **Combiná con** (`combina`): lee el producto complementario de la misma tienda (usa solo la ruta, así funciona aunque la URL sea de otro dominio de la tienda). Si no tiene stock, no se muestra. Lo agrega con POST a `/comprar/` sin salir de la ficha.
+- **Videos verticales** (`videos`): mp4 o ID de YouTube. Los mp4 se reproducen solo cuando están en pantalla.
+- **Galería de colores** (`colores`): al tocar una foto, elige ese color en la ficha.
+- **Diseño de marca** (`marca`): secundario, fondo, borde, texto, radio y fuente de las secciones de Nevux.
+
+Probado en Doggies (Morelia): las 6 piezas funcionan, el carrito recibe el producto complementario y el color queda elegido en la ficha.
 
 ### Arreglos conocidos
 
