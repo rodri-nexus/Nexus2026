@@ -10,1101 +10,627 @@ import {
   Sparkles,
   ShoppingBag,
   Star,
-  X,
   MessageCircle,
   TrendingUp,
-  Play,
   Layers,
   Lock,
-  Copy,
+  Store,
+  ChevronDown,
+  HelpCircle,
+  Smartphone,
   Check,
-  CheckCircle,
+  Copy
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 export default function LandingPage() {
-  const [activeTab, setActiveTab] = useState<"despues" | "antes">("despues");
-  const [selectedTemplate, setSelectedTabTemplate] = useState<string>("clasica");
+  const [storeUrl, setStoreUrl] = useState("");
+  const [platform, setPlatform] = useState<"tiendanube" | "shopify">("tiendanube");
+  const [simMode, setSimMode] = useState<"antes" | "despues">("despues");
+  const [selectedTemplate, setSelectedTemplate] = useState<"clasica" | "oscura" | "split">("clasica");
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const MP_CHECKOUT_URL = "https://mpago.la/1LqFYin";
+
+  const handleStartActivation = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Redirige al checkout de Mercado Pago
+    window.location.href = MP_CHECKOUT_URL;
+  };
+
+  const toggleFaq = (index: number) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        width: "100%",
-        maxWidth: "100vw",
-        background: "#090d16",
-        color: "#ffffff",
-        fontFamily:
-          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        overflowX: "hidden",
-        position: "relative",
-      }}
-    >
-      {/* Luz de fondo Glow */}
-      <div
-        style={{
-          position: "absolute",
-          top: "-100px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "100%",
-          maxWidth: "700px",
-          height: "500px",
-          background:
-            "radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(9, 13, 22, 0) 70%)",
-          pointerEvents: "none",
-          zIndex: 1,
-        }}
-      />
+    <div className="min-h-screen bg-[#090d16] text-slate-100 font-sans selection:bg-emerald-500 selection:text-white">
+      {/* HEADER / NAVBAR */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#090d16]/80 border-b border-slate-800/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <NevuxLogo size="md" />
 
-      {/* HEADER */}
-      <header
-        style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          padding: "1.25rem 1.25rem",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          position: "relative",
-          zIndex: 10,
-        }}
-      >
-        <NevuxLogo size="medium" />
-        <a
-          href="#checkout"
-          style={{
-            padding: "0.6rem 1.1rem",
-            background: "rgba(16, 185, 129, 0.12)",
-            border: "1px solid rgba(16, 185, 129, 0.3)",
-            borderRadius: "999px",
-            color: "#10B981",
-            fontSize: "0.85rem",
-            fontWeight: 700,
-            textDecoration: "none",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.4rem",
-          }}
-        >
-          <Sparkles size={14} /> Activar en mi Tienda
-        </a>
+          <div className="flex items-center gap-4">
+            <a
+              href={MP_CHECKOUT_URL}
+              className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-slate-300 hover:text-white transition-colors"
+            >
+              Iniciar sesión
+            </a>
+            <a
+              href={MP_CHECKOUT_URL}
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 flex items-center gap-2"
+            >
+              <Zap className="w-4 h-4" />
+              Obtener Pack Pro
+            </a>
+          </div>
+        </div>
       </header>
 
-      {/* 1. HERO SECTION */}
-      <section
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-          padding: "3rem 1.25rem 2rem 1.25rem",
-          textAlign: "center",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              padding: "0.45rem 1rem",
-              background: "rgba(16, 185, 129, 0.1)",
-              border: "1px solid rgba(16, 185, 129, 0.25)",
-              borderRadius: "999px",
-              fontSize: "0.8rem",
-              color: "#34D399",
-              fontWeight: 700,
-              marginBottom: "1.5rem",
-            }}
-          >
-            <Zap size={14} /> Modo Landing Page para Tiendanube
-          </div>
+      {/* HERO SECTION CON ACTIVACIÓN DE TIENDA */}
+      <section className="relative pt-12 pb-20 md:pt-20 md:pb-28 overflow-hidden">
+        {/* Glow Effects */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
 
-          <h1
-            style={{
-              fontSize: "clamp(2.1rem, 7vw, 3.8rem)",
-              fontWeight: 900,
-              lineHeight: 1.1,
-              letterSpacing: "-0.03em",
-              margin: "0 0 1.25rem 0",
-              color: "#ffffff",
-            }}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center relative z-10">
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs sm:text-sm font-semibold mb-8 backdrop-blur-md"
           >
-            Transformá tu tienda en una{" "}
-            <span
-              style={{
-                background: "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
+            <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+            <span>Código Maestro CSS+JS v1.0 para Tiendanube</span>
+          </motion.div>
+
+          {/* Main Title */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.1] mb-6"
+          >
+            Transformá tu Tienda en una{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
               Landing Page de Alta Conversión
             </span>
-          </h1>
+          </motion.h1>
 
-          <p
-            style={{
-              fontSize: "clamp(1rem, 3.5vw, 1.25rem)",
-              color: "#9CA3AF",
-              maxWidth: "680px",
-              margin: "0 auto 2rem auto",
-              lineHeight: 1.5,
-              fontWeight: 400,
-            }}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            Dejá de perder ventas con fichas de productos aburridas. Mostrá tus
-            productos con una estructura que explica, convence y vende sola.
-          </p>
+            Multiplicá tus ventas en Tiendanube instalando el Pack Landing Pro en 60 segundos. Sin tocar código complejo y sin pagar mantenimiento mensual.
+          </motion.p>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "0.8rem",
-            }}
+          {/* FORMULARIO DE INGRESO DE TIENDA Y PLATAFORMA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="max-w-xl mx-auto bg-slate-900/90 border border-slate-800 p-4 sm:p-6 rounded-2xl shadow-2xl backdrop-blur-xl mb-12"
           >
-            <a
-              href="#checkout"
-              style={{
-                width: "100%",
-                maxWidth: "360px",
-                padding: "1.15rem 1.75rem",
-                background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
-                color: "#ffffff",
-                borderRadius: "16px",
-                fontSize: "1.1rem",
-                fontWeight: 800,
-                textDecoration: "none",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.6rem",
-                boxShadow: "0 10px 30px rgba(16, 185, 129, 0.35)",
-              }}
-            >
-              <span>Transformar mi Tienda Ahora</span>
-              <ArrowRight size={20} />
-            </a>
+            {/* Selector de plataforma */}
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <button
+                type="button"
+                onClick={() => setPlatform("tiendanube")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                  platform === "tiendanube"
+                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                    : "bg-slate-800 text-slate-400 hover:text-white"
+                }`}
+              >
+                <Store className="w-4 h-4" />
+                Tiendanube ⚡
+              </button>
+              <button
+                type="button"
+                onClick={() => setPlatform("shopify")}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800/40 text-slate-500 border border-slate-800 cursor-not-allowed"
+                title="Próximamente disponible"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                Shopify (Próximamente)
+              </button>
+            </div>
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "1rem",
-                fontSize: "0.8rem",
-                color: "#6B7280",
-                fontWeight: 600,
-                marginTop: "0.5rem",
-              }}
-            >
-              <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                <CheckCircle2 size={14} color="#10B981" /> Sin tocar código
+            <form onSubmit={handleStartActivation} className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Escribí el nombre de tu tienda (ej: mi-tienda.com)"
+                  value={storeUrl}
+                  onChange={(e) => setStoreUrl(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-6 py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 whitespace-nowrap"
+              >
+                <span>Activar Mi Tienda</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </form>
+
+            <div className="flex items-center justify-center gap-6 mt-4 text-xs text-slate-400">
+              <span className="flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Instalación en 60s
               </span>
-              <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                <CheckCircle2 size={14} color="#10B981" /> Listo en 3 minutos
+              <span className="flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Sin comisiones extras
+              </span>
+              <span className="flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Pago seguro con Mercado Pago
               </span>
             </div>
+          </motion.div>
+
+          {/* Ratings & Social Proof */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-slate-400 text-sm">
+            <div className="flex -space-x-2">
+              <div className="w-9 h-9 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center font-bold text-xs text-emerald-400">GA</div>
+              <div className="w-9 h-9 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center font-bold text-xs text-blue-400">WS</div>
+              <div className="w-9 h-9 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center font-bold text-xs text-purple-400">NK</div>
+              <div className="w-9 h-9 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center font-bold text-xs text-pink-400">TN</div>
+            </div>
+            <div className="flex items-center gap-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+              ))}
+              <span className="font-bold text-white ml-1">4.9/5</span>
+              <span>(+120 tiendas activas en Argentina)</span>
+            </div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
-      {/* 2. SIMULADOR INTERACTIVO (ANTES vs DESPUÉS) */}
-      <section
-        style={{
-          maxWidth: "800px",
-          margin: "2rem auto 4rem auto",
-          padding: "0 1.25rem",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "0.5rem",
-            marginBottom: "1.5rem",
-            flexWrap: "wrap",
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setActiveTab("despues")}
-            style={{
-              padding: "0.7rem 1.25rem",
-              borderRadius: "12px",
-              border:
-                activeTab === "despues"
-                  ? "2px solid #10B981"
-                  : "1px solid rgba(255,255,255,0.1)",
-              background:
-                activeTab === "despues"
-                  ? "rgba(16, 185, 129, 0.15)"
-                  : "rgba(255,255,255,0.03)",
-              color: activeTab === "despues" ? "#34D399" : "#9CA3AF",
-              fontWeight: 800,
-              fontSize: "0.9rem",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem",
-            }}
-          >
-            <Sparkles size={16} /> Con Nevux (Landing Pro)
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("antes")}
-            style={{
-              padding: "0.7rem 1.25rem",
-              borderRadius: "12px",
-              border:
-                activeTab === "antes"
-                  ? "2px solid #EF4444"
-                  : "1px solid rgba(255,255,255,0.1)",
-              background:
-                activeTab === "antes"
-                  ? "rgba(239, 68, 68, 0.15)"
-                  : "rgba(255,255,255,0.03)",
-              color: activeTab === "antes" ? "#FCA5A5" : "#9CA3AF",
-              fontWeight: 800,
-              fontSize: "0.9rem",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem",
-            }}
-          >
-            <X size={16} /> Tiendanube Genérica
-          </button>
-        </div>
+      {/* SIMULADOR ANTES / DESPUÉS INTERACTIVO */}
+      <section className="py-16 bg-slate-950/60 border-y border-slate-800/60 relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+              Mirá el cambio en tiempo real
+            </h2>
+            <p className="text-slate-400 text-base sm:text-lg">
+              Pasá de una ficha de producto común a una página de venta que despierta el deseo de compra instantáneo.
+            </p>
 
-        {/* Marco Celular */}
-        <div
-          style={{
-            maxWidth: "360px",
-            margin: "0 auto",
-            background: "#111827",
-            borderRadius: "36px",
-            padding: "12px",
-            border: "4px solid #1F2937",
-            boxShadow:
-              activeTab === "despues"
-                ? "0 20px 50px rgba(16, 185, 129, 0.25)"
-                : "0 20px 50px rgba(0, 0, 0, 0.5)",
-            transition: "all 0.3s ease",
-          }}
-        >
-          <div
-            style={{
-              background: "#ffffff",
-              color: "#000000",
-              borderRadius: "26px",
-              overflow: "hidden",
-              minHeight: "540px",
-              position: "relative",
-            }}
-          >
-            {/* Notch */}
-            <div
-              style={{
-                width: "100px",
-                height: "18px",
-                background: "#111827",
-                margin: "0 auto",
-                borderBottomLeftRadius: "12px",
-                borderBottomRightRadius: "12px",
-              }}
-            />
+            {/* Selector Toggle */}
+            <div className="inline-flex p-1.5 rounded-2xl bg-slate-900 border border-slate-800 mt-6">
+              <button
+                onClick={() => setSimMode("despues")}
+                className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+                  simMode === "despues"
+                    ? "bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <Sparkles className="w-4 h-4" />
+                Con Nevux Pro (Alta Conversión)
+              </button>
+              <button
+                onClick={() => setSimMode("antes")}
+                className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+                  simMode === "antes"
+                    ? "bg-slate-800 text-white"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Tiendanube Estándar
+              </button>
+            </div>
+          </div>
 
-            <AnimatePresence mode="wait">
-              {activeTab === "despues" ? (
-                <motion.div
-                  key="despues"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  style={{ padding: "0.85rem", position: "relative" }}
-                >
-                  {/* Notificacion de Compra Reciente */}
+          {/* SIMULADOR CELULAR */}
+          <div className="max-w-sm mx-auto">
+            <div className="relative rounded-[40px] border-[8px] border-slate-800 bg-slate-950 shadow-2xl overflow-hidden min-h-[580px]">
+              {/* Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-5 bg-slate-800 rounded-b-xl z-30" />
+
+              <AnimatePresence mode="wait">
+                {simMode === "despues" ? (
                   <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    style={{
-                      position: "absolute",
-                      bottom: "15px",
-                      left: "10px",
-                      right: "10px",
-                      background: "rgba(255, 255, 255, 0.95)",
-                      border: "1px solid #E5E7EB",
-                      borderRadius: "12px",
-                      padding: "0.5rem 0.75rem",
-                      boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                      zIndex: 10,
-                    }}
+                    key="despues"
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    className="p-4 pt-8 text-left space-y-4"
                   >
-                    <div
-                      style={{
-                        width: "8px",
-                        height: "8px",
-                        borderRadius: "50%",
-                        background: "#10B981",
-                      }}
-                    />
-                    <div style={{ fontSize: "0.68rem", color: "#1F2937" }}>
-                      <strong>Alguien de Córdoba</strong> compró hace 3 min
+                    {/* Header tienda */}
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                      <div className="h-4 w-20 bg-emerald-500/20 rounded animate-pulse" />
+                      <ShoppingBag className="w-4 h-4 text-emerald-400" />
+                    </div>
+
+                    {/* Foto de producto */}
+                    <div className="relative h-48 bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
+                      <span className="text-xs text-slate-500 font-semibold">Imagen HQ HD</span>
+                      <div className="absolute top-2 right-2 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full uppercase">
+                        OFERTA 25% OFF
+                      </div>
+                    </div>
+
+                    {/* Urgencia / Stock */}
+                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
+                      <div className="flex justify-between text-[11px] font-bold text-amber-400 mb-1">
+                        <span>🔥 ¡Pocas unidades disponibles!</span>
+                        <span>84% vendido</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-amber-950 rounded-full overflow-hidden">
+                        <div className="w-[84%] h-full bg-gradient-to-r from-amber-500 to-red-500 rounded-full animate-pulse" />
+                      </div>
+                    </div>
+
+                    {/* Titulo y Precio */}
+                    <div>
+                      <h3 className="text-base font-bold text-white">Zapatillas Running Pro 2.0</h3>
+                      <div className="flex items-baseline gap-2 mt-1">
+                        <span className="text-xl font-black text-emerald-400">$39.900</span>
+                        <span className="text-xs text-slate-500 line-through">$49.900</span>
+                      </div>
+                    </div>
+
+                    {/* Selector de Oferta Pack */}
+                    <div className="space-y-2">
+                      <div className="p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded-full border-2 border-emerald-400 flex items-center justify-center">
+                            <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-white">Llevá 2 pares (15% EXTRA)</div>
+                            <div className="text-[10px] text-slate-400">Más vendido</div>
+                          </div>
+                        </div>
+                        <span className="text-xs font-extrabold text-emerald-400">$66.130</span>
+                      </div>
+                    </div>
+
+                    {/* Insignias de confianza */}
+                    <div className="grid grid-cols-3 gap-2 text-center text-[10px] bg-slate-900 p-2.5 rounded-xl border border-slate-800 text-slate-300">
+                      <div>🚚 Envío Gratis</div>
+                      <div>💳 3 Cuotas</div>
+                      <div>🔒 Garantía</div>
+                    </div>
+
+                    {/* Botón Flotante Sticky (Simulado) */}
+                    <div className="pt-2">
+                      <button className="w-full bg-emerald-500 text-slate-950 font-black py-3 rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2">
+                        <span>COMPRAR AHORA EN 1 CLIC</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
                     </div>
                   </motion.div>
-
-                  {/* Banner Oferta */}
-                  <div
-                    style={{
-                      background: "#000000",
-                      color: "#ffffff",
-                      fontSize: "0.68rem",
-                      fontWeight: 800,
-                      textAlign: "center",
-                      padding: "0.35rem",
-                      borderRadius: "6px",
-                      marginBottom: "0.75rem",
-                    }}
+                ) : (
+                  <motion.div
+                    key="antes"
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    className="p-4 pt-8 text-left space-y-4 filter opacity-60 grayscale"
                   >
-                    🔥 20% OFF PAGANDO POR TRANSFERENCIA
-                  </div>
-
-                  {/* Imagen producto */}
-                  <div
-                    style={{
-                      height: "160px",
-                      background: "#f3f4f6",
-                      borderRadius: "14px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginBottom: "0.75rem",
-                      position: "relative",
-                    }}
-                  >
-                    <ShoppingBag size={44} color="#9CA3AF" />
-                    <span
-                      style={{
-                        position: "absolute",
-                        top: "8px",
-                        left: "8px",
-                        background: "#10B981",
-                        color: "white",
-                        fontSize: "0.6rem",
-                        fontWeight: 800,
-                        padding: "0.2rem 0.5rem",
-                        borderRadius: "999px",
-                      }}
-                    >
-                      MÁS VENDIDO
-                    </span>
-                  </div>
-
-                  {/* Rating */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.2rem",
-                      fontSize: "0.68rem",
-                      fontWeight: 800,
-                      color: "#F59E0B",
-                      marginBottom: "0.2rem",
-                    }}
-                  >
-                    <Star size={11} fill="#F59E0B" />
-                    <Star size={11} fill="#F59E0B" />
-                    <Star size={11} fill="#F59E0B" />
-                    <Star size={11} fill="#F59E0B" />
-                    <Star size={11} fill="#F59E0B" />
-                    <span style={{ color: "#4B5563", marginLeft: "0.2rem" }}>
-                      4.9 (128 opiniones)
-                    </span>
-                  </div>
-
-                  <h3
-                    style={{
-                      fontSize: "1rem",
-                      fontWeight: 900,
-                      margin: "0 0 0.3rem 0",
-                    }}
-                  >
-                    Termo Pro Inox 1L
-                  </h3>
-
-                  {/* Packs de Oferta por Cantidad */}
-                  <div
-                    style={{
-                      background: "#F9FAFB",
-                      border: "1.5px solid #10B981",
-                      borderRadius: "10px",
-                      padding: "0.5rem",
-                      marginBottom: "0.75rem",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "0.65rem",
-                        fontWeight: 800,
-                        color: "#059669",
-                        marginBottom: "0.3rem",
-                      }}
-                    >
-                      ELEGÍ TU PACK CON DESCUENTO
+                    <div className="h-4 w-20 bg-slate-800 rounded" />
+                    <div className="h-48 bg-slate-900 rounded-lg flex items-center justify-center border border-slate-800">
+                      <span className="text-xs text-slate-600">Foto Estándar</span>
                     </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        background: "#ECFDF5",
-                        padding: "0.35rem 0.5rem",
-                        borderRadius: "6px",
-                        fontSize: "0.7rem",
-                        fontWeight: 700,
-                        color: "#047857",
-                      }}
-                    >
-                      <span>Llevá 2 (15% OFF)</span>
-                      <strong>$66.130</strong>
+                    <div>
+                      <div className="h-4 w-40 bg-slate-800 rounded mb-2" />
+                      <div className="h-6 w-24 bg-slate-800 rounded" />
                     </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    style={{
-                      width: "100%",
-                      padding: "0.75rem",
-                      background: "#000000",
-                      color: "#ffffff",
-                      border: "none",
-                      borderRadius: "10px",
-                      fontSize: "0.85rem",
-                      fontWeight: 800,
-                      cursor: "pointer",
-                      marginBottom: "0.5rem",
-                    }}
-                  >
-                    AGREGAR AL CARRITO →
-                  </button>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "0.3rem",
-                      fontSize: "0.65rem",
-                      color: "#059669",
-                      fontWeight: 700,
-                    }}
-                  >
-                    <ShieldCheck size={12} /> Compra 100% Protegida · Envío Gratis
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="antes"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  style={{ padding: "0.85rem" }}
-                >
-                  <div
-                    style={{
-                      height: "180px",
-                      background: "#f3f4f6",
-                      borderRadius: "8px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginBottom: "1rem",
-                    }}
-                  >
-                    <ShoppingBag size={48} color="#D1D5DB" />
-                  </div>
-                  <h3
-                    style={{
-                      fontSize: "0.95rem",
-                      fontWeight: 600,
-                      margin: "0 0 0.5rem 0",
-                      color: "#374151",
-                    }}
-                  >
-                    Termo Pro Inox 1L
-                  </h3>
-                  <div
-                    style={{
-                      fontSize: "1.1rem",
-                      fontWeight: 700,
-                      color: "#1F2937",
-                      marginBottom: "1rem",
-                    }}
-                  >
-                    $48.600
-                  </div>
-                  <p
-                    style={{
-                      fontSize: "0.75rem",
-                      color: "#6B7280",
-                      lineHeight: 1.4,
-                      marginBottom: "1.5rem",
-                    }}
-                  >
-                    Termo de acero inoxidable de 1 litro de capacidad. Mantiene
-                    la temperatura por horas.
-                  </p>
-                  <button
-                    type="button"
-                    style={{
-                      width: "100%",
-                      padding: "0.6rem",
-                      background: "#E5E7EB",
-                      color: "#9CA3AF",
-                      border: "none",
-                      borderRadius: "6px",
-                      fontSize: "0.85rem",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Agregar al carrito
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                    <div className="h-10 bg-slate-800 rounded-lg" />
+                    <div className="h-12 bg-slate-700 rounded-lg flex items-center justify-center text-slate-400 text-xs">
+                      Agregar al carrito
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 3. POR QUÉ VENDE (MÉTODO AIDA) */}
-      <section
-        style={{
-          maxWidth: "900px",
-          margin: "4rem auto",
-          padding: "0 1.25rem",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-          <h2
-            style={{
-              fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
-              fontWeight: 900,
-              margin: "0 0 0.75rem 0",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Por qué <span style={{ color: "#10B981" }}>vende más</span>
-          </h2>
-          <p style={{ color: "#9CA3AF", fontSize: "1rem", margin: 0 }}>
-            Una ficha de producto común muestra datos. Una Landing Page explica,
-            convence y cierra la venta.
-          </p>
-        </div>
+      {/* CÓMO SE ACTIVA (3 PASOS) */}
+      <section className="py-20 relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+              Activación en 3 sencillos pasos
+            </h2>
+            <p className="text-slate-400 text-base sm:text-lg">
+              Sin programadores, sin instalar aplicaciones pesadas y sin demoras.
+            </p>
+          </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-            gap: "1.25rem",
-          }}
-        >
-          {[
-            {
-              step: "A",
-              title: "Atracción",
-              desc: "Capturamos la atención con ofertas por transferencia, insignias de envío gratis y contador de stock.",
-              color: "#10B981",
-            },
-            {
-              step: "I",
-              title: "Interés",
-              desc: "Convertimos características aburridas en beneficios reales con tablas comparativas y reseñas con estrellas.",
-              color: "#3B82F6",
-            },
-            {
-              step: "D",
-              title: "Deseo",
-              desc: "Aumentamos el ticket promedio con packs de descuento progresivos (Llevá 2, Llevá 3).",
-              color: "#8B5CF6",
-            },
-            {
-              step: "A",
-              title: "Acción",
-              desc: "Notificaciones de compra social en tiempo real que eliminan dudas y fuerzan el clic de compra.",
-              color: "#EC4899",
-            },
-          ].map((item) => (
-            <div
-              key={item.title}
-              style={{
-                background: "rgba(255, 255, 255, 0.03)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                borderRadius: "20px",
-                padding: "1.5rem",
-              }}
-            >
-              <div
-                style={{
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "10px",
-                  background: item.color,
-                  color: "white",
-                  fontWeight: 900,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "1.1rem",
-                  marginBottom: "1rem",
-                }}
-              >
-                {item.step}
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-slate-900/60 border border-slate-800 p-8 rounded-2xl relative">
+              <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-black text-xl rounded-xl flex items-center justify-center mb-6">
+                1
               </div>
-              <h3
-                style={{
-                  fontSize: "1.15rem",
-                  fontWeight: 800,
-                  margin: "0 0 0.5rem 0",
-                }}
-              >
-                {item.title}
-              </h3>
-              <p
-                style={{
-                  fontSize: "0.88rem",
-                  color: "#9CA3AF",
-                  lineHeight: 1.5,
-                  margin: 0,
-                }}
-              >
-                {item.desc}
+              <h3 className="text-xl font-bold text-white mb-2">Comprás tu Licencia</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Completás el pago seguro en Mercado Pago y recibís tu código personal al instante.
               </p>
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* 4. TRES PLANTILLAS LISTAS */}
-      <section
-        style={{
-          maxWidth: "900px",
-          margin: "4rem auto",
-          padding: "0 1.25rem",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <h2
-            style={{
-              fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
-              fontWeight: 900,
-              margin: "0 0 0.5rem 0",
-            }}
-          >
-            Plantillas diseñadas para tu marca
-          </h2>
-          <p style={{ color: "#9CA3AF", fontSize: "0.95rem", margin: 0 }}>
-            Elegí el estilo que mejor va con tus productos.
-          </p>
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "1.25rem",
-          }}
-        >
-          {[
-            {
-              id: "clasica",
-              name: "Clásica Convertidora",
-              tag: "La más elegida",
-              desc: "Perfecta para tecnología, bazar, termos y accesorios generales.",
-            },
-            {
-              id: "oscura",
-              name: "Oscura Premium",
-              tag: "Marcas de Lujo",
-              desc: "Especial para indumentaria streetwear, calzado y perfumería.",
-            },
-            {
-              id: "comparativa",
-              name: "Antes y Después",
-              tag: "Alta Persuasión",
-              desc: "Para productos donde el resultado visual marca la diferencia.",
-            },
-          ].map((tmpl) => (
-            <div
-              key={tmpl.id}
-              style={{
-                background: "rgba(255, 255, 255, 0.03)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                borderRadius: "20px",
-                padding: "1.5rem",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <div>
-                <span
-                  style={{
-                    fontSize: "0.7rem",
-                    fontWeight: 800,
-                    color: "#10B981",
-                    background: "rgba(16, 185, 129, 0.12)",
-                    padding: "0.25rem 0.6rem",
-                    borderRadius: "999px",
-                    display: "inline-block",
-                    marginBottom: "0.75rem",
-                  }}
-                >
-                  {tmpl.tag}
-                </span>
-                <h3
-                  style={{
-                    fontSize: "1.1rem",
-                    fontWeight: 800,
-                    margin: "0 0 0.5rem 0",
-                  }}
-                >
-                  {tmpl.name}
-                </h3>
-                <p
-                  style={{
-                    fontSize: "0.85rem",
-                    color: "#9CA3AF",
-                    margin: "0 0 1rem 0",
-                    lineHeight: 1.45,
-                  }}
-                >
-                  {tmpl.desc}
-                </p>
+            <div className="bg-slate-900/60 border border-slate-800 p-8 rounded-2xl relative">
+              <div className="w-12 h-12 bg-blue-500/10 border border-blue-500/30 text-blue-400 font-black text-xl rounded-xl flex items-center justify-center mb-6">
+                2
               </div>
-
-              <a
-                href="#checkout"
-                style={{
-                  padding: "0.7rem",
-                  background: "rgba(255, 255, 255, 0.08)",
-                  color: "#ffffff",
-                  borderRadius: "12px",
-                  fontSize: "0.85rem",
-                  fontWeight: 700,
-                  textAlign: "center",
-                  textDecoration: "none",
-                  display: "block",
-                }}
-              >
-                Usar esta plantilla →
-              </a>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 5. CÓMO SE INSTALA (3 PASOS) */}
-      <section
-        style={{
-          maxWidth: "800px",
-          margin: "4rem auto",
-          padding: "2rem 1.25rem",
-          background: "rgba(16, 185, 129, 0.05)",
-          border: "1px solid rgba(16, 185, 129, 0.2)",
-          borderRadius: "28px",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <h2
-            style={{
-              fontSize: "1.8rem",
-              fontWeight: 900,
-              margin: "0 0 0.5rem 0",
-            }}
-          >
-            Cómo se activa en tu tienda
-          </h2>
-          <p style={{ color: "#9CA3AF", fontSize: "0.9rem", margin: 0 }}>
-            En 3 sencillos pasos, sin contratar programadores ni diseñadores.
-          </p>
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "1.25rem",
-          }}
-        >
-          {[
-            {
-              num: "1",
-              title: "Elegís tu plantilla",
-              desc: "Seleccionás el diseño que mejor va con tus productos.",
-            },
-            {
-              num: "2",
-              title: "Copiás tu código",
-              desc: "Te entregamos un código maestro único para tu Tiendanube.",
-            },
-            {
-              num: "3",
-              title: "Pegás y vendés",
-              desc: "Lo pegás en Edición Avanzada de CSS y tu tienda se transforma al instante.",
-            },
-          ].map((step) => (
-            <div key={step.num} style={{ textAlign: "center" }}>
-              <div
-                style={{
-                  width: "42px",
-                  height: "42px",
-                  borderRadius: "50%",
-                  background: "#10B981",
-                  color: "#ffffff",
-                  fontSize: "1.2rem",
-                  fontWeight: 900,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  margin: "0 auto 0.75rem auto",
-                }}
-              >
-                {step.num}
-              </div>
-              <h3
-                style={{
-                  fontSize: "1rem",
-                  fontWeight: 800,
-                  margin: "0 0 0.35rem 0",
-                }}
-              >
-                {step.title}
-              </h3>
-              <p
-                style={{
-                  fontSize: "0.82rem",
-                  color: "#9CA3AF",
-                  lineHeight: 1.4,
-                  margin: 0,
-                }}
-              >
-                {step.desc}
+              <h3 className="text-xl font-bold text-white mb-2">Pegás el Código</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Entrás a Configuración &gt; Edición avanzada de CSS en tu Tiendanube y pegás el script.
               </p>
             </div>
-          ))}
+
+            <div className="bg-slate-900/60 border border-slate-800 p-8 rounded-2xl relative">
+              <div className="w-12 h-12 bg-purple-500/10 border border-purple-500/30 text-purple-400 font-black text-xl rounded-xl flex items-center justify-center mb-6">
+                3
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Multiplicás Ventas</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Tu tienda empieza a mostrar botones pegajosos, ofertas de packs y disparadores de urgencia.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 6. CHECKOUT DE SUSCRIPCIÓN DIRECTA */}
-      <section
-        id="checkout"
-        style={{
-          maxWidth: "520px",
-          margin: "4rem auto",
-          padding: "0 1.25rem",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <div
-          style={{
-            background: "linear-gradient(180deg, #111827 0%, #0F172A 100%)",
-            border: "2px solid #10B981",
-            borderRadius: "28px",
-            padding: "2rem 1.5rem",
-            boxShadow: "0 20px 50px rgba(16, 185, 129, 0.2)",
-            textAlign: "center",
-          }}
-        >
-          <div
-            style={{
-              display: "inline-block",
-              background: "#10B981",
-              color: "white",
-              fontSize: "0.75rem",
-              fontWeight: 800,
-              padding: "0.3rem 0.8rem",
-              borderRadius: "999px",
-              marginBottom: "1rem",
-              textTransform: "uppercase",
-            }}
-          >
-            ACTIVACIÓN INSTANTÁNEA
+      {/* MÉTODO AIDA (4 TARJETAS CON COLORES) */}
+      <section className="py-20 bg-slate-950/80 border-t border-slate-800/60">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+              Diseñado con el Método AIDA
+            </h2>
+            <p className="text-slate-400 text-base">
+              La estructura psicológica de conversión utilizada por los e-commerce líderes a nivel mundial.
+            </p>
           </div>
 
-          <h2
-            style={{
-              fontSize: "1.8rem",
-              fontWeight: 900,
-              margin: "0 0 0.5rem 0",
-            }}
-          >
-            Pack Landing Page Pro
-          </h2>
-          <p
-            style={{
-              color: "#9CA3AF",
-              fontSize: "0.9rem",
-              margin: "0 0 1.5rem 0",
-            }}
-          >
-            Suscripción oficial para Tiendanube. Cancelás cuando quieras.
-          </p>
-
-          <div
-            style={{
-              background: "rgba(255, 255, 255, 0.05)",
-              borderRadius: "16px",
-              padding: "1.25rem",
-              marginBottom: "1.5rem",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "0.8rem",
-                color: "#9CA3AF",
-                textDecoration: "line-through",
-              }}
-            >
-              Precio normal $49.900 ARS
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* A - Atención */}
+            <div className="bg-slate-900 border border-emerald-500/30 p-6 rounded-2xl">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4">
+                <Zap className="w-5 h-5" />
+              </div>
+              <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Paso 1</div>
+              <h3 className="text-lg font-bold text-white mb-2">ATENCIÓN</h3>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Capturá la atención del visitante en los primeros 3 segundos con barras fijas de urgencia y ofertas visuales.
+              </p>
             </div>
-            <div
-              style={{
-                fontSize: "2.8rem",
-                fontWeight: 900,
-                color: "#34D399",
-                letterSpacing: "-0.02em",
-                lineHeight: 1,
-              }}
-            >
-              $39.900
-              <span
-                style={{ fontSize: "1rem", color: "#9CA3AF", fontWeight: 500 }}
-              >
-                /mes
-              </span>
+
+            {/* I - Interés */}
+            <div className="bg-slate-900 border border-blue-500/30 p-6 rounded-2xl">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Paso 2</div>
+              <h3 className="text-lg font-bold text-white mb-2">INTERÉS</h3>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Destacá las insignias de envío gratis, cuotas sin interés y prueba social para eliminar la incertidumbre.
+              </p>
+            </div>
+
+            {/* D - Deseo */}
+            <div className="bg-slate-900 border border-purple-500/30 p-6 rounded-2xl">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4">
+                <Layers className="w-5 h-5" />
+              </div>
+              <div className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-1">Paso 3</div>
+              <h3 className="text-lg font-bold text-white mb-2">DESEO</h3>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Incentivá la compra de más unidades proponiendo paquetes promocionales tipo "Llevá 2 con 15% OFF".
+              </p>
+            </div>
+
+            {/* A - Acción */}
+            <div className="bg-slate-900 border border-pink-500/30 p-6 rounded-2xl">
+              <div className="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-4">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div className="text-xs font-bold text-pink-400 uppercase tracking-wider mb-1">Paso 4</div>
+              <h3 className="text-lg font-bold text-white mb-2">ACCIÓN</h3>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                El botón de compra fija (Sticky Bar) acompaña todo el scroll del usuario en el celular para un checkout inmediato.
+              </p>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div
-            style={{
-              textAlign: "left",
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.6rem",
-              marginBottom: "1.75rem",
-              fontSize: "0.88rem",
-              color: "#D1D5DB",
-            }}
-          >
+      {/* PLANTILLAS INCLUIDAS */}
+      <section className="py-20 border-t border-slate-800/60">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+              3 Estilos visuales listos para activar
+            </h2>
+            <p className="text-slate-400 text-base">
+              Podés cambiar de plantilla con solo ajustar una variable en tu script.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Plantilla 1 */}
+            <div
+              onClick={() => setSelectedTemplate("clasica")}
+              className={`cursor-pointer bg-slate-900 p-6 rounded-2xl border transition-all ${
+                selectedTemplate === "clasica"
+                  ? "border-emerald-500 ring-2 ring-emerald-500/20"
+                  : "border-slate-800 hover:border-slate-700"
+              }`}
+            >
+              <div className="h-40 bg-slate-950 rounded-xl mb-4 border border-slate-800 flex items-center justify-center">
+                <span className="text-xs font-bold text-emerald-400">Estilo Clásico Clean</span>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-1">Plantilla Clásica</h3>
+              <p className="text-slate-400 text-xs">Ideal para tiendas de indumentaria y accesorios minimalistas.</p>
+            </div>
+
+            {/* Plantilla 2 */}
+            <div
+              onClick={() => setSelectedTemplate("oscura")}
+              className={`cursor-pointer bg-slate-900 p-6 rounded-2xl border transition-all ${
+                selectedTemplate === "oscura"
+                  ? "border-emerald-500 ring-2 ring-emerald-500/20"
+                  : "border-slate-800 hover:border-slate-700"
+              }`}
+            >
+              <div className="h-40 bg-slate-950 rounded-xl mb-4 border border-slate-800 flex items-center justify-center">
+                <span className="text-xs font-bold text-purple-400">Estilo Oscuro Premium</span>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-1">Oscura Premium</h3>
+              <p className="text-slate-400 text-xs">Perfecto para electrónica, suplementos y productos tecnologicos.</p>
+            </div>
+
+            {/* Plantilla 3 */}
+            <div
+              onClick={() => setSelectedTemplate("split")}
+              className={`cursor-pointer bg-slate-900 p-6 rounded-2xl border transition-all ${
+                selectedTemplate === "split"
+                  ? "border-emerald-500 ring-2 ring-emerald-500/20"
+                  : "border-slate-800 hover:border-slate-700"
+              }`}
+            >
+              <div className="h-40 bg-slate-950 rounded-xl mb-4 border border-slate-800 flex items-center justify-center">
+                <span className="text-xs font-bold text-blue-400">Estilo Antes & Después</span>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-1">Antes y Después</h3>
+              <p className="text-slate-400 text-xs">Diseñado para belleza, cosmética y transformaciones visibles.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PREGUNTAS FRECUENTES (FAQ) */}
+      <section className="py-20 bg-slate-950/60 border-t border-slate-800/60">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-extrabold text-white mb-4">Preguntas Frecuentes</h2>
+            <p className="text-slate-400 text-sm">Todo lo que necesitás saber antes de activar Nevux Pro.</p>
+          </div>
+
+          <div className="space-y-4">
             {[
-              "Código Maestro CSS/JS para Tiendanube",
-              "Las 3 Plantillas incluidas (Clásica, Oscura, Comparativa)",
-              "Optimizada para celulares (Mobile First)",
-              "Soporte prioritario por WhatsApp directo",
-              "Actualizaciones automáticas de diseño",
-            ].map((text) => (
-              <div
-                key={text}
-                style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-              >
-                <CheckCircle size={16} color="#10B981" />
-                <span>{text}</span>
+              {
+                q: "¿Necesito conocimientos de programación?",
+                a: "No, en absoluto. Solo tenés que copiar el código único que te entregamos y pegarlo en el apartado 'Edición avanzada de CSS' dentro de tu panel de Tiendanube."
+              },
+              {
+                q: "¿Afecta la velocidad de carga de mi tienda?",
+                a: "No. El script pesa menos de 15KB y corre de manera asíncrona, por lo que tu Tiendanube mantendrá su máxima velocidad de carga intacta."
+              },
+              {
+                q: "¿Puedo pedir cambios o personalizar los colores?",
+                a: "Sí, el script incluye variables CSS donde podés modificar los colores principales de las barras y botones para adaptarlos al 100% a la identidad de tu marca."
+              },
+              {
+                q: "¿Cómo es la facturación y el cobro?",
+                a: "El cobro de $39.900 ARS se realiza de forma recurrente mensual a través de Mercado Pago. Podés cancelar en cualquier momento sin penalizaciones."
+              }
+            ].map((faq, idx) => (
+              <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+                <button
+                  onClick={() => toggleFaq(idx)}
+                  className="w-full p-5 text-left font-bold text-white flex justify-between items-center gap-4 text-sm sm:text-base hover:bg-slate-800/50 transition-colors"
+                >
+                  <span>{faq.q}</span>
+                  <ChevronDown className={`w-5 h-5 text-emerald-400 transition-transform ${openFaq === idx ? "rotate-180" : ""}`} />
+                </button>
+                {openFaq === idx && (
+                  <div className="p-5 pt-0 text-slate-400 text-sm border-t border-slate-800/40 leading-relaxed">
+                    {faq.a}
+                  </div>
+                )}
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <a
-            href="https://mpago.la/1LqFYin"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.6rem",
-              width: "100%",
-              padding: "1.15rem",
-              background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
-              color: "#ffffff",
-              borderRadius: "16px",
-              fontSize: "1.1rem",
-              fontWeight: 800,
-              textDecoration: "none",
-              boxShadow: "0 10px 30px rgba(16, 185, 129, 0.35)",
-              boxSizing: "border-box",
-            }}
-          >
-            <span>Suscribirme ($39.900/mes) →</span>
-          </a>
+      {/* CHECKOUT SECTION / PRICING CARD */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
+          <div className="bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-emerald-500/50 rounded-3xl p-8 sm:p-12 text-center shadow-2xl shadow-emerald-500/10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-6">
+              Oferta Lanzamiento 2026
+            </div>
 
-          <div
-            style={{
-              fontSize: "0.78rem",
-              color: "#6B7280",
-              marginTop: "0.85rem",
-            }}
-          >
-            🔒 Cobro seguro con Tarjeta o Mercado Pago
+            <h2 className="text-3xl sm:text-5xl font-black text-white mb-4">
+              Pack Landing Page Pro
+            </h2>
+
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <span className="text-slate-500 line-through text-xl font-bold">$49.900</span>
+              <span className="text-4xl sm:text-6xl font-black text-white">$39.900</span>
+              <span className="text-slate-400 font-semibold text-sm">ARS / mes</span>
+            </div>
+
+            <ul className="max-w-md mx-auto space-y-3 text-left mb-8 text-sm text-slate-300">
+              <li className="flex items-center gap-3">
+                <Check className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                <span>Script Maestro CSS+JS para Tiendanube</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Check className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                <span>Sticky Bar Celular (Botón de Compra Fijo)</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Check className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                <span>Barra de Urgencia y Stock Limitado</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Check className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                <span>Notificaciones de Ventas en Vivo Simuladas</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Check className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                <span>Insignias de Pago Seguro y Envíos</span>
+              </li>
+            </ul>
+
+            <a
+              href={MP_CHECKOUT_URL}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-lg px-8 py-4 rounded-xl shadow-xl shadow-emerald-500/25 transition-all hover:scale-105"
+            >
+              <span>ACTIVAR AHORA CON MERCADO PAGO</span>
+              <ArrowRight className="w-5 h-5" />
+            </a>
+
+            <p className="text-xs text-slate-500 mt-4">
+              Cobro automático seguro por Mercado Pago. Cancelás en 1 clic cuando quieras.
+            </p>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-          padding: "3rem 1.25rem",
-          textAlign: "center",
-          borderTop: "1px solid rgba(255,255,255,0.08)",
-          color: "#6B7280",
-          fontSize: "0.85rem",
-        }}
-      >
-        <div style={{ marginBottom: "1.25rem" }}>
+      <footer className="py-10 border-t border-slate-800/60 bg-slate-950 text-slate-500 text-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <NevuxLogo size="sm" />
+
+          <div>
+            © 2026 Nevux. Todos los derechos reservados.
+          </div>
+
           <a
             href="https://wa.me/5493435042812?text=Hola!%20Tengo%20una%20duda%20sobre%20el%20Pack%20Landing%20Pro%20de%20Nevux"
             target="_blank"
             rel="noopener noreferrer"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              padding: "0.75rem 1.25rem",
-              background: "#25D366",
-              color: "#ffffff",
-              borderRadius: "999px",
-              fontWeight: 800,
-              textDecoration: "none",
-            }}
+            className="inline-flex items-center gap-2 text-emerald-400 font-bold hover:underline"
           >
-            <MessageCircle size={18} /> Asesoramiento por WhatsApp (+54 9 343 504 2812)
+            <MessageCircle className="w-4 h-4" />
+            Soporte por WhatsApp
           </a>
         </div>
-        <p>© 2026 Nevux. Todos los derechos reservados.</p>
       </footer>
     </div>
   );
-                                                                  }
+              }
