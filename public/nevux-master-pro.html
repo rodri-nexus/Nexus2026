@@ -249,7 +249,7 @@
     </button>
 
     <div class="code-box" id="codeSnippet">&lt;script&gt;
-/* Nevux · Pack Landing Page Pro v2 — Tiendanube
+/* Nevux · Pack Landing Page Pro v3 — Tiendanube
    Se pega en: Configuración &gt; Códigos externos &gt; Códigos de tracking &gt; "Para la tienda" */
 (function () {
   'use strict';
@@ -264,7 +264,18 @@
       { cantidad: 2, titulo: 'Llevá 2', descuento: 15, etiqueta: 'MÁS ELEGIDO' },
       { cantidad: 3, titulo: 'Llevá 3', descuento: 25 }
     ],
-    confianza: ['🚚 Envío a todo el país', '💳 3 cuotas sin interés', '🔒 Compra segura'],
+    // {cuotas} se reemplaza solo con las cuotas sin interés reales de la tienda.
+    confianza: ['🚚 Envío a todo el país', '💳 {cuotas}', '🔒 Compra segura'],
+    // % de descuento por transferencia. 0 = se toma de la tienda si lo tiene configurado.
+    transferencia: 0,
+    // Fecha estimada de entrega. null = no se muestra.
+    // corte: hora límite para despachar en el día · dias: días de despacho (1 = lunes ... 5 = viernes)
+    // min / max: días hábiles que tarda el correo
+    envio: null, // ejemplo: { corte: 14, dias: [1, 2, 3, 4, 5], min: 3, max: 6, zona: 'a todo el país' }
+    // Monto para envío gratis. 0 = no se muestra.
+    envioGratisDesde: 0,
+    // WhatsApp con código de país, sin + ni espacios (ej: 5493435042812). '' = no se muestra.
+    whatsapp: '',
     compradores: ['Sofía de Córdoba', 'Gonzalo de Rosario', 'Lucía de CABA', 'Martín de Mendoza', 'Valentina de La Plata'],
     boton: 'COMPRAR AHORA'
   };
@@ -304,7 +315,23 @@
       '.nvx-toast{position:fixed;left:12px;right:12px;top:12px;margin:0 auto;z-index:99998;max-width:300px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 25px rgba(0,0,0,.12);opacity:0;transform:translateY(-16px);transition:all .4s ease;pointer-events:none;font:13px/1.3 system-ui,-apple-system,sans-serif;color:#111827}' +
       '.nvx-toast.nvx-show{opacity:1;transform:none}' +
       '.nvx-toast i{font-style:normal;color:' + C + ';font-weight:800}' +
-      '.nvx-toast small{display:block;font-size:11px;color:#9ca3af}';
+      '.nvx-toast small{display:block;font-size:11px;color:#9ca3af}' +
+      '.nvx-best{margin:0 0 14px;font-family:system-ui,-apple-system,sans-serif;color:#111827}' +
+      '.nvx-best-tag{display:inline-block;background:' + C + ';color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;border-radius:5px;padding:3px 7px}' +
+      '.nvx-best-p{font-size:30px;font-weight:900;line-height:1.1;margin:4px 0 2px}' +
+      '.nvx-best-p em{font-style:normal;font-size:15px;font-weight:800;color:' + C + ';margin-left:6px}' +
+      '.nvx-best small{font-size:13px;color:#4b5563}' +
+      '.nvx-best small b{color:' + C + '}' +
+      '.nvx-ship{border:1px solid #e5e7eb;border-radius:12px;padding:4px 12px;margin:0 0 14px;font:13px/1.35 system-ui,-apple-system,sans-serif;color:#111827}' +
+      '.nvx-ship-r{display:flex;gap:10px;padding:9px 0}' +
+      '.nvx-ship-r + .nvx-ship-r{border-top:1px solid #f3f4f6}' +
+      '.nvx-ship-r &gt; span{font-size:18px;line-height:1}' +
+      '.nvx-ship-r b{color:' + C + '}' +
+      '.nvx-ship-r small{display:block;color:#6b7280;font-size:12px}' +
+      '.nvx-fs-bg{height:6px;background:#f3f4f6;border-radius:99px;overflow:hidden;margin-top:6px}' +
+      '.nvx-fs-bg i{display:block;height:100%;background:' + C + ';border-radius:99px}' +
+      '.nvx-wa{display:block;text-align:center;margin:-4px 0 14px;font:13px system-ui,-apple-system,sans-serif;color:#374151;text-decoration:none}' +
+      '.nvx-wa b{text-decoration:underline}';
     var st = document.createElement('style');
     st.textContent = css;
     document.head.appendChild(st);
@@ -321,6 +348,25 @@
       return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
+    // Datos reales de la tienda (Tiendanube los expone en window.LS)
+    var variant = window.LS &amp;&amp; LS.variants &amp;&amp; LS.variants[0];
+    var cuotasSin = 0;
+    try {
+      var inst = JSON.parse(variant.installments_data);
+      Object.keys(inst).forEach(function (g) {
+        Object.keys(inst[g]).forEach(function (n) {
+          if (inst[g][n].without_interests &amp;&amp; +n &gt; cuotasSin) cuotasSin = +n;
+        });
+      });
+    } catch (e) {}
+    var precio = (variant &amp;&amp; variant.price_number) || priceNumber();
+    var transf = NEVUX.transferencia;
+    if (!transf &amp;&amp; variant &amp;&amp; variant.price_with_payment_discount_short) {
+      var pd = parseFloat(variant.price_with_payment_discount_short.replace(/[^\d,]/g, '').replace(',', '.'));
+      if (pd &amp;&amp; precio) transf = Math.round((1 - pd / precio) * 100);
+    }
+    var cuotasTxt = cuotasSin &gt; 1 ? cuotasSin + ' cuotas sin interés' : 'Pagá en cuotas';
+
     // 1) Barra de urgencia, debajo del bloque de precio
     var priceBox = priceEl ? (priceEl.closest('.js-price-container, .price-container') || priceEl.parentElement) : null;
     if (priceBox) {
@@ -332,6 +378,48 @@
         if (f) f.style.width = NEVUX.urgencia.porcentaje + '%';
       }, 400);
     }
+
+    // 1b) Mejor precio por transferencia, pegado al precio
+    if (priceBox &amp;&amp; transf &gt; 0 &amp;&amp; precio) {
+      var conDesc = precio * (1 - transf / 100);
+      priceBox.insertAdjacentHTML('afterend',
+        '&lt;div class="nvx-best"&gt;&lt;span class="nvx-best-tag"&gt;MEJOR PRECIO&lt;/span&gt;&lt;div class="nvx-best-p"&gt;' + money(conDesc) +
+        '&lt;em&gt;' + transf + '% OFF&lt;/em&gt;&lt;/div&gt;&lt;small&gt;por transferencia · &lt;b&gt;ahorrás ' + money(precio - conDesc) + '&lt;/b&gt;' +
+        (cuotasSin &gt; 1 ? ' · ' + cuotasSin + ' cuotas sin interés de ' + money(precio / cuotasSin) : '') + '&lt;/small&gt;&lt;/div&gt;');
+    }
+
+    // 1c) Entrega estimada y envío gratis
+    var rows = '';
+    if (NEVUX.envio) {
+      var E = NEVUX.envio;
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
+      var desp = new Date(now);
+      if (E.dias.indexOf(desp.getDay()) &lt; 0 || now.getHours() &gt;= E.corte) {
+        do { desp.setDate(desp.getDate() + 1); } while (E.dias.indexOf(desp.getDay()) &lt; 0);
+      }
+      var habiles = function (d, n) {
+        var r = new Date(d);
+        while (n &gt; 0) { r.setDate(r.getDate() + 1); if (r.getDay() % 6) n--; }
+        return r;
+      };
+      var DS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+      var DL = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+      var MS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+      var fmt = function (d) { return DS[d.getDay()] + ' ' + d.getDate() + ' de ' + MS[d.getMonth()]; };
+      var dif = Math.round((new Date(desp.toDateString()) - new Date(now.toDateString())) / 864e5);
+      var cuando = dif === 0 ? 'hoy' : dif === 1 ? 'mañana' : 'el ' + DL[desp.getDay()];
+      rows += '&lt;div class="nvx-ship-r"&gt;&lt;span&gt;📦&lt;/span&gt;&lt;div&gt;&lt;b&gt;Llega entre el ' + fmt(habiles(desp, E.min)) + ' y el ' +
+        fmt(habiles(desp, E.max)) + '&lt;/b&gt; ' + (E.zona || '') + '&lt;small&gt;Despachamos ' + cuando + '&lt;/small&gt;&lt;/div&gt;&lt;/div&gt;';
+    }
+    if (NEVUX.envioGratisDesde &gt; 0 &amp;&amp; precio) {
+      var falta = NEVUX.envioGratisDesde - precio;
+      rows += '&lt;div class="nvx-ship-r"&gt;&lt;span&gt;🚚&lt;/span&gt;&lt;div style="flex:1"&gt;' + (falta &gt; 0
+        ? 'Envío gratis desde ' + money(NEVUX.envioGratisDesde) + ' · &lt;b&gt;te faltan ' + money(falta) + '&lt;/b&gt;&lt;div class="nvx-fs-bg"&gt;&lt;i style="width:' +
+          Math.round(precio / NEVUX.envioGratisDesde * 100) + '%"&gt;&lt;/i&gt;&lt;/div&gt;'
+        : '&lt;b&gt;Este producto tiene envío gratis&lt;/b&gt;') + '&lt;/div&gt;&lt;/div&gt;';
+    }
+    var urgEl = root.querySelector('.nvx-urg');
+    if (rows &amp;&amp; (urgEl || priceBox)) (urgEl || priceBox).insertAdjacentHTML('afterend', '&lt;div class="nvx-ship"&gt;' + rows + '&lt;/div&gt;');
 
     // 2) Selector de packs: cambia la cantidad del formulario
     var qtyInput = root.querySelector('.js-quantity-input, input[name="quantity"]');
@@ -366,9 +454,17 @@
     var trust = '&lt;div class="nvx-trust"&gt;';
     NEVUX.confianza.forEach(function (t) {
       var s = t.split(' ');
-      trust += '&lt;div&gt;&lt;span&gt;' + s.shift() + '&lt;/span&gt;' + s.join(' ') + '&lt;/div&gt;';
+      trust += '&lt;div&gt;&lt;span&gt;' + s.shift() + '&lt;/span&gt;' + s.join(' ').replace('{cuotas}', cuotasTxt) + '&lt;/div&gt;';
     });
     btnBox.insertAdjacentHTML('afterend', trust + '&lt;/div&gt;');
+
+    // 3b) Ayuda por WhatsApp
+    if (NEVUX.whatsapp) {
+      var msg = 'Hola! Tengo una consulta sobre ' + (titleEl ? titleEl.textContent.trim() : 'un producto') + ' ' + location.href;
+      root.querySelector('.nvx-trust').insertAdjacentHTML('afterend',
+        '&lt;a class="nvx-wa" target="_blank" rel="noopener" href="https://wa.me/' + NEVUX.whatsapp + '?text=' +
+        encodeURIComponent(msg) + '"&gt;¿Dudas con este producto? &lt;b&gt;Escribinos por WhatsApp&lt;/b&gt;&lt;/a&gt;');
+    }
 
     // 4) Botón de compra pegajoso
     document.body.insertAdjacentHTML('beforeend',
