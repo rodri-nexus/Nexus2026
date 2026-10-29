@@ -30,7 +30,7 @@ export default function ChatBubble() {
   const whatsappMessage = encodeURIComponent(
     "¡Hola Nevux! Quería consultar sobre la app 😊"
   );
-  const whatsappUrl = `https://wa.me/5493435042812?text=${whatsappMessage}`;
+  const whatsappUrl = `https://wa.me/5493434163999?text=${whatsappMessage}`;
 
   return (
     <div
