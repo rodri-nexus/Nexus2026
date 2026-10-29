@@ -1,18 +1,20 @@
 import type { Metadata, Viewport } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://nevux.ar"),
-  title: "Nevux - Suite de 50 Widgets de Conversión e IA",
+  title: "Nevux - Pack Landing Page Pro para Tiendanube",
   description:
-    "Suite de 50 widgets de conversión e inteligencia artificial para Tiendanube. Aumenta el ticket promedio de tu tienda online.",
+    "Transformá tu Tiendanube en una máquina de ventas con un solo código. Sticky bar, urgencia, ofertas pack y prueba social. Instalación en 60 segundos.",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     shortcut: ["/icon.svg"],
     apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
   },
   openGraph: {
-    title: "Nevux - Suite de 50 Widgets de Conversión e IA",
-    description: "Suite de 50 widgets de conversión e inteligencia artificial para Tiendanube. Aumenta el ticket promedio de tu tienda online.",
+    title: "Nevux - Pack Landing Page Pro para Tiendanube",
+    description:
+      "Transformá tu Tiendanube en una máquina de ventas con un solo código. Instalación en 60 segundos.",
     url: "https://nevux.ar",
     siteName: "Nevux",
     locale: "es_AR",
@@ -24,7 +26,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#10B981",
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({
@@ -37,18 +39,27 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icon.svg" />
-        
+
         {/* Google Analytics */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-HTK0Y1WNRZ"></script>
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-HTK0Y1WNRZ"
+        ></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           gtag('config', 'G-HTK0Y1WNRZ');
-        ` }} />
+        `,
+          }}
+        />
 
         {/* Facebook Pixel */}
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
           !function(f,b,e,v,n,t,s)
           {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
           n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -59,24 +70,21 @@ export default function RootLayout({
           'https://connect.facebook.net/en_US/fbevents.js');
           fbq('init', '1814965146452140');
           fbq('track', 'PageView');
-        ` }} />
+        `,
+          }}
+        />
         <noscript>
-          <img height="1" width="1" style={{ display: 'none' }}
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
             src="https://www.facebook.com/tr?id=1814965146452140&ev=PageView&noscript=1"
           />
         </noscript>
       </head>
-      <body
-        style={{
-          margin: 0,
-          fontFamily:
-            "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-          backgroundColor: "#f9fafb",
-          color: "#000000",
-        }}
-      >
+      <body className="bg-[#0a0a0a] text-white antialiased">
         {children}
       </body>
     </html>
   );
-}
+  }
