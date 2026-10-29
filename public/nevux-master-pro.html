@@ -214,7 +214,7 @@
         <div class="step-num">1</div>
         <div class="step-text">
           <h4>Copiá el Código Maestro</h4>
-          <p>Tocá el botón verde de abajo para copiar todo el script en tu portapapeles.</p>
+          <p>Tocá el botón verde de abajo para copiar todo el código en tu portapapeles.</p>
         </div>
       </div>
 
@@ -222,7 +222,7 @@
         <div class="step-num">2</div>
         <div class="step-text">
           <h4>Entrá a tu Tiendanube</h4>
-          <p>Andá a <strong>Configuración > Edición avanzada de CSS / Código personalizado</strong>.</p>
+          <p>Andá a <strong>Configuración &gt; Códigos externos</strong> y buscá el campo <strong>Códigos de tracking &gt; "Para la tienda"</strong>.</p>
         </div>
       </div>
 
@@ -230,7 +230,15 @@
         <div class="step-num">3</div>
         <div class="step-text">
           <h4>Pegá y Guardá Cambios</h4>
-          <p>Pegá el código en el cuadro y guardá. Tu tienda se actualizará al instante.</p>
+          <p>Pegá el código en ese campo y guardá. Abrí cualquier producto de tu tienda desde el celular para verlo funcionando.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">!</div>
+        <div class="step-text">
+          <h4>Activá los descuentos de los packs</h4>
+          <p>El selector muestra <strong>Llevá 2 con 15% OFF</strong> y <strong>Llevá 3 con 25% OFF</strong>. Para que el carrito cobre ese precio, creá en tu Tiendanube una promoción por cantidad con esos mismos descuentos. Si querés otros porcentajes, escribinos y te ajustamos el código.</p>
         </div>
       </div>
     </div>
@@ -240,86 +248,258 @@
       COPIAR CÓDIGO MAESTRO
     </button>
 
-    <div class="code-box" id="codeSnippet">&lt;style&gt;
-  :root {
-    --nevux-primary: #10b981;
-    --nevux-primary-hover: #059669;
-    --nevux-bg-dark: #090d16;
-    --nevux-card-dark: #111827;
-    --nevux-radius: 14px;
-    --nevux-font: system-ui, -apple-system, sans-serif;
-  }
-  .nevux-sticky-bar {
-    position: fixed; bottom: 0; left: 0; right: 0; background: #fff;
-    border-top: 1px solid #e5e7eb; padding: 12px 16px; display: flex;
-    align-items: center; justify-content: space-between; gap: 12px; z-index: 99999;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.1); transform: translateY(100%);
-    transition: transform 0.3s ease; font-family: var(--nevux-font);
-  }
-  .nevux-sticky-bar.nevux-show { transform: translateY(0); }
-  .nevux-sticky-info { display: flex; align-items: center; gap: 10px; overflow: hidden; }
-  .nevux-sticky-img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; }
-  .nevux-sticky-title { font-size: 13px; font-weight: 600; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .nevux-sticky-price { font-size: 15px; font-weight: 800; color: #10b981; }
-  .nevux-sticky-btn { background: var(--nevux-primary); color: #fff; font-weight: 700; font-size: 14px; padding: 12px 20px; border-radius: 10px; border: none; cursor: pointer; }
-  .nevux-urgency-box { background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 14px; padding: 14px 16px; margin: 16px 0; font-family: var(--nevux-font); }
-  .nevux-urgency-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #b45309; margin-bottom: 8px; }
-  .nevux-urgency-bar-bg { width: 100%; height: 8px; background: #fef3c7; border-radius: 99px; overflow: hidden; }
-  .nevux-urgency-bar-fill { height: 100%; width: 82%; background: linear-gradient(90deg, #f59e0b, #ef4444); border-radius: 99px; }
-  .nevux-toast-notification { position: fixed; bottom: 24px; left: 24px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 99990; opacity: 0; transform: translateY(20px); transition: all 0.4s ease; font-family: var(--nevux-font); }
-  .nevux-toast-notification.show { opacity: 1; transform: translateY(0); }
-  .nevux-trust-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; padding: 16px; background: #f9fafb; border-radius: 14px; text-align: center; font-family: var(--nevux-font); }
-&lt;/style&gt;
+    <div class="code-box" id="codeSnippet">&lt;script&gt;
+/* Nevux · Pack Landing Page Pro v3 — Tiendanube
+   Se pega en: Configuración &gt; Códigos externos &gt; Códigos de tracking &gt; "Para la tienda" */
+(function () {
+  'use strict';
 
-&lt;script&gt;
-  (function() {
-    'use strict';
-    function initTrustBadges() {
-      const buyBtn = document.querySelector('.js-product-container') || document.querySelector('form[action*="/cart/add"]');
-      if (!buyBtn) return;
-      buyBtn.insertAdjacentHTML('beforeend', '&lt;div class="nevux-trust-grid"&gt;&lt;div class="nevux-trust-item"&gt;&lt;span&gt;🚚&lt;/span&gt;&lt;span style="font-size:11px;font-weight:600"&gt;Envío Nacional&lt;/span&gt;&lt;/div&gt;&lt;div class="nevux-trust-item"&gt;&lt;span&gt;💳&lt;/span&gt;&lt;span style="font-size:11px;font-weight:600"&gt;3 Cuotas Sin Interés&lt;/span&gt;&lt;/div&gt;&lt;div class="nevux-trust-item"&gt;&lt;span&gt;🔒&lt;/span&gt;&lt;span style="font-size:11px;font-weight:600"&gt;Compra Segura&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;');
+  // ===== CONFIGURACIÓN (lo único que se toca por cliente) =====
+  var NEVUX = {
+    color: '#10b981',
+    urgencia: { texto: '🔥 Quedan pocas unidades', porcentaje: 84 },
+    // Los descuentos tienen que existir también como promoción en Tiendanube.
+    packs: [
+      { cantidad: 1, titulo: 'Llevá 1', descuento: 0 },
+      { cantidad: 2, titulo: 'Llevá 2', descuento: 15, etiqueta: 'MÁS ELEGIDO' },
+      { cantidad: 3, titulo: 'Llevá 3', descuento: 25 }
+    ],
+    // {cuotas} se reemplaza solo con las cuotas sin interés reales de la tienda.
+    confianza: ['🚚 Envío a todo el país', '💳 {cuotas}', '🔒 Compra segura'],
+    // % de descuento por transferencia. 0 = se toma de la tienda si lo tiene configurado.
+    transferencia: 0,
+    // Fecha estimada de entrega. null = no se muestra.
+    // corte: hora límite para despachar en el día · dias: días de despacho (1 = lunes ... 5 = viernes)
+    // min / max: días hábiles que tarda el correo
+    envio: null, // ejemplo: { corte: 14, dias: [1, 2, 3, 4, 5], min: 3, max: 6, zona: 'a todo el país' }
+    // Monto para envío gratis. 0 = no se muestra.
+    envioGratisDesde: 0,
+    // WhatsApp con código de país, sin + ni espacios (ej: 5493435042812). '' = no se muestra.
+    whatsapp: '',
+    compradores: ['Sofía de Córdoba', 'Gonzalo de Rosario', 'Lucía de CABA', 'Martín de Mendoza', 'Valentina de La Plata'],
+    boton: 'COMPRAR AHORA'
+  };
+  // ============================================================
+
+  function init() {
+    var root = document.querySelector('#single-product, .js-product-detail');
+    if (!root || root.getAttribute('data-nevux')) return;
+    var buyBtn = root.querySelector('.js-addtocart.js-prod-submit-form, .js-addtocart, input[type="submit"][name="add"]');
+    if (!buyBtn) return;
+    root.setAttribute('data-nevux', '1');
+
+    var C = NEVUX.color;
+    var css =
+      '.nvx-urg{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:10px 12px;margin:0 0 14px;font:600 13px/1.3 system-ui,-apple-system,sans-serif;color:#c2410c}' +
+      '.nvx-urg-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px}' +
+      '.nvx-urg-bg{height:7px;background:#ffedd5;border-radius:99px;overflow:hidden}' +
+      '.nvx-urg-fill{height:100%;width:0;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:99px;transition:width 1.6s ease}' +
+      '.nvx-packs{margin:0 0 14px;font-family:system-ui,-apple-system,sans-serif}' +
+      '.nvx-packs-t{font-weight:700;font-size:14px;margin-bottom:8px;color:#111827}' +
+      '.nvx-pack{display:flex;align-items:center;justify-content:space-between;gap:10px;border:2px solid #e5e7eb;border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;background:#fff;transition:border-color .2s,background .2s;color:#111827}' +
+      '.nvx-pack.nvx-on{border-color:' + C + ';background:' + C + '12}' +
+      '.nvx-pack b{display:block;font-size:14px}' +
+      '.nvx-pack small{font-size:12px;color:#6b7280}' +
+      '.nvx-pack .nvx-pr{text-align:right;font-weight:800;font-size:14px;white-space:nowrap}' +
+      '.nvx-pack .nvx-pr s{display:block;font-weight:400;font-size:11px;color:#9ca3af}' +
+      '.nvx-tag{display:inline-block;background:' + C + ';color:#fff;font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle}' +
+      '.nvx-trust{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0;padding:12px 8px;background:#f9fafb;border-radius:12px;text-align:center;font:600 11px/1.3 system-ui,-apple-system,sans-serif;color:#374151}' +
+      '.nvx-trust span{display:block;font-size:18px;margin-bottom:2px}' +
+      '.nvx-bar{position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#fff;border-top:1px solid #e5e7eb;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 -4px 20px rgba(0,0,0,.08);transform:translateY(110%);transition:transform .3s ease;font-family:system-ui,-apple-system,sans-serif}' +
+      '.nvx-bar.nvx-show{transform:none}' +
+      '.nvx-bar-i{display:flex;align-items:center;gap:10px;min-width:0}' +
+      '.nvx-bar-i img{width:42px;height:42px;border-radius:8px;object-fit:cover;flex:0 0 auto}' +
+      '.nvx-bar-t{font-size:12px;font-weight:600;color:#111827;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}' +
+      '.nvx-bar-p{font-size:15px;font-weight:800;color:' + C + '}' +
+      '.nvx-bar button{flex:0 0 auto;background:' + C + ';color:#fff;font-weight:800;font-size:13px;padding:12px 16px;border:0;border-radius:10px;cursor:pointer}' +
+      '.nvx-toast{position:fixed;left:12px;right:12px;top:12px;margin:0 auto;z-index:99998;max-width:300px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 25px rgba(0,0,0,.12);opacity:0;transform:translateY(-16px);transition:all .4s ease;pointer-events:none;font:13px/1.3 system-ui,-apple-system,sans-serif;color:#111827}' +
+      '.nvx-toast.nvx-show{opacity:1;transform:none}' +
+      '.nvx-toast i{font-style:normal;color:' + C + ';font-weight:800}' +
+      '.nvx-toast small{display:block;font-size:11px;color:#9ca3af}' +
+      '.nvx-best{margin:0 0 14px;font-family:system-ui,-apple-system,sans-serif;color:#111827}' +
+      '.nvx-best-tag{display:inline-block;background:' + C + ';color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;border-radius:5px;padding:3px 7px}' +
+      '.nvx-best-p{font-size:30px;font-weight:900;line-height:1.1;margin:4px 0 2px}' +
+      '.nvx-best-p em{font-style:normal;font-size:15px;font-weight:800;color:' + C + ';margin-left:6px}' +
+      '.nvx-best small{font-size:13px;color:#4b5563}' +
+      '.nvx-best small b{color:' + C + '}' +
+      '.nvx-ship{border:1px solid #e5e7eb;border-radius:12px;padding:4px 12px;margin:0 0 14px;font:13px/1.35 system-ui,-apple-system,sans-serif;color:#111827}' +
+      '.nvx-ship-r{display:flex;gap:10px;padding:9px 0}' +
+      '.nvx-ship-r + .nvx-ship-r{border-top:1px solid #f3f4f6}' +
+      '.nvx-ship-r &gt; span{font-size:18px;line-height:1}' +
+      '.nvx-ship-r b{color:' + C + '}' +
+      '.nvx-ship-r small{display:block;color:#6b7280;font-size:12px}' +
+      '.nvx-fs-bg{height:6px;background:#f3f4f6;border-radius:99px;overflow:hidden;margin-top:6px}' +
+      '.nvx-fs-bg i{display:block;height:100%;background:' + C + ';border-radius:99px}' +
+      '.nvx-wa{display:block;text-align:center;margin:-4px 0 14px;font:13px system-ui,-apple-system,sans-serif;color:#374151;text-decoration:none}' +
+      '.nvx-wa b{text-decoration:underline}';
+    var st = document.createElement('style');
+    st.textContent = css;
+    document.head.appendChild(st);
+
+    var priceEl = root.querySelector('#price_display, .js-price-display');
+    var titleEl = root.querySelector('.js-product-name, h1');
+    var imgEl = root.querySelector('.js-product-slide img, img[src*="/products/"], img[data-srcset*="/products/"]');
+
+    function priceNumber() {
+      var t = priceEl ? priceEl.textContent.replace(/[^\d,]/g, '').replace(',', '.') : '';
+      return parseFloat(t) || 0;
     }
-    function initUrgencyBar() {
-      const priceEl = document.querySelector('.js-price-display') || document.querySelector('.product-price');
-      if (!priceEl) return;
-      priceEl.insertAdjacentHTML('afterend', '&lt;div class="nevux-urgency-box"&gt;&lt;div class="nevux-urgency-header"&gt;&lt;span&gt;🔥 Quedan pocas unidades&lt;/span&gt;&lt;span&gt;84% vendido&lt;/span&gt;&lt;/div&gt;&lt;div class="nevux-urgency-bar-bg"&gt;&lt;div class="nevux-urgency-bar-fill"&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;');
+    function money(n) {
+      return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
-    function initStickyBar() {
-      const origBtn = document.querySelector('input[type="submit"][name="add"]') || document.querySelector('.js-prod-submit-form') || document.querySelector('.js-addtocart');
-      const titleEl = document.querySelector('h1') || document.querySelector('.product-name');
-      const priceEl = document.querySelector('.js-price-display') || document.querySelector('.product-price');
-      const imgEl = document.querySelector('img[src*="products"]') || document.querySelector('.js-product-slide img');
-      if (!origBtn) return;
-      const title = titleEl ? titleEl.innerText.trim() : 'Producto';
-      const price = priceEl ? priceEl.innerText.trim() : '';
-      const imgSrc = imgEl ? imgEl.src : '';
-      document.body.insertAdjacentHTML('beforeend', `&lt;div class="nevux-sticky-bar" id="nevuxStickyBar"&gt;&lt;div class="nevux-sticky-info"&gt;${imgSrc ? `&lt;img src="${imgSrc}" class="nevux-sticky-img"&gt;` : ''}&lt;div style="display:flex;flex-direction:column;"&gt;&lt;span class="nevux-sticky-title"&gt;${title}&lt;/span&gt;&lt;span class="nevux-sticky-price"&gt;${price}&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;button class="nevux-sticky-btn" id="nevuxStickyBtn"&gt;COMPRAR AHORA&lt;/button&gt;&lt;/div&gt;`);
-      const bar = document.getElementById('nevuxStickyBar');
-      const btn = document.getElementById('nevuxStickyBtn');
-      window.addEventListener('scroll', function() {
-        if (origBtn.getBoundingClientRect().bottom < 0) bar.classList.add('nevux-show');
-        else bar.classList.remove('nevux-show');
+
+    // Datos reales de la tienda (Tiendanube los expone en window.LS)
+    var variant = window.LS &amp;&amp; LS.variants &amp;&amp; LS.variants[0];
+    var cuotasSin = 0;
+    try {
+      var inst = JSON.parse(variant.installments_data);
+      Object.keys(inst).forEach(function (g) {
+        Object.keys(inst[g]).forEach(function (n) {
+          if (inst[g][n].without_interests &amp;&amp; +n &gt; cuotasSin) cuotasSin = +n;
+        });
       });
-      btn.addEventListener('click', function() { origBtn.click(); });
+    } catch (e) {}
+    var precio = (variant &amp;&amp; variant.price_number) || priceNumber();
+    var transf = NEVUX.transferencia;
+    if (!transf &amp;&amp; variant &amp;&amp; variant.price_with_payment_discount_short) {
+      var pd = parseFloat(variant.price_with_payment_discount_short.replace(/[^\d,]/g, '').replace(',', '.'));
+      if (pd &amp;&amp; precio) transf = Math.round((1 - pd / precio) * 100);
     }
-    function initLiveToast() {
-      const buyers = [{n:'María (Córdoba)',t:'hace 2m'},{n:'Gonzalo (Rosario)',t:'hace 5m'},{n:'Lucía (BsAs)',t:'hace 9m'}];
-      document.body.insertAdjacentHTML('beforeend', '&lt;div class="nevux-toast-notification" id="nevuxToast"&gt;&lt;div style="color:#10b981;font-weight:bold"&gt;✓&lt;/div&gt;&lt;div style="display:flex;flex-direction:column;font-size:12px"&gt;&lt;span id="nevuxToastTxt"&gt;&lt;/span&gt;&lt;span id="nevuxToastTime" style="font-size:10px;color:#9ca3af"&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;');
-      const t = document.getElementById('nevuxToast'), txt = document.getElementById('nevuxToastTxt'), tm = document.getElementById('nevuxToastTime');
-      let i = 0;
-      function show() {
-        txt.innerHTML = `&lt;strong&gt;${buyers[i].n}&lt;/strong&gt; compró recién`;
-        tm.innerText = buyers[i].t;
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 4000);
-        i = (i + 1) % buyers.length;
+    var cuotasTxt = cuotasSin &gt; 1 ? cuotasSin + ' cuotas sin interés' : 'Pagá en cuotas';
+
+    // 1) Barra de urgencia, debajo del bloque de precio
+    var priceBox = priceEl ? (priceEl.closest('.js-price-container, .price-container') || priceEl.parentElement) : null;
+    if (priceBox) {
+      priceBox.insertAdjacentHTML('afterend',
+        '&lt;div class="nvx-urg"&gt;&lt;div class="nvx-urg-top"&gt;&lt;span&gt;' + NEVUX.urgencia.texto + '&lt;/span&gt;&lt;span&gt;' +
+        NEVUX.urgencia.porcentaje + '% vendido&lt;/span&gt;&lt;/div&gt;&lt;div class="nvx-urg-bg"&gt;&lt;div class="nvx-urg-fill"&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;');
+      setTimeout(function () {
+        var f = root.querySelector('.nvx-urg-fill');
+        if (f) f.style.width = NEVUX.urgencia.porcentaje + '%';
+      }, 400);
+    }
+
+    // 1b) Mejor precio por transferencia, pegado al precio
+    if (priceBox &amp;&amp; transf &gt; 0 &amp;&amp; precio) {
+      var conDesc = precio * (1 - transf / 100);
+      priceBox.insertAdjacentHTML('afterend',
+        '&lt;div class="nvx-best"&gt;&lt;span class="nvx-best-tag"&gt;MEJOR PRECIO&lt;/span&gt;&lt;div class="nvx-best-p"&gt;' + money(conDesc) +
+        '&lt;em&gt;' + transf + '% OFF&lt;/em&gt;&lt;/div&gt;&lt;small&gt;por transferencia · &lt;b&gt;ahorrás ' + money(precio - conDesc) + '&lt;/b&gt;' +
+        (cuotasSin &gt; 1 ? ' · ' + cuotasSin + ' cuotas sin interés de ' + money(precio / cuotasSin) : '') + '&lt;/small&gt;&lt;/div&gt;');
+    }
+
+    // 1c) Entrega estimada y envío gratis
+    var rows = '';
+    if (NEVUX.envio) {
+      var E = NEVUX.envio;
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
+      var desp = new Date(now);
+      if (E.dias.indexOf(desp.getDay()) &lt; 0 || now.getHours() &gt;= E.corte) {
+        do { desp.setDate(desp.getDate() + 1); } while (E.dias.indexOf(desp.getDay()) &lt; 0);
       }
-      setTimeout(show, 4000);
-      setInterval(show, 18000);
+      var habiles = function (d, n) {
+        var r = new Date(d);
+        while (n &gt; 0) { r.setDate(r.getDate() + 1); if (r.getDay() % 6) n--; }
+        return r;
+      };
+      var DS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+      var DL = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+      var MS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+      var fmt = function (d) { return DS[d.getDay()] + ' ' + d.getDate() + ' de ' + MS[d.getMonth()]; };
+      var dif = Math.round((new Date(desp.toDateString()) - new Date(now.toDateString())) / 864e5);
+      var cuando = dif === 0 ? 'hoy' : dif === 1 ? 'mañana' : 'el ' + DL[desp.getDay()];
+      rows += '&lt;div class="nvx-ship-r"&gt;&lt;span&gt;📦&lt;/span&gt;&lt;div&gt;&lt;b&gt;Llega entre el ' + fmt(habiles(desp, E.min)) + ' y el ' +
+        fmt(habiles(desp, E.max)) + '&lt;/b&gt; ' + (E.zona || '') + '&lt;small&gt;Despachamos ' + cuando + '&lt;/small&gt;&lt;/div&gt;&lt;/div&gt;';
     }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { initTrustBadges(); initUrgencyBar(); initStickyBar(); initLiveToast(); });
-    else { initTrustBadges(); initUrgencyBar(); initStickyBar(); initLiveToast(); }
-  })();
+    if (NEVUX.envioGratisDesde &gt; 0 &amp;&amp; precio) {
+      var falta = NEVUX.envioGratisDesde - precio;
+      rows += '&lt;div class="nvx-ship-r"&gt;&lt;span&gt;🚚&lt;/span&gt;&lt;div style="flex:1"&gt;' + (falta &gt; 0
+        ? 'Envío gratis desde ' + money(NEVUX.envioGratisDesde) + ' · &lt;b&gt;te faltan ' + money(falta) + '&lt;/b&gt;&lt;div class="nvx-fs-bg"&gt;&lt;i style="width:' +
+          Math.round(precio / NEVUX.envioGratisDesde * 100) + '%"&gt;&lt;/i&gt;&lt;/div&gt;'
+        : '&lt;b&gt;Este producto tiene envío gratis&lt;/b&gt;') + '&lt;/div&gt;&lt;/div&gt;';
+    }
+    var urgEl = root.querySelector('.nvx-urg');
+    if (rows &amp;&amp; (urgEl || priceBox)) (urgEl || priceBox).insertAdjacentHTML('afterend', '&lt;div class="nvx-ship"&gt;' + rows + '&lt;/div&gt;');
+
+    // 2) Selector de packs: cambia la cantidad del formulario
+    var qtyInput = root.querySelector('.js-quantity-input, input[name="quantity"]');
+    var form = buyBtn.closest('form');
+    if (qtyInput &amp;&amp; form &amp;&amp; NEVUX.packs.length) {
+      var base = priceNumber();
+      var html = '&lt;div class="nvx-packs"&gt;&lt;div class="nvx-packs-t"&gt;Elegí tu pack&lt;/div&gt;';
+      NEVUX.packs.forEach(function (p, i) {
+        var full = base * p.cantidad;
+        var final = full * (1 - p.descuento / 100);
+        html += '&lt;div class="nvx-pack" data-i="' + i + '"&gt;&lt;div&gt;&lt;b&gt;' + p.titulo +
+          (p.descuento ? ' · ' + p.descuento + '% OFF' : '') +
+          (p.etiqueta ? '&lt;span class="nvx-tag"&gt;' + p.etiqueta + '&lt;/span&gt;' : '') + '&lt;/b&gt;&lt;small&gt;' +
+          (p.descuento ? 'Ahorrás ' + money(full - final) : 'Precio de lista') + '&lt;/small&gt;&lt;/div&gt;' +
+          '&lt;div class="nvx-pr"&gt;' + (p.descuento ? '&lt;s&gt;' + money(full) + '&lt;/s&gt;' : '') + (base ? money(final) : '') + '&lt;/div&gt;&lt;/div&gt;';
+      });
+      html += '&lt;/div&gt;';
+      form.insertAdjacentHTML('afterbegin', html);
+      var packs = form.querySelectorAll('.nvx-pack');
+      var pick = function (i) {
+        packs.forEach(function (el, j) { el.classList.toggle('nvx-on', j === i); });
+        qtyInput.value = NEVUX.packs[i].cantidad;
+        qtyInput.dispatchEvent(new Event('input', { bubbles: true }));
+        qtyInput.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+      packs.forEach(function (el, i) { el.addEventListener('click', function () { pick(i); }); });
+      pick(0);
+    }
+
+    // 3) Insignias de confianza, debajo del botón de compra
+    var btnBox = buyBtn.closest('.cart-button-container') || buyBtn;
+    var trust = '&lt;div class="nvx-trust"&gt;';
+    NEVUX.confianza.forEach(function (t) {
+      var s = t.split(' ');
+      trust += '&lt;div&gt;&lt;span&gt;' + s.shift() + '&lt;/span&gt;' + s.join(' ').replace('{cuotas}', cuotasTxt) + '&lt;/div&gt;';
+    });
+    btnBox.insertAdjacentHTML('afterend', trust + '&lt;/div&gt;');
+
+    // 3b) Ayuda por WhatsApp
+    if (NEVUX.whatsapp) {
+      var msg = 'Hola! Tengo una consulta sobre ' + (titleEl ? titleEl.textContent.trim() : 'un producto') + ' ' + location.href;
+      root.querySelector('.nvx-trust').insertAdjacentHTML('afterend',
+        '&lt;a class="nvx-wa" target="_blank" rel="noopener" href="https://wa.me/' + NEVUX.whatsapp + '?text=' +
+        encodeURIComponent(msg) + '"&gt;¿Dudas con este producto? &lt;b&gt;Escribinos por WhatsApp&lt;/b&gt;&lt;/a&gt;');
+    }
+
+    // 4) Botón de compra pegajoso
+    document.body.insertAdjacentHTML('beforeend',
+      '&lt;div class="nvx-bar" id="nvxBar"&gt;&lt;div class="nvx-bar-i"&gt;' +
+      (imgEl ? '&lt;img src="' + (imgEl.currentSrc || imgEl.src) + '" alt=""&gt;' : '') +
+      '&lt;div&gt;&lt;div class="nvx-bar-t"&gt;&lt;/div&gt;&lt;div class="nvx-bar-p"&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;button type="button"&gt;' + NEVUX.boton + '&lt;/button&gt;&lt;/div&gt;');
+    var bar = document.getElementById('nvxBar');
+    bar.querySelector('.nvx-bar-t').textContent = titleEl ? titleEl.textContent.trim() : '';
+    bar.querySelector('.nvx-bar-p').textContent = priceEl ? priceEl.textContent.trim() : '';
+    bar.querySelector('button').addEventListener('click', function () { buyBtn.click(); });
+    var onScroll = function () {
+      bar.classList.toggle('nvx-show', buyBtn.getBoundingClientRect().bottom &lt; 0);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // 5) Notificaciones de ventas en vivo
+    document.body.insertAdjacentHTML('beforeend', '&lt;div class="nvx-toast" id="nvxToast"&gt;&lt;i&gt;✓&lt;/i&gt;&lt;div&gt;&lt;span&gt;&lt;/span&gt;&lt;small&gt;&lt;/small&gt;&lt;/div&gt;&lt;/div&gt;');
+    var toast = document.getElementById('nvxToast');
+    var k = 0;
+    var show = function () {
+      var n = NEVUX.compradores[k % NEVUX.compradores.length];
+      toast.querySelector('span').innerHTML = '&lt;b&gt;' + n + '&lt;/b&gt; compró recién';
+      toast.querySelector('small').textContent = 'hace ' + (2 + (k * 3) % 11) + ' min';
+      toast.classList.add('nvx-show');
+      setTimeout(function () { toast.classList.remove('nvx-show'); }, 4000);
+      k++;
+    };
+    setTimeout(show, 5000);
+    setInterval(show, 20000);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 &lt;/script&gt;</div>
 
     <div class="footer">
@@ -350,4 +530,4 @@
     }
   </script>
 </body>
-     </html>
+</html>
