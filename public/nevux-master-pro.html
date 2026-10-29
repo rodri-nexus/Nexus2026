@@ -249,7 +249,7 @@
     </button>
 
     <div class="code-box" id="codeSnippet">&lt;script&gt;
-/* Nevux · Pack Landing Page Pro v3 — Tiendanube
+/* Nevux · Pack Landing Page Pro v4 — Tiendanube
    Se pega en: Configuración &gt; Códigos externos &gt; Códigos de tracking &gt; "Para la tienda" */
 (function () {
   'use strict';
@@ -276,12 +276,39 @@
     envioGratisDesde: 0,
     // WhatsApp con código de país, sin + ni espacios (ej: 5491123456789). '' = no se muestra.
     whatsapp: '',
+
+    // ----- Contenido de la ficha (tanda 2). null o [] = no se muestra -----
+    // Cinta animada de beneficios
+    cinta: [], // ej: ['Despacho en el día', 'Cambios sin drama', '3 cuotas sin interés']
+    // Calculadora de talle: elige sola el talle en la ficha
+    talles: null, // ej: { medida: 'Contorno de pecho', unidad: 'cm', tabla: [{ talle: 'S', min: 88, max: 94 }, { talle: 'M', min: 95, max: 101 }], nota: 'Si quedás entre dos talles, elegí el más grande.' }
+    // Antes / después con deslizador (URLs de las fotos)
+    antesDespues: null, // ej: { titulo: 'Mirá la diferencia', antes: 'https://...', despues: 'https://...' }
+    // Pasos de uso (foto opcional)
+    pasos: null, // ej: { titulo: 'Se usa en 3 pasos', items: [{ titulo: 'Elegís tu talle', texto: '...', foto: '' }] }
+    // Comparativa marca vs. alternativa
+    comparativa: null, // ej: { titulo: '¿Por qué elegirnos?', marca: 'Nosotros', otro: 'Genérico', filas: ['Talles reales', 'No se deforma'] }
+    // Reseñas reales de clientes (verificada: true solo si se puede comprobar)
+    resenas: [], // ej: [{ nombre: 'Rocío', lugar: 'Quilmes', texto: '...', estrellas: 5, verificada: false }]
+    // Preguntas frecuentes
+    faq: [], // ej: [{ p: '¿Cuánto tarda el envío?', r: 'Entre 3 y 6 días hábiles.' }]
+    // Suma la pregunta de devoluciones según la Ley de Defensa del Consumidor
+    faqDevoluciones: false,
+    // Contenido distinto por producto: la clave es una parte de la URL del producto.
+    // Lo que se ponga acá reemplaza a lo de arriba solo en ese producto.
+    porProducto: {}, // ej: { 'remera-tejida': { talles: { ... }, antesDespues: null } }
     compradores: ['Sofía de Córdoba', 'Gonzalo de Rosario', 'Lucía de CABA', 'Martín de Mendoza', 'Valentina de La Plata'],
     boton: 'COMPRAR AHORA'
   };
   // ============================================================
 
   function init() {
+    Object.keys(NEVUX.porProducto || {}).forEach(function (k) {
+      if (location.pathname.indexOf(k) &gt; -1) {
+        var o = NEVUX.porProducto[k];
+        Object.keys(o).forEach(function (c) { NEVUX[c] = o[c]; });
+      }
+    });
     var root = document.querySelector('#single-product, .js-product-detail');
     if (!root || root.getAttribute('data-nevux')) return;
     var buyBtn = root.querySelector('.js-addtocart.js-prod-submit-form, .js-addtocart, input[type="submit"][name="add"]');
@@ -331,7 +358,59 @@
       '.nvx-fs-bg{height:6px;background:#f3f4f6;border-radius:99px;overflow:hidden;margin-top:6px}' +
       '.nvx-fs-bg i{display:block;height:100%;background:' + C + ';border-radius:99px}' +
       '.nvx-wa{display:block;text-align:center;margin:-4px 0 14px;font:13px system-ui,-apple-system,sans-serif;color:#374151;text-decoration:none}' +
-      '.nvx-wa b{text-decoration:underline}';
+      '.nvx-wa b{text-decoration:underline}' +
+      '.nvx-c{font-family:inherit;color:#111827;margin:8px 0 18px}' +
+      '.nvx-c *{box-sizing:border-box}' +
+      '.nvx-sec{margin:0 0 22px}' +
+      '.nvx-h{font-size:19px;font-weight:800;line-height:1.2;margin:0 0 10px;text-align:center}' +
+      '.nvx-cinta{overflow:hidden;background:' + C + ';color:#fff;border-radius:10px;margin:0 0 22px;padding:9px 0;white-space:nowrap}' +
+      '.nvx-cinta div{display:inline-block;animation:nvx-mq 28s linear infinite;font:800 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:.08em;text-transform:uppercase}' +
+      '.nvx-cinta span{margin:0 14px}' +
+      '@keyframes nvx-mq{to{transform:translateX(-50%)}}' +
+      '.nvx-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px}' +
+      '.nvx-tl-row{display:flex;gap:8px}' +
+      '.nvx-tl-row input{flex:1;min-width:0;border:1px solid #d1d5db;border-radius:10px;padding:11px 12px;font-size:16px}' +
+      '.nvx-tl-row button{background:' + C + ';color:#fff;border:0;border-radius:10px;padding:11px 16px;font:800 14px system-ui,-apple-system,sans-serif;cursor:pointer;opacity:1;text-transform:none;letter-spacing:0;width:auto;height:auto}' +
+      '.nvx-tl-res{margin:10px 0 0;font-size:14px;text-align:center;min-height:20px}' +
+      '.nvx-tl-res b{color:' + C + '}' +
+      '.nvx-tl-tab{display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:6px;margin-top:10px}' +
+      '.nvx-tl-tab div{border:1px solid #e5e7eb;border-radius:8px;padding:6px 4px;text-align:center;font-size:11px;color:#6b7280}' +
+      '.nvx-tl-tab div b{display:block;font-size:14px;color:#111827}' +
+      '.nvx-tl-tab div.nvx-on{border-color:' + C + ';background:' + C + '14}' +
+      '.nvx-small{font-size:12px;color:#6b7280;text-align:center;margin:8px 0 0}' +
+      '.nvx-ad{position:relative;border-radius:14px;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:pan-y}' +
+      '.nvx-ad img{display:block;width:100%;height:auto;max-height:480px;object-fit:cover;pointer-events:none}' +
+      '.nvx-ad .nvx-ad-d{position:absolute;inset:0;clip-path:inset(0 0 0 50%)}' +
+      '.nvx-ad .nvx-ad-d img{width:100%;height:100%;object-fit:cover}' +
+      '.nvx-ad-l{position:absolute;top:10px;z-index:2;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px}' +
+      '.nvx-ad-bar{position:absolute;top:0;bottom:0;left:50%;width:3px;margin-left:-1px;background:#fff;z-index:2;pointer-events:none}' +
+      '.nvx-ad-bar:after{content:"↔";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;background:#fff;color:#111;display:grid;place-items:center;font-size:14px;box-shadow:0 2px 10px rgba(0,0,0,.3)}' +
+      '.nvx-ad input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:ew-resize;z-index:3}' +
+      '.nvx-step{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}' +
+      '.nvx-step i{flex:0 0 28px;height:28px;border-radius:50%;background:' + C + ';color:#fff;font-style:normal;font-weight:800;display:grid;place-items:center;font-size:13px}' +
+      '.nvx-step b{display:block;font-size:15px}' +
+      '.nvx-step p{margin:2px 0 0;font-size:13px;color:#4b5563}' +
+      '.nvx-step img{display:block;width:100%;border-radius:10px;margin-top:8px}' +
+      '.nvx-cmp{width:100%;border-collapse:collapse;font-size:13px}' +
+      '.nvx-cmp th{font-size:12px;padding:8px 4px}' +
+      '.nvx-cmp td{border-top:1px solid #f3f4f6;padding:10px 4px;text-align:center}' +
+      '.nvx-cmp td:first-child{text-align:left;font-weight:600}' +
+      '.nvx-cmp .nvx-m{background:' + C + '14;color:' + C + ';font-weight:900}' +
+      '.nvx-cmp .nvx-x{color:#ef4444;font-weight:900}' +
+      '.nvx-rv{margin-bottom:10px}' +
+      '.nvx-rv-h{display:flex;align-items:center;gap:10px;margin-bottom:6px}' +
+      '.nvx-rv-h i{flex:0 0 34px;height:34px;border-radius:50%;background:' + C + ';color:#fff;font-style:normal;font-weight:800;display:grid;place-items:center}' +
+      '.nvx-rv-h small{display:block;color:#6b7280;font-size:12px}' +
+      '.nvx-rv-s{color:#f59e0b;font-size:13px}' +
+      '.nvx-rv p{margin:6px 0 0;font-size:14px;line-height:1.45}' +
+      '.nvx-rv em{display:block;margin-top:6px;font-style:normal;font-size:12px;color:#059669;font-weight:700}' +
+      '.nvx-faq{border:1px solid #e5e7eb;border-radius:12px;margin-bottom:8px;background:#fff}' +
+      '.nvx-faq summary{cursor:pointer;list-style:none;padding:13px 40px 13px 14px;font-weight:700;font-size:14px;position:relative}' +
+      '.nvx-faq summary::-webkit-details-marker{display:none}' +
+      '.nvx-faq summary:after{content:"+";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:20px;color:' + C + '}' +
+      '.nvx-faq[open] summary:after{content:"−"}' +
+      '.nvx-faq div{padding:0 14px 14px;font-size:14px;color:#4b5563;line-height:1.5}' +
+      '@media (prefers-reduced-motion: reduce){.nvx-cinta div{animation:none}}';
     var st = document.createElement('style');
     st.textContent = css;
     document.head.appendChild(st);
@@ -451,6 +530,9 @@
 
     // 3) Insignias de confianza, debajo del botón de compra
     var btnBox = buyBtn.closest('.cart-button-container') || buyBtn;
+    // Si el botón está en una columna o grilla angosta de la plantilla, las insignias van debajo del bloque completo
+    var ancho = (form || root).getBoundingClientRect().width;
+    while (btnBox.parentElement &amp;&amp; btnBox.parentElement !== form &amp;&amp; btnBox.getBoundingClientRect().width &lt; ancho * 0.9) btnBox = btnBox.parentElement;
     var trust = '&lt;div class="nvx-trust"&gt;';
     NEVUX.confianza.forEach(function (t) {
       var s = t.split(' ');
@@ -464,6 +546,121 @@
       root.querySelector('.nvx-trust').insertAdjacentHTML('afterend',
         '&lt;a class="nvx-wa" target="_blank" rel="noopener" href="https://wa.me/' + NEVUX.whatsapp + '?text=' +
         encodeURIComponent(msg) + '"&gt;¿Dudas con este producto? &lt;b&gt;Escribinos por WhatsApp&lt;/b&gt;&lt;/a&gt;');
+    }
+
+    // 6) Contenido de la ficha: cinta, talles, antes/después, pasos, comparativa, reseñas y preguntas
+    var esc = function (t) {
+      return String(t == null ? '' : t).replace(/[&amp;&lt;&gt;"]/g, function (c) { return { '&amp;': '&amp;amp;', '&lt;': '&amp;lt;', '&gt;': '&amp;gt;', '"': '&amp;quot;' }[c]; });
+    };
+    var cont = '';
+    if (NEVUX.cinta &amp;&amp; NEVUX.cinta.length) {
+      var items = NEVUX.cinta.map(function (t) { return '&lt;span&gt;' + esc(t) + '&lt;/span&gt;&lt;span&gt;·&lt;/span&gt;'; }).join('');
+      cont += '&lt;div class="nvx-cinta"&gt;&lt;div&gt;' + items + items + items + items + '&lt;/div&gt;&lt;/div&gt;';
+    }
+    var T = NEVUX.talles;
+    if (T &amp;&amp; T.tabla &amp;&amp; T.tabla.length) {
+      cont += '&lt;div class="nvx-sec"&gt;&lt;div class="nvx-h"&gt;' + esc(T.titulo || 'Encontrá tu talle') + '&lt;/div&gt;&lt;div class="nvx-card"&gt;' +
+        '&lt;div style="font-weight:700;font-size:14px;margin-bottom:8px"&gt;' + esc(T.medida || 'Tu medida') + ' (' + esc(T.unidad || 'cm') + ')&lt;/div&gt;' +
+        '&lt;div class="nvx-tl-row"&gt;&lt;input type="number" inputmode="decimal" placeholder="Ej: ' + T.tabla[Math.floor(T.tabla.length / 2)].min + '" aria-label="' + esc(T.medida || 'Medida') + '"&gt;&lt;button type="button"&gt;Ver mi talle&lt;/button&gt;&lt;/div&gt;' +
+        '&lt;div class="nvx-tl-res"&gt;&lt;/div&gt;&lt;div class="nvx-tl-tab"&gt;' +
+        T.tabla.map(function (r) { return '&lt;div data-t="' + esc(r.talle) + '"&gt;&lt;b&gt;' + esc(r.talle) + '&lt;/b&gt;' + (r.min === r.max ? r.min : r.min + '-' + r.max) + '&lt;/div&gt;'; }).join('') +
+        '&lt;/div&gt;' + (T.nota ? '&lt;p class="nvx-small"&gt;' + esc(T.nota) + '&lt;/p&gt;' : '') + '&lt;/div&gt;&lt;/div&gt;';
+    }
+    var AD = NEVUX.antesDespues;
+    if (AD &amp;&amp; AD.antes &amp;&amp; AD.despues) {
+      cont += '&lt;div class="nvx-sec"&gt;&lt;div class="nvx-h"&gt;' + esc(AD.titulo || 'Mirá la diferencia') + '&lt;/div&gt;&lt;div class="nvx-ad"&gt;' +
+        '&lt;img src="' + esc(AD.antes) + '" alt="Antes" loading="lazy"&gt;&lt;div class="nvx-ad-d"&gt;&lt;img src="' + esc(AD.despues) + '" alt="Después" loading="lazy"&gt;&lt;/div&gt;' +
+        '&lt;span class="nvx-ad-l" style="left:10px"&gt;ANTES&lt;/span&gt;&lt;span class="nvx-ad-l" style="right:10px;background:' + C + '"&gt;DESPUÉS&lt;/span&gt;' +
+        '&lt;div class="nvx-ad-bar"&gt;&lt;/div&gt;&lt;input type="range" min="0" max="100" value="50" aria-label="Comparar antes y después"&gt;&lt;/div&gt;' +
+        '&lt;p class="nvx-small"&gt;← Deslizá para comparar →&lt;/p&gt;&lt;/div&gt;';
+    }
+    var P = NEVUX.pasos;
+    if (P &amp;&amp; P.items &amp;&amp; P.items.length) {
+      cont += '&lt;div class="nvx-sec"&gt;&lt;div class="nvx-h"&gt;' + esc(P.titulo || 'Cómo se usa') + '&lt;/div&gt;&lt;div class="nvx-card"&gt;' +
+        P.items.map(function (it, i) {
+          return '&lt;div class="nvx-step"&gt;&lt;i&gt;' + (i + 1) + '&lt;/i&gt;&lt;div style="flex:1"&gt;&lt;b&gt;' + esc(it.titulo) + '&lt;/b&gt;' +
+            (it.texto ? '&lt;p&gt;' + esc(it.texto) + '&lt;/p&gt;' : '') + (it.foto ? '&lt;img src="' + esc(it.foto) + '" alt="" loading="lazy"&gt;' : '') + '&lt;/div&gt;&lt;/div&gt;';
+        }).join('') + '&lt;/div&gt;&lt;/div&gt;';
+    }
+    var CP = NEVUX.comparativa;
+    if (CP &amp;&amp; CP.filas &amp;&amp; CP.filas.length) {
+      cont += '&lt;div class="nvx-sec"&gt;&lt;div class="nvx-h"&gt;' + esc(CP.titulo || '¿Por qué elegirnos?') + '&lt;/div&gt;&lt;div class="nvx-card" style="padding:6px 10px"&gt;' +
+        '&lt;table class="nvx-cmp"&gt;&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;th class="nvx-m"&gt;' + esc(CP.marca || 'Nosotros') + '&lt;/th&gt;&lt;th&gt;' + esc(CP.otro || 'Otros') + '&lt;/th&gt;&lt;/tr&gt;' +
+        CP.filas.map(function (f) { return '&lt;tr&gt;&lt;td&gt;' + esc(f) + '&lt;/td&gt;&lt;td class="nvx-m"&gt;✓&lt;/td&gt;&lt;td class="nvx-x"&gt;✕&lt;/td&gt;&lt;/tr&gt;'; }).join('') +
+        '&lt;/table&gt;&lt;/div&gt;&lt;/div&gt;';
+    }
+    if (NEVUX.resenas &amp;&amp; NEVUX.resenas.length) {
+      cont += '&lt;div class="nvx-sec"&gt;&lt;div class="nvx-h"&gt;Lo que dicen nuestros clientes&lt;/div&gt;' +
+        NEVUX.resenas.map(function (r) {
+          var n = Math.max(1, Math.min(5, r.estrellas || 5));
+          return '&lt;div class="nvx-card nvx-rv"&gt;&lt;div class="nvx-rv-h"&gt;&lt;i&gt;' + esc((r.nombre || '?').charAt(0)) + '&lt;/i&gt;&lt;div&gt;&lt;b&gt;' + esc(r.nombre) + '&lt;/b&gt;' +
+            (r.lugar ? '&lt;small&gt;' + esc(r.lugar) + '&lt;/small&gt;' : '') + '&lt;/div&gt;&lt;/div&gt;&lt;div class="nvx-rv-s"&gt;' + '★★★★★'.slice(0, n) + '&lt;/div&gt;' +
+            '&lt;p&gt;“' + esc(r.texto) + '”&lt;/p&gt;' + (r.verificada ? '&lt;em&gt;✓ Compra verificada&lt;/em&gt;' : '') + '&lt;/div&gt;';
+        }).join('') + '&lt;/div&gt;';
+    }
+    var faqs = (NEVUX.faq || []).slice();
+    if (NEVUX.faqDevoluciones) {
+      faqs.push({ p: '¿Puedo devolverlo si me arrepiento?', r: 'Sí. Por ser una compra a distancia tenés 10 días corridos desde que lo recibís para arrepentirte (art. 34 de la Ley 24.240 de Defensa del Consumidor). Escribinos y te indicamos cómo devolverlo.' });
+    }
+    if (faqs.length) {
+      cont += '&lt;div class="nvx-sec"&gt;&lt;div class="nvx-h"&gt;Preguntas frecuentes&lt;/div&gt;' +
+        faqs.map(function (f) { return '&lt;details class="nvx-faq"&gt;&lt;summary&gt;' + esc(f.p) + '&lt;/summary&gt;&lt;div&gt;' + esc(f.r) + '&lt;/div&gt;&lt;/details&gt;'; }).join('') + '&lt;/div&gt;';
+    }
+    if (cont) {
+      var after = root.querySelector('.nvx-wa') || root.querySelector('.nvx-trust');
+      after.insertAdjacentHTML('afterend', '&lt;div class="nvx-c"&gt;' + cont + '&lt;/div&gt;');
+      var box = root.querySelector('.nvx-c');
+
+      // Calculadora: busca el talle y lo elige en la ficha
+      var tlBtn = box.querySelector('.nvx-tl-row button');
+      if (tlBtn) {
+        var tlIn = box.querySelector('.nvx-tl-row input');
+        var tlRes = box.querySelector('.nvx-tl-res');
+        var elegir = function (talle) {
+          var t = talle.toLowerCase();
+          var btn = [].slice.call(root.querySelectorAll('.js-insta-variant[data-option], a[data-option]')).filter(function (e) {
+            return (e.getAttribute('data-option') || '').toLowerCase() === t;
+          })[0];
+          if (btn) { btn.click(); return true; }
+          var ok = false;
+          [].slice.call(root.querySelectorAll('select')).forEach(function (sel) {
+            [].slice.call(sel.options).forEach(function (o) {
+              if (!ok &amp;&amp; (o.value.toLowerCase() === t || o.text.trim().toLowerCase() === t)) {
+                sel.value = o.value;
+                sel.dispatchEvent(new Event('change', { bubbles: true }));
+                ok = true;
+              }
+            });
+          });
+          return ok;
+        };
+        var calcular = function () {
+          var v = parseFloat(String(tlIn.value).replace(',', '.'));
+          box.querySelectorAll('.nvx-tl-tab div').forEach(function (d) { d.classList.remove('nvx-on'); });
+          if (!v) { tlRes.textContent = 'Ingresá tu medida en ' + (T.unidad || 'cm') + '.'; return; }
+          var hits = T.tabla.filter(function (r) { return v &gt;= r.min &amp;&amp; v &lt;= r.max; });
+          var r = hits[hits.length - 1];
+          if (!r) {
+            tlRes.innerHTML = 'Esa medida está fuera de la tabla.' + (NEVUX.whatsapp ? ' &lt;b&gt;Escribinos y te asesoramos.&lt;/b&gt;' : '');
+            return;
+          }
+          var cell = box.querySelector('.nvx-tl-tab div[data-t="' + esc(r.talle).replace(/"/g, '') + '"]');
+          if (cell) cell.classList.add('nvx-on');
+          var elegido = elegir(r.talle);
+          tlRes.innerHTML = 'Tu talle es &lt;b&gt;' + esc(r.talle) + '&lt;/b&gt;' + (elegido ? ' · ya lo elegimos en la ficha ✓' : '');
+        };
+        tlBtn.addEventListener('click', calcular);
+        tlIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); calcular(); } });
+      }
+
+      // Antes / después
+      var ad = box.querySelector('.nvx-ad');
+      if (ad) {
+        ad.querySelector('input').addEventListener('input', function () {
+          ad.querySelector('.nvx-ad-d').style.clipPath = 'inset(0 0 0 ' + this.value + '%)';
+          ad.querySelector('.nvx-ad-bar').style.left = this.value + '%';
+        });
+      }
     }
 
     // 4) Botón de compra pegajoso
