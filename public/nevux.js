@@ -25,6 +25,8 @@
     envio: null, // ejemplo: { corte: 14, dias: [1, 2, 3, 4, 5], min: 3, max: 6, zona: 'a todo el país' }
     // Monto para envío gratis. 0 = no se muestra.
     envioGratisDesde: 0,
+    // Cuenta regresiva grande en la ficha (antes de los packs). true = hasta la hora de corte de envio; o { hasta, texto } para una promo
+    cuentaRegresiva: null,
     // WhatsApp con código de país, sin + ni espacios (ej: 5491123456789). '' = no se muestra.
     whatsapp: '',
 
@@ -285,7 +287,7 @@
       var dif = Math.round((new Date(desp.toDateString()) - new Date(now.toDateString())) / 864e5);
       var cuando = dif === 0 ? 'hoy' : dif === 1 ? 'mañana' : 'el ' + DL[desp.getDay()];
       rows += '<div class="nvx-ship-r"><span>📦</span><div><b>Llega entre el ' + fmt(habiles(desp, E.min)) + ' y el ' +
-        fmt(habiles(desp, E.max)) + '</b> ' + (E.zona || '') + (dif === 0
+        fmt(habiles(desp, E.max)) + '</b> ' + (E.zona || '') + (dif === 0 && !NEVUX.cuentaRegresiva
           ? '<small class="nvx-cd">Pedí en las próximas <b></b> y sale hoy</small>'
           : '<small>Despachamos ' + cuando + '</small>') + '</div></div>';
     }
@@ -340,6 +342,17 @@
       packs.forEach(function (el, i) { el.addEventListener('click', function () { pick(i); }); });
       pick(0);
     }
+
+    // 2b) Cuenta regresiva grande, justo antes de los packs (o debajo de la entrega si no hay packs)
+    montarCuenta(NEVUX.cuentaRegresiva, function (html) {
+      if (document.querySelector('.nvh-crw')) return null; // la home ya tiene su banner (ficha incrustada en la home)
+      var antes = root.querySelector('.nvx-packs');
+      var despues = root.querySelector('.nvx-ship') || root.querySelector('.nvx-urg') || priceBox;
+      if (antes) antes.insertAdjacentHTML('beforebegin', html);
+      else if (despues) despues.insertAdjacentHTML('afterend', html);
+      else return null;
+      return root.querySelector('.nvx-cr-ficha');
+    }, 'nvx-cr-ficha');
 
     // 3) Insignias de confianza, debajo del botón de compra
     var btnBox = buyBtn.closest('.cart-button-container') || buyBtn;
@@ -762,9 +775,19 @@
       else (document.querySelector('.nvh') || footer || document.body).insertAdjacentHTML(footer || document.querySelector('.nvh') ? 'beforebegin' : 'beforeend', ben);
     }
 
-    // Cuenta regresiva: hasta la hora de corte del despacho (envio) o hasta el fin de una promo con fecha (hasta)
-    var CR = H.cuentaRegresiva;
-    var E = NEVUX.envio;
+    // Cuenta regresiva debajo del banner principal
+    montarCuenta(H.cuentaRegresiva, function (html) {
+      var slider2 = document.querySelector('[data-store="home-slider"]');
+      if (slider2) slider2.insertAdjacentHTML('afterend', html);
+      else (document.querySelector('.nvh') || footer || document.body).insertAdjacentHTML(footer || document.querySelector('.nvh') ? 'beforebegin' : 'beforeend', html);
+      return document.querySelector('.nvh-crw');
+    }, 'nvh');
+  }
+
+  // Cuenta regresiva: hasta la hora de corte del despacho (envio) o hasta el fin de una promo con fecha (hasta).
+  // colocar(html) inserta el banner y devuelve el elemento; clase permite variar el estilo (home o ficha).
+  function montarCuenta(CR, colocar, clase) {
+    var E = NEVUX.envio, C = NEVUX.color;
     if (CR) {
       CR = CR === true ? {} : CR;
       var finPromo = CR.hasta ? new Date(CR.hasta) : null;
@@ -777,12 +800,10 @@
           '.nvh-cr-n{display:inline-flex;gap:5px;align-items:center}' +
           '.nvh-cr-n b{display:inline-block;min-width:44px;padding:7px 4px 5px;border-radius:10px;background:rgba(0,0,0,.2);font-size:22px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}' +
           '.nvh-cr-n b small{display:block;font-size:9px;font-weight:700;opacity:.85;margin-top:3px;letter-spacing:.06em}' +
-          '.nvh-cr-n i{font-style:normal;font-weight:900;font-size:18px;opacity:.7}');
-        var crHtml = '<div class="nvh nvh-crw"><div class="nvh-cr"><span class="nvh-cr-t"></span><span class="nvh-cr-n"></span><span class="nvh-cr-t nvh-cr-f"></span></div></div>';
-        var slider2 = document.querySelector('[data-store="home-slider"]');
-        if (slider2) slider2.insertAdjacentHTML('afterend', crHtml);
-        else (document.querySelector('.nvh') || footer || document.body).insertAdjacentHTML(footer || document.querySelector('.nvh') ? 'beforebegin' : 'beforeend', crHtml);
-        var crBox = document.querySelector('.nvh-crw');
+          '.nvh-cr-n i{font-style:normal;font-weight:900;font-size:18px;opacity:.7}' +
+          '.nvx-cr-ficha .nvh-cr{margin:0 0 14px}');
+        var crBox = colocar('<div class="nvh-crw' + (clase ? ' ' + clase : '') + '"><div class="nvh-cr"><span class="nvh-cr-t"></span><span class="nvh-cr-n"></span><span class="nvh-cr-t nvh-cr-f"></span></div></div>');
+        if (!crBox) return;
         var dos = function (n) { return (n < 10 ? '0' : '') + n; };
         var caja = function (n, l) { return '<b>' + dos(n) + '<small>' + l + '</small></b>'; };
         var DL = ['el domingo', 'el lunes', 'el martes', 'el miércoles', 'el jueves', 'el viernes', 'el sábado'];

@@ -45,6 +45,12 @@ Todas las piezas se configuran en `NEVUX` y se pueden cambiar por producto con `
 
 Probado en Doggies (Morelia): las 6 piezas funcionan, el carrito recibe el producto complementario y el color queda elegido en la ficha.
 
+### Hecho después de v5
+
+- **Cuenta regresiva grande en la ficha** (`cuentaRegresiva`), con horas, minutos y segundos, antes de los packs. Comparte la función `montarCuenta` con la de la home. Si la home ya tiene su banner, la ficha incrustada no agrega otro.
+- **Avisos de venta con productos reales** (`ventas`): foto, nombre y precio de la tienda; compradores y ciudades que rotan.
+- **"Combiná con" automático** (`combina: 'auto'`).
+
 ### Arreglos conocidos
 
 - ✅ Insignias angostas en Brasilia y Recife: arreglado en v4. Se insertan debajo del primer bloque que ocupa al menos el 90% del ancho del formulario.
