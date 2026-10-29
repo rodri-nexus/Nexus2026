@@ -34,7 +34,7 @@ Cada tienda instala Nevux con **una sola línea**. El código y la configuració
 
 | Cliente | Archivo | Estado | Pendiente |
 |---|---|---|---|
-| Hogar Digital (Marcelo) | `c/hogar-digital.js` | **Prendido** | Permiso para la landing y contenido de la home |
+| Hogar Digital (Marcelo) | `c/hogar-digital.js` | **Prendido** | Permiso para la landing; categorías con fotos y reseñas reales para la home |
 
 ## Cobro mensual
 

@@ -62,7 +62,8 @@
     // Secciones de la home (ver docs/home.md)
     home: null,
     porProducto: {}, // ej: { 'remera-tejida': { talles: { ... }, antesDespues: null } }
-    compradores: ['Sofía de Córdoba', 'Gonzalo de Rosario', 'Lucía de CABA', 'Martín de Mendoza', 'Valentina de La Plata'],
+    // Avisos de venta en vivo con productos de la tienda (foto, nombre y precio). false = apagados
+    ventas: true, // también: { nombres: [...], ciudades: [...], cada: 20 }
     boton: 'COMPRAR AHORA'
   };
   // ============================================================
@@ -104,15 +105,13 @@
       '.nvx-trust span{display:block;font-size:18px;margin-bottom:2px}' +
       '.nvx-bar{position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#fff;border-top:1px solid #e5e7eb;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 -4px 20px rgba(0,0,0,.08);transform:translateY(110%);transition:transform .3s ease;font-family:' + FONT + '}' +
       '.nvx-bar.nvx-show{transform:none}' +
+      // El botón flotante de WhatsApp de la plantilla sube para no quedar tapado por la barra
+      '.nvx-bar-on .btn-whatsapp,.nvx-bar-on .js-btn-whatsapp,.nvx-bar-on .whatsapp-float{transform:translateY(-74px);transition:transform .3s}' +
       '.nvx-bar-i{display:flex;align-items:center;gap:10px;min-width:0}' +
       '.nvx-bar-i img{width:42px;height:42px;border-radius:8px;object-fit:cover;flex:0 0 auto}' +
       '.nvx-bar-t{font-size:12px;font-weight:600;color:#111827;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}' +
       '.nvx-bar-p{font-size:15px;font-weight:800;color:' + C + '}' +
       '.nvx-bar button{flex:0 0 auto;background:' + C + ';color:' + NEVUX.colorTexto + ';font-weight:800;font-size:13px;padding:12px 16px;border:0;border-radius:10px;cursor:pointer}' +
-      '.nvx-toast{position:fixed;left:12px;right:12px;top:12px;margin:0 auto;z-index:99998;max-width:300px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 25px rgba(0,0,0,.12);opacity:0;transform:translateY(-16px);transition:all .4s ease;pointer-events:none;font:13px/1.3 ' + FONT + ';color:#111827}' +
-      '.nvx-toast.nvx-show{opacity:1;transform:none}' +
-      '.nvx-toast i{font-style:normal;color:' + C + ';font-weight:800}' +
-      '.nvx-toast small{display:block;font-size:11px;color:#9ca3af}' +
       '.nvx-best{margin:0 0 14px;font-family:' + FONT + ';color:#111827}' +
       '.nvx-best-tag{display:inline-block;background:' + C + ';color:' + NEVUX.colorTexto + ';font-size:11px;font-weight:800;letter-spacing:.06em;border-radius:5px;padding:3px 7px}' +
       '.nvx-best-p{font-size:30px;font-weight:900;line-height:1.1;margin:4px 0 2px}' +
@@ -386,7 +385,7 @@
       return ok;
     };
     var cont = '';
-    if (NEVUX.combina && NEVUX.combina.url) {
+    if (NEVUX.combina && (NEVUX.combina === 'auto' || NEVUX.combina.url)) {
       cont += '<div class="nvx-combo" hidden></div>';
     }
     if (NEVUX.cinta && NEVUX.cinta.length) {
@@ -511,7 +510,15 @@
       var combo = box.querySelector('.nvx-combo');
       if (combo) {
         var url;
-        try { url = location.origin + new URL(NEVUX.combina.url, location.href).pathname; } catch (e) { url = null; }
+        if (NEVUX.combina === 'auto') {
+          // Automático: el primer producto relacionado de la página que no sea este
+          var rel = [].slice.call(document.querySelectorAll('.js-item-product a[href*="/productos/"], .js-product-container a[href*="/productos/"]')).filter(function (a) {
+            return !a.closest('#single-product') && a.pathname !== location.pathname;
+          })[0];
+          url = rel ? location.origin + rel.pathname : null;
+        } else {
+          try { url = location.origin + new URL(NEVUX.combina.url, location.href).pathname; } catch (e) { url = null; }
+        }
         if (url) {
           fetch(url).then(function (r) { return r.text(); }).then(function (h) {
             var d = new DOMParser().parseFromString(h, 'text/html');
@@ -561,25 +568,13 @@
     bar.querySelector('.nvx-bar-p').textContent = priceEl ? priceEl.textContent.trim() : '';
     bar.querySelector('button').addEventListener('click', function () { buyBtn.click(); });
     var onScroll = function () {
-      bar.classList.toggle('nvx-show', buyBtn.getBoundingClientRect().bottom < 0);
+      var on = buyBtn.getBoundingClientRect().bottom < 0;
+      bar.classList.toggle('nvx-show', on);
+      document.body.classList.toggle('nvx-bar-on', on);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
-    // 5) Notificaciones de ventas en vivo
-    document.body.insertAdjacentHTML('beforeend', '<div class="nvx-toast" id="nvxToast"><i>✓</i><div><span></span><small></small></div></div>');
-    var toast = document.getElementById('nvxToast');
-    var k = 0;
-    var show = function () {
-      var n = NEVUX.compradores[k % NEVUX.compradores.length];
-      toast.querySelector('span').innerHTML = '<b>' + n + '</b> compró recién';
-      toast.querySelector('small').textContent = 'hace ' + (2 + (k * 3) % 11) + ' min';
-      toast.classList.add('nvx-show');
-      setTimeout(function () { toast.classList.remove('nvx-show'); }, 4000);
-      k++;
-    };
-    setTimeout(show, 5000);
-    setInterval(show, 20000);
   }
 
   // ===== HOME Y TARJETAS DE PRODUCTO =====
@@ -807,8 +802,93 @@
     }
   }
 
+  // Avisos de venta en vivo: productos reales de la tienda con su foto y precio
+  var NOMBRES = ['Agustina C.', 'Lucas M.', 'Sofía R.', 'Martín G.', 'Valentina P.', 'Joaquín L.', 'Camila F.', 'Tomás B.', 'Florencia D.',
+    'Nicolás S.', 'Micaela A.', 'Federico V.', 'Julieta N.', 'Matías H.', 'Romina T.', 'Facundo O.', 'Carolina E.', 'Ezequiel R.',
+    'Daniela Q.', 'Gonzalo Z.', 'Milagros I.', 'Santiago K.', 'Lorena J.', 'Pablo U.'];
+  var CIUDADES = ['CABA', 'La Plata', 'Mar del Plata', 'Córdoba', 'Rosario', 'Mendoza', 'Quilmes', 'Lanús', 'Morón', 'San Isidro', 'Tigre',
+    'Bahía Blanca', 'Tucumán', 'Salta', 'Neuquén', 'Santa Fe', 'Paraná', 'Pilar', 'Merlo', 'San Juan', 'Corrientes', 'Posadas', 'Zárate', 'Campana'];
+  function productoDeTarjeta(c) {
+    var a = c.querySelector('a[href*="/productos/"]');
+    var pr = c.querySelector('.js-price-display');
+    var img = c.querySelector('img');
+    var nom = c.querySelector('.js-item-name, .item-name, .product-item-name');
+    if (!a || !pr || !img) return null;
+    var src = img.getAttribute('data-srcset') || img.getAttribute('srcset') || '';
+    var mejor = src.split(',').map(function (x) { return x.trim().split(' ')[0]; }).filter(function (u) { return /-(240|320|480)-0\./.test(u); })[0] ||
+      src.split(',').map(function (x) { return x.trim().split(' ')[0]; }).pop() || img.getAttribute('data-src') || img.getAttribute('src');
+    if (!mejor || /^data:/.test(mejor)) return null;
+    return {
+      nombre: ((nom && nom.textContent) || img.getAttribute('alt') || '').trim(),
+      precio: pr.textContent.trim().replace(/,00$/, ''),
+      foto: mejor.indexOf('//') === 0 ? 'https:' + mejor : mejor,
+      url: a.pathname
+    };
+  }
+  function initVentas() {
+    var V = NEVUX.ventas;
+    if (!V || document.getElementById('nvxToast')) return;
+    V = V === true ? {} : V;
+    var nombres = V.nombres || NOMBRES, ciudades = V.ciudades || CIUDADES;
+    var leer = function (raiz) {
+      var vistos = {};
+      return [].slice.call(raiz.querySelectorAll('.js-item-product, .js-product-container')).map(productoDeTarjeta).filter(function (p) {
+        if (!p || !p.nombre || vistos[p.url]) return false;
+        vistos[p.url] = 1;
+        return true;
+      });
+    };
+    var conProductos = function (cb) {
+      try { var c = JSON.parse(sessionStorage.getItem('nvx-prods') || 'null'); if (c && c.length >= 3) return cb(c); } catch (e) {}
+      var aca = leer(document);
+      if (aca.length >= 6) return cb(aca);
+      fetch('/productos/').then(function (r) { return r.text(); }).then(function (h) {
+        var lista = leer(new DOMParser().parseFromString(h, 'text/html'));
+        if (lista.length < 3) lista = aca;
+        try { sessionStorage.setItem('nvx-prods', JSON.stringify(lista.slice(0, 40))); } catch (e) {}
+        cb(lista);
+      }).catch(function () { cb(aca); });
+    };
+    conProductos(function (prods) {
+      if (!prods.length) return;
+      hCss('nvx-v-css',
+        '.nvx-toast{position:fixed;left:10px;right:10px;top:10px;margin:0 auto;z-index:99998;max-width:360px;background:#fff;border-radius:16px;' +
+        'padding:10px 12px 10px 10px;display:flex;align-items:center;gap:10px;box-shadow:0 12px 32px rgba(0,0,0,.18);opacity:0;transform:translateY(-18px);' +
+        'transition:all .45s cubic-bezier(.2,.8,.2,1);pointer-events:none;font-family:' + FONT + ';color:#111827;text-decoration:none!important}' +
+        '.nvx-toast.nvx-show{opacity:1;transform:none;pointer-events:auto}' +
+        '.nvx-toast img{width:52px;height:52px;border-radius:10px;object-fit:cover;flex:0 0 auto;background:#f3f4f6}' +
+        '.nvx-toast .t{flex:1;min-width:0;line-height:1.25}' +
+        '.nvx-toast small{display:block;font-size:11px;color:#6b7280}' +
+        '.nvx-toast b{display:block;font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}' +
+        '.nvx-toast em{display:block;font-style:normal;font-size:11px;color:#6b7280;margin-top:2px}' +
+        '.nvx-toast em:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#22c55e;margin-right:5px;vertical-align:middle}' +
+        '.nvx-toast strong{flex:0 0 auto;font-size:14px;font-weight:900}');
+      document.body.insertAdjacentHTML('beforeend', '<a class="nvx-toast" id="nvxToast" href="#"><img alt=""><div class="t"><small></small><b></b><em></em></div><strong></strong></a>');
+      var t = document.getElementById('nvxToast');
+      var azar = function (a) { return a[Math.floor(Math.random() * a.length)]; };
+      var ultimo = -1;
+      var mostrar = function () {
+        var i;
+        do { i = Math.floor(Math.random() * prods.length); } while (prods.length > 1 && i === ultimo);
+        ultimo = i;
+        var p = prods[i];
+        t.querySelector('img').src = p.foto;
+        t.querySelector('small').textContent = azar(nombres) + ' de ' + azar(ciudades) + ' compró';
+        t.querySelector('b').textContent = p.nombre;
+        t.querySelector('em').textContent = 'hace ' + (2 + Math.floor(Math.random() * 38)) + ' min';
+        t.querySelector('strong').textContent = p.precio;
+        t.href = p.url;
+        t.classList.add('nvx-show');
+        setTimeout(function () { t.classList.remove('nvx-show'); }, 5500);
+        setTimeout(mostrar, ((V.cada || 20) + Math.random() * 10) * 1000);
+      };
+      setTimeout(mostrar, 6000);
+    });
+  }
+
   function arrancar() {
     detectarMarca();
+    initVentas();
     initHome();
     initTarjetas();
     init();
