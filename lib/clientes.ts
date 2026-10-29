@@ -1,10 +1,33 @@
-/* Nevux · Hogar Digital (hogardigital.com.ar)
-   Línea que pega el cliente en Tiendanube > Editar diseño > Pie de página > Sellos personalizados > "Código Javascript o HTML del sello":
-   <script src="https://nevux.ar/c/hogar-digital.js" async></script> */
-(function () {
-  var cliente = {
-    // Interruptor: true = Nevux funcionando en la tienda · false = apagado (por ejemplo, si deja de pagar)
+// Clientes de Nevux: cada uno con su interruptor, su forma de cobro, sus dominios y su configuración.
+// La línea que pega cada tienda (https://nevux.ar/c/<id>.js) se arma con estos datos en app/c/[archivo]/route.ts.
+
+export type Cobro =
+  | { tipo: "manual" }
+  | {
+      tipo: "mercadopago";
+      // ID de la suscripción en Mercado Pago (preferido) o email con el que se suscribió
+      suscripcion?: string;
+      email?: string;
+      // Días de tolerancia después del vencimiento antes de apagar la tienda
+      gracia?: number;
+    };
+
+export type Cliente = {
+  nombre: string;
+  activo: boolean;
+  cobro: Cobro;
+  dominios: string[];
+  config: Record<string, unknown>;
+};
+
+export const CLIENTES: Record<string, Cliente> = {
+  "hogar-digital": {
+    nombre: "Hogar Digital (Marcelo)",
+    // Interruptor manual: false = apagada siempre, aunque esté al día con el pago
     activo: true,
+    // Cobro: 'manual' = solo cuenta el interruptor. 'mercadopago' = se prende y apaga sola según su suscripción
+    // (para pasarlo a automático: { tipo: 'mercadopago', email: 'mail-con-el-que-pagó@...', gracia: 5 })
+    cobro: { tipo: 'manual' },
     // Dominios donde puede funcionar esta línea (sin www)
     dominios: ['hogardigital.com.ar'],
     // Configuración de la tienda: cualquier opción del motor (public/nevux.js)
@@ -73,17 +96,5 @@
         cierre: { etiqueta: 'Tecnología y hogar', titulo: 'Encontrá lo que buscás', texto: 'Todo nuestro catálogo con envío a todo el país.', boton: 'Ver todos los productos', url: '/productos/' }
       }
     }
-  };
-
-  if (!cliente.activo) return;
-  var host = location.hostname.replace(/^www\./, '');
-  var permitido = cliente.dominios.some(function (d) {
-    return host === d || host.slice(-(d.length + 1)) === '.' + d;
-  });
-  if (!permitido) return;
-  window.NEVUX_CFG = cliente.config;
-  var s = document.createElement('script');
-  s.src = 'https://nevux.ar/nevux.js';
-  s.async = true;
-  document.head.appendChild(s);
-})();
+  },
+};

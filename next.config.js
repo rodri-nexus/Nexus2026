@@ -18,12 +18,10 @@ const nextConfig = {
     ],
   },
   async headers() {
-    // Motor y líneas de clientes: cache de 5 minutos, así apagar o cambiar un cliente se aplica rápido
+    // Motor: cache de 5 minutos, así una mejora llega rápido a todas las tiendas.
+    // Las líneas de cada cliente (/c/<cliente>.js) las arma app/c/[archivo]/route.ts con su propio cache.
     const cache = [{ key: "Cache-Control", value: "public, max-age=300, must-revalidate" }];
-    return [
-      { source: "/nevux.js", headers: cache },
-      { source: "/c/:cliente*", headers: cache },
-    ];
+    return [{ source: "/nevux.js", headers: cache }];
   },
 };
 

@@ -1,10 +1,10 @@
 /* Nevux · Pack Landing Page Pro v5 — motor común para todas las tiendas.
-   No se pega en ninguna tienda: lo carga la línea de cada cliente (public/c/<cliente>.js),
+   No se pega en ninguna tienda: lo carga la línea de cada cliente (https://nevux.ar/c/<cliente>.js, ver lib/clientes.ts),
    que define window.NEVUX_CFG con su configuración. */
 (function () {
   'use strict';
 
-  // ===== VALORES POR DEFECTO (cada cliente los cambia en su archivo public/c/<cliente>.js) =====
+  // ===== VALORES POR DEFECTO (cada cliente los cambia en lib/clientes.ts) =====
   var NEVUX = {
     // Color principal. Vacío = se toma solo del botón de compra de la tienda
     color: '',
