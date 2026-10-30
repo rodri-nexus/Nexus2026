@@ -4,27 +4,44 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
+// Lo que muestran WhatsApp, Instagram, Facebook y Google al compartir o buscar nevux.ar.
+// La imagen es un archivo fijo (public/compartir.jpg, ver scripts/compartir/): WhatsApp descarta las imágenes que tardan en generarse.
+const TITULO = "Nevux | No te faltan visitas. Te faltan ventas.";
+const DESCRIPCION =
+  "Convertimos las fichas de tu Tiendanube en páginas que venden. Análisis gratis de tu tienda por WhatsApp. Sin apps y sin cambiar de plantilla.";
+const IMAGEN = {
+  url: "https://nevux.ar/compartir.jpg",
+  secureUrl: "https://nevux.ar/compartir.jpg",
+  type: "image/jpeg",
+  width: 1200,
+  height: 630,
+  alt: "Nevux · No te faltan visitas. Te faltan ventas.",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://nevux.ar"),
-  title: "Nevux · No te faltan visitas, te faltan ventas",
-  description:
-    "Convertimos tus fichas de Tiendanube en páginas que venden: packs, precio por transferencia, urgencia, envío y botón de compra fijo. Sin cambiar de plantilla y sin apps.",
+  title: TITULO,
+  description: DESCRIPCION,
+  applicationName: "Nevux",
+  manifest: "/manifest.webmanifest",
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    shortcut: ["/icon.svg"],
-    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    shortcut: ["/icon-192.png"],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
   },
   openGraph: {
-    title: "No te faltan visitas. Te faltan ventas.",
-    description:
-      "Convertimos tus fichas de Tiendanube en páginas que venden. Sin cambiar de plantilla y sin apps.",
+    title: TITULO,
+    description: DESCRIPCION,
     url: "https://nevux.ar",
     siteName: "Nevux",
     locale: "es_AR",
     type: "website",
-    images: [{ url: "/og", secureUrl: "https://nevux.ar/og", type: "image/png", width: 1200, height: 630, alt: "Nevux · Optimización de fichas para Tiendanube" }],
+    images: [IMAGEN],
   },
-  twitter: { card: "summary_large_image", images: ["/og"] },
+  twitter: { card: "summary_large_image", title: TITULO, description: DESCRIPCION, images: [IMAGEN.url] },
 };
 
 export const viewport: Viewport = {
@@ -42,8 +59,6 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/icon.svg" />
 
         {/* Google Analytics */}
         <script
