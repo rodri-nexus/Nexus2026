@@ -76,6 +76,8 @@ En lugar de `email` se puede usar `suscripcion: '<ID de la suscripción>'`. Desp
 
 ## Cobro mensual
 
+**Link para mandarle al cliente:** `https://nevux.ar/suscribirme?c=<id>` (página con el plan, qué incluye, garantía y botón a Mercado Pago, personalizada con el nombre de su tienda). Sin `?c=` sirve para cualquiera. Después de pagar, Mercado Pago lo puede devolver a `https://nevux.ar/gracias` si se configura como URL de retorno del plan.
+
 - **Tarjeta:** suscripción de Mercado Pago a $39.900/mes. Se cobra sola cada mes.
 - **Efectivo y transferencia:** no se pueden debitar solos, porque el cliente tiene que pagar cada mes. Se le manda un link de pago antes del vencimiento.
 - **Si un pago no entra:** con cobro automático la tienda se apaga sola después de los días de gracia y se prende sola cuando paga. Con cobro manual, apagala con el interruptor.

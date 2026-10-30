@@ -41,7 +41,8 @@ import {
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import VariantShowcase from "@/app/components/landing/VariantShowcase";
 
-const MP_CHECKOUT_URL = "https://mpago.la/1LqFYin";
+// Los botones de pago llevan a la página de suscripción, que tiene el link a Mercado Pago
+const MP_CHECKOUT_URL = "/suscribirme";
 const WHATSAPP_URL =
   "https://wa.me/5493434163999?text=" +
   encodeURIComponent("Hola! Quiero que analicen mi tienda de Tiendanube: ");
