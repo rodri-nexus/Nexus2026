@@ -64,6 +64,13 @@
     // Secciones de la home (ver docs/home.md)
     home: null,
     porProducto: {}, // ej: { 'remera-tejida': { talles: { ... }, antesDespues: null } }
+    // Evento con fecha (Semana Cyber, Hot Sale, Black Friday): se prende y se apaga solo según las fechas.
+    // Durante el evento: barra arriba de toda la tienda, cuenta regresiva hasta el fin (home y ficha), cinta del evento
+    // y, si se cargan, packs propios del evento. Antes (los días de anticipo): barra y cuenta regresiva hasta el inicio.
+    // Después de "hasta" todo vuelve solo a la configuración normal.
+    evento: null, // ej: { nombre: 'Semana Cyber', desde: '2026-11-02T00:00:00-03:00', hasta: '2026-11-04T23:59:59-03:00', anticipo: 3,
+                  //       barra: '🔥 SEMANA CYBER · Del 2 al 4 de noviembre', barraAntes: '⚡ Se viene la Semana Cyber · 2 al 4 de noviembre',
+                  //       cinta: ['Semana Cyber', 'Hasta 12 cuotas'], packs: [ ... ] }
     // Avisos de venta en vivo con productos de la tienda (foto, nombre y precio). false = apagados
     ventas: true, // también: { nombres: [...], ciudades: [...], cada: 20 }
     boton: 'COMPRAR AHORA'
@@ -74,6 +81,28 @@
   // Tipografía de la tienda (se toma del <body> al arrancar)
   var FONT = 'system-ui,-apple-system,sans-serif';
   Object.keys(CFG).forEach(function (k) { NEVUX[k] = CFG[k]; });
+
+  // Evento con fecha: según el momento, cambia la cuenta regresiva, la cinta y los packs (ver "evento" arriba)
+  var EVENTO = null; // 'antes' | 'durante' | null
+  (function () {
+    var EV = NEVUX.evento;
+    if (!EV || !EV.desde || !EV.hasta) return;
+    var ahora = Date.now(), ini = new Date(EV.desde).getTime(), fin = new Date(EV.hasta).getTime();
+    var nombre = EV.nombre || 'La promo';
+    var CR;
+    if (ahora >= ini && ahora <= fin) {
+      EVENTO = 'durante';
+      CR = { hasta: EV.hasta, texto: EV.textoDurante || '🔥 ' + nombre + ' termina en' };
+      if (EV.cinta && EV.cinta.length) NEVUX.cinta = EV.cinta.concat(NEVUX.cinta || []);
+      if (EV.packs) NEVUX.packs = EV.packs;
+    } else if (ahora < ini && ahora >= ini - (EV.anticipo || 0) * 86400000) {
+      EVENTO = 'antes';
+      CR = { hasta: EV.desde, texto: EV.textoAntes || '⚡ ' + nombre + ' empieza en' };
+    }
+    if (!CR) return;
+    NEVUX.cuentaRegresiva = CR;
+    if (NEVUX.home) NEVUX.home.cuentaRegresiva = CR;
+  })();
 
   function init() {
     Object.keys(NEVUX.porProducto || {}).forEach(function (k) {
@@ -964,8 +993,22 @@
     });
   }
 
+  // Barra del evento arriba de toda la tienda (home, categorías y fichas)
+  function initBarraEvento() {
+    var EV = NEVUX.evento;
+    var texto = EVENTO === 'durante' ? EV.barra : EVENTO === 'antes' ? EV.barraAntes : '';
+    if (!texto || document.querySelector('.nvx-evbar')) return;
+    hCss('nvx-evbar-css',
+      '.nvx-evbar{position:relative;z-index:2;background:' + NEVUX.color + ';color:' + NEVUX.colorTexto + ';text-align:center;' +
+      'font:900 13px/1.3 ' + FONT + ';letter-spacing:.06em;text-transform:uppercase;padding:10px 14px}' +
+      '.nvx-evbar a{color:inherit;text-decoration:none}');
+    var href = EV.url || '/productos/';
+    document.body.insertAdjacentHTML('afterbegin', '<div class="nvx-evbar"><a href="' + hEsc(href) + '">' + hEsc(texto) + '</a></div>');
+  }
+
   function arrancar() {
     detectarMarca();
+    if (EVENTO) initBarraEvento();
     initVentas();
     initHome();
     initTarjetas();

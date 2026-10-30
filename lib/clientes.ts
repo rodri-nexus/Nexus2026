@@ -69,6 +69,18 @@ export const CLIENTES: Record<string, Cliente> = {
       ],
       combina: 'auto',
 
+      // Semana Cyber (Cyber Monday 2026, sin el logo oficial: no está inscripto en la CACE).
+      // Se prende sola 3 días antes y se apaga sola el 4/11 a las 23:59. Descuentos: cuando Marcelo los confirme.
+      evento: {
+        nombre: 'La Semana Cyber',
+        desde: '2026-11-02T00:00:00-03:00',
+        hasta: '2026-11-04T23:59:59-03:00',
+        anticipo: 3,
+        barraAntes: '⚡ Se viene la Semana Cyber · Lunes 2 al miércoles 4 de noviembre',
+        barra: '🔥 Semana Cyber en Hogar Digital · Hasta el miércoles 4 de noviembre',
+        cinta: ['Semana Cyber', 'Del 2 al 4 de noviembre', 'Hasta 12 cuotas']
+      },
+
       // Tarjetas de producto: "QUEDAN N" cuando quedan 5 o menos (stock real de la tienda)
       tarjetas: { quedan: 5 },
 
