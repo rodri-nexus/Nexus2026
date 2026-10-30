@@ -1,5 +1,5 @@
 import { CLIENTES } from "@/lib/clientes";
-import { estadoCobro } from "@/lib/cobros";
+import { estadoCobro, estadoConexion } from "@/lib/cobros";
 
 // Panel privado: estado de cada cliente (prendida o apagada y por qué).
 // Se entra con https://nevux.ar/panel?clave=<PANEL_CLAVE>
@@ -15,6 +15,7 @@ export async function GET(req: Request) {
     return new Response("No autorizado", { status: 401, headers: { "Cache-Control": "no-store" } });
   }
 
+  const conexion = await estadoConexion();
   const filas = await Promise.all(
     Object.entries(CLIENTES).map(async ([id, c]) => {
       const e = await estadoCobro(c);
@@ -36,10 +37,12 @@ export async function GET(req: Request) {
   small{display:block;color:#a1a1aa;font-size:12px;margin-top:3px}
   .on,.off{display:inline-block;padding:3px 9px;border-radius:99px;font-size:12px;font-weight:800}
   .on{background:#10b98122;color:#34d399}.off{background:#ef444422;color:#f87171}
+  .mp{display:block;border-radius:12px;padding:10px 12px;margin:0 0 18px;font-size:13px}
   @media(max-width:560px){tr{display:block;border-top:1px solid #27272a;padding:8px 0}td{display:block;border:0;padding:4px 0}}
 </style></head><body>
 <h1>Clientes de Nevux</h1>
 <p>Estado en este momento. Las tiendas tardan hasta 5 minutos en reflejar un cambio.</p>
+<div class="mp ${conexion.ok ? "on" : "off"}">${esc(conexion.texto)}</div>
 <table>${filas.join("")}</table>
 </body></html>`;
   return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
