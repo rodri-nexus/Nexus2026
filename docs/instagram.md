@@ -34,7 +34,7 @@ Fichas de producto que venden · Sin apps
 
 **Botones:** activar "Enviar mensaje" y WhatsApp (3434163999) en Editar perfil → Opciones de contacto. Categoría: "Servicio de marketing digital" o "Diseño web".
 
-**Historias destacadas.** Las portadas están en `public/ig/destacadas/`:
+**Historias destacadas.** Las portadas están en `public/ig/destacadas/` y las historias de adentro en `public/ig/historias/d-*.jpg` (contenido: `scripts/instagram/destacadas.js`). Se publicaron el 30/10, así que quedan en el archivo de historias para armar cada destacada:
 
 | Destacada | Portada | Qué va adentro |
 |---|---|---|
