@@ -66,9 +66,9 @@ function WhatsAppCta({ origen, className = "" }: { origen: string; className?: s
       target="_blank"
       rel="noopener noreferrer"
       onClick={() => trackWhatsApp(origen)}
-      className={`inline-flex items-center justify-center gap-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-7 py-4 rounded-2xl text-base transition-all shadow-[0_10px_40px_-8px_rgba(16,185,129,0.6)] hover:scale-[1.03] active:scale-95 ${className}`}
+      className={`inline-flex items-center justify-center gap-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-4 min-[360px]:px-6 sm:px-7 py-4 rounded-2xl text-sm min-[360px]:text-[15px] sm:text-base whitespace-nowrap transition-all shadow-[0_10px_40px_-8px_rgba(16,185,129,0.6)] hover:scale-[1.03] active:scale-95 ${className}`}
     >
-      <MessageCircle className="w-5 h-5" />
+      <MessageCircle className="w-5 h-5 shrink-0 max-[359px]:hidden" />
       <span>Quiero que analices mi tienda</span>
     </a>
   );
@@ -157,7 +157,7 @@ const FAQS = [
   },
   {
     q: "¿Hace más lenta mi tienda?",
-    a: "No. Es un solo archivo liviano (menos de 60 KB) que se carga cuando la página ya está lista, sin apps pesadas.",
+    a: "No. Es un solo archivo liviano (unos 20 KB comprimido) que se carga cuando la página ya está lista, sin apps pesadas.",
   },
   {
     q: "¿Los precios y descuentos son reales?",
@@ -682,16 +682,16 @@ export default function LandingPage() {
         <div className="relative max-w-xl mx-auto px-4 sm:px-6">
           <motion.div
             {...fadeUp}
-            className="relative bg-[#0f1013] border border-emerald-500/40 rounded-3xl p-7 sm:p-10 text-center shadow-[0_0_80px_-20px_rgba(16,185,129,0.35)]"
+            className="relative bg-[#0f1013] border border-emerald-500/40 rounded-3xl p-5 sm:p-10 text-center shadow-[0_0_80px_-20px_rgba(16,185,129,0.35)]"
           >
             <span className="inline-block bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-6">
               Precio de lanzamiento
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold mb-1">Pack Landing Page Pro</h2>
             <p className="text-neutral-500 text-sm mb-6">Para tiendas en Tiendanube</p>
-            <div className="flex items-end justify-center gap-3 mb-7">
-              <span className="text-neutral-600 line-through text-lg font-bold mb-2">$49.900</span>
-              <span className="text-5xl sm:text-6xl font-black tracking-tight">$39.900</span>
+            <div className="flex items-end justify-center gap-1.5 sm:gap-3 mb-7">
+              <span className="text-neutral-600 line-through text-sm sm:text-lg font-bold mb-2">$49.900</span>
+              <span className="text-[clamp(2.1rem,11vw,2.75rem)] leading-none sm:text-6xl font-black tracking-tight">$39.900</span>
               <span className="text-neutral-400 text-sm font-semibold mb-2">/mes</span>
             </div>
             <ul className="space-y-3 text-left text-sm text-neutral-300 mb-8 max-w-sm mx-auto">
@@ -710,7 +710,7 @@ export default function LandingPage() {
             </ul>
             <WhatsAppCta origen="precio" className="w-full" />
             <a href={MP_CHECKOUT_URL} className="inline-flex items-center gap-1.5 text-sm text-neutral-400 hover:text-white mt-5 transition-colors">
-              ¿Ya lo decidiste? Pagá directo con Mercado Pago <ArrowRight className="w-4 h-4" />
+              ¿Ya lo decidiste? Pagá con Mercado Pago <ArrowRight className="w-4 h-4" />
             </a>
             <div className="mt-8 pt-6 border-t border-white/5 flex items-start gap-3 text-left">
               <ShieldCheck className="w-6 h-6 text-emerald-400 shrink-0" />

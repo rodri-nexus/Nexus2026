@@ -42,7 +42,6 @@
 ## Pendientes técnicos
 
 - `www.nevux.ar` da error de certificado: agregar `www.nevux.ar` en Vercel → Dominios → redirigir a `nevux.ar`.
-- Meta registra PageView dos veces por carga en la landing.
 - Opcional: URL de retorno del plan de Mercado Pago → `https://nevux.ar/gracias`.
 
 ## Próxima sesión
