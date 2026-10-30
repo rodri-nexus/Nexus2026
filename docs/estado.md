@@ -43,7 +43,14 @@
 - `www.nevux.ar` da error de certificado: agregar `www.nevux.ar` en Vercel → Dominios → redirigir a `nevux.ar`.
 - Opcional: URL de retorno del plan de Mercado Pago → `https://nevux.ar/gracias`.
 
+## Instagram (@nevux.app)
+
+Plan completo en `docs/instagram.md`. Windsor.ai está conectado a la cuenta: desde acá se publica (carruseles, imágenes, Reels, historias), se responden comentarios y se leen métricas. La bio, la foto y las destacadas las cambia Rodrigo desde la app.
+
+- Semana 1 lista en `public/ig/` (3 carruseles para fijar + portadas de destacadas).
+- Pendiente de Rodrigo: bio, nombre y link del perfil; subir las destacadas; grabar los Reels de la semana 2.
+
 ## Próxima sesión
 
-Armar el Instagram y el contenido con la clase 5 del curso (ganchos de 3 segundos, Reels, carruseles de antes/después, link en la bio a la landing).
+Publicar la semana 1 de Instagram y armar las piezas de la semana 2.
 Pendiente en la landing: testimonio de Hogar Digital cuando Marcelo dé permiso (`TESTIMONIOS` en `Landing.tsx`).
