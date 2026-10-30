@@ -1,14 +1,19 @@
-Mismo producto. Mismo precio. Misma plantilla de Tiendanube. Otra ficha.
+Mismo producto. Mismo precio. Misma plantilla. Otra ficha. 👀
 
-Deslizá para ver el antes y el después de una tienda de tecnología con la que trabajamos.
+Deslizá y mirá el antes y el después de una tienda de tecnología con la que trabajamos.
 
-Qué cambió:
-✅ El ahorro por transferencia, grande y al lado del precio
-✅ Packs Llevá 2 y Llevá 3 que cambian la cantidad del carrito
-✅ Cuotas, envío y compra protegida a la vista
-✅ Botón de compra fijo mientras la persona baja por la ficha
+En el "antes" está lo básico: foto, precio y botón. ¿Qué falta? Lo que la persona necesita sentir para animarse. Porque nadie compra un parlante: compra la tranquilidad de no equivocarse con su plata, la seguridad de que le va a llegar y el gusto de haber hecho una buena compra.
 
-Sin apps, sin cambiar de plantilla: una línea de código.
+Qué cambió en el "después", y por qué funciona:
+
+✅ El ahorro por transferencia, grande → el primer número que ve funciona como ancla: todo lo demás se compara contra eso.
+✅ Packs Llevá 2 y Llevá 3 → la misma visita deja un ticket más alto, y el cliente siente que gana.
+✅ Cuotas, envío y compra protegida a la vista → baja el miedo a equivocarse. Para el cerebro, perder duele más que ganar.
+✅ Botón de compra fijo → cuando se decide, lo tiene a mano.
+
+La clave es el orden en que le hablás: primero la emoción (lo quiero), después la lógica (precio, cuotas, envío) y al final lo social (otros ya compraron).
+
+Sin apps y sin cambiar de plantilla: una línea de código en tu Tiendanube.
 
 👉 Escribinos ANÁLISIS por mensaje y te decimos qué cambiar en la tuya.
 

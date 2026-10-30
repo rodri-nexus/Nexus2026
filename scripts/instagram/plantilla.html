@@ -74,6 +74,31 @@
   body.destacada { --h: 1920px; display: flex; align-items: center; justify-content: center; }
   .icono { width: 560px; height: 560px; border-radius: 50%; background: #0f1013; border: 6px solid rgba(52,211,153,.6); display: grid; place-items: center; box-shadow: 0 0 160px -30px rgba(52,211,153,.7); z-index: 2; }
   .icono svg { width: 260px; height: 260px; }
+
+  /* Historias: todo más grande, se ven a pantalla completa */
+  body.historia h1 { font-size: 118px; }
+  body.historia h2 { font-size: 96px; }
+  body.historia p.texto, body.historia p.sub { font-size: 50px; }
+  body.historia .eyebrow { font-size: 32px; }
+  body.historia .grande { font-size: 260px; }
+  body.historia .chico { font-size: 52px; }
+  body.historia .caja { font-size: 44px; }
+  body.historia .lista div { font-size: 48px; }
+  .responde { margin-top: 60px; display: inline-flex; align-items: center; gap: 16px; font-size: 42px; font-weight: 800; color: #07080a; background: #fff; padding: 24px 36px; border-radius: 999px; }
+  .ab { margin-top: 56px; display: flex; flex-direction: column; gap: 34px; }
+  .ab > div { position: relative; background: #fff; color: #18181b; border-radius: 34px; padding: 42px 44px 40px 150px; box-shadow: 0 30px 80px -20px rgba(0,0,0,.9); }
+  .ab .letra { position: absolute; left: 36px; top: 50%; transform: translateY(-50%); width: 84px; height: 84px; border-radius: 50%; background: #07080a; color: #fff; display: grid; place-items: center; font-size: 46px; font-weight: 900; }
+  .ab .t { font-size: 34px; font-weight: 700; color: #3f3f46; }
+  .ab .p { font-size: 60px; font-weight: 800; letter-spacing: -.02em; margin-top: 6px; }
+  .ab .chiq { font-size: 26px; color: #a1a1aa; margin-top: 10px; }
+  .ab .ahorro { display: inline-block; margin-top: 14px; font-size: 34px; font-weight: 800; color: #047857; background: #d1fae5; padding: 8px 16px; border-radius: 12px; }
+  .mito { margin-top: 50px; display: flex; flex-direction: column; gap: 30px; }
+  .mito > div { border-radius: 32px; padding: 40px 44px; font-size: 50px; line-height: 1.3; font-weight: 700; }
+  .mito .m { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.14); color: #a1a1aa; text-decoration: line-through; text-decoration-color: rgba(239,68,68,.8); text-decoration-thickness: 4px; }
+  .mito .r { background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.5); color: #fff; }
+  .mito .et { display: block; font-size: 28px; letter-spacing: .16em; font-weight: 800; margin-bottom: 14px; text-decoration: none; }
+  .mito .m .et { color: #f87171; display: inline-block; }
+  .mito .r .et { color: #6ee7b7; }
 </style>
 </head>
 <body>
@@ -95,7 +120,7 @@
   document.body.className = P.formato || "";
   const arriba = P.formato === "destacada" ? "" :
     `<div class="top"><div class="marca">${LOGO}Nevux<small>@nevux.app</small></div>${P.pag ? `<div class="pag">${P.pag}</div>` : ""}</div>`;
-  const pie = P.formato === "destacada" ? "" :
+  const pie = P.formato === "destacada" ? "" : P.formato === "historia" ? `<div class="pie"><span class="web">nevux.ar</span><span class="desliza">${P.pie || ""}</span></div>` :
     `<div class="pie">${P.ultima ? `<span class="web">nevux.ar</span><span class="web">Guardalo para después</span>` : `<span class="web">nevux.ar</span><span class="desliza">Deslizá ${FLECHA}</span>`}</div>`;
   const lista = (items) => `<div class="lista">${items.map((t) => `<div>${CHECK}<span>${t}</span></div>`).join("")}</div>`;
 
@@ -119,10 +144,17 @@
     case "cta":
       html = `<div class="cuerpo">${P.eyebrow ? `<div class="eyebrow">${P.eyebrow}</div>` : ""}<h2>${P.titulo}</h2>${P.texto ? `<p class="texto">${P.texto}</p>` : ""}${P.boton ? `<div><span class="boton">${P.boton} ${FLECHA}</span></div>` : ""}</div>`;
       break;
+    case "ab":
+      html = `<div class="cuerpo">${P.eyebrow ? `<div class="eyebrow">${P.eyebrow}</div>` : ""}<h2>${P.titulo}</h2><div class="ab">${P.opciones.map((o, i) => `<div><span class="letra">${"AB"[i]}</span><div class="t">${o.t}</div><div class="p">${o.p}</div>${o.chiq ? `<div class="chiq">${o.chiq}</div>` : ""}${o.ahorro ? `<div class="ahorro">${o.ahorro}</div>` : ""}</div>`).join("")}</div>${P.responde ? `<div><span class="responde">${P.responde}</span></div>` : ""}</div>`;
+      break;
+    case "mito":
+      html = `<div class="cuerpo">${P.eyebrow ? `<div class="eyebrow">${P.eyebrow}</div>` : ""}<h2>${P.titulo}</h2><div class="mito"><div class="m"><span class="et">MITO</span><br>${P.mito}</div><div class="r"><span class="et">REALIDAD</span>${P.realidad}</div></div>${P.texto ? `<p class="texto">${P.texto}</p>` : ""}</div>`;
+      break;
     case "destacada":
       html = `<div class="icono">${ICONOS[P.icono]}</div>`;
       break;
   }
+  if (P.responde && !["ab"].includes(P.tipo)) html = html.replace(/<\/div>$/, `<div><span class="responde">${P.responde}</span></div></div>`);
   document.getElementById("placa").innerHTML = arriba + html + pie;
 </script>
 </body>
