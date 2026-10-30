@@ -104,6 +104,13 @@
   body.historia .rotulo { top: 290px; }
   body.historia .rotulo h3 { font-size: 64px; }
   .grande.mediano { font-size: 200px !important; }
+  .testi { margin-top: 10px; border-radius: 44px; padding: 64px 58px; background: linear-gradient(180deg, rgba(52,211,153,.12), rgba(52,211,153,.02)); border: 2px solid rgba(52,211,153,.35); }
+  .testi .comillas { font-size: 160px; line-height: .6; font-weight: 900; color: #34d399; opacity: .8; }
+  .testi blockquote { margin-top: 30px; font-size: 56px; line-height: 1.28; font-weight: 700; letter-spacing: -.015em; }
+  .testi .quien { margin-top: 54px; display: flex; align-items: center; gap: 28px; }
+  .testi .quien img { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,.18); }
+  .testi .quien b { display: block; font-size: 46px; }
+  .testi .quien span { font-size: 34px; color: #a1a1aa; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -154,6 +161,9 @@
       break;
     case "mito":
       html = `<div class="cuerpo">${P.eyebrow ? `<div class="eyebrow">${P.eyebrow}</div>` : ""}<h2>${P.titulo}</h2><div class="mito"><div class="m"><span class="et">MITO</span><br>${P.mito}</div><div class="r"><span class="et">REALIDAD</span>${P.realidad}</div></div>${P.texto ? `<p class="texto">${P.texto}</p>` : ""}</div>`;
+      break;
+    case "testimonio":
+      html = `<div class="cuerpo">${P.eyebrow ? `<div class="eyebrow">${P.eyebrow}</div>` : ""}<div class="testi"><div class="comillas">“</div><blockquote>${P.texto}</blockquote><div class="quien"><img src="${P.foto}"><div><b>${P.nombre}</b><span>${P.cargo}</span></div></div></div></div>`;
       break;
     case "destacada":
       html = `<div class="icono">${ICONOS[P.icono]}</div>`;
