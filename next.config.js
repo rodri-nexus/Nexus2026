@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    // La tipografía de la imagen para compartir (app/og) tiene que viajar con la función
+    outputFileTracingIncludes: { "/og": ["./app/og/inter-800.ttf"] },
+  },
   images: {
     remotePatterns: [
       {

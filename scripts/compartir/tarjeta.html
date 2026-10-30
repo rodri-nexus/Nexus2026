@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- Tarjeta que muestran WhatsApp, Instagram y Facebook al compartir nevux.ar (1200x630).
+     Se genera con scripts/compartir/generar.js y queda en public/compartir.jpg. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    font-family: Inter, sans-serif; color: #fff; position: relative;
+    background: #07080a;
+  }
+  .glow { position: absolute; width: 900px; height: 900px; right: -260px; top: -420px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(16,185,129,.42), rgba(16,185,129,0) 62%); }
+  .glow2 { position: absolute; width: 700px; height: 700px; left: -380px; bottom: -520px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(45,212,191,.18), rgba(45,212,191,0) 65%); }
+  .grid { position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse at 75% 20%, #000 20%, transparent 70%); }
+  .izq { position: absolute; left: 72px; top: 60px; bottom: 60px; width: 640px; display: flex; flex-direction: column; }
+  .marca { display: flex; align-items: center; gap: 16px; }
+  .marca svg { width: 60px; height: 60px; filter: drop-shadow(0 0 0 1px #fff); }
+  .marca .logo { border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.14); width: 60px; height: 60px; }
+  .marca b { font-size: 42px; font-weight: 800; letter-spacing: -.03em; }
+  .eyebrow { margin-top: 64px; font-size: 19px; font-weight: 700; letter-spacing: .2em; color: #6ee7b7; }
+  h1 { margin-top: 18px; font-size: 72px; line-height: 1.02; font-weight: 800; letter-spacing: -.04em; }
+  h1 span { display: block; background: linear-gradient(90deg, #6ee7b7, #99f6e4); -webkit-background-clip: text; color: transparent; }
+  p { margin-top: 22px; font-size: 25px; line-height: 1.4; color: #a1a1aa; font-weight: 500; max-width: 600px; }
+  .chips { margin-top: auto; display: flex; gap: 10px; }
+  .chip { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; color: #e4e4e7; white-space: nowrap;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 10px 16px; }
+  .chip svg { width: 18px; height: 18px; }
+  .tel { position: absolute; right: 86px; top: 70px; width: 300px; height: 620px; border-radius: 46px;
+    background: #1c1c1f; padding: 11px; box-shadow: 0 50px 120px -20px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.08);
+    transform: rotate(4deg); }
+  .pantalla { width: 100%; height: 100%; border-radius: 36px; overflow: hidden; background: #fff; position: relative; }
+  .pantalla img { width: 100%; display: block; }
+  .isla { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 92px; height: 24px; border-radius: 99px; background: #1c1c1f; z-index: 2; }
+  .badge { position: absolute; display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700;
+    background: rgba(17,18,20,.94); border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 11px 15px;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,.8); }
+  .badge i { width: 10px; height: 10px; border-radius: 50%; background: #34d399; box-shadow: 0 0 12px #34d399; }
+  .dominio { position: absolute; right: 72px; bottom: 44px; font-size: 22px; font-weight: 800; color: #07080a;
+    background: #34d399; border-radius: 12px; padding: 9px 16px; letter-spacing: -.01em; }
+</style>
+</head>
+<body>
+  <div class="glow"></div><div class="glow2"></div><div class="grid"></div>
+
+  <div class="izq">
+    <div class="marca">
+      <svg class="logo" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="g" x1="13.5" y1="11.5" x2="28.5" y2="30.5" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#fff" stop-opacity=".9"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+        <circle cx="20" cy="20" r="20" fill="#000"/><rect x="13.5" y="11.5" width="3.5" height="17" fill="#fff"/>
+        <rect x="23" y="11.5" width="3.5" height="9" fill="#fff"/><polygon points="13.5,11.5 17,11.5 28.5,30.5 25,30.5" fill="url(#g)"/>
+      </svg>
+      <b>Nevux</b>
+    </div>
+    <div class="eyebrow">PARA TIENDAS EN TIENDANUBE</div>
+    <h1>No te faltan visitas.<span>Te faltan ventas.</span></h1>
+    <p>Convertimos tus fichas de producto en páginas que venden.</p>
+    <div class="chips">
+      <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sin apps</div>
+      <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sin cambiar de plantilla</div>
+      <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Garantía de 7 días</div>
+    </div>
+  </div>
+
+  <div class="tel"><div class="pantalla"><div class="isla"></div><img src="../../public/landing/caso-ficha.jpg"></div></div>
+  <div class="badge" style="right: 318px; top: 128px;"><i></i>Llevá 2 · 15% OFF</div>
+  <div class="badge" style="right: 40px; top: 330px;"><i></i>Entrega estimada</div>
+  <div class="dominio">nevux.ar</div>
+</body>
+</html>

@@ -1,3 +1,5 @@
+import { readFile } from "fs/promises";
+import { join } from "path";
 import { ImageResponse } from "next/og";
 import { CLIENTES } from "@/lib/clientes";
 
@@ -5,13 +7,12 @@ import { CLIENTES } from "@/lib/clientes";
 // /og?v=suscripcion&c=<cliente> → "Activá Nevux en <tienda>" con el precio. Sin parámetros → imagen general de Nevux.
 export const runtime = "nodejs";
 
-// Tipografía en negrita (Inter 800) desde Google Fonts, solo con las letras que se usan. Si falla, se usa la de por defecto.
-async function cargarFuente(texto: string): Promise<ArrayBuffer | null> {
+// Tipografía Inter 800 guardada junto a esta ruta: bajarla de Google Fonts en cada pedido demoraba la imagen
+// y WhatsApp la descartaba. Si no se puede leer, se usa la de por defecto.
+async function cargarFuente(): Promise<ArrayBuffer | null> {
   try {
-    const css = await (await fetch(`https://fonts.googleapis.com/css2?family=Inter:wght@800&text=${encodeURIComponent(texto)}`)).text();
-    const url = css.match(/src: url\((.+?)\) format\('(?:opentype|truetype)'\)/)?.[1];
-    if (!url) return null;
-    return await (await fetch(url)).arrayBuffer();
+    const b = await readFile(join(process.cwd(), "app/og/inter-800.ttf"));
+    return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer;
   } catch {
     return null;
   }
@@ -27,9 +28,7 @@ export async function GET(req: Request) {
   const titulo = suscripcion ? (tienda ? `Activá Nevux en ${tienda}` : "Activá Nevux en tu tienda") : "No te faltan visitas.";
   const destacado = suscripcion ? "Pack Landing Page Pro" : "Te faltan ventas.";
 
-  const fuente = await cargarFuente(
-    ["Nevux", etiqueta, titulo, destacado, "$39.900/ mes · Garantía de 7 días", "Packs, urgencia, envío y botón de compra fijo. Sin apps.", "nevux.ar"].join("")
-  );
+  const fuente = await cargarFuente();
 
   const imagen = new ImageResponse(
     (
@@ -98,7 +97,7 @@ export async function GET(req: Request) {
     headers: {
       "Content-Type": "image/png",
       "Content-Length": String(png.byteLength),
-      "Cache-Control": "public, max-age=3600, s-maxage=86400",
+      "Cache-Control": "public, max-age=3600, s-maxage=604800, stale-while-revalidate=86400",
     },
   });
 }

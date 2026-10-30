@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- Plantilla de las piezas de Instagram de Nevux. generar.js le pasa cada placa en window.PLACA y le saca la foto. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --w: 1080px; --h: 1350px; --verde: #34d399; --verde2: #6ee7b7; --gris: #a1a1aa; }
+  html, body { width: var(--w); height: var(--h); overflow: hidden; }
+  body { font-family: Inter, sans-serif; color: #fff; background: #07080a; position: relative; }
+  .glow { position: absolute; width: 1100px; height: 1100px; right: -380px; top: -560px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(16,185,129,.40), rgba(16,185,129,0) 62%); }
+  .glow2 { position: absolute; width: 900px; height: 900px; left: -520px; bottom: -560px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(45,212,191,.16), rgba(45,212,191,0) 65%); }
+  .grid { position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 54px 54px; -webkit-mask-image: radial-gradient(ellipse at 80% 10%, #000 15%, transparent 65%); }
+
+  .top { position: absolute; left: 80px; right: 80px; top: 70px; display: flex; align-items: center; justify-content: space-between; z-index: 3; }
+  .marca { display: flex; align-items: center; gap: 14px; font-size: 30px; font-weight: 800; letter-spacing: -.02em; }
+  .marca svg { width: 52px; height: 52px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.14); }
+  .marca small { font-size: 24px; font-weight: 600; color: var(--gris); margin-left: 4px; }
+  .pag { font-size: 24px; font-weight: 700; color: var(--gris); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 8px 18px; }
+
+  .cuerpo { position: absolute; left: 80px; right: 80px; top: 190px; bottom: 170px; display: flex; flex-direction: column; justify-content: center; z-index: 2; }
+  .eyebrow { font-size: 26px; font-weight: 700; letter-spacing: .18em; color: var(--verde2); text-transform: uppercase; margin-bottom: 28px; }
+  h1 { font-size: 104px; line-height: 1.0; font-weight: 800; letter-spacing: -.045em; }
+  h2 { font-size: 76px; line-height: 1.04; font-weight: 800; letter-spacing: -.04em; }
+  .verde { background: linear-gradient(90deg, #6ee7b7, #99f6e4); -webkit-background-clip: text; color: transparent; }
+  .gris { color: #71717a; }
+  p.sub { margin-top: 36px; font-size: 38px; line-height: 1.35; color: var(--gris); font-weight: 500; }
+  p.texto { margin-top: 34px; font-size: 38px; line-height: 1.42; color: #d4d4d8; font-weight: 500; }
+  p.texto b, p.sub b { color: #fff; font-weight: 700; }
+  .num { font-size: 30px; font-weight: 800; color: #07080a; background: var(--verde); border-radius: 14px; padding: 8px 18px; display: inline-block; margin-bottom: 30px; letter-spacing: 0; }
+  .caja { margin-top: 40px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); border-radius: 28px; padding: 30px 34px; font-size: 34px; line-height: 1.4; color: #e4e4e7; font-weight: 600; }
+  .caja.buena { border-color: rgba(52,211,153,.45); background: rgba(52,211,153,.08); }
+  .caja .et { display: block; font-size: 22px; letter-spacing: .14em; font-weight: 800; color: var(--gris); margin-bottom: 10px; }
+  .caja.buena .et { color: var(--verde2); }
+  .lista { margin-top: 40px; display: flex; flex-direction: column; gap: 22px; }
+  .lista div { display: flex; gap: 20px; font-size: 38px; line-height: 1.3; font-weight: 600; color: #e4e4e7; }
+  .lista svg { flex: none; width: 44px; height: 44px; margin-top: 2px; }
+
+  .grande { font-size: 190px; line-height: .95; font-weight: 900; letter-spacing: -.05em; }
+  .chico { font-size: 40px; font-weight: 600; color: var(--gris); margin-top: 18px; line-height: 1.3; }
+
+  .foto { position: absolute; left: 50%; transform: translateX(-50%); bottom: 150px; width: 450px; height: 800px; border-radius: 56px; background: #1c1c1f; padding: 14px;
+    box-shadow: 0 50px 120px -20px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.08); z-index: 2; }
+  .foto div { width: 100%; height: 100%; border-radius: 44px; overflow: hidden; background: #fff; }
+  .foto img { width: 100%; display: block; }
+  .rotulo { position: absolute; top: 185px; left: 80px; right: 80px; text-align: center; z-index: 3; }
+  .rotulo .et2 { display: inline-block; font-size: 30px; font-weight: 900; letter-spacing: .12em; padding: 10px 22px; border-radius: 14px; }
+  .rotulo h3 { margin-top: 18px; font-size: 52px; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; }
+
+  .doble { position: absolute; left: 80px; right: 80px; bottom: 150px; height: 780px; display: flex; gap: 30px; z-index: 2; }
+  .doble > div { flex: 1; position: relative; border-radius: 40px; background: #1c1c1f; padding: 12px; box-shadow: 0 40px 100px -20px rgba(0,0,0,.9); }
+  .doble .in { width: 100%; height: 100%; border-radius: 30px; overflow: hidden; background: #fff; }
+  .doble img { width: 100%; display: block; }
+  .doble .et2 { position: absolute; top: 28px; left: 28px; font-size: 24px; font-weight: 900; letter-spacing: .1em; padding: 8px 16px; border-radius: 10px; z-index: 2; }
+  .antes { background: rgba(0,0,0,.78); color: #fff; }
+  .despues { background: var(--verde); color: #07080a; }
+
+  .pie { position: absolute; left: 80px; right: 80px; bottom: 70px; display: flex; align-items: center; justify-content: space-between; z-index: 3; font-size: 28px; font-weight: 700; }
+  .desliza { color: var(--verde2); display: flex; align-items: center; gap: 10px; }
+  .web { color: var(--gris); }
+  .boton { display: inline-flex; align-items: center; gap: 16px; margin-top: 46px; background: var(--verde); color: #07080a; font-size: 40px; font-weight: 800; padding: 26px 40px; border-radius: 26px; box-shadow: 0 20px 60px -15px rgba(52,211,153,.7); }
+  .palabra { display: inline-block; background: #fff; color: #07080a; padding: 2px 18px; border-radius: 14px; }
+
+  /* Historias y portadas de destacadas (1080x1920) */
+  body.historia { --h: 1920px; }
+  body.historia .cuerpo { top: 300px; bottom: 300px; }
+  body.historia .top { top: 120px; }
+  body.historia .pie { bottom: 140px; }
+  body.destacada { --h: 1920px; display: flex; align-items: center; justify-content: center; }
+  .icono { width: 560px; height: 560px; border-radius: 50%; background: #0f1013; border: 6px solid rgba(52,211,153,.6); display: grid; place-items: center; box-shadow: 0 0 160px -30px rgba(52,211,153,.7); z-index: 2; }
+  .icono svg { width: 260px; height: 260px; }
+</style>
+</head>
+<body>
+<div class="glow"></div><div class="glow2"></div><div class="grid"></div>
+<div id="placa"></div>
+<script>
+  const LOGO = `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="13.5" y1="11.5" x2="28.5" y2="30.5" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#fff" stop-opacity=".9"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><circle cx="20" cy="20" r="20" fill="#000"/><rect x="13.5" y="11.5" width="3.5" height="17" fill="#fff"/><rect x="23" y="11.5" width="3.5" height="9" fill="#fff"/><polygon points="13.5,11.5 17,11.5 28.5,30.5 25,30.5" fill="url(#g)"/></svg>`;
+  const CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" stroke-opacity=".35"/><path d="M16.5 9 10.5 15 7.5 12"/></svg>`;
+  const FLECHA = `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+  const ICONOS = {
+    rayo: `<svg viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
+    antes: `<svg viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/></svg>`,
+    precio: `<svg viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7" cy="7" r="1.5"/></svg>`,
+    estrella: `<svg viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.2-6.2 3.2 1.2-6.8-5-4.9 6.9-1z"/></svg>`,
+    pregunta: `<svg viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg>`,
+  };
+
+  const P = window.PLACA;
+  document.body.className = P.formato || "";
+  const arriba = P.formato === "destacada" ? "" :
+    `<div class="top"><div class="marca">${LOGO}Nevux<small>@nevux.app</small></div>${P.pag ? `<div class="pag">${P.pag}</div>` : ""}</div>`;
+  const pie = P.formato === "destacada" ? "" :
+    `<div class="pie">${P.ultima ? `<span class="web">nevux.ar</span><span class="web">Guardalo para después</span>` : `<span class="web">nevux.ar</span><span class="desliza">Deslizá ${FLECHA}</span>`}</div>`;
+  const lista = (items) => `<div class="lista">${items.map((t) => `<div>${CHECK}<span>${t}</span></div>`).join("")}</div>`;
+
+  let html = "";
+  switch (P.tipo) {
+    case "portada":
+      html = `<div class="cuerpo">${P.eyebrow ? `<div class="eyebrow">${P.eyebrow}</div>` : ""}<h1>${P.titulo}</h1>${P.sub ? `<p class="sub">${P.sub}</p>` : ""}</div>`;
+      break;
+    case "punto":
+      html = `<div class="cuerpo">${P.num ? `<div><span class="num">${P.num}</span></div>` : ""}<h2>${P.titulo}</h2>${P.texto ? `<p class="texto">${P.texto}</p>` : ""}${P.mal ? `<div class="caja"><span class="et">ASÍ NO</span>${P.mal}</div>` : ""}${P.bien ? `<div class="caja buena"><span class="et">ASÍ SÍ</span>${P.bien}</div>` : ""}${P.lista ? lista(P.lista) : ""}</div>`;
+      break;
+    case "numero":
+      html = `<div class="cuerpo">${P.eyebrow ? `<div class="eyebrow">${P.eyebrow}</div>` : ""}<div class="grande ${P.verde ? "verde" : ""}">${P.grande}</div><div class="chico">${P.chico}</div>${P.texto ? `<p class="texto">${P.texto}</p>` : ""}</div>`;
+      break;
+    case "foto":
+      html = `<div class="rotulo"><span class="et2 ${P.clase}">${P.etiqueta}</span><h3>${P.titulo}</h3></div><div class="foto"><div><img src="${P.img}"></div></div>`;
+      break;
+    case "doble":
+      html = `<div class="cuerpo" style="justify-content:flex-start; top: 200px;"><h2 style="font-size:70px">${P.titulo}</h2></div><div class="doble"><div><span class="et2 antes">ANTES</span><div class="in"><img src="${P.antes}"></div></div><div><span class="et2 despues">CON NEVUX</span><div class="in"><img src="${P.despues}"></div></div></div>`;
+      break;
+    case "cta":
+      html = `<div class="cuerpo">${P.eyebrow ? `<div class="eyebrow">${P.eyebrow}</div>` : ""}<h2>${P.titulo}</h2>${P.texto ? `<p class="texto">${P.texto}</p>` : ""}${P.boton ? `<div><span class="boton">${P.boton} ${FLECHA}</span></div>` : ""}</div>`;
+      break;
+    case "destacada":
+      html = `<div class="icono">${ICONOS[P.icono]}</div>`;
+      break;
+  }
+  document.getElementById("placa").innerHTML = arriba + html + pie;
+</script>
+</body>
+</html>
