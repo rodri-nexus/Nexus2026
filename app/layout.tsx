@@ -1,20 +1,23 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://nevux.ar"),
-  title: "Nevux - Pack Landing Page Pro para Tiendanube",
+  title: "Nevux · No te faltan visitas, te faltan ventas",
   description:
-    "Transformá tu Tiendanube en una máquina de ventas con un solo código. Sticky bar, urgencia, ofertas pack y prueba social. Instalación en 60 segundos.",
+    "Convertimos tus fichas de Tiendanube en páginas que venden: packs, precio por transferencia, urgencia, envío y botón de compra fijo. Sin cambiar de plantilla y sin apps.",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     shortcut: ["/icon.svg"],
     apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
   },
   openGraph: {
-    title: "Nevux - Pack Landing Page Pro para Tiendanube",
+    title: "No te faltan visitas. Te faltan ventas.",
     description:
-      "Transformá tu Tiendanube en una máquina de ventas con un solo código. Instalación en 60 segundos.",
+      "Convertimos tus fichas de Tiendanube en páginas que venden. Sin cambiar de plantilla y sin apps.",
     url: "https://nevux.ar",
     siteName: "Nevux",
     locale: "es_AR",
@@ -58,7 +61,8 @@ export default function RootLayout({
           }}
         />
 
-        {/* Facebook Pixel */}
+        {/* Facebook Pixel. Sin el <noscript> de respaldo: React lo renderiza igual y la imagen
+            sumaba un segundo PageView en cada carga. */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -75,16 +79,8 @@ export default function RootLayout({
         `,
           }}
         />
-        <noscript>
-          <img
-            height="1"
-            width="1"
-            style={{ display: "none" }}
-            src="https://www.facebook.com/tr?id=1814965146452140&ev=PageView&noscript=1"
-          />
-        </noscript>
       </head>
-      <body className="bg-[#0a0a0a] text-white antialiased">
+      <body className={`${inter.className} bg-[#0a0a0a] text-white antialiased`}>
         {children}
       </body>
     </html>

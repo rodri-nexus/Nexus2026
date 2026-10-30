@@ -89,7 +89,6 @@ export default function SuscribirmePage({ searchParams }: { searchParams: { c?: 
         <div className="bg-[#0f1013] border border-emerald-500/40 rounded-3xl p-6 sm:p-8 shadow-[0_0_80px_-20px_rgba(16,185,129,0.35)]">
           <div className="flex items-baseline justify-between gap-3 mb-1">
             <h2 className="text-lg font-extrabold">Pack Landing Page Pro</h2>
-            <span className="text-neutral-600 line-through text-sm font-bold">$49.900</span>
           </div>
           <div className="flex items-end gap-2 mb-1">
             <span className="text-5xl font-black tracking-tight">$39.900</span>
