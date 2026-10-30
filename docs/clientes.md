@@ -74,6 +74,10 @@ En lugar de `email` se puede usar `suscripcion: '<ID de la suscripción>'`. Desp
 |---|---|---|---|
 | Hogar Digital (Marcelo) | `c/hogar-digital.js` | **Prendido** | Permiso para la landing; categorías con fotos y reseñas reales para la home |
 
+## Eventos con fecha (Cyber Monday, Hot Sale, Black Friday)
+
+En `config.evento` de cada cliente: `nombre`, `desde`, `hasta`, `anticipo` (días antes en que ya se anuncia), `barraAntes`, `barra`, `cinta` y, opcional, `packs` propios del evento. Se prende y se apaga solo según las fechas: antes del evento muestra la barra y "empieza en"; durante, la barra, "termina en" y la cinta del evento; después vuelve sola a la configuración normal. Solo ofertas reales y cargadas como promoción en Tiendanube. Sin el logo oficial si la tienda no está inscripta (Cyber Monday y Hot Sale son de la CACE).
+
 ## Cobro mensual
 
 **Link para mandarle al cliente:** `https://nevux.ar/suscribirme?c=<id>` (página con el plan, qué incluye, garantía y botón a Mercado Pago, personalizada con el nombre de su tienda). Sin `?c=` sirve para cualquiera. Después de pagar, Mercado Pago lo puede devolver a `https://nevux.ar/gracias` si se configura como URL de retorno del plan.
