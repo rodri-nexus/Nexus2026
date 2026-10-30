@@ -113,7 +113,7 @@ ${HASHTAGS}`,
       {
         tipo: "punto",
         titulo: 'Qué <span class="verde">cambió</span>',
-        texto: "Caso real de una tienda de tecnología. Misma plantilla, mismo precio.",
+        texto: "Caso real de Hogar Digital, una tienda de tecnología. Misma plantilla, mismo precio.",
         lista: [
           "El ahorro por transferencia, grande",
           "Packs Llevá 2 y Llevá 3 que cambian el carrito",
@@ -131,7 +131,7 @@ ${HASHTAGS}`,
     ],
     caption: `Mismo producto. Mismo precio. Misma plantilla. Otra ficha. 👀
 
-Deslizá y mirá el antes y el después de una tienda de tecnología con la que trabajamos.
+Deslizá y mirá el antes y el después de Hogar Digital (hogardigital.com.ar), una tienda de tecnología con la que trabajamos. 🙌
 
 En el "antes" está lo básico: foto, precio y botón. ¿Qué falta? Lo que la persona necesita sentir para animarse. Porque nadie compra un parlante: compra la tranquilidad de no equivocarse con su plata, la seguridad de que le va a llegar y el gusto de haber hecho una buena compra.
 

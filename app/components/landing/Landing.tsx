@@ -716,7 +716,7 @@ export default function Landing() {
       <section id="solucion" className="relative py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5 scroll-mt-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-14 items-center">
           <motion.div {...fadeUp} className="text-center lg:text-left order-2 lg:order-1">
-            <Eyebrow>Caso real · Tienda de tecnología</Eyebrow>
+            <Eyebrow>Caso real · Hogar Digital</Eyebrow>
             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-5">
               Mismo producto.
               <br />

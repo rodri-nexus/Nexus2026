@@ -25,11 +25,10 @@
 
 ## Clientes
 
-- **Hogar Digital (Marcelo)** · hogardigital.com.ar · plantilla Brasilia · **prendido, cobro manual**.
+- **Hogar Digital (Marcelo)** · hogardigital.com.ar · plantilla Brasilia · **prendido, cobro manual**. Dio permiso (30/10) para usar el nombre de la tienda en la landing e Instagram.
   - **Promoción por cantidad** creada en su Tiendanube (15% llevando 2, 25% llevando 3), verificada en el carrito.
   - **Pendiente:**
     - que se suscriba con `nevux.ar/suscribirme?c=hogar-digital` y pasarlo a cobro automático con su email;
-    - permiso para usar su nombre en la landing;
     - fotos de categorías y reseñas reales para la home.
 - **Segundo cliente:** no tocar hasta que avise que su tienda está creada.
 
@@ -53,4 +52,4 @@ Plan completo en `docs/instagram.md`. Windsor.ai está conectado a la cuenta: de
 ## Próxima sesión
 
 Publicar la semana 1 de Instagram y armar las piezas de la semana 2.
-Pendiente en la landing: testimonio de Hogar Digital cuando Marcelo dé permiso (`TESTIMONIOS` en `Landing.tsx`).
+Pendiente: el testimonio de Marcelo (lo manda el 30/10) → `TESTIMONIOS` en `Landing.tsx` + destacada Clientes en Instagram.
