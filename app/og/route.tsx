@@ -24,11 +24,11 @@ export async function GET(req: Request) {
   const tienda = cliente?.nombre.replace(/\s*\(.*\)\s*$/, "");
 
   const etiqueta = suscripcion ? "SUSCRIPCIÓN MENSUAL" : "OPTIMIZACIÓN DE FICHAS PARA TIENDANUBE";
-  const titulo = suscripcion ? (tienda ? `Activá Nevux en ${tienda}` : "Activá Nevux en tu tienda") : "Tu tienda ya tiene visitas.";
-  const destacado = suscripcion ? "Pack Landing Page Pro" : "Hagamos que compren.";
+  const titulo = suscripcion ? (tienda ? `Activá Nevux en ${tienda}` : "Activá Nevux en tu tienda") : "No te faltan visitas.";
+  const destacado = suscripcion ? "Pack Landing Page Pro" : "Te faltan ventas.";
 
   const fuente = await cargarFuente(
-    ["Nevux", etiqueta, titulo, destacado, "$49.900$39.900/ mes · Garantía de 7 días", "Packs, urgencia, envío y botón de compra fijo. Sin apps.", "nevux.ar"].join("")
+    ["Nevux", etiqueta, titulo, destacado, "$39.900/ mes · Garantía de 7 días", "Packs, urgencia, envío y botón de compra fijo. Sin apps.", "nevux.ar"].join("")
   );
 
   const imagen = new ImageResponse(
@@ -76,7 +76,6 @@ export async function GET(req: Request) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           {suscripcion ? (
             <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
-              <div style={{ fontSize: 30, color: "#71717a", textDecoration: "line-through" }}>$49.900</div>
               <div style={{ fontSize: 58, fontWeight: 800 }}>$39.900</div>
               <div style={{ fontSize: 28, color: "#a1a1aa" }}>/ mes · Garantía de 7 días</div>
             </div>

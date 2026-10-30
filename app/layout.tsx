@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://nevux.ar"),
-  title: "Nevux · Fichas de producto que venden, para Tiendanube",
+  title: "Nevux · No te faltan visitas, te faltan ventas",
   description:
     "Convertimos tus fichas de Tiendanube en páginas que venden: packs, precio por transferencia, urgencia, envío y botón de compra fijo. Sin cambiar de plantilla y sin apps.",
   icons: {
@@ -12,7 +15,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
   },
   openGraph: {
-    title: "Nevux · Fichas de producto que venden, para Tiendanube",
+    title: "No te faltan visitas. Te faltan ventas.",
     description:
       "Convertimos tus fichas de Tiendanube en páginas que venden. Sin cambiar de plantilla y sin apps.",
     url: "https://nevux.ar",
@@ -77,7 +80,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="bg-[#0a0a0a] text-white antialiased">
+      <body className={`${inter.className} bg-[#0a0a0a] text-white antialiased`}>
         {children}
       </body>
     </html>

@@ -1,14 +1,13 @@
 # Estado de Nevux
 
-**Actualizado:** 30/10/2026. Leer esto al empezar cada sesión, junto con `docs/clientes.md`, `docs/home.md` y `docs/referencias/`.
+**Actualizado:** 30/10/2026. Leer esto al empezar cada sesión, junto con `docs/clientes.md`, `docs/home.md`, `docs/landing.md` y `docs/referencias/`.
 
 ## Qué está funcionando
 
-- **Landing (nevux.ar):**
-  - CTA principal "Quiero que analices mi tienda", que lleva a WhatsApp 3434163999 (Contact en Meta Pixel, generate_lead en GA4);
-  - antes/después real, las 22 piezas en pestañas y demo interactiva "Probalo acá";
-  - precio, garantía de 7 días y preguntas frecuentes;
-  - botones de arrepentimiento y baja.
+- **Landing (nevux.ar):** rehecha el 30/10/2026 con lo del curso de marketing. Ver `docs/landing.md`.
+  - CTA principal "Quiero mi análisis gratis", que lleva a WhatsApp 3434163999 (Contact en Meta Pixel, generate_lead en GA4);
+  - calculadora "Hacé la cuenta", antes/después real, las 22 piezas agrupadas, demo interactiva, comparativa y objeciones;
+  - precio sin precio tachado, garantía de 7 días y botones de arrepentimiento y baja.
 - **Suscripción:**
   - `nevux.ar/suscribirme?c=<cliente>` (página de pago personalizada, con vista previa propia en WhatsApp);
   - `nevux.ar/gracias`;
@@ -46,4 +45,5 @@
 
 ## Próxima sesión
 
-Mejorar la landing y armar el Instagram y el contenido en base a los materiales del curso de marketing que va a pasar Rodrigo.
+Armar el Instagram y el contenido con la clase 5 del curso (ganchos de 3 segundos, Reels, carruseles de antes/después, link en la bio a la landing).
+Pendiente en la landing: testimonio de Hogar Digital cuando Marcelo dé permiso (`TESTIMONIOS` en `Landing.tsx`).
