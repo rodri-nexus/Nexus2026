@@ -56,32 +56,37 @@ Fichas de producto que venden · Sin apps
 
 **Regla de todo el contenido:** cada publicación resuelve **un** problema concreto y termina con **una** acción ("Comentá FICHA", "Escribí ANÁLISIS", "Link en el perfil"). Nunca datos inventados: lo mismo que en la landing.
 
-## Frecuencia
+## Frecuencia y horarios (todo programado, hora de Argentina)
 
-- **Feed:** 3 por semana (lunes, miércoles y viernes, entre las 19 y las 21 h): 2 carruseles y 1 Reel. Desde la semana 3, 2 Reels.
-- **Historias:** todos los días, de 3 a 5 (encuesta, caja de preguntas, detrás de escena, compartir la publicación del día).
-- **Respuesta:** contestar todos los comentarios y mensajes en la primera hora. Es lo que más empuja el alcance de una cuenta chica.
+| Hora | Qué | Archivo |
+|---|---|---|
+| 9:47 | Historia 1: pregunta o juego (SÍ/NO, A o B, "contame") | `public/ig/historias/MMDD-1.jpg` |
+| 13:17 | Historia 2: concepto de psicología de venta, tip o número | `public/ig/historias/MMDD-2.jpg` |
+| **19:30** | **Post del feed todos los días**: carrusel o Reel | `public/ig/agenda.json` |
+| 20:17 | Historia 3: aviso de lo que se publicó a las 19:30 | `public/ig/historias/MMDD-3.jpg` |
 
-## Calendario: semanas 1 y 2
+Las tareas programadas de esta sesión leen `agenda.json` y los archivos de historias en nevux.ar. Para cargar otra semana alcanza con sumar fechas a la agenda y las historias nuevas.
 
-| Día | Formato | Pieza | Llamado a la acción |
+Lo que no se puede programar desde afuera de la app (lo hace Rodrigo): encuestas, cajas de preguntas, stickers de link y música en los Reels.
+
+**Respuesta:** contestar todos los comentarios y mensajes en la primera hora. Es lo que más empuja el alcance de una cuenta chica.
+
+## Calendario: semana 1 (30/10 al 6/11)
+
+| Día | 19:30 | Pieza | Historias (9:47 · 13:17 · 20:17) |
 |---|---|---|---|
-| **Sem. 1 · Lunes** | Carrusel (8) | **5 errores de la ficha que te cuestan ventas** (`public/ig/01-errores-ficha/`) → fijar | Comentá FICHA |
-| Miércoles | Carrusel (5) | **Mismo producto, otra ficha** (`02-antes-despues/`) → fijar | Escribí ANÁLISIS |
-| Viernes | Carrusel (6) | **La cuenta que nadie hace** (`03-la-cuenta/`) → fijar | Calculadora en nevux.ar |
-| **Sem. 2 · Lunes** | Reel | Guion 1: "Tu ficha esconde tu mejor precio" | Comentá FICHA |
-| Miércoles | Carrusel | "Packs: cómo vender 2 en lugar de 1 sin regalar margen" | Guardalo |
-| Viernes | Reel | Guion 2: "Analizo la ficha de un seguidor" (primer capítulo de la serie) | Comentá FICHA |
+| Vie 30/10 | Carrusel (8) | 5 errores de la ficha → **fijar** | · · · Nuevo post |
+| Sáb 31/10 | **Reel** (17 s) | Qué hace Nevux: el antes y después animado | ¿Visitas pero vende poco? · Sistema 1 · Nuevo reel |
+| Dom 1/11 | Carrusel (6) | La cuenta que nadie hace → **fijar** | Mito: más seguidores · +15 ventas · Nuevo post |
+| Lun 2/11 | **Reel** (15 s) | Tu mejor precio está escondido | ¿Cuál vende más? A o B · Decí cuándo llega · La respuesta en el reel |
+| Mar 3/11 | Carrusel (7) | Qué hace Nevux en tu tienda → **fijar** | Respuesta: la B · Anclaje · Nuevo post |
+| Mié 4/11 | Carrusel (5) | Mismo producto, otra ficha | ¿Qué te frena? · Hoy 19:30 · Nuevo post |
+| Jue 5/11 | **Reel** (16 s) | La misma visita puede valer el doble (packs) | Mito: urgencia falsa · Prueba social · Nuevo reel |
+| Vie 6/11 | Carrusel (7) | Cómo es trabajar con Nevux (pasos + objeciones) | Análisis gratis · Hoy 19:30 · Nuevo post |
 
-**Historias:** se publican solas todos los días: `public/ig/historias/MMDD-1.jpg` a las 12:17 y `MMDD-2.jpg` a las 19:47 (después del post del día). Son 2 por día y van rotando formatos: pregunta, "¿Cuál vende más? A o B", mito o realidad, un concepto de psicología de venta, un número, el tip del día, el aviso del post y el análisis gratis. Instagram no deja agregar encuestas ni stickers desde afuera de la app, así que piden la respuesta por mensaje. Rodrigo puede sumar historias propias (detrás de escena, encuestas) desde la app. Contenido: `scripts/instagram/historias-N.js`.
+**Fijados arriba del perfil:** 5 errores, Qué hace Nevux y La cuenta. Explican el problema, la solución y el número.
 
-**Ideas de historias para que Rodrigo sume a mano:**
-- **Lunes:** "¿Tu tienda tiene visitas pero vende poco?" (encuesta Sí/No) + compartir el carrusel.
-- **Martes:** caja de preguntas "¿Qué te frena con tu tienda?".
-- **Miércoles:** compartir el antes/después + sticker de link a nevux.ar.
-- **Jueves:** detrás de escena: Rodrigo armando una ficha (video corto o captura).
-- **Viernes:** "Hacé la cuenta" + sticker de link.
-- **Sábado:** responder en historias 2 preguntas de la caja.
+**Reels animados:** los arma `scripts/instagram/generar-reels.js` a partir de `reel.html`, sin música (la API no permite sumar audio de Instagram). Los Reels con la cara de Rodrigo (guiones de abajo) suman confianza y alcance: conviene grabar uno por semana desde la semana 2.
 
 ## Guiones de Reels (para grabar con el celular, de 20 a 35 segundos)
 

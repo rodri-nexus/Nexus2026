@@ -221,4 +221,142 @@ Es una cuenta, no una promesa: el resultado depende de tu producto, tu precio y 
 
 ${HASHTAGS}`,
   },
+  {
+    carpeta: "04-que-hace-nevux",
+    nombre: "Qué hace Nevux en tu tienda",
+    placas: [
+      {
+        tipo: "portada",
+        eyebrow: "Explicado fácil",
+        titulo: '¿Qué hace Nevux en <span class="verde">tu tienda</span>?',
+        sub: "Transformamos tus fichas de producto de Tiendanube para que más visitas terminen en compra.",
+      },
+      {
+        tipo: "doble",
+        titulo: 'Tomamos tu ficha… <span class="verde">y la hacemos vender.</span>',
+        antes: "../../public/landing/caso-antes.jpg",
+        despues: "../../public/landing/caso-despues.jpg",
+      },
+      {
+        tipo: "punto",
+        num: "1 · QUE CONFÍEN",
+        titulo: "Sacamos las dudas antes de que aparezcan",
+        lista: ["Fecha estimada de entrega", "Envío gratis con barra de progreso", "Cuotas sin interés reales", "Reseñas y preguntas frecuentes", "Ayuda por WhatsApp"],
+      },
+      {
+        tipo: "punto",
+        num: "2 · QUE SE DECIDAN HOY",
+        titulo: "Un motivo real para no dejarlo para mañana",
+        lista: ["Cuenta regresiva hasta el despacho", "Mejor precio por transferencia, grande", "Botón de compra fijo en el celular", "Barra de stock (solo con stock real)"],
+      },
+      {
+        tipo: "punto",
+        num: "3 · QUE LLEVEN MÁS",
+        titulo: "La misma visita, un ticket más alto",
+        lista: ["Packs Llevá 2 y Llevá 3", "Precio por transferencia en cada pack", "“Combiná con”: suma el complemento sin salir de la ficha"],
+      },
+      {
+        tipo: "punto",
+        num: "4 · QUE SE ENAMOREN DE TU MARCA",
+        titulo: "Contenido que muestra el producto en uso",
+        lista: ["Calculadora de talle que elige sola", "Antes y después, videos y pasos de uso", "Comparativa contra la genérica", "Tus colores y tu tipografía"],
+      },
+      {
+        tipo: "cta",
+        ultima: true,
+        eyebrow: "Sin apps · Sin cambiar de plantilla",
+        titulo: 'Todo con <span class="verde">una línea de código</span>',
+        texto: '$39.900 por mes · Garantía de 7 días · Cancelás cuando quieras.<br><br>Comentá <span class="palabra">FICHA</span> y te muestro cómo quedaría la tuya.',
+      },
+    ],
+    caption: `¿Qué hace Nevux en tu tienda? Te lo explico fácil 👇
+
+Tenés una tienda en Tiendanube. Entra gente, mira… y se va. 😩 No es que tu producto sea malo: la ficha no le da a la persona lo que necesita para decidirse.
+
+Nosotros tomamos tus fichas de producto y les sumamos 22 piezas que trabajan sobre lo que siente quien está por comprar:
+
+🤝 Que confíen → fecha de entrega, envío gratis con progreso, cuotas reales, reseñas, WhatsApp.
+⏰ Que se decidan hoy → cuenta regresiva de despacho, mejor precio por transferencia, botón de compra fijo.
+🛒 Que lleven más → packs Llevá 2 y Llevá 3 y "Combiná con".
+💚 Que se enamoren de tu marca → calculadora de talle, antes y después, videos y comparativa.
+
+¿Por qué este orden? Porque así decide una persona: primero tiene que confiar, después necesita un motivo para hacerlo hoy, y recién ahí está abierta a llevar más. 🧠
+
+✅ Sin apps
+✅ Sin cambiar de plantilla
+✅ Usa los datos reales de tu tienda (si no ofrecés algo, no se muestra)
+✅ Lo probamos en una ficha tuya antes de activarlo
+
+💸 $39.900 por mes · 🛡️ garantía de 7 días · cancelás cuando quieras.
+
+👉 Comentá FICHA y te muestro cómo quedaría la tuya.
+
+${HASHTAGS}`,
+  },
+  {
+    carpeta: "05-como-trabajamos",
+    nombre: "Cómo es trabajar con Nevux",
+    placas: [
+      {
+        tipo: "portada",
+        eyebrow: "Paso a paso",
+        titulo: '¿Cómo es trabajar <span class="verde">con Nevux</span>?',
+        sub: "Spoiler: vos no tocás nada.",
+      },
+      {
+        tipo: "punto",
+        num: "PASO 1",
+        titulo: 'Análisis <span class="verde">gratis</span>',
+        texto: "Nos mandás el link de tu tienda por WhatsApp y te decimos qué está frenando la compra en tus fichas.<br><br><b>Sin costo y sin compromiso.</b>",
+      },
+      {
+        tipo: "punto",
+        num: "PASO 2",
+        titulo: "Lo armamos con tus datos",
+        texto: "Configuramos Nevux con tus precios, tus envíos, tus promos y tu marca.<br><br><b>Y lo probamos sobre un producto tuyo antes de activarlo.</b>",
+      },
+      {
+        tipo: "punto",
+        num: "PASO 3",
+        titulo: "Pegás una línea y listo",
+        texto: "En el editor de diseño de tu Tiendanube, con nuestra guía. Tarda un minuto.<br><br><b>Desde ahí, cualquier cambio lo hacemos nosotros.</b>",
+      },
+      {
+        tipo: "punto",
+        num: "“ES CARO”",
+        titulo: "Pensalo en ventas, no en pesos",
+        texto: "Con un ticket promedio de $35.000, Nevux <b>se paga con 2 ventas al mes</b>.<br><br>Hacé la cuenta con tus números en nevux.ar.",
+      },
+      {
+        tipo: "punto",
+        num: "“¿Y SI NO FUNCIONA?”",
+        titulo: 'Tenés <span class="verde">7 días de garantía</span>',
+        texto: "Si en los primeros 7 días no te convence cómo quedaron tus fichas, te devolvemos el 100%.<br><br><b>Sin permanencia: cancelás cuando quieras.</b>",
+      },
+      {
+        tipo: "cta",
+        ultima: true,
+        eyebrow: "Empezá por el paso 1",
+        titulo: '¿Arrancamos con <span class="verde">tu análisis</span>?',
+        texto: 'Escribí <span class="palabra">ANÁLISIS</span> por mensaje o entrá al link del perfil.',
+        boton: "nevux.ar",
+      },
+    ],
+    caption: `¿Cómo es trabajar con Nevux? Spoiler: vos no tocás nada. 😌
+
+1️⃣ Análisis gratis → nos mandás el link de tu tienda y te decimos qué está frenando la compra en tus fichas. Sin costo y sin compromiso.
+2️⃣ Lo armamos con tus datos → tus precios, tus envíos, tus promos y tu marca. Y lo probamos sobre un producto tuyo antes de activarlo.
+3️⃣ Pegás una línea y listo → en el editor de diseño de Tiendanube, con nuestra guía. Desde ahí, cualquier cambio corre por nuestra cuenta.
+
+Las dos dudas que más nos hacen (y está perfecto que las tengas 👇):
+
+💸 "Es caro" → pensalo en ventas, no en pesos. Con un ticket promedio de $35.000, Nevux se paga con 2 ventas al mes.
+🛡️ "¿Y si no funciona en mi tienda?" → tenés 7 días de garantía. Si no te convence, te devolvemos el 100%. Y cancelás cuando quieras.
+
+Elegir algo nuevo para tu tienda siempre tiene un riesgo. Nuestro trabajo es que ese riesgo sea cero. ✨
+
+👉 ¿Arrancamos con el paso 1? Escribí ANÁLISIS por mensaje o entrá a nevux.ar (link en el perfil).
+
+${HASHTAGS}`,
+  },
 ];
