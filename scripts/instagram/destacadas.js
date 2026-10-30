@@ -1,5 +1,5 @@
 // Historias que van dentro de las destacadas del perfil (se publican una vez y quedan en el archivo de historias).
-// Destacadas: Qué es (d-que-es-*), Antes/Después (d-ad-*), Precio (d-precio-*), Preguntas (d-faq-*). Clientes: cuando haya testimonios.
+// Destacadas: Qué es (d-que-es-*), Antes/Después (d-ad-*), Precio (d-precio-*), Preguntas (d-faq-*), Clientes (d-clientes-*).
 
 const faq = (archivo, pregunta, respuesta, pie) => ({
   archivo, tipo: "punto", num: "PREGUNTA FRECUENTE", titulo: pregunta, texto: respuesta, pie,
@@ -49,6 +49,19 @@ module.exports = {
       archivo: "d-precio-3", tipo: "punto", num: "SIN RIESGO",
       titulo: '7 días de <span class="verde">garantía</span>',
       texto: "Si en los primeros 7 días no te convence cómo quedaron tus fichas, <b>te devolvemos el 100%</b>.<br><br>Sin permanencia: cancelás cuando quieras.",
+    },
+
+    {
+      archivo: "d-clientes-1", tipo: "testimonio", eyebrow: "Lo que dicen nuestros clientes",
+      texto: "Nevux es muy importante para la gestión de mi tienda: incorporó widgets, analizó la tienda, me corrigió errores e intercambiamos ideas. <span class=\"verde\">Muy recomendable.</span>",
+      nombre: "Marcelo", cargo: "Dueño de Hogar Digital · @hogardigitaltiendaonline", foto: "../../public/landing/hogar-digital.jpg",
+    },
+    { archivo: "d-clientes-2", tipo: "foto", clase: "despues", etiqueta: "HOGAR DIGITAL CON NEVUX", titulo: "Su ficha, hoy", img: "../../public/landing/caso-despues.jpg" },
+    {
+      archivo: "d-clientes-3", tipo: "cta", eyebrow: "¿Querés ser el próximo?",
+      titulo: 'Tu tienda puede ser <span class="verde">el próximo caso</span>',
+      texto: "Mandame por mensaje el link de tu tienda y empezamos con un análisis gratis.",
+      responde: "Escribime 💬",
     },
 
     faq("d-faq-1", "¿Tengo que saber programar?", "No. Te damos una sola línea ya configurada y la pegás en el editor de diseño de Tiendanube, con nuestra guía. <b>Tarda un minuto.</b>"),

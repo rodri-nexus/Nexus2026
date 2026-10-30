@@ -52,4 +52,4 @@ Plan completo en `docs/instagram.md`. Windsor.ai está conectado a la cuenta: de
 ## Próxima sesión
 
 Publicar la semana 1 de Instagram y armar las piezas de la semana 2.
-Pendiente: el testimonio de Marcelo (lo manda el 30/10) → `TESTIMONIOS` en `Landing.tsx` + destacada Clientes en Instagram.
+Testimonio de Marcelo (30/10) cargado en la landing (`TESTIMONIOS` en `Landing.tsx`) y en la destacada Clientes de Instagram. Dio permiso para nombre y foto.

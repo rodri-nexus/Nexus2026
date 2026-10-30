@@ -26,7 +26,7 @@ import {
   ShoppingBag,
   Shirt,
   Plus,
-  Star,
+  Quote,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
@@ -152,7 +152,15 @@ const FACTS = [
 ];
 
 // Testimonios reales con permiso del cliente. Mientras esté vacío, la sección no aparece.
-const TESTIMONIOS: { nombre: string; tienda: string; texto: string }[] = [];
+const TESTIMONIOS: { nombre: string; tienda: string; texto: string; foto?: string; link?: string }[] = [
+  {
+    nombre: "Marcelo",
+    tienda: "Hogar Digital",
+    texto: "Nevux es muy importante para la gestión de mi tienda: incorporó widgets, analizó la tienda, me corrigió errores e intercambiamos ideas. Muy recomendable.",
+    foto: "/landing/hogar-digital.jpg",
+    link: "https://hogardigital.com.ar",
+  },
+];
 
 const INCLUYE = [
   "Análisis de tu tienda antes de empezar",
@@ -920,17 +928,31 @@ export default function Landing() {
             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4">Hecho para tiendas de verdad</h2>
           </motion.div>
           {TESTIMONIOS.length > 0 && (
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
+            <div className={`gap-4 mb-4 ${TESTIMONIOS.length === 1 ? "max-w-3xl mx-auto" : "grid md:grid-cols-2"}`}>
               {TESTIMONIOS.map((t) => (
-                <motion.figure key={t.nombre} {...fadeUp} className="bg-[#101114] border border-white/[0.07] rounded-2xl p-7">
-                  <div className="flex gap-0.5 mb-4">
-                    {[0, 1, 2, 3, 4].map((s) => (
-                      <Star key={s} className="w-4 h-4 fill-emerald-300 text-emerald-300" />
-                    ))}
-                  </div>
-                  <blockquote className="text-neutral-200 leading-relaxed mb-5">“{t.texto}”</blockquote>
-                  <figcaption className="text-sm">
-                    <b>{t.nombre}</b> <span className="text-neutral-500">· {t.tienda}</span>
+                <motion.figure
+                  key={t.nombre}
+                  {...fadeUp}
+                  className="relative bg-gradient-to-b from-emerald-400/[0.08] to-transparent border border-emerald-400/25 rounded-3xl p-7 sm:p-10"
+                >
+                  <Quote className="w-9 h-9 text-emerald-300/70 mb-5" />
+                  <blockquote className="text-lg sm:text-2xl font-semibold text-white leading-snug mb-7">“{t.texto}”</blockquote>
+                  <figcaption className="flex items-center gap-4">
+                    {t.foto && <img src={t.foto} alt={t.tienda} className="w-14 h-14 rounded-full object-cover border border-white/15" />}
+                    <div className="text-sm">
+                      <b className="text-base">{t.nombre}</b>
+                      <div className="text-neutral-400">
+                        Dueño de{" "}
+                        {t.link ? (
+                          <a href={t.link} target="_blank" rel="noopener noreferrer" className="text-emerald-300 hover:underline">
+                            {t.tienda}
+                          </a>
+                        ) : (
+                          t.tienda
+                        )}{" "}
+                        · cliente de Nevux
+                      </div>
+                    </div>
                   </figcaption>
                 </motion.figure>
               ))}
