@@ -53,7 +53,7 @@ export default function LinkCard({
           destacado ? "bg-black/10" : "bg-emerald-400/10 border border-emerald-400/25 text-emerald-300"
         }`}
       >
-        {imagen ? <img src={imagen} alt="" className="w-full h-full object-cover object-top" /> : icono}
+        {imagen ? <img src={imagen} alt="" className="w-full h-full object-cover" /> : icono}
       </div>
       <div className="min-w-0 flex-1">
         <div className="font-extrabold text-[15px] leading-tight">{titulo}</div>
