@@ -99,6 +99,11 @@
   .mito .et { display: block; font-size: 28px; letter-spacing: .16em; font-weight: 800; margin-bottom: 14px; text-decoration: none; }
   .mito .m .et { color: #f87171; display: inline-block; }
   .mito .r .et { color: #6ee7b7; }
+  body.historia .foto { width: 640px; height: 1180px; bottom: 260px; border-radius: 70px; padding: 18px; }
+  body.historia .foto div { border-radius: 56px; }
+  body.historia .rotulo { top: 290px; }
+  body.historia .rotulo h3 { font-size: 64px; }
+  .grande.mediano { font-size: 200px !important; }
 </style>
 </head>
 <body>
@@ -133,7 +138,7 @@
       html = `<div class="cuerpo">${P.num ? `<div><span class="num">${P.num}</span></div>` : ""}<h2>${P.titulo}</h2>${P.texto ? `<p class="texto">${P.texto}</p>` : ""}${P.mal ? `<div class="caja"><span class="et">ASÍ NO</span>${P.mal}</div>` : ""}${P.bien ? `<div class="caja buena"><span class="et">ASÍ SÍ</span>${P.bien}</div>` : ""}${P.lista ? lista(P.lista) : ""}</div>`;
       break;
     case "numero":
-      html = `<div class="cuerpo">${P.eyebrow ? `<div class="eyebrow">${P.eyebrow}</div>` : ""}<div class="grande ${P.verde ? "verde" : ""}">${P.grande}</div><div class="chico">${P.chico}</div>${P.texto ? `<p class="texto">${P.texto}</p>` : ""}</div>`;
+      html = `<div class="cuerpo">${P.eyebrow ? `<div class="eyebrow">${P.eyebrow}</div>` : ""}<div class="grande ${P.verde ? "verde" : ""} ${P.tam || ""}">${P.grande}</div><div class="chico">${P.chico}</div>${P.texto ? `<p class="texto">${P.texto}</p>` : ""}</div>`;
       break;
     case "foto":
       html = `<div class="rotulo"><span class="et2 ${P.clase}">${P.etiqueta}</span><h3>${P.titulo}</h3></div><div class="foto"><div><img src="${P.img}"></div></div>`;
