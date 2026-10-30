@@ -66,3 +66,16 @@ export async function estadoCobro(c: Cliente, ahora = Date.now()): Promise<Estad
   }
   return { prendida: true, motivo: "Al día con Mercado Pago", suscripcion: datos };
 }
+
+// Estado de la conexión con Mercado Pago, para el panel: a qué cuenta apunta el token y cuántas suscripciones activas hay
+export async function estadoConexion(): Promise<{ ok: boolean; texto: string }> {
+  if (!process.env.MP_ACCESS_TOKEN) return { ok: false, texto: "Falta cargar MP_ACCESS_TOKEN en Vercel" };
+  try {
+    const yo = await mp<{ id: number; nickname?: string; email?: string }>("/users/me");
+    const activas = await mp<{ paging?: { total?: number } }>("/preapproval/search?status=authorized&limit=1");
+    const cuenta = yo.nickname || yo.email || String(yo.id);
+    return { ok: true, texto: `Conectado a Mercado Pago (${cuenta}) · ${activas.paging?.total ?? 0} suscripciones activas` };
+  } catch (e) {
+    return { ok: false, texto: `El token no funciona: ${(e as Error).message}` };
+  }
+}
