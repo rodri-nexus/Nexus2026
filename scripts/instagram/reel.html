@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- Reels animados de Nevux (1080x1920). generar-reels.js llama a window.render(t) cuadro por cuadro y arma el mp4.
+     El reel se elige con window.REEL = "que-hace" | "precio" | "packs". -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; }
+  body { font-family: Inter, sans-serif; color: #fff; background: #07080a; position: relative; }
+  .glow { position: absolute; width: 1300px; height: 1300px; right: -500px; top: -600px; border-radius: 50%; background: radial-gradient(circle, rgba(16,185,129,.42), rgba(16,185,129,0) 62%); }
+  .glow2 { position: absolute; width: 1100px; height: 1100px; left: -600px; bottom: -600px; border-radius: 50%; background: radial-gradient(circle, rgba(45,212,191,.18), rgba(45,212,191,0) 65%); }
+  .grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px); background-size: 60px 60px; -webkit-mask-image: radial-gradient(ellipse at 70% 15%, #000 15%, transparent 65%); }
+  .a { position: absolute; opacity: 0; will-change: transform, opacity; }
+  .centro { left: 80px; right: 80px; text-align: center; }
+  .marca { top: 110px; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 16px; font-size: 40px; font-weight: 800; letter-spacing: -.02em; opacity: 1; position: absolute; z-index: 5; }
+  .marca svg { width: 64px; height: 64px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.14); }
+  .t1 { font-size: 112px; line-height: 1.0; font-weight: 900; letter-spacing: -.045em; }
+  .t2 { font-size: 84px; line-height: 1.05; font-weight: 800; letter-spacing: -.04em; }
+  .t3 { font-size: 54px; line-height: 1.25; font-weight: 700; color: #d4d4d8; }
+  .verde { background: linear-gradient(90deg, #6ee7b7, #99f6e4); -webkit-background-clip: text; color: transparent; }
+  .rojo { color: #f87171; }
+  .tel { left: 50%; width: 620px; height: 1180px; margin-left: -310px; top: 560px; border-radius: 76px; background: #1c1c1f; padding: 18px; box-shadow: 0 60px 140px -30px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.08); }
+  .pant { position: relative; width: 100%; height: 100%; border-radius: 60px; overflow: hidden; background: #fff; }
+  .pant img { position: absolute; left: 0; top: 0; width: 100%; }
+  .isla { position: absolute; top: 14px; left: 50%; margin-left: -70px; width: 140px; height: 36px; border-radius: 99px; background: #1c1c1f; z-index: 3; }
+  .linea { position: absolute; top: 0; bottom: 0; width: 6px; margin-left: -3px; background: #fff; box-shadow: 0 0 30px rgba(52,211,153,.9); z-index: 4; }
+  .et { position: absolute; top: 70px; z-index: 4; font-size: 30px; font-weight: 900; letter-spacing: .1em; padding: 10px 18px; border-radius: 12px; }
+  .chip { left: 50%; transform: translateX(-50%); white-space: nowrap; display: flex; align-items: center; gap: 18px; font-size: 44px; font-weight: 800; background: rgba(17,18,20,.94); border: 2px solid rgba(52,211,153,.5); border-radius: 26px; padding: 24px 34px; box-shadow: 0 30px 70px -10px rgba(0,0,0,.9); z-index: 6; }
+  .chip i { width: 18px; height: 18px; border-radius: 50%; background: #34d399; box-shadow: 0 0 20px #34d399; }
+  .boton { display: inline-flex; align-items: center; gap: 18px; background: #34d399; color: #07080a; font-size: 56px; font-weight: 900; padding: 34px 54px; border-radius: 34px; box-shadow: 0 30px 80px -20px rgba(52,211,153,.8); }
+  .palabra { display: inline-block; background: #fff; color: #07080a; padding: 0 22px; border-radius: 18px; }
+  .card { left: 90px; right: 90px; background: #fff; color: #18181b; border-radius: 44px; padding: 54px 60px; box-shadow: 0 40px 100px -20px rgba(0,0,0,.95); }
+  .card .n { font-size: 40px; font-weight: 700; color: #52525b; }
+  .card .p { font-size: 104px; font-weight: 900; letter-spacing: -.03em; margin-top: 8px; }
+  .card .chiq { font-size: 28px; color: #a1a1aa; margin-top: 12px; }
+  .card .ahorro { display: inline-block; margin-top: 22px; font-size: 52px; font-weight: 900; color: #047857; background: #d1fae5; padding: 14px 26px; border-radius: 18px; }
+  .sello { position: absolute; right: 40px; top: 40px; width: 120px; height: 120px; border-radius: 50%; display: grid; place-items: center; font-size: 72px; font-weight: 900; }
+  .mal { background: #fee2e2; color: #dc2626; }
+  .bien { background: #d1fae5; color: #059669; }
+  .pack { left: 90px; right: 90px; display: flex; align-items: center; justify-content: space-between; background: #fff; color: #18181b; border: 6px solid #e4e4e7; border-radius: 36px; padding: 40px 48px; font-size: 50px; font-weight: 800; }
+  .pack small { display: block; font-size: 30px; font-weight: 600; color: #71717a; margin-top: 6px; }
+  .pack.sel { border-color: #10b981; background: #ecfdf5; box-shadow: 0 30px 80px -20px rgba(16,185,129,.6); }
+  .pack .tag { font-size: 26px; font-weight: 900; color: #fff; background: #10b981; padding: 6px 14px; border-radius: 10px; margin-left: 14px; vertical-align: middle; }
+  .contador { font-size: 150px; font-weight: 900; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+  .barra { position: absolute; left: 0; top: 0; height: 10px; background: #34d399; z-index: 9; }
+</style>
+</head>
+<body>
+<div class="glow"></div><div class="glow2"></div><div class="grid"></div>
+<div class="barra" id="barra"></div>
+<div class="marca"><svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="13.5" y1="11.5" x2="28.5" y2="30.5" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#fff" stop-opacity=".9"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><circle cx="20" cy="20" r="20" fill="#000"/><rect x="13.5" y="11.5" width="3.5" height="17" fill="#fff"/><rect x="23" y="11.5" width="3.5" height="9" fill="#fff"/><polygon points="13.5,11.5 17,11.5 28.5,30.5 25,30.5" fill="url(#g)"/></svg>Nevux</div>
+<div id="escena"></div>
+<script>
+const IMG = "../../public/landing/";
+const ease = (x) => 1 - Math.pow(1 - Math.min(Math.max(x, 0), 1), 3);
+const lerp = (a, b, p) => a + (b - a) * p;
+const ars = (n) => "$" + Math.round(n).toLocaleString("es-AR");
+
+// Cada elemento: [html, entra, sale, animación, estilo]. Animaciones: up (sube), pop (escala), fade, left.
+const REELS = {
+  "que-hace": {
+    dur: 17,
+    els: [
+      [`<div class="t1">Tu tienda tiene visitas…</div>`, 0.1, 2.3, "pop", "top:620px", "centro"],
+      [`<div class="t1"><span class="rojo">…pero no vende.</span></div>`, 1.0, 2.3, "up", "top:900px", "centro"],
+      [`<div class="t2">Mirá esta ficha.</div>`, 2.4, 4.7, "up", "top:300px", "centro"],
+      [`TEL`, 2.6, 13.2, "up", "", "tel"],
+      [`<div class="t2">Ahora <span class="verde">con Nevux</span> 👇</div>`, 4.7, 13.2, "fade", "top:300px", "centro"],
+      [`<i></i>Ahorro por transferencia`, 7.6, 13.2, "pop", "top:760px", "chip"],
+      [`<i></i>Packs Llevá 2 y Llevá 3`, 8.6, 13.2, "pop", "top:960px", "chip"],
+      [`<i></i>Cuotas y envío a la vista`, 9.6, 13.2, "pop", "top:1160px", "chip"],
+      [`<i></i>Botón de compra fijo`, 10.6, 13.2, "pop", "top:1360px", "chip"],
+      [`<div class="t2">Sin apps.<br>Sin cambiar de plantilla.<br><span class="verde">Una línea de código.</span></div>`, 13.4, 16.9, "up", "top:640px", "centro"],
+      [`<span class="boton">Comentá <span class="palabra">FICHA</span></span>`, 14.6, 17, "pop", "top:1180px", "centro"],
+      [`<div class="t3">y te digo qué cambiar en la tuya · nevux.ar</div>`, 15.0, 17, "fade", "top:1400px", "centro"],
+    ],
+    // El celular: entra con la ficha de antes y una línea la convierte en la de después (4.8 s a 7 s); después baja por la ficha
+    tel(t, pant) {
+      if (!pant.dataset.listo) {
+        pant.innerHTML = `<div class="isla"></div><img id="antes" src="${IMG}caso-antes.jpg"><img id="despues" src="${IMG}caso-despues.jpg"><div class="linea" id="linea"></div><span class="et" id="etA" style="left:24px;background:rgba(0,0,0,.78)">ANTES</span><span class="et" id="etD" style="right:24px;background:#34d399;color:#07080a">CON NEVUX</span>`;
+        pant.dataset.listo = 1;
+      }
+      const p = ease((t - 4.8) / 2.2);
+      const scroll = ease((t - 7.4) / 5.5) * 520;
+      document.getElementById("antes").style.transform = `translateY(${-scroll}px)`;
+      const d = document.getElementById("despues");
+      d.style.transform = `translateY(${-scroll}px)`;
+      d.style.clipPath = `inset(0 0 0 ${100 - p * 100}%)`;
+      const l = document.getElementById("linea");
+      l.style.left = 100 - p * 100 + "%";
+      l.style.opacity = p > 0 && p < 1 ? 1 : 0;
+      document.getElementById("etA").style.opacity = 1 - p;
+      document.getElementById("etD").style.opacity = p;
+    },
+  },
+
+  precio: {
+    dur: 15,
+    els: [
+      [`<div class="t1">Tu mejor precio está <span class="rojo">ESCONDIDO</span></div>`, 0.1, 2.6, "pop", "top:640px", "centro"],
+      [`<div class="t3">Mirá estas dos fichas. Mismo precio, mismo descuento.</div>`, 2.8, 6.4, "fade", "top:320px", "centro"],
+      [`<div class="n">Remera Oversize</div><div class="p">$45.000</div><div class="chiq">10% OFF con transferencia</div><span class="sello mal" style="opacity:var(--x1)">✕</span>`, 3.1, 9.4, "left", "top:560px", "card"],
+      [`<div class="n">Remera Oversize</div><div class="p">$45.000</div><div class="ahorro">$40.500 por transferencia · Ahorrás $4.500</div><span class="sello bien" style="opacity:var(--x2)">✓</span>`, 3.7, 9.4, "left", "top:1060px", "card"],
+      [`<div class="t2">¿Cuál vende más?</div>`, 4.6, 6.4, "up", "top:1620px", "centro"],
+      [`<div class="t2">Vende más <span class="verde">la B.</span></div>`, 6.6, 9.4, "pop", "top:320px", "centro"],
+      [`<div class="t2">Perder duele más<br>que <span class="verde">ganar</span>.</div>`, 9.6, 14.9, "up", "top:560px", "centro"],
+      [`<div class="t3">Mostrá cuánto ahorra en pesos, grande y al lado del precio. Un “10% OFF” en letra chiquita no lo ve nadie.</div>`, 10.4, 14.9, "fade", "top:900px", "centro"],
+      [`<span class="boton">Comentá <span class="palabra">FICHA</span></span>`, 11.8, 15, "pop", "top:1320px", "centro"],
+    ],
+    tel() {},
+    vars(t) { return { "--x1": ease((t - 6.6) / 0.4), "--x2": ease((t - 6.8) / 0.4) }; },
+  },
+
+  packs: {
+    dur: 16,
+    els: [
+      [`<div class="t1">La misma visita puede valer <span class="verde">el doble</span></div>`, 0.1, 2.8, "pop", "top:620px", "centro"],
+      [`<div class="t3">Caso real · Parlante Bluetooth V8</div>`, 3.0, 10.6, "fade", "top:300px", "centro"],
+      [`<div>Llevá 1<small>Precio de lista</small></div><div>$45.900</div>`, 3.2, 10.6, "left", "top:440px", "pack", "p1"],
+      [`<div>Llevá 2 <span class="tag">MÁS ELEGIDO</span><small>15% OFF</small></div><div>$78.030</div>`, 3.5, 10.6, "left", "top:660px", "pack", "p2"],
+      [`<div>Llevá 3<small>25% OFF</small></div><div>$103.275</div>`, 3.8, 10.6, "left", "top:880px", "pack", "p3"],
+      [`<div class="t3">Ticket de la venta</div><div class="contador" id="contador">$45.900</div>`, 4.6, 10.6, "up", "top:1180px", "centro"],
+      [`<div class="t2">+70% de ticket.<br><span class="verde">Con la misma visita.</span></div>`, 10.8, 15.9, "pop", "top:560px", "centro"],
+      [`<div class="t3">Solo hacía falta proponerlo. Y cargar la promo en Tiendanube para que el carrito cobre lo mismo.</div>`, 11.6, 15.9, "fade", "top:900px", "centro"],
+      [`<span class="boton">Comentá <span class="palabra">FICHA</span></span>`, 12.6, 16, "pop", "top:1300px", "centro"],
+    ],
+    tel(t) {
+      // A los 6.5 s se elige "Llevá 2" y el ticket sube de $45.900 a $78.030
+      const sel = t >= 6.5;
+      document.querySelectorAll(".p1,.p2,.p3").forEach((e) => e.classList.remove("sel"));
+      const p2 = document.querySelector(".p2"), p1 = document.querySelector(".p1");
+      (sel ? p2 : p1)?.classList.add("sel");
+      const c = document.getElementById("contador");
+      if (c) c.textContent = ars(lerp(45900, 78030, ease((t - 6.5) / 1.6)));
+    },
+  },
+};
+
+const R = REELS[window.REEL || "que-hace"];
+const esc = document.getElementById("escena");
+esc.innerHTML = R.els.map(([html, , , , estilo, clase, extra], i) =>
+  html === "TEL" ? `<div class="a tel" id="e${i}"><div class="pant" id="pant"></div></div>`
+  : `<div class="a ${clase || ""} ${extra || ""}" id="e${i}" style="${estilo}">${html}</div>`).join("");
+
+window.render = (t) => {
+  R.els.forEach(([html, ini, fin, anim, , clase], i) => {
+    const e = document.getElementById("e" + i);
+    const pin = ease((t - ini) / 0.45), pout = ease((t - (fin - 0.35)) / 0.35);
+    const o = t < ini || t > fin ? 0 : pin * (1 - pout);
+    let tr = "";
+    if (anim === "up") tr = `translateY(${(1 - pin) * 80 - pout * 40}px)`;
+    if (anim === "pop") tr = `scale(${0.82 + 0.18 * pin + pout * 0.06})`;
+    if (anim === "left") tr = `translateX(${(1 - pin) * 140}px)`;
+    if (clase === "chip") tr = `translateX(-50%) ` + tr;
+    e.style.opacity = o;
+    e.style.transform = tr;
+  });
+  if (R.vars) Object.entries(R.vars(t)).forEach(([k, v]) => document.body.style.setProperty(k, v));
+  const pant = document.getElementById("pant");
+  R.tel(t, pant);
+  document.getElementById("barra").style.width = (t / R.dur) * 100 + "%";
+};
+window.DURACION = R.dur;
+window.render(0);
+</script>
+</body>
+</html>
