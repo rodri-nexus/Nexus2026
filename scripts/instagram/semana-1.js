@@ -65,21 +65,24 @@ module.exports = [
         texto: 'Comentá <span class="palabra">FICHA</span> y te mando por mensaje qué cambiaría en la tuya. Gratis y sin compromiso.',
       },
     ],
-    caption: `Tu tienda tiene visitas, pero no vende lo que debería. Casi nunca es el producto: es lo que la persona ve en la ficha en el momento en que decide.
+    caption: `Tu tienda tiene visitas. Entonces, ¿por qué no vende? 🤔
 
-Los 5 errores que más vemos en fichas de Tiendanube:
+Hay algo que casi nadie te cuenta: la persona que entra a tu ficha decide en segundos, y decide con la emoción. Primero siente ("lo quiero" o "no me convence") y recién después busca razones lógicas para justificarlo. En psicología del consumidor se lo llama Sistema 1 y Sistema 2. Si tu ficha no gana en esos primeros segundos, la lógica nunca llega a rescatarte.
 
-1. El precio por transferencia está escondido
-2. No dice cuándo llega el pedido
-3. Solo se vende de a una unidad
-4. El botón de compra se pierde en el celular
-5. La confianza (cuotas, cambios, compra protegida) no está a la vista
+Por eso no alcanza con un buen producto y una buena foto: la ficha tiene que sacar las dudas antes de que aparezcan.
 
-Y un bonus: no inventes nada. Urgencia real, o ninguna.
+1️⃣ El precio por transferencia está escondido → si no ve el ahorro, para ella no existe.
+2️⃣ No decís cuándo llega → la incertidumbre también es un costo, aunque no sea plata.
+3️⃣ Vendés de a uno → nadie le propuso llevar dos.
+4️⃣ El botón se pierde en el celular → cuando se decide, no lo encuentra.
+5️⃣ La confianza no está a la vista → cuotas, cambios y compra protegida.
 
-👉 Comentá FICHA y te mando por mensaje qué cambiaría en la tuya. Gratis.
+💡 Tenelo en cuenta: valor percibido = beneficios − costos. Y los costos no son solo el precio: también son la duda, el miedo a equivocarse y el tiempo. Cada error de esta lista suma un costo invisible.
 
-Guardalo para revisar tu tienda con calma.
+⚠️ El bonus, que para nosotros es una regla: no inventes nada. Stock falso, "23 personas mirando esto", reseñas truchas. Persuadir con mentiras es manipulación: el cliente se siente estafado y no vuelve.
+
+👉 Comentá FICHA y te mando por mensaje cuáles de estos errores tiene tu tienda. Gratis y sin compromiso.
+📌 Guardalo para revisar tu ficha con calma.
 
 ${HASHTAGS}`,
   },
@@ -126,17 +129,22 @@ ${HASHTAGS}`,
         texto: 'Escribinos <span class="palabra">ANÁLISIS</span> por mensaje y te decimos qué cambiar en tu ficha.',
       },
     ],
-    caption: `Mismo producto. Mismo precio. Misma plantilla de Tiendanube. Otra ficha.
+    caption: `Mismo producto. Mismo precio. Misma plantilla. Otra ficha. 👀
 
-Deslizá para ver el antes y el después de una tienda de tecnología con la que trabajamos.
+Deslizá y mirá el antes y el después de una tienda de tecnología con la que trabajamos.
 
-Qué cambió:
-✅ El ahorro por transferencia, grande y al lado del precio
-✅ Packs Llevá 2 y Llevá 3 que cambian la cantidad del carrito
-✅ Cuotas, envío y compra protegida a la vista
-✅ Botón de compra fijo mientras la persona baja por la ficha
+En el "antes" está lo básico: foto, precio y botón. ¿Qué falta? Lo que la persona necesita sentir para animarse. Porque nadie compra un parlante: compra la tranquilidad de no equivocarse con su plata, la seguridad de que le va a llegar y el gusto de haber hecho una buena compra.
 
-Sin apps, sin cambiar de plantilla: una línea de código.
+Qué cambió en el "después", y por qué funciona:
+
+✅ El ahorro por transferencia, grande → el primer número que ve funciona como ancla: todo lo demás se compara contra eso.
+✅ Packs Llevá 2 y Llevá 3 → la misma visita deja un ticket más alto, y el cliente siente que gana.
+✅ Cuotas, envío y compra protegida a la vista → baja el miedo a equivocarse. Para el cerebro, perder duele más que ganar.
+✅ Botón de compra fijo → cuando se decide, lo tiene a mano.
+
+La clave es el orden en que le hablás: primero la emoción (lo quiero), después la lógica (precio, cuotas, envío) y al final lo social (otros ya compraron).
+
+Sin apps y sin cambiar de plantilla: una línea de código en tu Tiendanube.
 
 👉 Escribinos ANÁLISIS por mensaje y te decimos qué cambiar en la tuya.
 
@@ -188,19 +196,28 @@ ${HASHTAGS}`,
         boton: "nevux.ar",
       },
     ],
-    caption: `La cuenta que casi nadie hace antes de subir el presupuesto de anuncios 👇
+    caption: `¿Cuánto te deja cada visita que pagás? Hacé esta cuenta antes de subir el presupuesto de anuncios 👇
 
-3.000 visitas por mes. De cada 100, compra 1 → 30 ventas.
-Ticket promedio de $35.000 → $1.050.000 por mes.
+📊 3.000 visitas por mes. De cada 100, compra 1 → 30 ventas.
+💵 Ticket promedio de $35.000 → $1.050.000 por mes.
 
-Si de cada 200 visitas comprara 1 persona más → +15 ventas.
-Son +$525.000 por mes, con las mismas visitas.
+Ahora, una sola pregunta: ¿y si de cada 200 visitas comprara 1 persona más?
+→ 45 ventas en lugar de 30.
+→ +$525.000 por mes. Con las mismas visitas y sin gastar un peso más en anuncios.
 
-Más tráfico no arregla una ficha que no convence. Primero la ficha, después los anuncios.
+Toda venta online sigue el mismo camino: la persona ve tu contenido o tu anuncio → hace clic → llega a tu tienda → decide. Podés tener el mejor anuncio del mundo, pero si la vidriera (tu ficha) no convence, la venta se pierde ahí.
 
-👉 Hacé la cuenta con tus números en nevux.ar (link en el perfil).
+Antes de pagar más tráfico, hacete 3 preguntas:
+1. ¿Cuántas personas entraron este mes?
+2. ¿Cuántas compraron?
+3. ¿Qué vio el resto antes de irse?
 
+Si la tercera no tiene respuesta, ahí está la plata que estás dejando sobre la mesa. Y cada mes que pasa sin cambiarlo, esas ventas no vuelven.
+
+👉 Hacé la cuenta con tus números en la calculadora de nevux.ar (link en el perfil).
 Es una cuenta, no una promesa: el resultado depende de tu producto, tu precio y tu tráfico.
+
+📌 Guardalo y hacé la cuenta a fin de mes.
 
 ${HASHTAGS}`,
   },

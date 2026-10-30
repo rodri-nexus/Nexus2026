@@ -73,7 +73,9 @@ Fichas de producto que venden · Sin apps
 | Miércoles | Carrusel | "Packs: cómo vender 2 en lugar de 1 sin regalar margen" | Guardalo |
 | Viernes | Reel | Guion 2: "Analizo la ficha de un seguidor" (primer capítulo de la serie) | Comentá FICHA |
 
-**Historias de la semana 1:**
+**Historias:** se publican solas todos los días: `public/ig/historias/MMDD-1.jpg` a las 12:17 y `MMDD-2.jpg` a las 19:47 (después del post del día). Son 2 por día y van rotando formatos: pregunta, "¿Cuál vende más? A o B", mito o realidad, un concepto de psicología de venta, un número, el tip del día, el aviso del post y el análisis gratis. Instagram no deja agregar encuestas ni stickers desde afuera de la app, así que piden la respuesta por mensaje. Rodrigo puede sumar historias propias (detrás de escena, encuestas) desde la app. Contenido: `scripts/instagram/historias-N.js`.
+
+**Ideas de historias para que Rodrigo sume a mano:**
 - **Lunes:** "¿Tu tienda tiene visitas pero vende poco?" (encuesta Sí/No) + compartir el carrusel.
 - **Martes:** caja de preguntas "¿Qué te frena con tu tienda?".
 - **Miércoles:** compartir el antes/después + sticker de link a nevux.ar.

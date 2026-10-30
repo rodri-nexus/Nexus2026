@@ -1,5 +1,5 @@
 // Genera las piezas de Instagram en public/ig/ (se publican desde https://nevux.ar/ig/...).
-// Uso: node scripts/instagram/generar.js semana-1   (necesita Playwright con Chromium)
+// Uso: node scripts/instagram/generar.js semana-1   (o historias-1; necesita Playwright con Chromium)
 const fs = require("fs");
 const path = require("path");
 const { chromium } = require("playwright");
@@ -28,6 +28,17 @@ async function sacar(b, placa, archivo, alto) {
 
 (async () => {
   const b = await chromium.launch();
+  // Historias: un archivo por día con { historias: [{ archivo, ...placa }] }, 1080x1920
+  if (posts.historias) {
+    const dir = path.join(salida, "historias");
+    fs.mkdirSync(dir, { recursive: true });
+    for (const h of posts.historias) {
+      await sacar(b, { ...h, formato: "historia" }, path.join(dir, `${h.archivo}.jpg`), 1920);
+    }
+    console.log(posts.historias.length, "historias");
+    await b.close();
+    return;
+  }
   for (const post of posts) {
     const dir = path.join(salida, post.carpeta);
     fs.mkdirSync(dir, { recursive: true });
