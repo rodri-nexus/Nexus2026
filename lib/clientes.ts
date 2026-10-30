@@ -41,6 +41,7 @@ export const CLIENTES: Record<string, Cliente> = {
       envio: { corte: 18, dias: [1, 2, 3, 4, 5], min: 5, max: 6, zona: '' },
       envioGratisDesde: 0, // no tiene monto mínimo
       cuentaRegresiva: true, // cuenta regresiva grande en la ficha, hasta las 18 h
+      precios: true, // bloque de precios en tarjetas (transferencia y cuotas sin interés reales de la tienda)
       whatsapp: '5493489520436',
 
       // Contenido de la ficha (sacado de las políticas y textos de la tienda)

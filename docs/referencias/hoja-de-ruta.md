@@ -51,6 +51,11 @@ Probado en Doggies (Morelia): las 6 piezas funcionan, el carrito recibe el produ
 - **Avisos de venta con productos reales** (`ventas`): foto, nombre y precio de la tienda; compradores y ciudades que rotan.
 - **"Combiná con" automático** (`combina: 'auto'`).
 
+### Hecho (30/10/2026)
+
+- **Bloque de precios en tarjetas** (`precios: true`): tarjeta con el color de la tienda para el precio con transferencia (% OFF y "Ahorrás $X") y tarjeta oscura (el color del pie de la plantilla) para "N cuotas sin interés de $X · Precio final". Usa solo datos reales de Tiendanube: si la tienda no tiene descuento por transferencia o cuotas sin interés, esa tarjeta no aparece. Reemplaza al "Mejor precio" simple. Probado en Doggies (Morelia).
+- **Modo evento** (`evento`): Cyber Monday, Hot Sale, etc. Ver `docs/clientes.md`.
+
 ### Arreglos conocidos
 
 - ✅ Insignias angostas en Brasilia y Recife: arreglado en v4. Se insertan debajo del primer bloque que ocupa al menos el 90% del ancho del formulario.

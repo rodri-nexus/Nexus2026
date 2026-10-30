@@ -19,6 +19,9 @@
     confianza: ['🚚 Envío a todo el país', '💳 {cuotas}', '🔒 Compra segura'],
     // % de descuento por transferencia. 0 = se toma de la tienda si lo tiene configurado.
     transferencia: 0,
+    // Bloque de precios en tarjetas (transferencia + cuotas sin interés) en lugar del "Mejor precio" simple.
+    // true o { transferencia: 'Pagando con transferencia', cuotas: 'cuotas sin interés de' }. Usa los datos reales de la tienda.
+    precios: null,
     // Fecha estimada de entrega. null = no se muestra.
     // corte: hora límite para despachar en el día · dias: días de despacho (1 = lunes ... 5 = viernes)
     // min / max: días hábiles que tarda el correo
@@ -286,8 +289,39 @@
       }, 400);
     }
 
-    // 1b) Mejor precio por transferencia, pegado al precio
-    if (priceBox && transf > 0 && precio) {
+    // 1b) Bloque de precios en tarjetas: transferencia (color de la tienda) y cuotas sin interés (oscura)
+    if (priceBox && NEVUX.precios && precio && (transf > 0 || cuotasSin > 1)) {
+      var PR = NEVUX.precios === true ? {} : NEVUX.precios;
+      var Mp = NEVUX.marca || {};
+      var oscuro = Mp.oscuro || '#111827';
+      hCss('nvx-prc-css',
+        '.nvx-prc{display:grid;gap:10px;margin:0 0 16px;font-family:' + FONT + ';text-align:left}' +
+        '.nvx-prc-c{border-radius:16px;padding:14px 16px;position:relative;overflow:hidden}' +
+        '.nvx-prc-t{background:linear-gradient(135deg,' + C + ',' + C + 'cc);color:' + NEVUX.colorTexto + ';box-shadow:0 10px 24px ' + C + '40}' +
+        '.nvx-prc-q{background:' + oscuro + ';color:#fff}' +
+        '.nvx-prc-l{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.9;padding-right:78px}' +
+        '.nvx-prc-p{font-size:30px;font-weight:900;line-height:1.1;margin-top:3px;letter-spacing:-.01em}' +
+        '.nvx-prc-s{font-size:12.5px;opacity:.85;margin-top:3px}' +
+        '.nvx-prc-b{position:absolute;right:12px;top:12px;font-size:12px;font-weight:900;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.22)}' +
+        '.nvx-prc-q .nvx-prc-p{font-size:26px}');
+      var tarj = '';
+      if (transf > 0) {
+        var conT = precio * (1 - transf / 100);
+        tarj += '<div class="nvx-prc-c nvx-prc-t"><span class="nvx-prc-b">' + transf + '% OFF</span>' +
+          '<div class="nvx-prc-l">' + hEsc(PR.transferencia || 'Pagando con transferencia') + '</div>' +
+          '<div class="nvx-prc-p">' + money(conT) + '</div>' +
+          '<div class="nvx-prc-s">Ahorrás ' + money(precio - conT) + '</div></div>';
+      }
+      if (cuotasSin > 1) {
+        tarj += '<div class="nvx-prc-c nvx-prc-q"><div class="nvx-prc-l">' + cuotasSin + ' ' + hEsc(PR.cuotas || 'cuotas sin interés de') + '</div>' +
+          '<div class="nvx-prc-p">' + money(precio / cuotasSin) + '</div>' +
+          '<div class="nvx-prc-s">Precio final ' + money(precio) + '</div></div>';
+      }
+      priceBox.insertAdjacentHTML('afterend', '<div class="nvx-prc">' + tarj + '</div>');
+    }
+
+    // 1b) Mejor precio por transferencia, pegado al precio (si no se usa el bloque de precios)
+    if (priceBox && !NEVUX.precios && transf > 0 && precio) {
       var conDesc = precio * (1 - transf / 100);
       priceBox.insertAdjacentHTML('afterend',
         '<div class="nvx-best"><span class="nvx-best-tag">MEJOR PRECIO</span><div class="nvx-best-p">' + money(conDesc) +
