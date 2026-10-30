@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { MessageCircle, Calculator, ShieldCheck, Globe, Instagram } from "lucide-react";
+import { Instagram } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import LinkCard from "./LinkCard";
 
@@ -39,35 +39,35 @@ export default function LinksPage() {
             href={WHATSAPP}
             origen="whatsapp"
             destacado
-            icono={<MessageCircle className="w-6 h-6" />}
+            imagen="/links/whatsapp.jpg"
             titulo="Análisis gratis de tu tienda"
             texto="Por WhatsApp · Sin compromiso"
           />
           <LinkCard
             href="/#solucion"
             origen="antes-despues"
-            imagen="/landing/caso-despues.jpg"
+            imagen="/links/antes-despues.jpg"
             titulo="Mirá el antes y después"
             texto="Caso real: Hogar Digital"
           />
           <LinkCard
             href="/#cuenta"
             origen="calculadora"
-            icono={<Calculator className="w-6 h-6" />}
+            imagen="/links/calculadora.jpg"
             titulo="Hacé la cuenta"
             texto="Calculadora con tus números"
           />
           <LinkCard
             href="/#precio"
             origen="precio"
-            icono={<ShieldCheck className="w-6 h-6" />}
+            imagen="/links/precio.jpg"
             titulo="Precio y garantía"
             texto="$39.900 por mes · 7 días de garantía"
           />
           <LinkCard
             href="/"
             origen="web"
-            icono={<Globe className="w-6 h-6" />}
+            imagen="/links/web.jpg"
             titulo="Conocé Nevux"
             texto="nevux.ar"
           />

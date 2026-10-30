@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- Miniaturas de los botones de nevux.ar/links (480x480). generar.js elige cada una con window.MINI. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=block" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 480px; height: 480px; overflow: hidden; }
+  body { font-family: Inter, sans-serif; color: #fff; position: relative; background: #0b0c0f; }
+  .glow { position: absolute; width: 520px; height: 520px; right: -200px; top: -240px; border-radius: 50%; background: radial-gradient(circle, rgba(16,185,129,.55), rgba(16,185,129,0) 62%); }
+  .m { position: absolute; inset: 0; display: none; }
+  /* WhatsApp: burbujas de chat */
+  #whatsapp { background: linear-gradient(160deg, #10b981, #065f46); }
+  .bub { position: absolute; max-width: 330px; font-size: 30px; font-weight: 700; line-height: 1.25; padding: 20px 24px; border-radius: 28px; box-shadow: 0 16px 40px -10px rgba(0,0,0,.45); }
+  .yo { right: 34px; top: 70px; background: #d9fdd3; color: #0b3d2e; border-bottom-right-radius: 8px; }
+  .nx { left: 34px; top: 250px; background: #fff; color: #18181b; border-bottom-left-radius: 8px; }
+  .nx b { color: #059669; }
+  .check { position: absolute; right: 44px; top: 200px; font-size: 22px; color: #a7f3d0; font-weight: 800; }
+  /* Antes y después: dos fichas partidas */
+  #antes-despues img { position: absolute; top: 0; width: 480px; height: 480px; object-fit: cover; object-position: top; }
+  #antes-despues .d { clip-path: inset(0 0 0 50%); }
+  #antes-despues .linea { position: absolute; left: 237px; top: 0; bottom: 0; width: 6px; background: #fff; box-shadow: 0 0 24px rgba(52,211,153,.9); }
+  #antes-despues .et { position: absolute; bottom: 26px; font-size: 24px; font-weight: 900; letter-spacing: .08em; padding: 8px 14px; border-radius: 10px; }
+  /* Calculadora */
+  .cifra { position: absolute; left: 0; right: 0; text-align: center; }
+  .chico { font-size: 30px; font-weight: 700; color: #a1a1aa; }
+  .grande { font-size: 104px; font-weight: 900; letter-spacing: -.05em; background: linear-gradient(90deg, #6ee7b7, #99f6e4); -webkit-background-clip: text; color: transparent; }
+  .barras { position: absolute; left: 80px; right: 80px; bottom: 60px; height: 110px; display: flex; align-items: flex-end; gap: 22px; }
+  .barras i { flex: 1; border-radius: 10px 10px 4px 4px; background: rgba(255,255,255,.14); }
+  .barras i.v { background: linear-gradient(#6ee7b7, #10b981); }
+  /* Precio */
+  .escudo { position: absolute; left: 50%; top: 56px; margin-left: -70px; width: 140px; height: 140px; border-radius: 40px; display: grid; place-items: center; background: rgba(52,211,153,.14); border: 3px solid rgba(52,211,153,.55); }
+  .escudo svg { width: 80px; height: 80px; }
+  .pill { display: inline-block; margin-top: 14px; font-size: 26px; font-weight: 800; color: #07080a; background: #34d399; padding: 8px 18px; border-radius: 999px; }
+  /* Web */
+  .logo { position: absolute; left: 50%; top: 70px; margin-left: -90px; width: 180px; height: 180px; border-radius: 50%; box-shadow: 0 0 0 6px rgba(52,211,153,.6), 0 0 80px -10px rgba(52,211,153,.9); }
+  .url { position: absolute; left: 0; right: 0; bottom: 70px; text-align: center; font-size: 46px; font-weight: 900; letter-spacing: -.02em; }
+  .url span { color: #6ee7b7; }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+
+<div class="m" id="whatsapp">
+  <div class="bub yo">Hola! Te paso el link de mi tienda 👋</div>
+  <div class="check">✓✓</div>
+  <div class="bub nx">¡Genial! Te digo <b>qué frena tus ventas</b> 🙌</div>
+</div>
+
+<div class="m" id="antes-despues">
+  <img src="../../public/landing/caso-antes.jpg"><img class="d" src="../../public/landing/caso-despues.jpg">
+  <div class="linea"></div>
+  <span class="et" style="left:20px;background:rgba(0,0,0,.8)">ANTES</span>
+  <span class="et" style="right:20px;background:#34d399;color:#07080a">DESPUÉS</span>
+</div>
+
+<div class="m" id="calculadora">
+  <div class="cifra" style="top:70px"><div class="chico">con las mismas visitas</div><div class="grande">+15</div><div class="chico">ventas por mes</div></div>
+  <div class="barras"><i style="height:40%"></i><i style="height:55%"></i><i style="height:70%"></i><i class="v" style="height:100%"></i></div>
+</div>
+
+<div class="m" id="precio">
+  <div class="escudo"><svg viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+  <div class="cifra" style="top:225px"><div class="grande" style="font-size:88px">$39.900</div><div class="pill">7 días de garantía</div></div>
+</div>
+
+<div class="m" id="web">
+  <svg class="logo" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="13.5" y1="11.5" x2="28.5" y2="30.5" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#fff" stop-opacity=".9"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><circle cx="20" cy="20" r="20" fill="#000"/><rect x="13.5" y="11.5" width="3.5" height="17" fill="#fff"/><rect x="23" y="11.5" width="3.5" height="9" fill="#fff"/><polygon points="13.5,11.5 17,11.5 28.5,30.5 25,30.5" fill="url(#g)"/></svg>
+  <div class="url">nevux<span>.ar</span></div>
+</div>
+
+<script>document.getElementById(window.MINI).style.display = "block";</script>
+</body>
+</html>
