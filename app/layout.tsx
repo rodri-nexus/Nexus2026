@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     siteName: "Nevux",
     locale: "es_AR",
     type: "website",
-    images: [{ url: "/og", width: 1200, height: 630, alt: "Nevux · Optimización de fichas para Tiendanube" }],
+    images: [{ url: "/og", secureUrl: "https://nevux.ar/og", type: "image/png", width: 1200, height: 630, alt: "Nevux · Optimización de fichas para Tiendanube" }],
   },
   twitter: { card: "summary_large_image", images: ["/og"] },
 };
