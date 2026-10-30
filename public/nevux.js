@@ -200,6 +200,12 @@
       '.nvx-cmp td:first-child{text-align:left;font-weight:600}' +
       '.nvx-cmp .nvx-m{background:' + C + '14;color:' + C + ';font-weight:900}' +
       '.nvx-cmp .nvx-x{color:#ef4444;font-weight:900}' +
+      '.nvx-cmpw{position:relative}' +
+      '.nvx-cmpw .nvx-cmp{position:relative;z-index:1}' +
+      '.nvx-cmp-bar{position:absolute;top:0;height:0;border-radius:12px;background:linear-gradient(180deg,' + C + '30,' + C + '55);box-shadow:inset 0 -4px 0 ' + C + ';pointer-events:none;transition:height .15s linear}' +
+      '.nvx-cmp td.nvx-m{transition:transform .35s cubic-bezier(.2,1.6,.4,1),color .3s}' +
+      '.nvx-cmpw.nvx-anim td.nvx-m{opacity:.35}' +
+      '.nvx-cmpw.nvx-anim tr.nvx-on td.nvx-m{opacity:1;transform:scale(1.25)}' +
       '.nvx-rv{margin-bottom:10px}' +
       '.nvx-rv-h{display:flex;align-items:center;gap:10px;margin-bottom:6px}' +
       '.nvx-rv-h i{flex:0 0 34px;height:34px;border-radius:50%;background:' + C + ';color:' + NEVUX.colorTexto + ';font-style:normal;font-weight:800;display:grid;place-items:center}' +
@@ -514,9 +520,9 @@
     var CP = NEVUX.comparativa;
     if (CP && CP.filas && CP.filas.length) {
       cont += '<div class="nvx-sec"><div class="nvx-h">' + esc(CP.titulo || '¿Por qué elegirnos?') + '</div><div class="nvx-card" style="padding:6px 10px">' +
-        '<table class="nvx-cmp"><tr><th></th><th class="nvx-m">' + esc(CP.marca || 'Nosotros') + '</th><th>' + esc(CP.otro || 'Otros') + '</th></tr>' +
+        '<div class="nvx-cmpw"><div class="nvx-cmp-bar"></div><table class="nvx-cmp"><tr><th></th><th class="nvx-m">' + esc(CP.marca || 'Nosotros') + '</th><th>' + esc(CP.otro || 'Otros') + '</th></tr>' +
         CP.filas.map(function (f) { return '<tr><td>' + esc(f) + '</td><td class="nvx-m">✓</td><td class="nvx-x">✕</td></tr>'; }).join('') +
-        '</table></div></div>';
+        '</table></div></div></div>';
     }
     if (NEVUX.resenas && NEVUX.resenas.length) {
       cont += '<div class="nvx-sec"><div class="nvx-h">Lo que dicen nuestros clientes</div>' +
@@ -685,7 +691,9 @@
       if (!pr) return;
       var precio = hNum(pr.textContent);
       var html = '';
-      if (T.transferencia > 0 && precio) {
+      if (T.estilo === 'destacado') {
+        html += tarjetaDestacada(card, precio, T);
+      } else if (T.transferencia > 0 && precio) {
         html += '<div class="nvx-tc"><span>MEJOR PRECIO</span><b>' + hMoney(precio * (1 - T.transferencia / 100)) + '</b><small>pagando por transferencia</small></div>';
       }
       if (T.quedan) {
@@ -702,6 +710,84 @@
         var box = pr.closest('.item-price-container, .product-item-price-container, .js-item-price-container') || pr.parentElement;
         box.insertAdjacentHTML('afterend', '<div class="nvx-tw">' + html + '</div>');
       }
+    });
+  }
+
+  // Tarjeta de producto destacada: precio con transferencia (o el ahorro sobre el precio tachado) en una caja
+  // con el color de la tienda, y las cuotas en una caja oscura. Todo con los datos reales de cada producto.
+  function tarjetaDestacada(card, precio, T) {
+    var C = (T.colores && T.colores.precio) || NEVUX.color;
+    var D = (T.colores && T.colores.cuotas) || (NEVUX.marca && NEVUX.marca.oscuro) || '#111827';
+    hCss('nvx-td-css',
+      '.nvx-td{display:grid;gap:6px;margin-top:6px;text-align:center}' +
+      '.nvx-td-p{border-radius:999px;padding:7px 10px;background:' + C + ';color:' + (luz(C) > 0.45 ? '#111827' : '#fff') + ';box-shadow:0 6px 16px ' + C + '55;line-height:1.1}' +
+      '.nvx-td-p b{display:block;font-size:17px;font-weight:900}' +
+      '.nvx-td-p small{display:block;font-size:9.5px;font-weight:700;opacity:.9}' +
+      '.nvx-td-q{position:relative;border-radius:12px;padding:8px 8px 7px;background:' + D + ';color:#fff;line-height:1.15}' +
+      '.nvx-td-q span{display:block;font-size:9.5px;font-weight:700;opacity:.85}' +
+      '.nvx-td-q b{display:block;font-size:14px;font-weight:900}' +
+      '.nvx-td-q i{position:absolute;top:-8px;right:8px;font-style:normal;font-size:8.5px;font-weight:900;letter-spacing:.04em;background:#fff;color:' + D + ';border:1px solid ' + D + ';border-radius:999px;padding:1px 6px}');
+    var v = null;
+    try {
+      var dvEl = card.hasAttribute('data-variants') ? card : card.querySelector('[data-variants]');
+      v = dvEl ? JSON.parse(dvEl.getAttribute('data-variants'))[0] : null;
+    } catch (e) {}
+    precio = (v && v.price_number) || precio;
+    if (!precio) return '';
+    var out = '';
+    // Caja de precio: transferencia si la tienda la tiene; si no, el ahorro sobre el precio tachado
+    var transf = T.transferencia || 0;
+    if (!transf && v && v.price_with_payment_discount_short) {
+      var pd = hNum(v.price_with_payment_discount_short);
+      if (pd && pd < precio) transf = Math.round((1 - pd / precio) * 100);
+    }
+    if (transf > 0) {
+      out += '<div class="nvx-td-p"><b>' + hMoney(precio * (1 - transf / 100)) + '</b><small>Transferencia o depósito · ' + transf + '% OFF</small></div>';
+    } else if (v && v.compare_at_price_number > precio) {
+      var off = Math.round((1 - precio / v.compare_at_price_number) * 100);
+      out += '<div class="nvx-td-p"><b>' + hMoney(precio) + '</b><small>' + off + '% OFF · Ahorrás ' + hMoney(v.compare_at_price_number - precio) + '</small></div>';
+    }
+    // Caja de cuotas: sin interés si las hay; si no, la cantidad máxima de cuotas con su valor real
+    try {
+      var inst = JSON.parse(v.installments_data), sin = 0, max = 0, valMax = 0;
+      Object.keys(inst).forEach(function (g) {
+        Object.keys(inst[g]).forEach(function (n) {
+          var q = inst[g][n];
+          if (q.without_interests && +n > sin) sin = +n;
+          if (+n > max) { max = +n; valMax = q.installment_value; }
+        });
+      });
+      if (sin > 1) out += '<div class="nvx-td-q"><i>SIN RECARGO</i><span>' + sin + ' cuotas sin interés de</span><b>' + hMoney(precio / sin) + '</b></div>';
+      else if (max > 1 && valMax) out += '<div class="nvx-td-q"><span>Hasta ' + max + ' cuotas de</span><b>' + hMoney(valMax) + '</b></div>';
+    } catch (e) {}
+    return out ? '<div class="nvx-td">' + out + '</div>' : '';
+  }
+
+  // Comparativa: al bajar, una barra recorre la columna de la marca y cada ✓ se ilumina al pasar
+  function initCmpAnim() {
+    [].forEach.call(document.querySelectorAll('.nvx-cmpw:not([data-nvx-a])'), function (w) {
+      w.setAttribute('data-nvx-a', '1');
+      var bar = w.querySelector('.nvx-cmp-bar'), th = w.querySelector('th.nvx-m'), rows = w.querySelectorAll('tr');
+      if (!bar || !th) return;
+      if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      w.classList.add('nvx-anim');
+      var pend = false;
+      var pintar = function () {
+        pend = false;
+        bar.style.left = th.offsetLeft + 'px';
+        bar.style.width = th.offsetWidth + 'px';
+        var r = w.getBoundingClientRect(), vh = window.innerHeight;
+        var p = Math.max(0, Math.min(1, (vh * 0.85 - r.top) / (r.height + vh * 0.3)));
+        var h = p * w.offsetHeight;
+        bar.style.height = h + 'px';
+        [].forEach.call(rows, function (tr, i) {
+          if (i) tr.classList.toggle('nvx-on', tr.offsetTop + tr.offsetHeight / 2 <= h);
+        });
+      };
+      var pedir = function () { if (!pend) { pend = true; requestAnimationFrame(pintar); } };
+      window.addEventListener('scroll', pedir, { passive: true });
+      window.addEventListener('resize', pedir);
+      pintar();
     });
   }
 
@@ -1047,6 +1133,7 @@
     initHome();
     initTarjetas();
     init();
+    initCmpAnim();
     // Las tarjetas que la plantilla carga después (carruseles, scroll infinito) también se completan
     if (NEVUX.tarjetas && 'MutationObserver' in window) {
       var t;

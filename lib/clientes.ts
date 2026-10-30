@@ -83,7 +83,8 @@ export const CLIENTES: Record<string, Cliente> = {
       },
 
       // Tarjetas de producto: "QUEDAN N" cuando quedan 5 o menos (stock real de la tienda)
-      tarjetas: { quedan: 5 },
+      // estilo 'destacado': caja con el precio (y el ahorro real sobre el tachado) y caja con las cuotas, como Wess
+      tarjetas: { quedan: 5, estilo: 'destacado' },
 
       // Home
       home: {
