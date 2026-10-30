@@ -27,6 +27,7 @@
 
 - **Hogar Digital (Marcelo)** · hogardigital.com.ar · plantilla Brasilia · **prendido, cobro manual**. Dio permiso (30/10) para usar el nombre de la tienda en la landing e Instagram. Instagram: @hogardigitaltiendaonline (se lo menciona en los textos del caso).
   - **Semana Cyber (2 al 4/11):** modo evento prendido (barra, cuenta regresiva y cinta). Se anuncia desde el 30/10 y se apaga solo el 4/11 a las 23:59. Pendiente: que Marcelo confirme sus descuentos para sumarlos.
+  - **Diseño (31/10):** azul #3498db y negro, barra de anuncios, medios de pago, ficha oscura, antes vs. después, foto con puntos del Humidificador OVNI y vitrinas de Humidificadores y Audio. Pendiente de Marcelo: pasar el color de los botones de su plantilla de rojo a azul (Editar diseño → Colores).
   - **Promoción por cantidad** creada en su Tiendanube (15% llevando 2, 25% llevando 3), verificada en el carrito.
   - **Pendiente:**
     - que se suscriba con `nevux.ar/suscribirme?c=hogar-digital` y pasarlo a cobro automático con su email;

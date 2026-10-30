@@ -32,6 +32,12 @@ export const CLIENTES: Record<string, Cliente> = {
     dominios: ['hogardigital.com.ar'],
     // Configuración de la tienda: cualquier opción del motor (public/nevux.js)
     config: {
+      // Colores de la marca: blanco, negro y azul (el azul del buscador y el pie de su tienda)
+      color: '#3498db',
+      marca: { oscuro: '#0b0f17' },
+      anuncios: ['🚚 Envíos a todo el país', '🛡️ 30 días de garantía', '💬 Atención personalizada por WhatsApp'],
+      mediosDePago: ['Visa', 'Mastercard', 'Débito', 'Mercado Pago'],
+      estiloFicha: 'oscuro',
       packs: [
         { cantidad: 1, titulo: 'Llevá 1', descuento: 0 },
         { cantidad: 2, titulo: 'Llevá 2', descuento: 15, etiqueta: 'MÁS ELEGIDO' },
@@ -53,6 +59,15 @@ export const CLIENTES: Record<string, Cliente> = {
           { titulo: 'Pagá seguro', texto: 'Con tarjeta o Mercado Pago, en hasta 12 cuotas.' },
           { titulo: 'Recibilo en tu casa', texto: 'Despachamos de lunes a viernes y llega en 5 a 6 días hábiles.' }
         ]
+      },
+      // Antes / después en lista: todo sale de las políticas reales de la tienda
+      problemaSolucion: {
+        etiqueta: 'Comprar online',
+        titulo: 'Antes vs. con Hogar Digital',
+        antesTitulo: 'Comprando en cualquier lado',
+        antes: ['No sabés cuándo te lo despachan', 'Si llega fallado, nadie se hace cargo', 'Escribís y nadie te responde', 'La devolución la pagás vos'],
+        despuesTitulo: 'Con Hogar Digital',
+        despues: ['Despachamos de lunes a viernes: antes de las 18 h sale en el día', '30 días de garantía por falla, daño o error en el envío', 'Atención personalizada por WhatsApp', 'Si hay una falla, la devolución corre por nuestra cuenta']
       },
       comparativa: {
         titulo: '¿Por qué comprar en Hogar Digital?',
@@ -90,6 +105,31 @@ export const CLIENTES: Record<string, Cliente> = {
       home: {
         // Cuenta regresiva real hasta las 18 h (hora de corte del despacho)
         cuentaRegresiva: true,
+        beneficios: [
+          { icono: '🚚', titulo: 'Envíos a todo el país', texto: 'Llega en 5 a 6 días hábiles.' },
+          { icono: '🛡️', titulo: '30 días de garantía', texto: 'Por falla, daño o error en el envío.' },
+          { icono: '💬', titulo: 'Atención por WhatsApp', texto: 'Te ayudamos a elegir.' }
+        ],
+        // Foto con puntos: características reales sacadas de la descripción del producto
+        puntos: {
+          etiqueta: 'De cerca',
+          titulo: 'Conocé el Humidificador OVNI',
+          texto: 'Tocá cada punto para ver el detalle.',
+          foto: 'https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056709-eba39cf6e5e33054c317901025394499-1024-1024.webp',
+          url: '/productos/humidificador-ovni-267/',
+          boton: 'Ver el humidificador',
+          items: [
+            { x: 50, y: 30, titulo: 'Efecto niebla', texto: 'Un detalle llamativo que cambia el ambiente.' },
+            { x: 31, y: 44, titulo: 'Aporta humedad', texto: 'Ideal si sentís el ambiente seco.' },
+            { x: 66, y: 58, titulo: 'Iluminación LED', texto: 'Luz cálida que acompaña la niebla.' },
+            { x: 45, y: 75, titulo: 'Diseño compacto', texto: 'Para dormitorio, escritorio, living u oficina.' }
+          ]
+        },
+        // Vitrinas: productos reales de cada categoría en carrusel
+        vitrinas: [
+          { etiqueta: 'Para tu casa', titulo: 'Humidificadores', url: '/humidificadores-19h94/', oscuro: true, boton: 'Ver todos los humidificadores' },
+          { etiqueta: 'Sonido', titulo: 'Audio y auriculares', url: '/audio-auriculares/', boton: 'Ver todo audio' }
+        ],
         porQue: {
           etiqueta: 'Desde los años 80',
           titulo: 'Por qué comprar en Hogar Digital',

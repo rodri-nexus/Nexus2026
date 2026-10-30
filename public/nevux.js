@@ -74,6 +74,14 @@
     evento: null, // ej: { nombre: 'Semana Cyber', desde: '2026-11-02T00:00:00-03:00', hasta: '2026-11-04T23:59:59-03:00', anticipo: 3,
                   //       barra: '🔥 SEMANA CYBER · Del 2 al 4 de noviembre', barraAntes: '⚡ Se viene la Semana Cyber · 2 al 4 de noviembre',
                   //       cinta: ['Semana Cyber', 'Hasta 12 cuotas'], packs: [ ... ] }
+    // Barra de anuncios que rota arriba de toda la tienda (con flechas). [] = no se muestra
+    anuncios: [], // ej: ['Envíos a todo el país', '30 días de garantía', 'Atención por WhatsApp']
+    // Medios de pago que acepta la tienda, en chips debajo del precio. [] = no se muestran
+    mediosDePago: [], // ej: ['Visa', 'Mastercard', 'Débito', 'Mercado Pago']
+    // Antes / después en lista: los problemas sin el producto contra lo que resuelve (solo afirmaciones reales)
+    problemaSolucion: null, // ej: { etiqueta: 'El problema', titulo: 'Antes vs. después', antesTitulo: 'Sin...', antes: [...], despuesTitulo: 'Con...', despues: [...] }
+    // Estilo de las secciones de la ficha: '' (claro) u 'oscuro' (fondo negro con separadores en ola)
+    estiloFicha: '',
     // Avisos de venta en vivo con productos de la tienda (foto, nombre y precio). false = apagados
     ventas: true, // también: { nombres: [...], ciudades: [...], cada: 20 }
     boton: 'COMPRAR AHORA'
@@ -200,6 +208,14 @@
       '.nvx-cmp td:first-child{text-align:left;font-weight:600}' +
       '.nvx-cmp .nvx-m{background:' + C + '14;color:' + C + ';font-weight:900}' +
       '.nvx-cmp .nvx-x{color:#ef4444;font-weight:900}' +
+      '.nvx-eb{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:' + C + ';text-align:center;margin:0 0 6px}' +
+      '.nvx-ps{display:grid;gap:10px}' +
+      '.nvx-ps>div{border-radius:14px;padding:14px 16px}' +
+      '.nvx-ps b{display:block;font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}' +
+      '.nvx-ps p{display:flex;gap:9px;margin:0 0 8px;font-size:14px;line-height:1.4}' +
+      '.nvx-ps i{font-style:normal;font-weight:900;flex:none}' +
+      '.nvx-ps-a{background:#fef2f2;border:1px solid #fecaca;color:#7f1d1d}.nvx-ps-a b,.nvx-ps-a i{color:#dc2626}' +
+      '.nvx-ps-d{background:' + C + '12;border:1px solid ' + C + '55;color:#111827}.nvx-ps-d b,.nvx-ps-d i{color:' + C + '}' +
       '.nvx-cmpw{position:relative}' +
       '.nvx-cmpw .nvx-cmp{position:relative;z-index:1}' +
       '.nvx-cmp-bar{position:absolute;top:0;height:0;border-radius:12px;background:linear-gradient(180deg,' + C + '30,' + C + '55);box-shadow:inset 0 -4px 0 ' + C + ';pointer-events:none;transition:height .15s linear}' +
@@ -293,6 +309,18 @@
         var f = root.querySelector('.nvx-urg-fill');
         if (f) f.style.width = NEVUX.urgencia.porcentaje + '%';
       }, 400);
+    }
+
+    // 1a) Medios de pago en chips
+    if (priceBox && NEVUX.mediosDePago && NEVUX.mediosDePago.length) {
+      var MPC = { visa: '#1a1f71', mastercard: '#eb001b', 'american express': '#2e77bc', amex: '#2e77bc', naranja: '#fe5000', cabal: '#00557f', 'mercado pago': '#00a2e8', maestro: '#0099df' };
+      hCss('nvx-pay-css',
+        '.nvx-pay{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;font-family:' + FONT + '}' +
+        '.nvx-pay span{border:1px solid #e5e7eb;background:#fff;border-radius:7px;padding:5px 9px;font-size:11px;font-weight:900;letter-spacing:.02em;color:#374151}');
+      priceBox.insertAdjacentHTML('afterend', '<div class="nvx-pay">' + NEVUX.mediosDePago.map(function (m) {
+        var c = MPC[String(m).toLowerCase()];
+        return '<span' + (c ? ' style="color:' + c + '"' : '') + '>' + hEsc(m) + '</span>';
+      }).join('') + '</div>');
     }
 
     // 1b) Bloque de precios en tarjetas: transferencia (color de la tienda) y cuotas sin interés (oscura)
@@ -517,6 +545,14 @@
             (it.texto ? '<p>' + esc(it.texto) + '</p>' : '') + (it.foto ? '<img src="' + esc(it.foto) + '" alt="" loading="lazy">' : '') + '</div></div>';
         }).join('') + '</div></div>';
     }
+    var PS = NEVUX.problemaSolucion;
+    if (PS && PS.antes && PS.despues) {
+      cont += '<div class="nvx-sec">' + (PS.etiqueta ? '<div class="nvx-eb">' + esc(PS.etiqueta) + '</div>' : '') +
+        '<div class="nvx-h">' + esc(PS.titulo || 'Antes vs. después') + '</div><div class="nvx-ps">' +
+        '<div class="nvx-ps-a"><b>✕ ' + esc(PS.antesTitulo || 'Antes') + '</b>' + PS.antes.map(function (t) { return '<p><i>✕</i>' + esc(t) + '</p>'; }).join('') + '</div>' +
+        '<div class="nvx-ps-d"><b>✓ ' + esc(PS.despuesTitulo || 'Ahora') + '</b>' + PS.despues.map(function (t) { return '<p><i>✓</i>' + esc(t) + '</p>'; }).join('') + '</div>' +
+        '</div></div>';
+    }
     var CP = NEVUX.comparativa;
     if (CP && CP.filas && CP.filas.length) {
       cont += '<div class="nvx-sec"><div class="nvx-h">' + esc(CP.titulo || '¿Por qué elegirnos?') + '</div><div class="nvx-card" style="padding:6px 10px">' +
@@ -543,7 +579,25 @@
     }
     if (cont) {
       var after = root.querySelector('.nvx-wa') || root.querySelector('.nvx-trust');
-      after.insertAdjacentHTML('afterend', '<div class="nvx-c">' + cont + '</div>');
+      if (NEVUX.estiloFicha === 'oscuro') {
+        var O = (NEVUX.marca && NEVUX.marca.oscuro) || '#0b0f17';
+        var ola = function (abajo) {
+          return '<svg class="nvx-ola" viewBox="0 0 1200 40" preserveAspectRatio="none" style="' + (abajo ? 'transform:rotate(180deg);' : '') + '"><path d="M0 40V22C150 2 300 2 450 16s300 24 450 6 225-20 300-12v28z" fill="' + O + '"/></svg>';
+        };
+        hCss('nvx-osc-css',
+          '.nvx-osc{background:' + O + ';color:#f3f4f6;margin:-1px -16px;padding:8px 16px 4px;position:relative}' +
+          '.nvx-ola{display:block;width:calc(100% + 32px);height:26px;margin:18px -16px 0}.nvx-ola+.nvx-osc+.nvx-ola,.nvx-osc+.nvx-ola{margin:0 -16px 18px}' +
+          '.nvx-osc .nvx-h{color:#fff;text-transform:uppercase;letter-spacing:.02em}' +
+          '.nvx-osc .nvx-card,.nvx-osc .nvx-faq,.nvx-osc .nvx-step{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f3f4f6}' +
+          '.nvx-osc .nvx-faq div,.nvx-osc .nvx-step p,.nvx-osc .nvx-rv p{color:#cbd5e1}' +
+          '.nvx-osc .nvx-cmp td{border-color:rgba(255,255,255,.08)}.nvx-osc .nvx-cmp td:first-child,.nvx-osc .nvx-cmp th{color:#f3f4f6}' +
+          '.nvx-osc .nvx-combo{background:rgba(255,255,255,.06);color:#f3f4f6}.nvx-osc .nvx-combo *{color:inherit}.nvx-osc .nvx-combo button,.nvx-osc .nvx-combo .nvx-cb-add{color:' + NEVUX.colorTexto + '}' +
+          '.nvx-osc .nvx-ps-a{background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.35);color:#fecaca}' +
+          '.nvx-osc .nvx-ps-d{background:' + C + '1f;border-color:' + C + '66;color:#f3f4f6}');
+        after.insertAdjacentHTML('afterend', '<div class="nvx-c">' + ola(false) + '<div class="nvx-osc">' + cont + '</div>' + ola(true) + '</div>');
+      } else {
+        after.insertAdjacentHTML('afterend', '<div class="nvx-c">' + cont + '</div>');
+      }
       var box = root.querySelector('.nvx-c');
 
       // Calculadora: busca el talle y lo elige en la ficha
@@ -791,6 +845,34 @@
     });
   }
 
+  // Vitrinas de la home: trae las tarjetas reales de la categoría y las muestra en carrusel con botón "Ver"
+  function cargarVitrinas(lista) {
+    lista.forEach(function (V, n) {
+      var row = document.querySelector('.nvh-vit-row[data-vit="' + n + '"]');
+      if (!row || !V.url) return;
+      fetch(V.url, { credentials: 'same-origin' }).then(function (r) { return r.text(); }).then(function (txt) {
+        var doc = new DOMParser().parseFromString(txt, 'text/html');
+        var cards = [].slice.call(doc.querySelectorAll('.js-item-product')).slice(0, V.cantidad || 8);
+        if (!cards.length) { row.closest('.nvh-sec').remove(); return; }
+        cards.forEach(function (c) {
+          [].forEach.call(c.querySelectorAll('form, .js-product-form, .js-quickshop-modal-open, .js-addtocart, .item-actions, .js-item-actions'), function (f) { f.remove(); });
+          [].forEach.call(c.querySelectorAll('img'), function (im) {
+            var ss = im.getAttribute('data-srcset') || im.getAttribute('srcset');
+            var src = im.getAttribute('data-src') || (ss ? ss.split(',').pop().trim().split(' ')[0] : '');
+            if (src) im.setAttribute('src', src);
+            im.removeAttribute('data-srcset'); im.removeAttribute('srcset'); im.classList.remove('lazyload', 'lazyautosizes', 'fade-in');
+            im.style.opacity = 1;
+          });
+          c.className = c.className.replace(/\bcol-[\w-]+|\bswiper-slide\b|\bjs-item-slide\b/g, '');
+          var a = c.querySelector('a[href*="/productos/"]');
+          if (a) c.insertAdjacentHTML('beforeend', '<a class="nvh-ver" href="' + a.getAttribute('href') + '">Ver →</a>');
+          row.appendChild(c);
+        });
+        initTarjetas();
+      }).catch(function () {});
+    });
+  }
+
   // Secciones de la home
   function initHome() {
     var H = NEVUX.home;
@@ -853,7 +935,24 @@
       '.nvh-loc p{font-size:13px;opacity:.7;margin:0 0 14px}' +
       '.nvh-btn{display:inline-flex;align-items:center;gap:8px;background:#111;color:#fff!important;border-radius:999px;padding:12px 20px;font:800 12px/1 ' + FONT + ';letter-spacing:.1em;text-transform:uppercase;text-decoration:none!important}' +
       '.nvh-dark .nvh-btn{background:#fff;color:#111!important}' +
-      '.nvh-cierre{text-align:center;border-radius:32px 32px 0 0}');
+      '.nvh-cierre{text-align:center;border-radius:32px 32px 0 0}' +
+      '.nvh-pts{display:grid;gap:22px;align-items:center}@media(min-width:768px){.nvh-pts{grid-template-columns:1.1fr 1fr}}' +
+      '.nvh-pts-f{position:relative;border-radius:22px;overflow:hidden}' +
+      '.nvh-pts-f img{width:100%;display:block}' +
+      '.nvh-pt{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;border:3px solid #fff;background:' + C + ';color:#fff;font:900 14px/1 ' + FONT + ';cursor:pointer;padding:0;box-shadow:0 0 0 0 ' + C + 'aa;animation:nvh-pl 2s infinite}' +
+      '.nvh-pt.on{background:#fff;color:' + C + '}' +
+      '@keyframes nvh-pl{0%{box-shadow:0 0 0 0 ' + C + 'aa}70%{box-shadow:0 0 0 16px ' + C + '00}100%{box-shadow:0 0 0 0 ' + C + '00}}' +
+      '.nvh-pts-l{display:grid;gap:10px}@media(min-width:600px) and (max-width:767px){.nvh-pts-l{grid-template-columns:1fr 1fr}}' +
+      '.nvh-pti{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid ' + borde + ';border-radius:14px;transition:border-color .2s,box-shadow .2s}' +
+      '.nvh-pti.on{border-color:' + C + ';box-shadow:0 8px 22px ' + C + '30}' +
+      '.nvh-pti i{flex:none;width:26px;height:26px;border-radius:50%;background:' + C + ';color:#fff;font:900 12px/26px ' + FONT + ';text-align:center;font-style:normal}' +
+      '.nvh-pti b{display:block;font-size:15px;font-weight:900;text-transform:uppercase}' +
+      '.nvh-pti p{margin:3px 0 0;font-size:13.5px;opacity:.75;line-height:1.45}' +
+      '.nvh-vit-row{display:grid;grid-auto-flow:column;grid-auto-columns:46%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;-webkit-overflow-scrolling:touch}' +
+      '@media(min-width:768px){.nvh-vit-row{grid-auto-columns:23%}}' +
+      '.nvh-vit-row>*{scroll-snap-align:start;min-width:0;width:auto!important;max-width:none!important;flex:none!important;margin:0!important;background:#fff;color:#111827;border-radius:16px;padding:8px;box-sizing:border-box}' +
+      '.nvh-vit-row img{width:100%;height:auto}' +
+      '.nvh-vit-row .nvh-ver{display:flex;justify-content:center;gap:8px;margin-top:8px;background:#111;color:#fff!important;border-radius:999px;padding:10px;font:800 11px/1 ' + FONT + ';letter-spacing:.12em;text-transform:uppercase;text-decoration:none!important}');
 
     var sec = function (cls, eb, h, p, body) {
       return '<section class="nvh-sec ' + (cls || '') + '"><div class="nvh-in">' + (eb ? '<div class="nvh-eb">' + hEsc(eb) + '</div>' : '') +
@@ -867,6 +966,22 @@
             '<span>' + hEsc(c.nombre) + (c.texto ? '<em>' + hEsc(c.texto) + '</em>' : '') + '</span></a>';
         }).join('') + '</div>');
     }
+    // Foto con puntos que explican cada detalle del producto
+    var PT = H.puntos;
+    if (PT && PT.foto && PT.items && PT.items.length) {
+      html += sec('', PT.etiqueta || '', PT.titulo || '', PT.texto || '',
+        '<div class="nvh-pts"><div class="nvh-pts-f"><img src="' + hEsc(PT.foto) + '" alt="" loading="lazy">' +
+        PT.items.map(function (it, i) { return '<button class="nvh-pt" data-i="' + i + '" style="left:' + it.x + '%;top:' + it.y + '%" aria-label="' + hEsc(it.titulo) + '">' + (i + 1) + '</button>'; }).join('') +
+        '</div><div class="nvh-pts-l">' + PT.items.map(function (it, i) {
+          return '<div class="nvh-pti" data-i="' + i + '"><i>' + (i + 1) + '</i><div><b>' + hEsc(it.titulo) + '</b>' + (it.texto ? '<p>' + hEsc(it.texto) + '</p>' : '') + '</div></div>';
+        }).join('') + '</div></div>' + (PT.url ? '<div style="text-align:center;margin-top:22px"><a class="nvh-btn" href="' + hEsc(PT.url) + '">' + hEsc(PT.boton || 'Ver producto') + ' →</a></div>' : ''));
+    }
+    // Vitrinas: productos reales de una categoría en carrusel (se cargan de la tienda al abrir la home)
+    (H.vitrinas || []).forEach(function (V, n) {
+      html += sec((V.oscuro ? 'nvh-dark ' : '') + 'nvh-vit', V.etiqueta || '', V.titulo || '', V.texto || '',
+        '<div class="nvh-vit-row" data-vit="' + n + '"></div>' +
+        '<div style="text-align:center;margin-top:20px"><a class="nvh-btn" href="' + hEsc(V.url) + '">' + hEsc(V.boton || 'Ver todos') + ' →</a></div>');
+    });
     var W = H.porQue;
     if (W && W.items && W.items.length) {
       html += sec('nvh-dark', W.etiqueta || '', W.titulo || 'Por qué elegirnos', W.texto || '',
@@ -915,6 +1030,13 @@
         document.body.insertAdjacentHTML('beforeend', wrap);
       }
     }
+    cargarVitrinas(H.vitrinas || []);
+    [].forEach.call(document.querySelectorAll('.nvh-pts'), function (box) {
+      var marcar = function (i) {
+        [].forEach.call(box.querySelectorAll('[data-i]'), function (e) { e.classList.toggle('on', e.getAttribute('data-i') === String(i)); });
+      };
+      [].forEach.call(box.querySelectorAll('[data-i]'), function (e) { e.addEventListener('click', function () { marcar(e.getAttribute('data-i')); }); });
+    });
     if (H.beneficios && H.beneficios.length) {
       var ben = '<div class="nvh"><div class="nvh-ben">' + H.beneficios.map(function (b) {
         return '<div><i>' + hEsc(b.icono || '✓') + '</i><div><b>' + hEsc(b.titulo) + '</b>' + (b.texto ? '<small>' + hEsc(b.texto) + '</small>' : '') + '</div></div>';
@@ -1113,22 +1235,46 @@
     });
   }
 
-  // Barra del evento arriba de toda la tienda (home, categorías y fichas)
-  function initBarraEvento() {
-    var EV = NEVUX.evento;
-    var texto = EVENTO === 'durante' ? EV.barra : EVENTO === 'antes' ? EV.barraAntes : '';
-    if (!texto || document.querySelector('.nvx-evbar')) return;
+  // Barra arriba de toda la tienda: el mensaje del evento (si hay) y los anuncios, rotando con flechas
+  function initBarra() {
+    var EV = NEVUX.evento || {};
+    var msgs = [];
+    var ev = EVENTO === 'durante' ? EV.barra : EVENTO === 'antes' ? EV.barraAntes : '';
+    if (ev) msgs.push({ t: ev, u: EV.url || '/productos/' });
+    (NEVUX.anuncios || []).forEach(function (a) { msgs.push(typeof a === 'string' ? { t: a } : { t: a.texto, u: a.url }); });
+    if (!msgs.length || document.querySelector('.nvx-evbar')) return;
+    var bg = ev ? NEVUX.color : ((NEVUX.marca && NEVUX.marca.oscuro) || '#111827');
     hCss('nvx-evbar-css',
-      '.nvx-evbar{position:relative;z-index:2;background:' + NEVUX.color + ';color:' + NEVUX.colorTexto + ';text-align:center;' +
-      'font:900 13px/1.3 ' + FONT + ';letter-spacing:.06em;text-transform:uppercase;padding:10px 14px}' +
-      '.nvx-evbar a{color:inherit;text-decoration:none}');
-    var href = EV.url || '/productos/';
-    document.body.insertAdjacentHTML('afterbegin', '<div class="nvx-evbar"><a href="' + hEsc(href) + '">' + hEsc(texto) + '</a></div>');
+      '.nvx-evbar{position:relative;z-index:2;background:' + bg + ';color:' + (ev ? NEVUX.colorTexto : '#fff') + ';display:flex;align-items:center;justify-content:center;gap:8px;' +
+      'font:900 12.5px/1.3 ' + FONT + ';letter-spacing:.06em;text-transform:uppercase;padding:9px 6px;min-height:40px;text-align:center}' +
+      '.nvx-evbar a{color:inherit;text-decoration:none}' +
+      '.nvx-evbar .m{flex:1;max-width:760px;transition:opacity .35s}' +
+      '.nvx-evbar button{background:none;border:0;color:inherit;font-size:18px;line-height:1;padding:2px 10px;cursor:pointer;opacity:.8}');
+    var dos = msgs.length > 1;
+    document.body.insertAdjacentHTML('afterbegin', '<div class="nvx-evbar">' + (dos ? '<button aria-label="Anterior">‹</button>' : '') +
+      '<div class="m"></div>' + (dos ? '<button aria-label="Siguiente">›</button>' : '') + '</div>');
+    var bar = document.querySelector('.nvx-evbar'), box = bar.querySelector('.m'), i = 0, timer;
+    var pintar = function () {
+      var m = msgs[i];
+      box.innerHTML = m.u ? '<a href="' + hEsc(m.u) + '">' + hEsc(m.t) + '</a>' : hEsc(m.t);
+    };
+    var mover = function (d) {
+      box.style.opacity = 0;
+      setTimeout(function () { i = (i + d + msgs.length) % msgs.length; pintar(); box.style.opacity = 1; }, 250);
+    };
+    pintar();
+    if (dos) {
+      var bs = bar.querySelectorAll('button');
+      var reiniciar = function () { clearInterval(timer); timer = setInterval(function () { mover(1); }, 4500); };
+      bs[0].onclick = function () { mover(-1); reiniciar(); };
+      bs[1].onclick = function () { mover(1); reiniciar(); };
+      reiniciar();
+    }
   }
 
   function arrancar() {
     detectarMarca();
-    if (EVENTO) initBarraEvento();
+    initBarra();
     initVentas();
     initHome();
     initTarjetas();
