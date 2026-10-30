@@ -3,7 +3,7 @@ import { CLIENTES } from "@/lib/clientes";
 
 // Imagen de vista previa (1200x630) que muestran WhatsApp, Instagram y Facebook al compartir un link de nevux.ar.
 // /og?v=suscripcion&c=<cliente> → "Activá Nevux en <tienda>" con el precio. Sin parámetros → imagen general de Nevux.
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 // Tipografía en negrita (Inter 800) desde Google Fonts, solo con las letras que se usan. Si falla, se usa la de por defecto.
 async function cargarFuente(texto: string): Promise<ArrayBuffer | null> {
@@ -31,7 +31,7 @@ export async function GET(req: Request) {
     ["Nevux", etiqueta, titulo, destacado, "$49.900$39.900/ mes · Garantía de 7 días", "Packs, urgencia, envío y botón de compra fijo. Sin apps.", "nevux.ar"].join("")
   );
 
-  return new ImageResponse(
+  const imagen = new ImageResponse(
     (
       <div
         style={{
@@ -91,7 +91,15 @@ export async function GET(req: Request) {
       width: 1200,
       height: 630,
       fonts: fuente ? [{ name: "Inter", data: fuente, weight: 800, style: "normal" }] : undefined,
-      headers: { "Cache-Control": "public, max-age=3600, s-maxage=86400" },
     }
   );
+  // Se manda la imagen entera, con su tamaño: algunos lectores de vista previa (WhatsApp) descartan imágenes enviadas por partes
+  const png = await imagen.arrayBuffer();
+  return new Response(png, {
+    headers: {
+      "Content-Type": "image/png",
+      "Content-Length": String(png.byteLength),
+      "Cache-Control": "public, max-age=3600, s-maxage=86400",
+    },
+  });
 }

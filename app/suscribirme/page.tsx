@@ -29,7 +29,7 @@ export function generateMetadata({ searchParams }: { searchParams: { c?: string 
       siteName: "Nevux",
       locale: "es_AR",
       type: "website",
-      images: [{ url: imagen, width: 1200, height: 630, alt: titulo }],
+      images: [{ url: imagen, secureUrl: `https://nevux.ar${imagen}`, type: "image/png", width: 1200, height: 630, alt: titulo }],
     },
     twitter: { card: "summary_large_image", title: titulo, description: descripcion, images: [imagen] },
   };
