@@ -56,6 +56,16 @@ Probado en Doggies (Morelia): las 6 piezas funcionan, el carrito recibe el produ
 - **Bloque de precios en tarjetas** (`precios: true`): tarjeta con el color de la tienda para el precio con transferencia (% OFF y "Ahorrás $X") y tarjeta oscura (el color del pie de la plantilla) para "N cuotas sin interés de $X · Precio final". Usa solo datos reales de Tiendanube: si la tienda no tiene descuento por transferencia o cuotas sin interés, esa tarjeta no aparece. Reemplaza al "Mejor precio" simple. Probado en Doggies (Morelia).
 - **Modo evento** (`evento`): Cyber Monday, Hot Sale, etc. Ver `docs/clientes.md`.
 
+### Hecho (31/10/2026): piezas tomadas de la idea de Wess, hechas desde cero
+
+- **Barra de anuncios que rota** (`anuncios`), con flechas. Si hay un evento, su mensaje va primero.
+- **Medios de pago en chips** debajo del precio (`mediosDePago`).
+- **Antes vs. después en lista** (`problemaSolucion`): solo afirmaciones reales de la tienda.
+- **Ficha en estilo oscuro** (`estiloFicha: 'oscuro'`), con separadores en ola.
+- **Home: foto con puntos** (`home.puntos`): puntos que laten y se pueden tocar, con su lista.
+- **Home: vitrinas** (`home.vitrinas`): trae las tarjetas reales de una categoría y las muestra en carrusel con botón "Ver".
+- **Tarjetas destacadas** (`tarjetas.estilo: 'destacado'`) y **comparativa con barra animada**.
+
 ### Arreglos conocidos
 
 - ✅ Insignias angostas en Brasilia y Recife: arreglado en v4. Se insertan debajo del primer bloque que ocupa al menos el 90% del ancho del formulario.
