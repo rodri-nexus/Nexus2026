@@ -10,11 +10,30 @@ import BotonPago from "./BotonPago";
 const MP_SUSCRIPCION = "https://mpago.la/1LqFYin";
 const WHATSAPP = "5493434163999";
 
-export const metadata: Metadata = {
-  title: "Suscripción · Nevux Pack Landing Page Pro",
-  description: "Activá Nevux en tu Tiendanube: $39.900 por mes, con cobro automático por Mercado Pago y garantía de 7 días.",
-  robots: { index: false },
-};
+// Título, descripción e imagen que muestran WhatsApp e Instagram al compartir el link (personalizados con ?c=)
+export function generateMetadata({ searchParams }: { searchParams: { c?: string } }): Metadata {
+  const c = searchParams.c && CLIENTES[searchParams.c] ? searchParams.c : undefined;
+  const tienda = c ? CLIENTES[c].nombre.replace(/\s*\(.*\)\s*$/, "") : undefined;
+  const titulo = tienda ? `Activá Nevux en ${tienda}` : "Activá Nevux en tu tienda";
+  const descripcion = "Pack Landing Page Pro · $39.900 por mes con cobro automático por Mercado Pago. Cancelás cuando quieras. Garantía de 7 días.";
+  const url = `/suscribirme${c ? `?c=${c}` : ""}`;
+  const imagen = `/og?v=suscripcion${c ? `&c=${c}` : ""}`;
+  return {
+    title: `${titulo} · Nevux`,
+    description: descripcion,
+    robots: { index: false },
+    openGraph: {
+      title: titulo,
+      description: descripcion,
+      url,
+      siteName: "Nevux",
+      locale: "es_AR",
+      type: "website",
+      images: [{ url: imagen, width: 1200, height: 630, alt: titulo }],
+    },
+    twitter: { card: "summary_large_image", title: titulo, description: descripcion, images: [imagen] },
+  };
+}
 
 const INCLUYE = [
   "Packs Llevá 2 y Llevá 3 con descuento",
