@@ -94,7 +94,7 @@ module.exports = {
       texto: "Reseñas, “el más elegido”, fotos de clientes: ver que otros ya compraron baja el miedo a equivocarse. Se llama <b>prueba social</b>.<br><br>Funciona solo si es verdad. Una reseña inventada se nota.",
       pie: "Prueba social",
     },
-    nuevo("1105-3", "Nuevo reel", 'La misma visita puede valer <span class="verde">el doble</span>', "Caso real: cómo un pack sube el ticket un 70%."),
+    nuevo("1105-3", "Nuevo reel", 'La misma visita puede valer <span class="verde">el doble</span>', "Caso real de Hogar Digital: cómo un pack sube el ticket un 70%."),
 
     // Vie 6/11 · post: cómo trabajamos
     {
