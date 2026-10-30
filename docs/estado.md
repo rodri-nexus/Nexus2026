@@ -25,7 +25,7 @@
 
 ## Clientes
 
-- **Hogar Digital (Marcelo)** · hogardigital.com.ar · plantilla Brasilia · **prendido, cobro manual**. Dio permiso (30/10) para usar el nombre de la tienda en la landing e Instagram.
+- **Hogar Digital (Marcelo)** · hogardigital.com.ar · plantilla Brasilia · **prendido, cobro manual**. Dio permiso (30/10) para usar el nombre de la tienda en la landing e Instagram. Instagram: @hogardigitaltiendaonline (se lo menciona en los textos del caso).
   - **Promoción por cantidad** creada en su Tiendanube (15% llevando 2, 25% llevando 3), verificada en el carrito.
   - **Pendiente:**
     - que se suscriba con `nevux.ar/suscribirme?c=hogar-digital` y pasarlo a cobro automático con su email;
