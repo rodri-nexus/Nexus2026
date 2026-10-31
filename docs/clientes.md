@@ -88,7 +88,9 @@ En `config.evento` de cada cliente: `nombre`, `desde`, `hasta`, `anticipo` (día
 | Premium · Nevux Premium | $69.900/mes | `mpago.la/2mkcebx` | Valmont |
 
 Cada cliente lleva `plan: 'premium'` en `lib/clientes.ts` (sin `plan` = básico). La página `nevux.ar/suscribirme?c=<id>` muestra solo el precio, lo que incluye y el link del plan de ese cliente. Sin cliente: `?plan=premium`.
-El plan básico no aparece en la lista de "Planes de suscripción" de Mercado Pago (se creó por otro camino), pero el link funciona y cobra $39.900.
+**Ojo:** el link del básico (`mpago.la/1LqFYin`) es un **link de pago único** (checkout con `preference-id`), no una suscripción: cobra $39.900 una vez y no se repite solo. Por eso no aparece en "Planes de suscripción". Para cobro mensual automático hay que crear el plan Básico en Planes de suscripción y reemplazar el link en `lib/planes.ts`.
+
+`cobro.planMp` (ID del plan de Mercado Pago) sirve para un cliente que todavía no se suscribió: se prende solo cuando aparece la primera suscripción cobrada de ese plan.
 
 **Link para mandarle al cliente:** `https://nevux.ar/suscribirme?c=<id>` (página con el plan, qué incluye, garantía y botón a Mercado Pago, personalizada con el nombre de su tienda). Sin `?c=` sirve para cualquiera. Después de pagar, Mercado Pago lo puede devolver a `https://nevux.ar/gracias` si se configura como URL de retorno del plan.
 
