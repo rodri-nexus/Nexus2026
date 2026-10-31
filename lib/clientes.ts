@@ -236,18 +236,18 @@ export const CLIENTES: Record<string, Cliente> = {
             { nombre: 'Tressa', url: '/search/?q=tressa', foto: 'https://nevux.ar/clientes/valmont/cat-smartwatches.svg' }
           ]
         },
-        // Parte 4: foto con puntos estilo Wess ("Buscá el jean que no pase desapercibido"). Reloj dibujado, sin marca.
+        // Parte 4: foto con puntos estilo Wess ("Buscá el jean que no pase desapercibido"), con el Speedmaster recortado de la foto que pasó Rodrigo.
         puntos: {
           estilo: 'wess',
           titulo: 'Buscá el reloj que no pase desapercibido.',
-          url: '/productos/',
-          boton: 'Ver todos los relojes',
-          foto: 'https://nevux.ar/clientes/valmont/detalle-reloj.svg',
+          url: '/productos/omega-speedmaster-professional-anniversary-series-silver-snoopy-award-1qvrw/',
+          boton: 'Ver el Speedmaster',
+          foto: 'https://nevux.ar/clientes/valmont/detalle-reloj.webp',
           items: [
-            { titulo: 'Esfera prolija', texto: 'Índices y textos nítidos, bien alineados.', x: 56.8, y: 45.1 },
-            { titulo: 'Corona firme', texto: 'Gira suave y ajusta sin juego.', x: 58.6, y: 21.5 },
-            { titulo: 'Caja sin marcas', texto: 'Terminación pareja en cada borde.', x: 54.7, y: 76.3 },
-            { titulo: 'Malla original', texto: 'Con el cierre de su marca.', x: 82.6, y: 75.5 }
+            { titulo: 'Esfera con detalle', texto: 'Subesferas y agujas bien terminadas.', x: 60.9, y: 51.6 },
+            { titulo: 'Corona y pulsadores', texto: 'Firmes, con giro y clic precisos.', x: 68, y: 19.5 },
+            { titulo: 'Bisel taquimétrico', texto: 'Escala grabada, nítida y pareja.', x: 39, y: 68.4 },
+            { titulo: 'Malla de acero', texto: 'Eslabones macizos y cierre firme.', x: 80.6, y: 72.1 }
           ]
         },
         porQue: {
