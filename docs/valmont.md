@@ -79,6 +79,13 @@ Rodrigo mandó la ficha completa de Wess y pidió "igual pero al mundo reloj". S
 
 WhatsApp del cliente: +54 2954 688637 (`whatsapp: '5492954688637'`). Pendiente: datos reales de envío; videos propios si el cliente los tiene.
 
+### Ajustes del 31/10 (pedido de Rodrigo)
+
+- **Barra de compra fija:** mostraba la foto vacía (Morelia carga las fotos de a poco y el `src` es un marcador). Ahora toma la foto del `srcset` o de `og:image`.
+- **Final de la ficha como Wess:** "Productos similares" con las tarjetas de la grilla en carrusel (etiqueta "PREMIUM", precio y "VER →"), y **pie estilo Wess** en toda la tienda: franja dorada "Registrate y recibí nuestras novedades.", marca, menú en filas con flecha, Instagram y WhatsApp, y franja legal gris (`initPie`, textos en `config.pie`).
+- **Newsletter gris de la home:** oculto con `ocultar: ['[data-store="home-newsletter"]']`. El del pie queda como franja.
+- **Sin la palabra "original":** Rodrigo pidió reemplazarla por "premium" o algo más elegante en todos lados (etiquetas, beneficios, por qué, preguntas, anuncios y cinta).
+
 ## Cómo probar sin productos
 
 - **Home:** probarla en la tienda real de Valmont.
