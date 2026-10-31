@@ -126,6 +126,229 @@
     if (NEVUX.home) NEVUX.home.cuentaRegresiva = CR;
   })();
 
+  // ===== FICHA ESTILO WESS (estiloFicha: 'wess', textos en NEVUX.ficha) =====
+  // Arriba: etiqueta y título condensado, precio con "MEJOR PRECIO", envío con cuenta regresiva y fechas reales de entrega.
+  function fichaWessArriba(root, d) {
+    var C = NEVUX.color, CT = NEVUX.colorTexto, FW = NEVUX.ficha || {}, money = d.money;
+    if (!document.querySelector('#nvx-anton')) {
+      var lk = document.createElement('link'); lk.id = 'nvx-anton'; lk.rel = 'stylesheet';
+      lk.href = 'https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600;700&display=swap';
+      document.head.appendChild(lk);
+    }
+    var VERDE = '#15803d';
+    hCss('nvx-wf-css',
+      '#single-product .js-product-name,#single-product h1{font-family:Anton,Oswald,sans-serif!important;font-weight:400!important;text-transform:uppercase;font-size:clamp(26px,7.4vw,38px)!important;line-height:1.04!important;letter-spacing:0!important;text-align:left!important}' +
+      '#single-product .js-addtocart{background:' + C + '!important;color:' + CT + '!important;border:0!important;border-radius:999px!important;font:800 13px/1 Inter,sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;min-height:52px}' +
+      '#single-product .js-quantity,#single-product .form-quantity{border-radius:999px!important;overflow:hidden}' +
+      '.nvx-wpill{display:table;background:' + C + ';color:' + CT + ';font:800 11px/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:7px 10px;border-radius:3px;margin:0 0 10px}' +
+      '.nvx-wp{text-align:left;margin:6px 0 12px;font-family:Inter,sans-serif;color:#111}' +
+      '.nvx-wp .l{font-size:13.5px;color:#4b5563}.nvx-wp .l b{color:#111}.nvx-wp .l s{color:#9ca3af}' +
+      '.nvx-wp .t{display:inline-block;margin-top:8px;background:' + VERDE + ';color:#fff;font:800 10.5px/1 Inter,sans-serif;letter-spacing:.12em;padding:5px 8px;border-radius:3px}' +
+      '.nvx-wp .p{display:flex;align-items:baseline;gap:10px;margin-top:4px}.nvx-wp .p b{font:400 clamp(42px,12vw,56px)/1 Anton,Oswald,sans-serif;font-variant-numeric:tabular-nums}' +
+      '.nvx-wp .p em{font-style:normal;font:800 17px/1 Inter,sans-serif;color:' + VERDE + '}' +
+      '.nvx-wp .s{font-size:13.5px;color:#4b5563;margin-top:4px}.nvx-wp .s b{color:' + VERDE + '}' +
+      '.nvx-wp .q{font-size:14px;color:#111;margin-top:10px}' +
+      '.nvx-wship{border:1px solid #e5e7eb;border-radius:14px;padding:4px 14px;margin:0 0 14px;font:13.5px/1.4 Inter,sans-serif;color:#111;text-align:left}' +
+      '.nvx-wship .r{display:flex;gap:12px;padding:12px 0}.nvx-wship .r+.r{border-top:1px solid #f1f1f1}' +
+      '.nvx-wship i{flex:none;width:22px;height:22px;color:#111}.nvx-wship i svg{width:22px;height:22px}' +
+      '.nvx-wship b{color:' + C + ';font-weight:800}.nvx-wship small{display:block;color:#6b7280;font-size:12.5px;margin-top:2px}' +
+      '.nvx-wcd{background:' + C + '1c;border-radius:10px;padding:10px 12px;margin-top:8px;font-size:13px;color:#111}' +
+      '.nvx-wcd strong{display:inline-block;margin-top:6px;margin-right:6px;font-weight:600}.nvx-wcd span{display:inline-block;background:' + C + ';color:' + CT + ';border-radius:4px;padding:3px 6px;font:800 14px/1 Inter,sans-serif;font-variant-numeric:tabular-nums}' +
+      '.nvx-wpre{margin:4px 0 12px;text-align:left}' +
+      '.nvx-wgift{display:flex;gap:10px;align-items:center;background:#f4f4f2;border-radius:12px;padding:12px 14px;font:500 13.5px/1.4 Inter,sans-serif;color:#111}.nvx-wgift i{flex:none;width:20px;height:20px}.nvx-wgift svg{width:20px;height:20px}' +
+      '.nvx-wstar{margin-top:12px;font:400 15px/1 Inter,sans-serif;letter-spacing:.04em;color:#111}.nvx-wstar b{font:800 11.5px/1 Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;margin-left:6px}' +
+      '.nvx-wtr{display:block!important;background:#fff!important;border:1px solid #e5e7eb;border-radius:14px;padding:2px 14px!important;text-align:left!important;margin:16px 0 12px!important}' +
+      '.nvx-wtr>div{display:flex;gap:12px;align-items:center;padding:12px 0}.nvx-wtr>div+div{border-top:1px solid #f1f1f1}' +
+      '.nvx-wtr i{flex:none;width:22px;height:22px;color:#111}.nvx-wtr i svg{width:22px;height:22px}' +
+      '.nvx-wtr b{display:block;font:700 14px/1.2 Inter,sans-serif;color:#111}.nvx-wtr small{display:block;font:400 12.5px/1.35 Inter,sans-serif;color:#6b7280;margin-top:2px}');
+    if (FW.pill && d.titleEl) d.titleEl.insertAdjacentHTML('beforebegin', '<span class="nvx-wpill">' + hEsc(FW.pill) + '</span>');
+    var pb = d.priceBox, precio = d.precio;
+    if (pb && precio) {
+      var v = d.variant, lista = v && v.compare_at_price_number > precio ? v.compare_at_price_number : 0, h = '';
+      if (d.transf > 0) {
+        var conT = precio * (1 - d.transf / 100);
+        h = '<div class="l">Precio final <b>' + money(precio) + '</b></div><span class="t">MEJOR PRECIO</span><div class="p"><b>' + money(conT) + '</b><em>' + d.transf + '% OFF</em></div>' +
+          '<div class="s">por transferencia · <b>ahorrás ' + money(precio - conT) + '</b></div>';
+      } else if (lista) {
+        h = '<div class="l">Antes <s>' + money(lista) + '</s></div><span class="t">MEJOR PRECIO</span><div class="p"><b>' + money(precio) + '</b><em>' + Math.round((1 - precio / lista) * 100) + '% OFF</em></div>' +
+          '<div class="s"><b>ahorrás ' + money(lista - precio) + '</b></div>';
+      } else {
+        h = '<div class="p"><b>' + money(precio) + '</b></div>';
+      }
+      if (d.cuotasSin > 1) h += '<div class="q">' + d.cuotasSin + ' cuotas sin interés de <b>' + money(precio / d.cuotasSin) + '</b></div>';
+      pb.insertAdjacentHTML('afterend', '<div class="nvx-wp">' + h + '</div>');
+      pb.style.display = 'none';
+    }
+    var E = NEVUX.envio, rows = '';
+    if (E && E.dias) {
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
+      var hoy = E.dias.indexOf(now.getDay()) > -1 && now.getHours() < E.corte;
+      var desp = new Date(now);
+      if (!hoy) { do { desp.setDate(desp.getDate() + 1); } while (E.dias.indexOf(desp.getDay()) < 0); }
+      var habiles = function (dd, n) { var r = new Date(dd); while (n > 0) { r.setDate(r.getDate() + 1); if (r.getDay() % 6) n--; } return r; };
+      var DS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'], DL = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+      var MS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+      var fmt = function (x) { return DS[x.getDay()] + ' ' + x.getDate() + ' de ' + MS[x.getMonth()]; };
+      var dif = Math.round((new Date(desp.toDateString()) - new Date(now.toDateString())) / 864e5);
+      var dias = E.dias.slice().sort();
+      var rango = dias.length > 1 && dias[dias.length - 1] - dias[0] === dias.length - 1 ? 'de ' + DL[dias[0]] + ' a ' + DL[dias[dias.length - 1]] : dias.map(function (x) { return DL[x]; }).join(', ');
+      rows += '<div class="r"><i>' + icono('envio') + '</i><div><b>Despachamos ' + (hoy ? 'hoy' : dif === 1 ? 'mañana' : 'el ' + DL[desp.getDay()]) + '</b> tu pedido' +
+        (hoy ? '<div class="nvx-wcd">Comprá antes de las ' + E.corte + ' h y sale hoy<br><strong>Faltan</strong><span class="nvx-wcd-t">--:--:--</span></div>' : '<small>Despachamos ' + rango + '</small>') + '</div></div>';
+      rows += '<div class="r"><i>' + icono('caja') + '</i><div><b>Llega entre el ' + fmt(habiles(desp, E.min)) + ' y el ' + fmt(habiles(desp, E.max)) + '</b> ' + hEsc(E.zona || 'a todo el país') +
+        '<small>' + hEsc(E.texto || 'Con número de seguimiento desde que sale') + '</small></div></div>';
+      if (hoy) {
+        var tEl = null;
+        var tick = function () {
+          tEl = tEl || root.querySelector('.nvx-wcd-t');
+          if (!tEl) return;
+          var n = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' })), f = new Date(n); f.setHours(E.corte, 0, 0, 0);
+          var sg = Math.max(0, Math.floor((f - n) / 1000)), dd = function (x) { return (x < 10 ? '0' : '') + x; };
+          tEl.textContent = dd(Math.floor(sg / 3600)) + ':' + dd(Math.floor(sg % 3600 / 60)) + ':' + dd(sg % 60);
+          if (!sg) tEl.closest('.nvx-wcd').textContent = 'Tu pedido sale en el próximo despacho';
+        };
+        setTimeout(tick, 0); setInterval(tick, 1000);
+      }
+    }
+    if (NEVUX.envioGratisDesde > 0 && precio) {
+      var falta = NEVUX.envioGratisDesde - precio;
+      rows += '<div class="r"><i>' + icono('regalo') + '</i><div>' + (falta > 0 ? 'Envío gratis desde ' + money(NEVUX.envioGratisDesde) + ' · <b>te faltan ' + money(falta) + '</b>' : '<b>Este producto tiene envío gratis</b>') + '</div></div>';
+    }
+    if (rows) {
+      var tras = root.querySelector('.nvx-pay') || root.querySelector('.nvx-wp') || pb;
+      if (tras) tras.insertAdjacentHTML('afterend', '<div class="nvx-wship">' + rows + '</div>');
+    }
+  }
+
+  // Abajo: bloque negro de lado a lado con las secciones de la ficha de Wess, pasadas al mundo reloj.
+  function fichaWessAbajo(root, d) {
+    var C = NEVUX.color, CT = NEVUX.colorTexto, FW = NEVUX.ficha || {}, O = (NEVUX.marca && NEVUX.marca.oscuro) || '#0c0b0a', money = d.money, esc = d.esc;
+    hCss('nvx-wd-css',
+      'html,body{overflow-x:clip}' +
+      '.nvx-wd{position:relative;left:50%;width:100vw;margin:26px 0 0 -50vw;background:' + O + ';color:#fff;font-family:Inter,sans-serif;text-align:left}' +
+      '.nvx-wd *{box-sizing:border-box}.nvx-wd-in{max-width:760px;margin:0 auto;padding:44px 16px 54px}' +
+      '.nvx-wd section{margin:0 0 52px}.nvx-wd section:last-child{margin-bottom:0}' +
+      '.nvx-wd .eb{font:800 11px/1 Inter,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:' + C + ';margin:0 0 10px}' +
+      '.nvx-wd h2{margin:0 0 14px;font:400 clamp(30px,8.6vw,46px)/1.02 Anton,Oswald,sans-serif;text-transform:uppercase;color:#fff;letter-spacing:.005em}' +
+      '.nvx-wd h2 em{font:inherit;font-size:1em;font-style:normal;color:' + C + ';display:block}' +
+      '.nvx-wd p.tx{margin:0 0 16px;font-size:15px;line-height:1.55;color:#d4d4d4}' +
+      '.nvx-wd .bt{display:inline-block;background:' + C + ';color:' + CT + '!important;border:0;border-radius:8px;padding:15px 22px;font:400 18px/1 Anton,Oswald,sans-serif;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;text-decoration:none!important}' +
+      '.nvx-wd-cards{display:grid;grid-auto-flow:column;grid-auto-columns:78%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:0 16px}.nvx-wd-cards::-webkit-scrollbar{display:none}' +
+      '@media(min-width:768px){.nvx-wd-cards{grid-auto-columns:40%}}' +
+      '.nvx-wd-cd{position:relative;scroll-snap-align:start;border-radius:16px;overflow:hidden;aspect-ratio:4/5;background:#1a1816}' +
+      '.nvx-wd-cd img{width:100%;height:100%;object-fit:cover;display:block}' +
+      '.nvx-wd-cd .lb{position:absolute;left:16px;top:22px;max-width:80%;background:rgba(10,10,10,.82);border-left:4px solid ' + C + ';padding:10px 14px}' +
+      '.nvx-wd-cd .lb small{display:block;font:800 10px/1 Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:' + C + '}' +
+      '.nvx-wd-cd .lb b{display:block;margin-top:6px;font:400 24px/1 Anton,Oswald,sans-serif;text-transform:uppercase;color:#fff}' +
+      '.nvx-wd-cd .lb span{display:block;margin-top:6px;font-size:12.5px;color:#e5e5e5}' +
+      '.nvx-wd ul.li{list-style:none;margin:0 0 20px;padding:0}.nvx-wd ul.li li{position:relative;padding:6px 0 6px 22px;font-size:14.5px;line-height:1.45;color:#e5e5e5}' +
+      '.nvx-wd ul.li li:before{content:"";position:absolute;left:0;top:12px;width:9px;height:9px;background:' + C + '}' +
+      '.nvx-wd-gr{display:grid;grid-template-columns:1fr 1fr;gap:18px 12px}' +
+      '.nvx-wd-gr img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:12px;display:block;background:#1a1816}' +
+      '.nvx-wd-gr b{display:block;margin-top:10px;font:400 17px/1.1 Anton,Oswald,sans-serif;text-transform:uppercase}' +
+      '.nvx-wd-gr span{display:block;margin-top:4px;font-size:12.5px;line-height:1.4;color:#a3a3a3}' +
+      '.nvx-wd-pg{display:grid;grid-template-columns:1fr 1fr;gap:12px}' +
+      '.nvx-wd-pg>div{position:relative;border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:18px 14px}.nvx-wd-pg>div.on{border:2px solid #fff}' +
+      '.nvx-wd-pg em{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:' + C + ';color:' + CT + ';font:800 10px/1 Inter,sans-serif;letter-spacing:.1em;padding:4px 8px;border-radius:3px;font-style:normal;white-space:nowrap}' +
+      '.nvx-wd-pg b{display:block;font:400 17px/1.1 Anton,Oswald,sans-serif;text-transform:uppercase}.nvx-wd-pg strong{display:block;margin-top:8px;font:400 clamp(24px,7vw,32px)/1 Anton,Oswald,sans-serif}' +
+      '.nvx-wd-pg small{display:block;margin-top:6px;font-size:12px;color:#a3a3a3}' +
+      '.nvx-wd-cardx{background:#161412;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:22px 18px}' +
+      '.nvx-wd-cardx i{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:' + C + ';color:' + CT + ';margin-bottom:16px}.nvx-wd-cardx i svg{width:22px;height:22px}' +
+      '.nvx-wd-cardx b{display:block;font:400 22px/1.1 Anton,Oswald,sans-serif;text-transform:uppercase}.nvx-wd-cardx p{margin:8px 0 0;font-size:14px;line-height:1.5;color:#d4d4d4}' +
+      '.nvx-wd-tb{background:#161412;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:10px 14px 12px}' +
+      '.nvx-wd-tb table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.nvx-wd-tb th{font:700 10.5px/1 Inter,sans-serif;letter-spacing:.12em;color:#a3a3a3;padding:10px 4px;text-align:center}' +
+      '.nvx-wd-tb td{padding:11px 4px;text-align:center;font-size:14px;color:#e5e5e5;border-top:1px solid rgba(255,255,255,.06)}.nvx-wd-tb td:first-child{font-weight:800;color:#fff}' +
+      '.nvx-wd-tb small{display:block;margin-top:8px;font-size:11.5px;color:#8a8a8a}' +
+      '.nvx-wd-tq{display:grid;grid-template-columns:1fr 1fr;gap:10px}.nvx-wd-tq>div{background:#161412;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 12px}' +
+      '.nvx-wd-tq b{display:block;font:400 17px/1.1 Anton,Oswald,sans-serif;text-transform:uppercase}.nvx-wd-tq span{display:block;margin-top:6px;font-size:12.5px;line-height:1.4;color:#a3a3a3}' +
+      '.nvx-wd-fq details{border-bottom:1px solid rgba(255,255,255,.12)}.nvx-wd-fq summary{list-style:none;cursor:pointer;position:relative;padding:16px 34px 16px 0;font:500 15px/1.35 Inter,sans-serif;color:#fff}' +
+      '.nvx-wd-fq summary::-webkit-details-marker{display:none}.nvx-wd-fq summary:after{content:"+";position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:24px;font-weight:300}' +
+      '.nvx-wd-fq details[open] summary:after{content:"−"}.nvx-wd-fq details div{padding:0 0 16px;font-size:14px;line-height:1.55;color:#bdbdbd}' +
+      '.nvx-wd-cta{text-align:center}.nvx-wd-cta .eb{text-align:center}.nvx-wd-cta h2{text-align:center}');
+    // Fotos reales del producto (galería de la ficha)
+    var fotos = [];
+    [].forEach.call(root.querySelectorAll('.js-product-slide img, .js-swiper-product img, img[data-srcset*="/products/"], img[src*="/products/"]'), function (im) {
+      var ss = im.getAttribute('data-srcset') || im.getAttribute('srcset') || '';
+      var src = ss ? ss.split(',').pop().trim().split(' ')[0] : (im.getAttribute('data-src') || im.getAttribute('src') || '');
+      if (!src || /data:image/.test(src)) return;
+      src = src.replace(/^\/\//, 'https://');
+      var key = src.replace(/-\d+-\d+\.(webp|jpg|jpeg|png)/i, '').replace(/\?.*$/, '');
+      if (!fotos.some(function (f) { return f.k === key; })) fotos.push({ k: key, s: src });
+    });
+    fotos = fotos.map(function (f) { return f.s; });
+    if (!fotos.length) { var og = document.querySelector('meta[property="og:image"]'); if (og) fotos.push(og.content); }
+    var sec = function (eb, h, body, cls) { return '<section class="nvx-sec' + (cls ? ' ' + cls : '') + '">' + (eb ? '<div class="eb">' + esc(eb) + '</div>' : '') + (h || '') + body + '</section>'; };
+    var titulo = function (t, dest) { return t ? '<h2>' + esc(t) + (dest ? ' <em>' + esc(dest) + '</em>' : '') + '</h2>' : ''; };
+    var html = '';
+    // 1) Mirala de cerca: tarjetas con las fotos y una etiqueta encima (en Wess son videos)
+    var DT = FW.detalles || [];
+    if (fotos.length && DT.length) {
+      html += sec(FW.detallesEtiqueta || '', titulo(FW.detallesTitulo || ''), '<div class="nvx-wd-cards">' + fotos.slice(0, Math.max(DT.length, 1)).map(function (f, i) {
+        var x = DT[i % DT.length] || {};
+        return '<div class="nvx-wd-cd"><img src="' + esc(f) + '" alt="" loading="lazy"><div class="lb"><small>' + (i < 9 ? '0' : '') + (i + 1) + (x.etiqueta ? ' · ' + esc(x.etiqueta) : '') + '</small><b>' + esc(x.titulo || '') + '</b>' + (x.texto ? '<span>' + esc(x.texto) + '</span>' : '') + '</div></div>';
+      }).join('') + '</div>');
+    }
+    // 2) Historia del producto con viñetas y botón
+    var HI = FW.historia;
+    if (HI && HI.titulo) {
+      html += sec(HI.etiqueta, titulo(HI.titulo, HI.destacado), (HI.texto ? '<p class="tx">' + esc(HI.texto) + '</p>' : '') +
+        (HI.puntos && HI.puntos.length ? '<ul class="li">' + HI.puntos.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' : '') +
+        '<button type="button" class="bt nvx-wd-go">' + esc(HI.boton || 'Lo quiero') + '</button>');
+    }
+    // 3) De cerca: grilla de fotos con títulos
+    var CE = FW.cerca;
+    if (CE && CE.items && CE.items.length && fotos.length > 1) {
+      var fc = fotos.slice(1).concat(fotos.slice(0, 1));
+      html += sec(CE.etiqueta, titulo(CE.titulo), '<div class="nvx-wd-gr">' + CE.items.slice(0, fc.length).map(function (it, i) {
+        return '<div><img src="' + esc(fc[i]) + '" alt="" loading="lazy"><b>' + esc(it.titulo) + '</b>' + (it.texto ? '<span>' + esc(it.texto) + '</span>' : '') + '</div>';
+      }).join('') + '</div>');
+    }
+    // 4) Cómo pagarlo (en Wess, "Cuantas más, mejor"): solo con descuento por transferencia o cuotas sin interés reales
+    if (d.precio && (d.transf > 0 || d.cuotasSin > 1)) {
+      var PG = FW.pago || {}, cards = [];
+      if (d.transf > 0) cards.push('<div class="on"><em>CONVIENE</em><b>Transferencia</b><strong>' + money(d.precio * (1 - d.transf / 100)) + '</strong><small>Ahorrás ' + money(d.precio * d.transf / 100) + '</small></div>');
+      if (d.cuotasSin > 1) cards.push('<div><b>' + d.cuotasSin + ' cuotas sin interés</b><strong>' + money(d.precio / d.cuotasSin) + '</strong><small>Total ' + money(d.precio) + '</small></div>');
+      if (cards.length < 2) cards.push('<div><b>Precio final</b><strong>' + money(d.precio) + '</strong><small>Con tarjeta</small></div>');
+      html += sec(PG.etiqueta || 'Formas de pago', titulo(PG.titulo || 'Elegí cómo pagarlo'), '<div class="nvx-wd-pg">' + cards.join('') + '</div>');
+    }
+    // 5) Para regalar
+    var RG = FW.regalo;
+    if (RG && RG.titulo) {
+      html += sec(RG.etiqueta, titulo(RG.titulo), '<div class="nvx-wd-cardx"><i>' + icono('regalo') + '</i><b>' + esc(RG.card || '') + '</b>' + (RG.texto ? '<p>' + esc(RG.texto) + '</p>' : '') + '</div>');
+    }
+    // 6) Calce: tabla de muñeca y diámetro de caja + nota del reloj
+    var CA = FW.calce;
+    if (CA) {
+      var FIL = [['Hasta 15 cm', '34–38 mm', '36–40 mm'], ['15 a 16,5 cm', '36–40 mm', '38–42 mm'], ['16,5 a 18 cm', '38–42 mm', '40–42 mm'], ['18 a 19,5 cm', '40–44 mm', '42–44 mm'], ['Más de 19,5 cm', '42–46 mm', '44–46 mm']];
+      var MU = NEVUX.muneca;
+      html += sec(CA.etiqueta, titulo(CA.titulo), '<div class="nvx-wd-tb"><table><tr><th>MUÑECA</th><th>CAJA DISCRETA</th><th>CAJA CON PRESENCIA</th></tr>' +
+        FIL.map(function (f) { return '<tr><td>' + f[0] + '</td><td>' + f[1] + '</td><td>' + f[2] + '</td></tr>'; }).join('') + '</table><small>Contorno de muñeca medido justo debajo del hueso.</small></div>' +
+        '<div class="nvx-wd-cardx" style="margin-top:14px"><b>' + esc(MU && MU.caja ? 'Este reloj mide ' + MU.caja + ' mm' : (CA.notaTitulo || '¿Entre dos tamaños?')) + '</b><p>' +
+        esc(CA.nota || 'Si dudás, la caja más chica queda más clásica y la más grande se nota más. Escribinos y te asesoramos.') + '</p>' +
+        (CA.url ? '<p style="margin-top:12px"><a class="bt" href="' + esc(CA.url) + '">' + esc(CA.boton || 'Medí tu muñeca') + ' →</a></p>' : '') + '</div>');
+    }
+    // 7) Comprá tranquilo
+    var TQ = FW.tranquilo;
+    if (TQ && TQ.items && TQ.items.length) {
+      html += sec(TQ.etiqueta, titulo(TQ.titulo), '<div class="nvx-wd-tq">' + TQ.items.map(function (it) { return '<div><b>' + esc(it.titulo) + '</b>' + (it.texto ? '<span>' + esc(it.texto) + '</span>' : '') + '</div>'; }).join('') + '</div>');
+    }
+    // 8) Preguntas
+    var faqs = (NEVUX.faq || []).slice();
+    if (faqs.length) {
+      html += sec(FW.faqEtiqueta || 'Preguntas', titulo(FW.faqTitulo || 'Lo que nos preguntan'), '<div class="nvx-wd-fq">' + faqs.map(function (f) { return '<details><summary>' + esc(f.p) + '</summary><div>' + esc(f.r) + '</div></details>'; }).join('') + '</div>');
+    }
+    // 9) Cierre con botón que vuelve a la compra
+    var CT2 = FW.cta;
+    if (CT2 && CT2.titulo) html += sec(CT2.etiqueta, titulo(CT2.titulo), '<button type="button" class="bt nvx-wd-go">' + esc(CT2.boton || 'Comprar ahora') + '</button>', 'nvx-wd-cta');
+    if (!html) return;
+    root.insertAdjacentHTML('afterend', '<div class="nvx-wd"><div class="nvx-wd-in">' + html + '</div></div>');
+    [].forEach.call(document.querySelectorAll('.nvx-wd-go'), function (b) {
+      b.addEventListener('click', function () {
+        var y = d.buyBtn.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2;
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      });
+    });
+  }
+
   function init() {
     Object.keys(NEVUX.porProducto || {}).forEach(function (k) {
       if (location.pathname.indexOf(k) > -1) {
@@ -322,9 +545,10 @@
     }
     var cuotasTxt = cuotasSin > 1 ? cuotasSin + ' cuotas sin interés' : 'Pagá en cuotas';
 
-    // 1) Barra de urgencia, debajo del bloque de precio
+    // 1) Barra de urgencia, debajo del bloque de precio (la ficha estilo Wess no la usa)
+    var WS = NEVUX.estiloFicha === 'wess', FW = NEVUX.ficha || {};
     var priceBox = priceEl ? (priceEl.closest('.js-price-container, .price-container') || priceEl.parentElement) : null;
-    if (priceBox) {
+    if (priceBox && !WS) {
       priceBox.insertAdjacentHTML('afterend',
         '<div class="nvx-urg"><div class="nvx-urg-top"><span>' + NEVUX.urgencia.texto + '</span><span>' +
         NEVUX.urgencia.porcentaje + '% vendido</span></div><div class="nvx-urg-bg"><div class="nvx-urg-fill"></div></div></div>');
@@ -347,7 +571,7 @@
     }
 
     // 1b) Bloque de precios en tarjetas: transferencia (color de la tienda) y cuotas sin interés (oscura)
-    if (priceBox && NEVUX.precios && precio && (transf > 0 || cuotasSin > 1)) {
+    if (priceBox && !WS && NEVUX.precios && precio && (transf > 0 || cuotasSin > 1)) {
       var PR = NEVUX.precios === true ? {} : NEVUX.precios;
       var Mp = NEVUX.marca || {};
       var oscuro = Mp.oscuro || '#111827';
@@ -378,7 +602,7 @@
     }
 
     // 1b) Mejor precio por transferencia, pegado al precio (si no se usa el bloque de precios)
-    if (priceBox && !NEVUX.precios && transf > 0 && precio) {
+    if (priceBox && !WS && !NEVUX.precios && transf > 0 && precio) {
       var conDesc = precio * (1 - transf / 100);
       priceBox.insertAdjacentHTML('afterend',
         '<div class="nvx-best"><span class="nvx-best-tag">MEJOR PRECIO</span><div class="nvx-best-p">' + money(conDesc) +
@@ -388,7 +612,7 @@
 
     // 1c) Entrega estimada y envío gratis
     var rows = '';
-    if (NEVUX.envio) {
+    if (NEVUX.envio && !WS) {
       var E = NEVUX.envio;
       var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
       var desp = new Date(now);
@@ -411,7 +635,7 @@
           ? '<small class="nvx-cd">Pedí en las próximas <b></b> y sale hoy</small>'
           : '<small>Despachamos ' + cuando + '</small>') + '</div></div>';
     }
-    if (NEVUX.envioGratisDesde > 0 && precio) {
+    if (NEVUX.envioGratisDesde > 0 && precio && !WS) {
       var falta = NEVUX.envioGratisDesde - precio;
       rows += '<div class="nvx-ship-r"><span>🚚</span><div style="flex:1">' + (falta > 0
         ? 'Envío gratis desde ' + money(NEVUX.envioGratisDesde) + ' · <b>te faltan ' + money(falta) + '</b><div class="nvx-fs-bg"><i style="width:' +
@@ -433,6 +657,9 @@
       var cdTimer = setInterval(tick, 30000);
       tick();
     }
+
+    // 1d) Ficha estilo Wess: etiqueta y título condensado, bloque de precio, envío con cuenta regresiva y fechas
+    if (WS) fichaWessArriba(root, { priceBox: priceBox, priceEl: priceEl, titleEl: titleEl, precio: precio, transf: transf, cuotasSin: cuotasSin, variant: variant, money: money });
 
     // 2) Selector de packs: cambia la cantidad del formulario
     var qtyInput = root.querySelector('.js-quantity-input, input[name="quantity"]');
@@ -464,7 +691,7 @@
     }
 
     // 2b) Cuenta regresiva grande, justo antes de los packs (o debajo de la entrega si no hay packs)
-    montarCuenta(NEVUX.cuentaRegresiva, function (html) {
+    if (!WS) montarCuenta(NEVUX.cuentaRegresiva, function (html) {
       if (document.querySelector('.nvh-crw')) return null; // la home ya tiene su banner (ficha incrustada en la home)
       var antes = root.querySelector('.nvx-packs');
       var despues = root.querySelector('.nvx-ship') || root.querySelector('.nvx-urg') || priceBox;
@@ -480,18 +707,29 @@
     var ancho = (form || root).getBoundingClientRect().width;
     while (btnBox.parentElement && btnBox.parentElement !== form && btnBox.getBoundingClientRect().width < ancho * 0.9) btnBox = btnBox.parentElement;
     var trust = '<div class="nvx-trust">';
-    NEVUX.confianza.forEach(function (t) {
-      var s = t.split(' ');
-      trust += '<div><span>' + s.shift() + '</span>' + s.join(' ').replace('{cuotas}', cuotasTxt) + '</div>';
-    });
+    if (WS && FW.confianza && FW.confianza.length) {
+      trust = '<div class="nvx-trust nvx-wtr">' + FW.confianza.map(function (t) {
+        return '<div><i>' + icono(t.icono) + '</i><div><b>' + hEsc(t.titulo) + '</b>' + (t.texto ? '<small>' + hEsc(t.texto) + '</small>' : '') + '</div></div>';
+      }).join('');
+    } else {
+      NEVUX.confianza.forEach(function (t) {
+        var s = t.split(' ');
+        trust += '<div><span>' + s.shift() + '</span>' + s.join(' ').replace('{cuotas}', cuotasTxt) + '</div>';
+      });
+    }
     btnBox.insertAdjacentHTML('afterend', trust + '</div>');
+    // Ficha estilo Wess: "listo para regalar" y estrellas de calidad, arriba del botón de compra
+    if (WS && (FW.regaloLinea || FW.calidad)) {
+      btnBox.insertAdjacentHTML('beforebegin', '<div class="nvx-wpre">' + (FW.regaloLinea ? '<div class="nvx-wgift"><i>' + icono('regalo') + '</i><span>' + hEsc(FW.regaloLinea) + '</span></div>' : '') +
+        (FW.calidad ? '<div class="nvx-wstar">★★★★★ <b>' + hEsc(FW.calidad) + '</b></div>' : '') + '</div>');
+    }
 
     // 3b) Ayuda por WhatsApp
     if (NEVUX.whatsapp) {
       var msg = 'Hola! Tengo una consulta sobre ' + (titleEl ? titleEl.textContent.trim() : 'un producto') + ' ' + location.href;
       root.querySelector('.nvx-trust').insertAdjacentHTML('afterend',
         '<a class="nvx-wa" target="_blank" rel="noopener" href="https://wa.me/' + NEVUX.whatsapp + '?text=' +
-        encodeURIComponent(msg) + '">¿Dudas con este producto? <b>Escribinos por WhatsApp</b></a>');
+        encodeURIComponent(msg) + '">' + hEsc(WS && FW.whatsappTexto ? FW.whatsappTexto : '¿Dudas con este producto?') + ' <b>Escribinos por WhatsApp</b></a>');
     }
 
     // 6) Contenido de la ficha: cinta, talles, antes/después, pasos, comparativa, reseñas y preguntas
@@ -517,8 +755,10 @@
       });
       return ok;
     };
+    if (WS) fichaWessAbajo(root, { precio: precio, transf: transf, cuotasSin: cuotasSin, money: money, buyBtn: buyBtn, esc: esc });
     var cont = '';
-    if (NEVUX.combina && (NEVUX.combina === 'auto' || NEVUX.combina.url)) {
+    if (WS) { /* las secciones de la ficha estilo Wess ya están armadas */ }
+    else if (NEVUX.combina && (NEVUX.combina === 'auto' || NEVUX.combina.url)) {
       cont += '<div class="nvx-combo" hidden></div>';
     }
     if (NEVUX.cinta && NEVUX.cinta.length) {
@@ -622,7 +862,7 @@
       cont += '<div class="nvx-sec nvx-sec-faq"><div class="nvx-h">Preguntas frecuentes</div>' +
         faqs.map(function (f) { return '<details class="nvx-faq"><summary>' + esc(f.p) + '</summary><div>' + esc(f.r) + '</div></details>'; }).join('') + '</div>';
     }
-    if (cont) {
+    if (cont && !WS) {
       var after = root.querySelector('.nvx-wa') || root.querySelector('.nvx-trust');
       if (NEVUX.estiloFicha === 'oscuro') {
         var O = (NEVUX.marca && NEVUX.marca.oscuro) || '#0b0f17';
@@ -955,7 +1195,8 @@
     garantia: '<path d="M12 21s8-4 8-10V5l-8-3-8 3v6c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
     original: '<circle cx="12" cy="12" r="5"/><path d="M12 10v2l1.5 1M9 4h6l.5 3M9 20h6l.5-3M8.5 7 9 4M8.5 17 9 20"/>',
     regalo: '<path d="M3 9h18v4H3zM5 13h14v8H5zM12 9v12"/><path d="M12 9c-2-4-6-4-6-1s6 1 6 1 6 2 6-1-4-3-6 1"/>',
-    factura: '<path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/>'
+    factura: '<path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/>',
+    caja: '<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>'
   };
   function icono(k) {
     return ICONOS[k] ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + ICONOS[k] + '</svg>' : hEsc(k || '✓');

@@ -162,7 +162,62 @@ export const CLIENTES: Record<string, Cliente> = {
       color: '#c9a961',
       marca: { oscuro: '#0c0b0a' },
       premium: { titulos: 'Oswald', texto: 'Inter', animar: true, tema: 'wess' },
-      estiloFicha: 'oscuro',
+      // Ficha estilo Wess pasada a relojes (ver docs/valmont.md). Envíos: valores provisorios hasta confirmar con el cliente.
+      estiloFicha: 'wess',
+      envio: { corte: 14, dias: [1, 2, 3, 4, 5], min: 3, max: 6, zona: 'a todo el país' },
+      ficha: {
+        pill: 'Original',
+        regaloLinea: 'Llega en su caja, con papeles y accesorios. Listo para regalar.',
+        calidad: 'Calidad Valmont',
+        whatsappTexto: '¿Dudas con el tamaño?',
+        confianza: [
+          { icono: 'envio', titulo: 'Envío a todo el país', texto: 'Con seguimiento desde que sale' },
+          { icono: 'caja', titulo: 'Caja, papeles y accesorios', texto: 'Cada reloj llega completo' },
+          { icono: 'garantia', titulo: 'Compra protegida', texto: 'Te acompañamos antes y después de comprar' }
+        ],
+        detallesEtiqueta: 'Valmont & Co.',
+        detallesTitulo: 'Miralo de cerca',
+        detalles: [
+          { etiqueta: 'Detalle', titulo: 'Tal cual llega', texto: 'Fotos reales del reloj' },
+          { etiqueta: 'Terminación', titulo: 'Cada detalle', texto: 'Caja, esfera y malla' },
+          { etiqueta: 'Presencia', titulo: 'Se nota', texto: 'De día y de noche' },
+          { etiqueta: 'Presentación', titulo: 'Completo', texto: 'Con su caja y sus papeles' }
+        ],
+        historia: {
+          etiqueta: 'Valmont & Co. · Relojería',
+          titulo: 'El reloj que',
+          destacado: 'va con todo',
+          texto: 'Una pieza para usar todos los días y que se note en cada detalle. Te la mandamos lista para estrenar.',
+          puntos: ['Llega con su caja, papeles y accesorios', 'Te ayudamos a elegir el tamaño ideal', 'Envío con seguimiento a todo el país', 'Listo para regalar, sin envolver nada'],
+          boton: 'Lo quiero'
+        },
+        cerca: {
+          etiqueta: 'De cerca',
+          titulo: 'Hecho para usarlo todos los días',
+          items: [
+            { titulo: 'Esfera', texto: 'Índices y agujas nítidos.' },
+            { titulo: 'Caja', texto: 'Terminación pareja en cada borde.' },
+            { titulo: 'Malla', texto: 'Ajuste firme y cómodo.' },
+            { titulo: 'Presentación', texto: 'Con su caja y sus papeles.' }
+          ]
+        },
+        regalo: { etiqueta: 'Para regalar', titulo: 'Viene listo para regalar', card: 'Caja y papeles', texto: 'Llega en su caja con papeles y accesorios. Si es para vos, lo estrenás; si es para alguien más, no tenés que envolver nada.' },
+        calce: { etiqueta: 'Calce', titulo: 'Elegí tu tamaño sin dudar', url: '/#medidor', boton: 'Medí tu muñeca' },
+        tranquilo: {
+          etiqueta: 'Comprá tranquilo',
+          titulo: 'Valmont & Co.',
+          items: [
+            { titulo: 'Caja y papeles', texto: 'Cada reloj llega completo.' },
+            { titulo: 'Envío protegido', texto: 'Con seguimiento a todo el país.' },
+            { titulo: 'Atención personal', texto: 'Te asesoramos por WhatsApp.' },
+            { titulo: 'Listo para regalar', texto: 'No tenés que envolver nada.' },
+            { titulo: 'Te ayudamos a elegir', texto: 'Tamaño, estilo y uso.' },
+            { titulo: 'Pago seguro', texto: 'Con los medios de pago de la tienda.' }
+          ]
+        },
+        faqTitulo: 'Lo que nos preguntan',
+        cta: { etiqueta: 'Valmont & Co.', titulo: 'Elegí el tuyo', boton: 'Comprar ahora' }
+      },
       precios: true,
       tarjetas: { estilo: 'wess' },
       packs: [],
