@@ -1,6 +1,6 @@
 # Valmont & Co. — relojería (plan Premium, estilo Wess)
 
-**Actualizado:** 31/10/2026.
+**Actualizado:** 31/10/2026. **Tienda terminada: Rodrigo pidió no tocar nada más.** Pendiente: ok del cliente → apagar (`activo: false`) hasta que pague → al pagar, prender con cobro automático por su email.
 
 ## Qué es
 
