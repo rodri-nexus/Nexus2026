@@ -974,6 +974,20 @@
         (src ? '<img src="' + hEsc(src) + '" alt="" loading="lazy">' : '') + '</span>' + (V.pill ? '<em>' + hEsc(V.pill) + '</em>' : '') +
         '<small>' + hEsc(nom) + '</small><b>' + (pr ? hEsc(pr.textContent.trim().replace(/,00$/, '')) : '') + '</b></a>');
     });
+    // Avance automático tarjeta por tarjeta, como en Wess. Se pausa mientras la persona lo toca y vuelve al principio al llegar al final.
+    if (V.auto === false || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    var quieto = 0, visible = false;
+    var pausa = function () { quieto = Date.now(); };
+    ['touchstart', 'pointerdown', 'wheel'].forEach(function (ev) { row.addEventListener(ev, pausa, { passive: true }); });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(row);
+    setInterval(function () {
+      if (!visible || Date.now() - quieto < 6000) return;
+      var t = row.querySelector('.nvh-vw');
+      if (!t) return;
+      var paso = t.offsetWidth + 16;
+      var fin = row.scrollLeft + row.clientWidth >= row.scrollWidth - 4;
+      row.scrollTo({ left: fin ? 0 : row.scrollLeft + paso, behavior: 'smooth' });
+    }, (V.cada || 3) * 1000);
   }
 
   // Vitrinas de la home: trae las tarjetas reales de la categoría y las muestra en carrusel con botón "Ver"
