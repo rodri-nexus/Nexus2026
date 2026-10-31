@@ -13,7 +13,7 @@ export const PLANES: Record<"basico" | "premium", Plan> = {
   basico: {
     nombre: "Pack Landing Page Pro",
     precio: 39900,
-    link: "https://mpago.la/1LqFYin",
+    link: "https://mpago.la/2u5gT97",
     bajada: "Tus fichas de producto y tu home, transformadas para vender más. Sin cambiar de plantilla y sin apps.",
     incluye: [
       "Packs Llevá 2 y Llevá 3 con descuento",
