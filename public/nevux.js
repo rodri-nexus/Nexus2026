@@ -947,6 +947,35 @@
     });
   }
 
+  // Íconos de línea (beneficios estilo Wess). Si el ícono no es una de estas claves, se muestra el texto tal cual (emoji).
+  var ICONOS = {
+    cuotas: '<path d="M3 6h18v12H3z"/><path d="M3 10h18M7 15h4"/>',
+    descuento: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/>',
+    envio: '<path d="M2 6h12v10H2zM14 10h4l3 3v3h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
+    garantia: '<path d="M12 21s8-4 8-10V5l-8-3-8 3v6c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+    original: '<circle cx="12" cy="12" r="5"/><path d="M12 10v2l1.5 1M9 4h6l.5 3M9 20h6l.5-3M8.5 7 9 4M8.5 17 9 20"/>',
+    regalo: '<path d="M3 9h18v4H3zM5 13h14v8H5zM12 9v12"/><path d="M12 9c-2-4-6-4-6-1s6 1 6 1 6 2 6-1-4-3-6 1"/>',
+    factura: '<path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/>'
+  };
+  function icono(k) {
+    return ICONOS[k] ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + ICONOS[k] + '</svg>' : hEsc(k || '✓');
+  }
+
+  // Vitrina estilo Wess: barra de exhibición con ganchos de la que cuelgan las tarjetas
+  function vitrinaWess(row, cards, V) {
+    row.classList.add('nvh-vw-row');
+    cards.forEach(function (c) {
+      var a = c.querySelector('a[href*="/productos/"]');
+      var im = c.querySelector('img'), src = '';
+      if (im) { var ss = im.getAttribute('data-srcset') || im.getAttribute('srcset'); src = im.getAttribute('data-src') || (ss ? ss.split(',').pop().trim().split(' ')[0] : im.getAttribute('src') || ''); }
+      var nom = ((c.querySelector('.js-item-name, .item-name, [data-store^="product-item-name"]') || a || {}).textContent || '').trim();
+      var pr = c.querySelector('.js-price-display');
+      row.insertAdjacentHTML('beforeend', '<a class="nvh-vw" href="' + (a ? a.getAttribute('href') : V.url) + '"><span class="g"></span><span class="f">' +
+        (src ? '<img src="' + hEsc(src) + '" alt="" loading="lazy">' : '') + '</span>' + (V.pill ? '<em>' + hEsc(V.pill) + '</em>' : '') +
+        '<small>' + hEsc(nom) + '</small><b>' + (pr ? hEsc(pr.textContent.trim().replace(/,00$/, '')) : '') + '</b></a>');
+    });
+  }
+
   // Vitrinas de la home: trae las tarjetas reales de la categoría y las muestra en carrusel con botón "Ver"
   function cargarVitrinas(lista) {
     lista.forEach(function (V, n) {
@@ -956,6 +985,7 @@
         var doc = new DOMParser().parseFromString(txt, 'text/html');
         var cards = [].slice.call(doc.querySelectorAll('.js-item-product')).slice(0, V.cantidad || 8);
         if (!cards.length) { row.closest('.nvh-sec').remove(); return; }
+        if (V.estilo === 'wess') { vitrinaWess(row, cards, V); return; }
         cards.forEach(function (c) {
           [].forEach.call(c.querySelectorAll('form, .js-product-form, .js-quickshop-modal-open, .js-addtocart, .item-actions, .js-item-actions'), function (f) { f.remove(); });
           [].forEach.call(c.querySelectorAll('img'), function (im) {
@@ -1080,6 +1110,13 @@
     }
     // Vitrinas: productos reales de una categoría en carrusel (se cargan de la tienda al abrir la home)
     (H.vitrinas || []).forEach(function (V, n) {
+      if (V.estilo === 'wess') {
+        html += '<section class="nvh-sec nvh-dark nvh-vit nvh-vw-s"><div class="nvh-in"><div class="nvh-vw-h">' + (V.logo ? '<img src="' + hEsc(V.logo) + '" alt="">' : '') +
+          '<div>' + (V.etiqueta ? '<span class="p">' + hEsc(V.etiqueta) + '</span>' : '') + '<h2>' + hEsc(V.titulo || '') + '</h2></div></div>' +
+          '<div class="nvh-vw-rail"></div><div class="nvh-vit-row" data-vit="' + n + '"></div>' +
+          '<div style="text-align:center;margin-top:26px"><a class="nvh-vw-btn" href="' + hEsc(V.url) + '">' + hEsc(V.boton || 'Ver todos') + ' →</a></div></div></section>';
+        return;
+      }
       html += sec((V.oscuro ? 'nvh-dark ' : '') + 'nvh-vit', V.etiqueta || '', V.titulo || '', V.texto || '',
         '<div class="nvh-vit-row" data-vit="' + n + '"></div>' +
         '<div style="text-align:center;margin-top:20px"><a class="nvh-btn" href="' + hEsc(V.url) + '">' + hEsc(V.boton || 'Ver todos') + ' →</a></div>');
@@ -1244,10 +1281,19 @@
     });
     if (H.beneficios && H.beneficios.length) {
       var ben = '<div class="nvh"><div class="nvh-ben">' + H.beneficios.map(function (b) {
-        return '<div><i>' + hEsc(b.icono || '✓') + '</i><div><b>' + hEsc(b.titulo) + '</b>' + (b.texto ? '<small>' + hEsc(b.texto) + '</small>' : '') + '</div></div>';
+        return '<div><i>' + icono(b.icono) + '</i><div><b>' + hEsc(b.titulo) + '</b>' + (b.texto ? '<small>' + hEsc(b.texto) + '</small>' : '') + '</div></div>';
       }).join('') + '</div></div>';
       var slider = document.querySelector('[data-store="home-slider"]');
-      if (slider) slider.insertAdjacentHTML('afterend', ben);
+      var portadaEl = document.querySelector('.nvp');
+      if (portadaEl) {
+        portadaEl.insertAdjacentHTML('afterend', ben);
+        // Las vitrinas estilo Wess van pegadas a los beneficios, como en la portada de Wess
+        var benEl = portadaEl.nextElementSibling;
+        [].slice.call(document.querySelectorAll('.nvh-vw-s')).reverse().forEach(function (s) {
+          benEl.insertAdjacentHTML('afterend', '<div class="nvh"></div>');
+          benEl.nextElementSibling.appendChild(s);
+        });
+      } else if (slider) slider.insertAdjacentHTML('afterend', ben);
       else (document.querySelector('.nvh') || footer || document.body).insertAdjacentHTML(footer || document.querySelector('.nvh') ? 'beforebegin' : 'beforeend', ben);
     }
 
@@ -1519,7 +1565,33 @@
         // Cinta más grande y en mayúsculas
         '.nvx-cinta{border-radius:0!important;margin-left:-16px!important;margin-right:-16px!important;padding:13px 0!important}.nvx-cinta div{font-size:14px!important;letter-spacing:.18em!important}' +
         // Bloques de la home más contrastados
-        '.nvh-dark{background:' + O + '!important}');
+        '.nvh-dark{background:' + O + '!important}' +
+        // Beneficios: lista blanca con íconos de línea en círculo y títulos condensados
+        '.nvh-ben{display:block!important;background:#fff!important;padding:12px 18px 6px!important;border-bottom:3px solid ' + C + ';max-width:none!important;margin:0!important}' +
+        '.nvh-ben>div{display:flex!important;gap:16px;align-items:flex-start;padding:16px 0!important;border:0!important;border-bottom:1px solid #ececec!important;border-radius:0!important;background:none!important;box-shadow:none!important;max-width:760px;margin:0 auto!important}' +
+        '.nvh-ben>div:last-child{border-bottom:0!important}' +
+        '.nvh-ben i{flex:none;width:42px;height:42px;border-radius:50%;border:1.5px solid #d4d4d4;display:grid!important;place-items:center;font-size:18px;color:#222;font-style:normal}' +
+        '.nvh-ben i svg{width:20px;height:20px}' +
+        '.nvh-ben b{display:block;font-family:Oswald,sans-serif!important;font-weight:600!important;font-size:20px!important;text-transform:uppercase;letter-spacing:.01em;color:#111}' +
+        '.nvh-ben small{display:block;font-size:14px!important;color:#6b7280!important;line-height:1.45;margin-top:3px}' +
+        // Vitrina con barra de exhibición
+        '.nvh-vw-s .nvh-in{max-width:1200px}' +
+        '.nvh-vw-h{display:flex;align-items:center;gap:16px;margin-bottom:22px}.nvh-vw-h img{width:84px;flex:none}' +
+        '.nvh-vw-h .p{display:inline-block;background:' + C + ';color:' + CT + ';font:800 10.5px/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:6px 9px;border-radius:4px}' +
+        '.nvh-vw-h h2{margin:6px 0 0;font:400 clamp(34px,9.5vw,60px)/1 Anton,Oswald,sans-serif;text-transform:uppercase;color:#fff}' +
+        '.nvh-vw-rail{height:10px;margin:0 -16px;border-radius:2px;background:linear-gradient(180deg,#e9e2d4,' + C + ' 45%,#6b5a2e);box-shadow:0 4px 10px rgba(0,0,0,.5)}' +
+        '.nvh-vw-row{display:grid;grid-auto-flow:column;grid-auto-columns:66%;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 2px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}' +
+        '.nvh-vw-row::-webkit-scrollbar{display:none}@media(min-width:768px){.nvh-vw-row{grid-auto-columns:28%}}' +
+        '.nvh-vw-row>.nvh-vw{scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none!important;color:#fff!important;background:none!important;padding:0!important;border-radius:0!important}' +
+        '.nvh-vw .g{width:40px;height:22px;border:3px solid ' + C + ';border-bottom:0;border-radius:20px 20px 0 0;margin-top:-1px}' +
+        '.nvh-vw .f{display:block;width:100%;background:#f1efea;border-radius:6px;padding:8px;box-shadow:0 18px 40px rgba(0,0,0,.6);transform-origin:50% -20px;animation:nvh-sw 4s ease-in-out infinite}' +
+        '.nvh-vw:nth-child(2n) .f{animation-delay:-2s}@keyframes nvh-sw{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}' +
+        '.nvh-vw .f img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border-radius:4px}' +
+        '.nvh-vw em{margin-top:16px;font-style:normal;background:' + C + ';color:' + CT + ';font:800 10.5px/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:6px 10px;border-radius:4px}' +
+        '.nvh-vw small{margin-top:8px;font:700 12px/1.3 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#cfcfcf}' +
+        '.nvh-vw b{margin-top:4px;font:400 28px/1 Anton,Oswald,sans-serif;color:#fff}' +
+        '.nvh-vw-btn{display:inline-flex;gap:12px;background:' + C + ';color:' + CT + '!important;border-radius:999px;padding:18px 30px;font:800 13px/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none!important}' +
+        '@media (prefers-reduced-motion: reduce){.nvh-vw .f{animation:none}}');
     }
     if (P.animar === false || !('IntersectionObserver' in window)) return;
     var io = new IntersectionObserver(function (es) {

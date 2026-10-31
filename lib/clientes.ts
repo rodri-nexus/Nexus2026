@@ -214,9 +214,12 @@ export const CLIENTES: Record<string, Cliente> = {
           reemplazarBanner: true
         },
         beneficios: [
-          { icono: '⌚', titulo: 'Originales', texto: 'De distribuidores oficiales.' },
-          { icono: '🛡️', titulo: 'Garantía oficial', texto: 'De cada marca.' },
-          { icono: '🚚', titulo: 'Envíos', texto: 'A todo el país.' }
+          { icono: 'original', titulo: 'Relojes originales', texto: 'Comprados a distribuidores oficiales de cada marca, con factura.' },
+          { icono: 'garantia', titulo: 'Garantía oficial', texto: 'La garantía de la marca, y te ayudamos con cualquier gestión.' },
+          { icono: 'envio', titulo: 'Envío a todo el país', texto: 'Con seguimiento desde que sale hasta tu casa.' }
+        ],
+        vitrinas: [
+          { estilo: 'wess', logo: 'https://nevux.ar/clientes/valmont/logo-dorado.png', etiqueta: 'Selección Valmont', titulo: 'Más vendidos', pill: 'Original', url: '/productos/', boton: 'Ver todos los relojes' }
         ],
         porQue: {
           etiqueta: 'Valmont & Co.',
