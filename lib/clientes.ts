@@ -229,6 +229,7 @@ export const CLIENTES: Record<string, Cliente> = {
           cantidad: 6,
           pill: 'Original',
           quedan: 3,
+          boton: 'Ver todos los relojes',
           categorias: [
             { nombre: 'Casio', url: '/search/?q=casio', foto: 'https://nevux.ar/clientes/valmont/cat-digitales.svg' },
             { nombre: 'G-Shock', url: '/search/?q=g-shock', foto: 'https://nevux.ar/clientes/valmont/cat-deportivos.svg' },
@@ -250,16 +251,28 @@ export const CLIENTES: Record<string, Cliente> = {
             { titulo: 'Malla de acero', texto: 'Eslabones macizos y cierre firme.', x: 80.6, y: 72.1 }
           ]
         },
+        // Parte 5: medidor de reloj en pasos ("Tu talle en 20 segundos" de Wess) y "Colgado por poco tiempo"
+        medidor: {
+          etiqueta: 'Tu reloj en 20 segundos',
+          titulo: 'Probate el reloj',
+          destacado: 'sin salir de casa',
+          foto: 'https://nevux.ar/clientes/valmont/detalle-reloj.webp',
+          url: '/productos/',
+          boton: 'Ver relojes'
+        },
+        colgado: { etiqueta: 'Valmont · Selección', titulo: 'Colgado por', titulo2: 'poco tiempo.', url: '/productos/', boton: 'Ver relojes' },
         porQue: {
           etiqueta: 'Valmont & Co.',
           titulo: 'Por qué Valmont',
           items: [
             { destacado: 'Original', titulo: 'Sin dudas', texto: 'Cada reloj viene de un distribuidor oficial de la marca.', pie: 'Origen garantizado' },
             { destacado: 'Factura', titulo: 'A tu nombre', texto: 'Con la garantía oficial de la marca.', pie: 'Compra segura' },
-            { destacado: 'Atención', titulo: 'Personalizada', texto: 'Te ayudamos a elegir el reloj y el tamaño.', pie: 'Relojería' }
+            { destacado: 'Atención', titulo: 'Personalizada', texto: 'Te ayudamos a elegir el reloj y el tamaño.', pie: 'Relojería' },
+            { destacado: 'Envío', titulo: 'A todo el país', texto: 'Con seguimiento desde que sale hasta tu casa.', pie: 'Envío protegido' }
           ]
         },
         faqTitulo: 'Lo que siempre nos preguntan',
+        faqLink: { texto: 'Medí tu muñeca en 20 segundos', url: '#medidor' },
         faq: [
           { p: '¿Los relojes son originales?', r: 'Sí, comprados a distribuidores oficiales, con factura y garantía.' },
           { p: '¿Tienen garantía?', r: 'Sí, la garantía oficial de cada marca.' },

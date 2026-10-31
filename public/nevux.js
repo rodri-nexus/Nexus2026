@@ -1040,8 +1040,10 @@
       '.nvh-gw-c .n{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:12px 0 0;font:500 13px/1.35 Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#111!important;text-decoration:none!important}' +
       '.nvh-gw-c .nvx-tw2{display:flex;flex-direction:column;flex:1}.nvh-gw-c .nvx-tw2 .ver{margin-top:auto}.nvh-gw-c .nvx-tw2 .q{margin-bottom:10px}' +
       '.nvh-gw-c .nvx-tw2 .l{margin-top:4px}' +
+      '.nvh-gw-c .pp{display:block;margin:6px 0 10px;font:400 22px/1 Anton,Oswald,sans-serif;color:#111;font-variant-numeric:tabular-nums}' +
       '.nvh-gw-c .nvx-tw2 .ver{background:' + oscuro + '}' +
       '.nvh-gw-c .qd{align-self:flex-start;margin-top:4px;background:' + C + '26;color:#7a6330;font:800 10px/1 Inter,sans-serif;letter-spacing:.12em;padding:5px 7px;border-radius:3px}' +
+      '.nvh-gw-b{text-align:center;margin-top:30px}.nvh-gw-btn{display:inline-flex;gap:12px;background:' + oscuro + ';color:#fff!important;border-radius:999px;padding:17px 28px;font:800 12.5px/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none!important}' +
       '.nvh-gw-cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:44px}.nvh-gw-cats:first-child{margin-top:0}' +
       '.nvh-gw-cats a{display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none!important;color:#111!important;perspective:500px}' +
       '.nvh-gw-cats img{width:100%;max-width:120px;aspect-ratio:5/6;object-fit:contain;animation:nvh-gi 3.6s ease-in-out infinite}' +
@@ -1053,7 +1055,8 @@
     if (!box) return;
     var quitar = function () {
       var s = box.closest('.nvh-gw-s'), h = s && s.querySelector('.nvh-gw-h');
-      box.remove(); if (h) h.remove();
+      var bt = box.nextElementSibling && box.nextElementSibling.classList.contains('nvh-gw-b') ? box.nextElementSibling : null;
+      box.remove(); if (h) h.remove(); if (bt) bt.remove();
       if (s && !s.querySelector('.nvh-gw-cats')) s.remove();
     };
     fetch(G.url, { credentials: 'same-origin' }).then(function (r) { return r.text(); }).then(function (txt) {
@@ -1067,6 +1070,12 @@
         var nom = ((c.querySelector('.js-item-name, .item-name, [data-store^="product-item-name"]') || a || {}).textContent || '').trim();
         var pr = c.querySelector('.js-price-display');
         var datos = tarjetaWess(c, pr ? hNum(pr.textContent) : 0, NEVUX.tarjetas || {});
+        // Sin descuento por transferencia, el precio va solo (la grilla no muestra el de la plantilla)
+        if (pr && datos.indexOf('class="mp"') < 0) {
+          var pp = '<b class="pp">' + hEsc(pr.textContent.trim().replace(/,00$/, '')) + '</b>';
+          datos = datos ? datos.replace('<div class="nvx-tw2">', '<div class="nvx-tw2">' + pp) : '<div class="nvx-tw2">' + pp + '<a class="ver" href="' + hEsc(href) + '">Ver →</a></div>';
+          if (datos.indexOf('</s>') > -1) datos = datos.replace(pp, '').replace('</s>', '</s>' + pp);
+        }
         // "QUEDAN N" solo con el stock real de la tienda
         var qd = '';
         if (G.quedan) {
@@ -1152,6 +1161,164 @@
     });
   }
 
+  // Medidor de reloj en pasos (el "Tu talle en 20 segundos" de Wess): para quién, muñeca, estilo y uso.
+  // Al final recomienda el diámetro de caja según la muñeca. Las fichas del costado se completan a medida que se responde.
+  var MD_PASOS = [
+    { k: 'para', q: '¿Para quién buscamos?', t: 'Así ajustamos la escala de tamaños.', b: '¡Hola! ¿Para quién buscamos?', o: ['Hombre', 'Mujer', 'Unisex', 'Para regalar'] },
+    { k: 'muneca', q: '¿Cuánto mide tu muñeca?', t: 'Medila con una tira de papel, justo debajo del hueso.', b: 'Ahora, tu muñeca.' },
+    { k: 'estilo', q: '¿Qué estilo te gusta?', t: 'Elegí el que más uses o el que te guste ver.', b: '¿Qué estilo va con vos?', o: ['Clásico', 'Deportivo', 'Elegante', 'Smartwatch'] },
+    { k: 'uso', q: '¿Para qué lo vas a usar?', t: 'Así sabemos qué tan resistente tiene que ser.', b: '¿Cuándo lo vas a usar?', o: ['Todos los días', 'Trabajo', 'Deporte', 'Ocasiones especiales'] },
+    { k: 'fin', q: 'Tu reloj ideal', t: '', b: '¡Listo! Este es tu tamaño.' }
+  ];
+  function mdCaja(R) {
+    if (!R.muneca) return '';
+    var m = R.muneca, r = m < 15 ? [34, 38] : m < 16.5 ? [36, 40] : m < 18 ? [40, 42] : m < 19.5 ? [42, 44] : [44, 46];
+    if (R.para === 'Mujer') r = [r[0] - 4, r[1] - 4];
+    return r[0] + '–' + r[1] + ' mm';
+  }
+  function medidorReloj(MD) {
+    var C = NEVUX.color, CT = NEVUX.colorTexto;
+    hCss('nvx-md-css',
+      '.nvh-md-s{background:#fff!important;color:#111!important;padding-top:14px!important;padding-bottom:14px!important}' +
+      '.nvh-md{background:#f4f3f1;border-radius:26px;padding:18px 14px 16px;max-width:860px;margin:0 auto}' +
+      '.nvh-md-top{text-align:center;margin-bottom:16px}' +
+      '.nvh-md-top .pill{display:inline-flex;align-items:center;gap:8px;background:' + C + ';color:' + CT + ';border-radius:999px;padding:7px 14px;font:800 11px/1 Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase}' +
+      '.nvh-md-top .pill i{width:8px;height:8px;border-radius:50%;background:currentColor;animation:nvp-bl 1.2s steps(2) infinite}' +
+      '.nvh-md-top h2{margin:12px 0 0;font:400 clamp(24px,6.6vw,38px)/1.05 Anton,Oswald,sans-serif;color:#111}.nvh-md-top h2 em{font-style:normal;color:' + C + ';text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}' +
+      '.nvh-md-g{display:grid;grid-template-columns:40% 1fr;gap:10px;align-items:stretch}' +
+      '.nvh-md-av{position:relative;background:#e8e6e2;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:8px;min-width:0}' +
+      '.nvh-md-av .bub{position:relative;z-index:1;background:#fff;border-radius:12px;padding:8px 10px;font:600 12px/1.3 Inter,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.08)}' +
+      '.nvh-md-av img{width:100%;margin:6px 0;object-fit:contain;flex:1;min-height:0;max-height:180px;transition:transform .5s ease}' +
+      '.nvh-md-ch{display:grid;grid-template-columns:1fr 1fr;gap:6px}' +
+      '.nvh-md-ch div{background:#fff;border-radius:10px;padding:6px 5px;min-width:0}' +
+      '.nvh-md-ch small{display:block;font:800 8.5px/1 Inter,sans-serif;letter-spacing:.12em;color:#9ca3af}' +
+      '.nvh-md-ch b{display:block;margin-top:4px;font:800 10.5px/1.15 Inter,sans-serif;color:#111;hyphens:auto;-webkit-hyphens:auto}@media(min-width:768px){.nvh-md-ch b{font-size:14px}}' +
+      '.nvh-md-q{background:#fff;border-radius:18px;padding:12px;display:flex;flex-direction:column;min-width:0}' +
+      '.nvh-md-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.nvh-md-bar i{height:4px;border-radius:4px;background:#e5e7eb;transition:background .3s}.nvh-md-bar i.on{background:' + C + '}' +
+      '.nvh-md-q .ps{margin-top:10px;font:800 9.5px/1 Inter,sans-serif;letter-spacing:.14em;color:' + C + '}' +
+      '.nvh-md-q h3{margin:5px 0 3px;font:400 clamp(17px,4.6vw,22px)/1.1 Anton,Oswald,sans-serif;color:#111}' +
+      '.nvh-md-q p{margin:0 0 10px;font:400 11.5px/1.4 Inter,sans-serif;color:#6b7280}' +
+      '.nvh-md-o{display:grid;grid-template-columns:1fr 1fr;gap:7px}' +
+      '.nvh-md-o button{border:1.5px solid #e5e7eb;background:#fff;border-radius:12px;padding:12px 4px;font:700 12.5px/1.15 Inter,sans-serif;color:#111;cursor:pointer;transition:border-color .2s,background .2s}' +
+      '.nvh-md-o button.on{border-color:' + C + ';background:' + C + '14}' +
+      '.nvh-md-r{text-align:center;padding:6px 0}.nvh-md-r b{display:block;font:400 clamp(34px,10vw,48px)/1 Anton,Oswald,sans-serif;color:#111;font-variant-numeric:tabular-nums}' +
+      '.nvh-md-r input{width:100%;margin-top:12px;accent-color:' + C + '}' +
+      '.nvh-md-r .rg{display:flex;justify-content:space-between;font:600 10.5px/1 Inter,sans-serif;color:#9ca3af;margin-top:4px}' +
+      '.nvh-md-fin{text-align:center;padding:4px 0}.nvh-md-fin big{display:block;font:400 clamp(30px,9vw,44px)/1 Anton,Oswald,sans-serif;color:' + C + '}.nvh-md-fin span{display:block;margin-top:6px;font:500 12.5px/1.45 Inter,sans-serif;color:#4b5563}' +
+      '.nvh-md-fin a{display:inline-flex;gap:8px;margin-top:12px;background:' + C + ';color:' + CT + '!important;border-radius:999px;padding:12px 18px;font:800 11.5px/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;text-decoration:none!important}' +
+      '.nvh-md-nav{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:12px}' +
+      '.nvh-md-nav button{border:0;background:none;font:600 12.5px/1 Inter,sans-serif;color:#9ca3af;cursor:pointer;padding:10px}' +
+      '.nvh-md-nav .sg{background:' + C + ';color:' + CT + ';border-radius:12px;padding:12px 20px;font-weight:800}.nvh-md-nav .sg:disabled{opacity:.4;cursor:default}' +
+      '@media(min-width:768px){.nvh-md{padding:28px}.nvh-md-g{grid-template-columns:38% 1fr;gap:16px}.nvh-md-q{padding:20px}.nvh-md-av img{max-height:260px}}' +
+      '@media (prefers-reduced-motion: reduce){.nvh-md-top .pill i{animation:none}}');
+    var chip = function (k, l) { return '<div><small>' + l + '</small><b data-k="' + k + '">—</b></div>'; };
+    return '<section class="nvh-sec nvh-md-s" id="medidor"><div class="nvh-in"><div class="nvh-md"><div class="nvh-md-top">' +
+      '<span class="pill"><i></i>' + hEsc(MD.etiqueta || 'Tu reloj en 20 segundos') + '</span>' +
+      '<h2>' + hEsc(MD.titulo || 'Probate el reloj') + ' <em>' + hEsc(MD.destacado || 'sin salir de casa') + '</em></h2></div>' +
+      '<div class="nvh-md-g"><div class="nvh-md-av"><div class="bub"></div>' + (MD.foto ? '<img src="' + hEsc(MD.foto) + '" alt="">' : '<span></span>') +
+      '<div class="nvh-md-ch">' + chip('para', 'PARA') + chip('muneca', 'MUÑECA') + chip('caja', 'CAJA') + chip('estilo', 'ESTILO') + '</div></div>' +
+      '<div class="nvh-md-q"><div class="nvh-md-bar"><i></i><i></i><i></i><i></i><i></i></div><div class="ps"></div><h3></h3><p></p><div class="nvh-md-c"></div>' +
+      '<div class="nvh-md-nav"><button type="button" class="at">Atrás</button><button type="button" class="sg">Siguiente</button></div></div></div></div></div></section>';
+  }
+  function initMedidor(MD) {
+    var box = document.querySelector('.nvh-md:not([data-nvx-a])');
+    if (!box || !MD) return;
+    box.setAttribute('data-nvx-a', '1');
+    var R = { muneca: 0 }, paso = 0, $ = function (q) { return box.querySelector(q); };
+    var pintar = function () {
+      var P = MD_PASOS[paso];
+      [].forEach.call(box.querySelectorAll('.nvh-md-bar i'), function (i, n) { i.classList.toggle('on', n <= paso); });
+      $('.bub').textContent = P.b;
+      $('.ps').textContent = paso < 4 ? 'PASO ' + (paso + 1) + ' DE 4' : 'RESULTADO';
+      $('h3').textContent = P.q;
+      $('p').textContent = P.t;
+      $('p').style.display = P.t ? '' : 'none';
+      var c = $('.nvh-md-c');
+      if (P.o) {
+        c.innerHTML = '<div class="nvh-md-o">' + P.o.map(function (o) { return '<button type="button"' + (R[P.k] === o ? ' class="on"' : '') + '>' + hEsc(o) + '</button>'; }).join('') + '</div>';
+        [].forEach.call(c.querySelectorAll('button'), function (b) {
+          b.addEventListener('click', function () { R[P.k] = b.textContent; pintar(); });
+        });
+      } else if (P.k === 'muneca') {
+        if (!R.muneca) R.muneca = 17;
+        c.innerHTML = '<div class="nvh-md-r"><b>' + R.muneca.toFixed(1).replace('.', ',') + ' cm</b><input type="range" id="nvx-md-muneca" min="13" max="22" step="0.5" value="' + R.muneca + '" aria-label="Contorno de muñeca en centímetros"><div class="rg"><span>13 cm</span><span>22 cm</span></div></div>';
+        var inp = c.querySelector('input');
+        inp.addEventListener('input', function () { R.muneca = +inp.value; c.querySelector('b').textContent = R.muneca.toFixed(1).replace('.', ',') + ' cm'; fichas(); });
+      } else {
+        c.innerHTML = '<div class="nvh-md-fin"><big>' + mdCaja(R) + '</big><span>de diámetro de caja' + (R.estilo ? ', estilo ' + R.estilo.toLowerCase() : '') +
+          (R.uso ? ', para ' + R.uso.toLowerCase() : '') + '.</span><a href="' + hEsc(MD.url || '/productos/') + '">' + hEsc(MD.boton || 'Ver relojes') + ' →</a></div>';
+      }
+      var sg = $('.sg'), at = $('.at');
+      at.style.visibility = paso ? 'visible' : 'hidden';
+      sg.textContent = paso === 4 ? 'Reiniciar' : paso === 3 ? 'Ver resultado' : 'Siguiente';
+      sg.disabled = !!(P.o && !R[P.k]);
+      fichas();
+    };
+    var fichas = function () {
+      var v = { para: R.para, muneca: R.muneca ? R.muneca.toFixed(1).replace('.', ',') + ' cm' : '', caja: mdCaja(R), estilo: R.estilo };
+      Object.keys(v).forEach(function (k) { var b = box.querySelector('[data-k="' + k + '"]'); if (b) b.textContent = v[k] || '—'; });
+    };
+    $('.sg').addEventListener('click', function () { if (paso === 4) { R = { muneca: 0 }; paso = 0; } else paso++; pintar(); });
+    $('.at').addEventListener('click', function () { if (paso) { paso--; pintar(); } });
+    pintar();
+  }
+
+  // "Colgado por poco tiempo" estilo Wess: barra curva con productos reales colgados, precios a distintas alturas y flechas
+  function colgadoHtml(K) {
+    var C = NEVUX.color, O = (NEVUX.marca && NEVUX.marca.oscuro) || '#111';
+    hCss('nvx-cg-css',
+      '.nvh-cg-s{background:#f6f5f3!important;color:#111!important;overflow:hidden}' +
+      '.nvh-cg-h{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px;text-align:center}' +
+      '.nvh-cg-h button{width:40px;height:40px;border-radius:50%;border:1.5px solid #111;background:none;color:#111;font:400 20px/1 Inter,sans-serif;cursor:pointer;display:grid;place-items:center;padding:0}' +
+      '.nvh-cg-h small{display:block;font:800 11px/1 Inter,sans-serif;letter-spacing:.3em;text-transform:uppercase;color:#6b7280}' +
+      '.nvh-cg-h h2{margin:12px 0 0;font:400 clamp(28px,8vw,46px)/.98 Anton,Oswald,sans-serif;text-transform:uppercase;color:#111;filter:blur(6px);opacity:.25;transition:filter 1s ease,opacity 1s ease}' +
+      '.nvh-cg-h h2 span{display:block;color:#8b8b8b}.nvh-cg-s.on .nvh-cg-h h2{filter:none;opacity:1}' +
+      '.nvh-cg-rail{position:relative;margin:26px -16px 0}' +
+      '.nvh-cg-rail svg{display:block;width:100%;height:34px}' +
+      '.nvh-cg-row{display:grid;grid-auto-flow:column;grid-auto-columns:33.333%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin-top:-16px;padding:0 0 10px}' +
+      '.nvh-cg-row::-webkit-scrollbar{display:none}@media(min-width:768px){.nvh-cg-row{grid-auto-columns:20%}}' +
+      '.nvh-cg-i{scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;text-decoration:none!important;color:#111!important;min-width:0}' +
+      '.nvh-cg-i .w{display:flex;flex-direction:column;align-items:center;transform-origin:50% 0;animation:nvh-cgs 3.4s ease-in-out infinite}' +
+      '.nvh-cg-i:nth-child(2n) .w{animation-delay:-1.7s}.nvh-cg-i:nth-child(3n) .w{animation-delay:-.8s}' +
+      '@keyframes nvh-cgs{0%,100%{transform:rotate(-2.2deg)}50%{transform:rotate(2.2deg)}}' +
+      '.nvh-cg-i svg{width:58px;height:40px;display:block}' +
+      '.nvh-cg-i img{width:80%;aspect-ratio:1;object-fit:cover;margin-top:-6px;border:3px solid #fff;border-radius:6px;box-shadow:0 16px 26px rgba(0,0,0,.22)}' +
+      '.nvh-cg-i b{margin-top:22px;font:400 clamp(18px,5vw,24px)/1 Anton,Oswald,sans-serif;color:' + C + ';font-variant-numeric:tabular-nums}' +
+      '.nvh-cg-i:nth-child(2n) b{margin-top:38px}' +
+      '.nvh-cg-b{text-align:center;margin-top:22px}.nvh-cg-b a{display:inline-flex;gap:12px;background:' + O + ';color:#fff!important;border-radius:999px;padding:17px 28px;font:800 12.5px/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none!important}' +
+      '@media (prefers-reduced-motion: reduce){.nvh-cg-i .w{animation:none}.nvh-cg-h h2{filter:none;opacity:1;transition:none}}');
+    return '<section class="nvh-sec nvh-cg-s"><div class="nvh-in"><div class="nvh-cg-h"><button type="button" class="pv" aria-label="Anterior">‹</button><div>' +
+      (K.etiqueta ? '<small>' + hEsc(K.etiqueta) + '</small>' : '') + '<h2>' + hEsc(K.titulo || 'Colgado por') + '<span>' + hEsc(K.titulo2 || 'poco tiempo.') + '</span></h2></div>' +
+      '<button type="button" class="nx" aria-label="Siguiente">›</button></div><div class="nvh-cg-rail"><svg viewBox="0 0 100 34" preserveAspectRatio="none" aria-hidden="true">' +
+      '<defs><linearGradient id="nvx-cgr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2f2f2"/><stop offset=".5" stop-color="#b9b9b9"/><stop offset="1" stop-color="#7d7d7d"/></linearGradient></defs>' +
+      '<path d="M-2 26 Q50 2 102 26" fill="none" stroke="url(#nvx-cgr)" stroke-width="3.2" vector-effect="non-scaling-stroke" stroke-linecap="round" style="stroke-width:7px"/></svg>' +
+      '<div class="nvh-cg-row"></div></div><div class="nvh-cg-b"><a href="' + hEsc(K.url) + '">' + hEsc(K.boton || 'Ver todos') + ' →</a></div></div></section>';
+  }
+  function cargarColgado(K) {
+    var row = document.querySelector('.nvh-cg-row'), sec = row && row.closest('.nvh-cg-s');
+    if (!row) return;
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { sec.classList.add('on'); io.disconnect(); } }, { threshold: 0.3 });
+      io.observe(sec);
+    } else sec.classList.add('on');
+    var mover = function (d) { var t = row.querySelector('.nvh-cg-i'); if (t) row.scrollBy({ left: d * t.offsetWidth, behavior: 'smooth' }); };
+    sec.querySelector('.pv').addEventListener('click', function () { mover(-1); });
+    sec.querySelector('.nx').addEventListener('click', function () { mover(1); });
+    var gancho = '<svg viewBox="0 0 58 40" aria-hidden="true"><path d="M29 2c4 0 6 3 6 5.5S33 11 29 13v6L4 35h50L29 19" fill="none" stroke="#1a1a1a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    fetch(K.url, { credentials: 'same-origin' }).then(function (r) { return r.text(); }).then(function (txt) {
+      var doc = new DOMParser().parseFromString(txt, 'text/html');
+      var cards = [].slice.call(doc.querySelectorAll('.js-item-product')).slice(0, K.cantidad || 8);
+      if (!cards.length) { sec.remove(); return; }
+      cards.forEach(function (c) {
+        var a = c.querySelector('a[href*="/productos/"]'), im = c.querySelector('img'), src = '';
+        if (im) { var ss = im.getAttribute('data-srcset') || im.getAttribute('srcset'); src = im.getAttribute('data-src') || (ss ? ss.split(',').pop().trim().split(' ')[0] : im.getAttribute('src') || ''); }
+        var pr = c.querySelector('.js-price-display');
+        row.insertAdjacentHTML('beforeend', '<a class="nvh-cg-i" href="' + hEsc(a ? a.getAttribute('href') : K.url) + '"><span class="w">' + gancho +
+          (src ? '<img src="' + hEsc(src) + '" alt="" loading="lazy">' : '') + '</span>' + (pr ? '<b>' + hEsc(pr.textContent.trim().replace(/,00$/, '')) + '</b>' : '') + '</a>');
+      });
+    }).catch(function () { sec.remove(); });
+  }
+
   // Secciones de la home
   function initHome() {
     var H = NEVUX.home;
@@ -1182,6 +1349,7 @@
       '.nvh-cat em{display:block;font-style:normal;font-size:12px;font-weight:700;opacity:.85;margin-top:4px;text-transform:none}' +
       '.nvh-why{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}' +
       '.nvh-tag{position:relative;background:#f3efe6;color:#111;border-radius:6px 6px 16px 16px;padding:30px 18px 16px;clip-path:polygon(18px 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%,0 18px)}' +
+      '.nvh-tagw{display:flex}.nvh-tagw>.nvh-tag{flex:1}' +
       '.nvh-tag:before{content:"";position:absolute;top:11px;left:50%;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:' + oscuro + '}' +
       '.nvh-tag big{display:block;font-size:32px;font-weight:900;color:' + C + ';line-height:1}' +
       '.nvh-tag b{display:block;font-size:13px;font-weight:900;text-transform:uppercase;margin:6px 0 8px}' +
@@ -1272,23 +1440,26 @@
     // H.grilla puede ser una sola o una lista. La foto con puntos estilo Wess va después de la primera grilla, como en Wess.
     var GS = [].concat(H.grilla || []).filter(function (G) { return G && (G.url || (G.categorias && G.categorias.length)); });
     var pw = PT && PT.estilo === 'wess' && PT.foto && PT.items && PT.items.length ? puntosWess(PT) : '';
+    var md = H.medidor ? medidorReloj(H.medidor) : '';
     GS.forEach(function (G, n) {
       html += '<section class="nvh-sec nvh-gw-s"><div class="nvh-in">' + (G.titulo ? '<h2 class="nvh-gw-h">' + hEsc(G.titulo) + '</h2>' : '') +
-        (G.url ? '<div class="nvh-gw" data-g="' + n + '"></div>' : '') +
+        (G.url ? '<div class="nvh-gw" data-g="' + n + '"></div>' + (G.boton ? '<div class="nvh-gw-b"><a class="nvh-gw-btn" href="' + hEsc(G.url) + '">' + hEsc(G.boton) + ' →</a></div>' : '') : '') +
         (G.categorias && G.categorias.length ? '<div class="nvh-gw-cats">' + G.categorias.map(function (c) {
           return '<a href="' + hEsc(c.url) + '">' + (c.foto ? '<img src="' + hEsc(c.foto) + '" alt="" loading="lazy">' : '') + '<span>' + hEsc(c.nombre) + '</span></a>';
         }).join('') + '</div>' : '') + '</div></section>';
       if (!n) { html += pw; pw = ''; }
+      if (n === 1) { html += md; md = ''; }
     });
-    html += pw;
+    html += pw + md;
     var W = H.porQue;
     if (W && W.items && W.items.length) {
-      html += sec('nvh-dark', W.etiqueta || '', W.titulo || 'Por qué elegirnos', W.texto || '',
+      html += sec('nvh-dark nvh-why-s', W.etiqueta || '', W.titulo || 'Por qué elegirnos', W.texto || '',
         '<div class="nvh-why">' + W.items.map(function (it) {
-          return '<div class="nvh-tag">' + (it.destacado ? '<big>' + hEsc(it.destacado) + '</big>' : '') + '<b>' + hEsc(it.titulo) + '</b>' +
-            (it.texto ? '<p>' + hEsc(it.texto) + '</p>' : '') + (it.pie ? '<small>' + hEsc(it.pie) + '</small>' : '') + '</div>';
+          return '<div class="nvh-tagw"><div class="nvh-tag">' + (it.destacado ? '<big>' + hEsc(it.destacado) + '</big>' : '') + '<b>' + hEsc(it.titulo) + '</b>' +
+            (it.texto ? '<p>' + hEsc(it.texto) + '</p>' : '') + (it.pie ? '<small>' + hEsc(it.pie) + '</small>' : '') + '</div></div>';
         }).join('') + '</div>');
     }
+    if (H.colgado && H.colgado.url) html += colgadoHtml(H.colgado);
     if (H.numeros && H.numeros.length) {
       html += sec('nvh-dark', '', H.numerosTitulo || '', '',
         '<div class="nvh-nums">' + H.numeros.map(function (n) { return '<div><b>' + hEsc(n.valor) + '</b><small>' + hEsc(n.texto) + '</small></div>'; }).join('') + '</div>');
@@ -1302,8 +1473,9 @@
         }).join('') + '</div>');
     }
     if (H.faq && H.faq.length) {
-      html += sec('nvh-dark', '', H.faqTitulo || 'Lo que siempre nos preguntan', '',
-        '<div class="nvh-faq">' + H.faq.map(function (f) { return '<details><summary>' + hEsc(f.p) + '</summary><div>' + hEsc(f.r) + '</div></details>'; }).join('') + '</div>');
+      html += sec('nvh-dark nvh-faq-s', '', H.faqTitulo || 'Lo que siempre nos preguntan', '',
+        '<div class="nvh-faq">' + H.faq.map(function (f) { return '<details><summary>' + hEsc(f.p) + '</summary><div>' + hEsc(f.r) + '</div></details>'; }).join('') +
+        (H.faqLink && H.faqLink.url ? '<a class="nvh-faq-l" href="' + hEsc(H.faqLink.url) + '">' + hEsc(H.faqLink.texto || 'Ver más') + '</a>' : '') + '</div>');
     }
     if (H.locales && H.locales.length) {
       html += sec('', H.localesEtiqueta || 'Locales', H.localesTitulo || 'Vení a conocernos', H.localesTexto || '',
@@ -1332,6 +1504,8 @@
     cargarVitrinas(H.vitrinas || []);
     GS.forEach(function (G, n) { cargarGrilla(G, oscuro, n); });
     initPuntosWess();
+    initMedidor(H.medidor);
+    if (H.colgado && H.colgado.url) cargarColgado(H.colgado);
     // Portada estilo Wess: franja con reloj en vivo (o cuenta regresiva del evento), logo, etiqueta, título gigante y botón
     var PO = H.portada;
     if (PO && !document.querySelector('.nvp')) {
@@ -1451,7 +1625,7 @@
         portadaEl.insertAdjacentHTML('afterend', ben);
         // Las vitrinas estilo Wess van pegadas a los beneficios, como en la portada de Wess
         var benEl = portadaEl.nextElementSibling;
-        [].slice.call(document.querySelectorAll('.nvh-vw-s, .nvh-gw-s, .nvh-pw-s')).reverse().forEach(function (s) {
+        [].slice.call(document.querySelectorAll('.nvh-vw-s, .nvh-gw-s, .nvh-pw-s, .nvh-md-s')).reverse().forEach(function (s) {
           benEl.insertAdjacentHTML('afterend', '<div class="nvh"></div>');
           benEl.nextElementSibling.appendChild(s);
         });
@@ -1753,7 +1927,31 @@
         '.nvh-vw small{margin-top:8px;font:700 12px/1.3 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#cfcfcf}' +
         '.nvh-vw b{margin-top:4px;font:400 28px/1 Anton,Oswald,sans-serif;color:#fff}' +
         '.nvh-vw-btn{display:inline-flex;gap:12px;background:' + C + ';color:' + CT + '!important;border-radius:999px;padding:18px 30px;font:800 13px/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none!important}' +
-        '@media (prefers-reduced-motion: reduce){.nvh-vw .f{animation:none}}');
+        '@media (prefers-reduced-motion: reduce){.nvh-vw .f{animation:none}}' +
+        // Por qué: título a la izquierda con raya, etiquetas colgadas de un hilo que se balancean y código de barras al pie
+        '.nvh-why-s .nvh-eb,.nvh-faq-s .nvh-eb{text-align:left;color:#d1d5db!important;letter-spacing:.28em!important}' +
+        '.nvh-why-s .nvh-eb:before{content:"";display:inline-block;width:34px;height:3px;background:' + C + ';vertical-align:middle;margin:0 14px 0 0}.nvh-why-s .nvh-eb:after{content:none}' +
+        '.nvh-why-s .nvh-h,.nvh-faq-s .nvh-h{text-align:left;font-family:Anton,Oswald,sans-serif!important;font-weight:400!important;font-size:clamp(34px,10vw,58px)!important}' +
+        '.nvh-why-s .nvh-p{text-align:left;margin-left:0}' +
+        '.nvh-why-s .nvh-why{grid-template-columns:1fr 1fr;gap:34px 12px;margin-top:40px}@media(min-width:768px){.nvh-why-s .nvh-why{grid-template-columns:repeat(4,1fr)}}' +
+        '.nvh-why-s .nvh-tagw{position:relative;transform-origin:50% -24px;animation:nvh-tsw 4.5s ease-in-out infinite}' +
+        '.nvh-why-s .nvh-tagw:nth-child(2n){animation-delay:-2.2s}@keyframes nvh-tsw{0%,100%{transform:rotate(-1.6deg)}50%{transform:rotate(1.6deg)}}' +
+        '.nvh-why-s .nvh-tagw:before{content:"";position:absolute;z-index:1;left:50%;top:-24px;width:1.5px;height:40px;background:#cfcfcf}' +
+        '.nvh-why-s .nvh-tag{padding:34px 14px 14px}' +
+        '.nvh-why-s .nvh-tag big{font-family:Anton,Oswald,sans-serif!important;font-weight:400!important;font-size:clamp(28px,8vw,40px);text-transform:uppercase}' +
+        '.nvh-why-s .nvh-tag p{font-size:13px}' +
+        '.nvh-why-s .nvh-tag small{display:flex;justify-content:space-between;align-items:center;gap:6px;border-top:1px solid #cdc5b4!important;font-size:8.5px!important}' +
+        '.nvh-why-s .nvh-tag small:after{content:"";flex:none;width:42px;height:18px;background:repeating-linear-gradient(90deg,#111 0 1.5px,transparent 1.5px 3px,#111 3px 4px,transparent 4px 6px,#111 6px 8.5px,transparent 8.5px 9.5px)}' +
+        // Preguntas frecuentes: título a la izquierda, preguntas condensadas y link al final
+        '.nvh-faq-s .nvh-faq{max-width:none}.nvh-faq-s .nvh-faq summary{font-family:Oswald,Anton,sans-serif;font-weight:600;letter-spacing:.01em;font-size:16px}' +
+        '.nvh-faq-s .nvh-faq summary:after{font-size:28px;font-weight:300}' +
+        '.nvh-faq-l{display:inline-block;margin-top:20px;color:#fff!important;font:500 14px/1 Inter,sans-serif;text-underline-offset:4px}' +
+        '@media (prefers-reduced-motion: reduce){.nvh-why-s .nvh-tagw{animation:none}}' +
+        // Cierre en arco
+        '.nvh-cierre{border-radius:46% 46% 0 0/120px 120px 0 0!important;margin:0 10px;padding-top:58px!important}' +
+        '.nvh-cierre .nvh-eb:before,.nvh-cierre .nvh-eb:after{content:"";display:inline-block;width:26px;height:1.5px;background:' + C + ';vertical-align:middle;margin:0 12px}' +
+        '.nvh-cierre .nvh-h{font-family:Anton,Oswald,sans-serif!important;font-weight:400!important}' +
+        '.nvh-cierre .nvh-btn{background:#fff!important;color:#111!important;padding:16px 24px}');
     }
     if (P.animar === false || !('IntersectionObserver' in window)) return;
     var io = new IntersectionObserver(function (es) {
