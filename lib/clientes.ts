@@ -186,6 +186,9 @@ export const CLIENTES: Record<string, Cliente> = {
         },
         '/productos/valmontco-m/': {
           fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-complications-gold.mp4', poster: 'https://nevux.ar/clientes/valmont/video-complications-gold.jpg' }]
+        },
+        '/productos/valmont-co/': {
+          fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-rolex-daytona.mp4', poster: 'https://nevux.ar/clientes/valmont/video-rolex-daytona.jpg' }]
         }
       },
       estiloFicha: 'wess',
