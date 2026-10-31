@@ -77,7 +77,7 @@ Rodrigo mandó la ficha completa de Wess y pidió "igual pero al mundo reloj". S
 | "WESS, DESDE CÓRDOBA" (6 tarjetas) | "COMPRÁ TRANQUILO · VALMONT & CO." (6 tarjetas sin datos inventados) |
 | Preguntas y "ARMÁ EL TUYO" | Preguntas de `faq` y "ELEGÍ EL TUYO" con botón a la compra |
 
-Pendiente: WhatsApp del cliente (`whatsapp`) para que aparezca "¿Dudas con el tamaño? Escribinos por WhatsApp"; datos reales de envío; videos propios si el cliente los tiene.
+WhatsApp del cliente: +54 2954 688637 (`whatsapp: '5492954688637'`). Pendiente: datos reales de envío; videos propios si el cliente los tiene.
 
 ## Cómo probar sin productos
 
