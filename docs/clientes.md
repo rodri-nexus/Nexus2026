@@ -84,11 +84,11 @@ En `config.evento` de cada cliente: `nombre`, `desde`, `hasta`, `anticipo` (día
 
 | Plan | Precio | Link de Mercado Pago | Clientes |
 |---|---|---|---|
-| Básico · Pack Landing Page Pro | $39.900/mes | `mpago.la/1LqFYin` | Hogar Digital |
+| Básico · Pack Landing Page Pro | $39.900/mes | `mpago.la/2u5gT97` (plan "Nevux Básico", creado el 31/10) | Hogar Digital |
 | Premium · Nevux Premium | $69.900/mes | `mpago.la/2mkcebx` | Valmont |
 
 Cada cliente lleva `plan: 'premium'` en `lib/clientes.ts` (sin `plan` = básico). La página `nevux.ar/suscribirme?c=<id>` muestra solo el precio, lo que incluye y el link del plan de ese cliente. Sin cliente: `?plan=premium`.
-**Ojo:** el link del básico (`mpago.la/1LqFYin`) es un **link de pago único** (checkout con `preference-id`), no una suscripción: cobra $39.900 una vez y no se repite solo. Por eso no aparece en "Planes de suscripción". Para cobro mensual automático hay que crear el plan Básico en Planes de suscripción y reemplazar el link en `lib/planes.ts`.
+El link viejo del básico (`mpago.la/1LqFYin`) era un pago único, no una suscripción: el 31/10 se reemplazó por el plan mensual "Nevux Básico" y Rodrigo lo da de baja.
 
 `cobro.planMp` (ID del plan de Mercado Pago) sirve para un cliente que todavía no se suscribió: se prende solo cuando aparece la primera suscripción cobrada de ese plan.
 
