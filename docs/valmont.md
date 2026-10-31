@@ -85,6 +85,9 @@ WhatsApp del cliente: +54 2954 688637 (`whatsapp: '5492954688637'`). Pendiente: 
 - **Final de la ficha como Wess:** "Productos similares" con las tarjetas de la grilla en carrusel (etiqueta "PREMIUM", precio y "VER →"), y **pie estilo Wess** en toda la tienda: franja dorada "Registrate y recibí nuestras novedades.", marca, menú en filas con flecha, Instagram y WhatsApp, y franja legal gris (`initPie`, textos en `config.pie`).
 - **Newsletter gris de la home:** oculto con `ocultar: ['[data-store="home-newsletter"]']`. El del pie queda como franja.
 - **Sin la palabra "original":** Rodrigo pidió reemplazarla por "premium" o algo más elegante en todos lados (etiquetas, beneficios, por qué, preguntas, anuncios y cinta).
+- **Cabecera estilo Wess:** fondo negro con borde dorado, íconos claros, todo en una fila y, en lugar del nombre en texto, la **V en 3D girando sobre sí misma** con "VALMONT" debajo (Wess usa un logo WebP animado de 46 cuadros que gira igual). Config: `cabecera: { inicial: 'V', nombre: 'VALMONT' }`, motor: `initCabecera`.
+- **Productos similares llenos:** Tiendanube solo trae los de la misma categoría (a veces 1). Se completa con el resto del catálogo hasta 8 (`ficha.similaresCantidad`).
+- **Plantilla de Wess:** usa **Recife** (`LS.theme.code: "recife"`), con diseño a medida de Praxis por encima. Valmont está en Morelia.
 
 ## Cómo probar sin productos
 
