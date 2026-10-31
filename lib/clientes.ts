@@ -183,6 +183,9 @@ export const CLIENTES: Record<string, Cliente> = {
         },
         '/productos/omega-speedmaster-professional-anniversary-series-silver-snoopy-award-1qvrw/': {
           fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-omega-speedmaster.mp4', poster: 'https://nevux.ar/clientes/valmont/video-omega-speedmaster.jpg' }]
+        },
+        '/productos/valmontco-m/': {
+          fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-complications-gold.mp4', poster: 'https://nevux.ar/clientes/valmont/video-complications-gold.jpg' }]
         }
       },
       estiloFicha: 'wess',

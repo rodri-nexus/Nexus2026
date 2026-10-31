@@ -93,7 +93,7 @@ WhatsApp del cliente: +54 2954 688637 (`whatsapp: '5492954688637'`). Pendiente: 
 
 - **Cómo se hacen:** con una foto del reloj se arma un video vertical de unos 11 segundos (`/home/user/vid/render.py` en la sesión del 31/10). Tiene intro con la V, el reloj recortado sobre fondo negro con brillo dorado, destello de luz, tres primeros planos con etiqueta estilo Wess y el cierre "VALMONT & CO. · Relojería premium". Es animación sobre la foto real: no inventa ángulos.
 - **Dónde van:** primera tarjeta de "Miralo de cerca" en la ficha (`fichaVideos` por producto en `porProducto`). Arrancan solos, sin sonido, en bucle, y se pausan fuera de pantalla.
-- **Hechos:** Casio G-Shock G-Steel GST-B400BB-1A (`/productos/valmontco-com/`, `video-gshock-gst-b400.mp4`), Rolex Submariner Date (`/productos/rolex-submariner-date-acero-inoxidable-1roj1/`, `video-rolex-submariner.mp4`) y Omega Speedmaster Silver Snoopy (`video-omega-speedmaster.mp4`).
+- **Hechos:** Casio G-Shock G-Steel GST-B400BB-1A (`/productos/valmontco-com/`, `video-gshock-gst-b400.mp4`), Rolex Submariner Date (`/productos/rolex-submariner-date-acero-inoxidable-1roj1/`, `video-rolex-submariner.mp4`), Omega Speedmaster Silver Snoopy (`video-omega-speedmaster.mp4`) y Complications Gold (`/productos/valmontco-m/`, `video-complications-gold.mp4`; el texto del video no nombra marca porque la esfera de la foto dice solo "Geneve").
 
 ## Cobro
 
