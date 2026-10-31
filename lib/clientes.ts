@@ -167,6 +167,8 @@ export const CLIENTES: Record<string, Cliente> = {
       whatsapp: '5492954688637',
       // Secciones de Morelia que no van (el newsletter gris de la home; el del pie queda como franja dorada)
       ocultar: ['[data-store="home-newsletter"]'],
+      // Cabecera negra con la V en 3D girando (como el logo animado de Wess) en lugar del nombre de texto
+      cabecera: { inicial: 'V', nombre: 'VALMONT' },
       pie: { logo: 'https://nevux.ar/clientes/valmont/logo-dorado.png', titulo: 'Valmont & Co.', texto: 'Relojería premium', instagram: 'https://www.instagram.com/valmont.relojes/', newsletter: 'Registrate y recibí nuestras novedades.' },
       estiloFicha: 'wess',
       envio: { corte: 14, dias: [1, 2, 3, 4, 5], min: 3, max: 6, zona: 'a todo el país' },

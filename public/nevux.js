@@ -344,17 +344,39 @@
     // Productos similares como en Wess: tarjetas con foto, precios y "VER →" en carrusel, justo después del bloque negro
     var rel = document.querySelector('[data-store="related-products"]');
     var relCards = rel ? [].slice.call(rel.querySelectorAll('.js-item-product')) : [];
-    if (relCards.length) {
-      grillaCss(O);
-      hCss('nvx-rel-css',
+    var RG2 = { pill: FW.similaresPill || '', quedan: FW.similaresQuedan || 0, url: '/productos/' };
+    hCss('nvx-rel-css',
         '.nvx-rel{position:relative;left:50%;width:100vw;margin-left:-50vw;background:#fff;padding:42px 0 46px}' +
         '.nvx-rel .nvh-gw-h{text-align:left;padding:0 16px;max-width:760px;margin:0 auto 18px;text-transform:none;font-size:clamp(24px,6.4vw,32px)}' +
-        '.nvx-rel .nvh-gw{display:grid!important;grid-auto-flow:column;grid-template-columns:none!important;grid-auto-columns:44%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 16px;max-width:none!important;gap:14px!important}' +
+        '.nvx-rel .nvh-gw{display:grid!important;grid-auto-flow:column;grid-template-columns:none!important;grid-auto-columns:44%;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 16px;scrollbar-width:none;padding:0 16px;max-width:none!important;gap:14px!important}' +
         '.nvx-rel .nvh-gw::-webkit-scrollbar{display:none}.nvx-rel .nvh-gw-c{scroll-snap-align:start}@media(min-width:768px){.nvx-rel .nvh-gw{grid-auto-columns:23%;max-width:1100px!important;margin:0 auto}}');
-      var RG2 = { pill: FW.similaresPill || '', quedan: FW.similaresQuedan || 0, url: '/productos/' };
+    if (relCards.length) {
+      grillaCss(O);
       document.querySelector('.nvx-wd').insertAdjacentHTML('afterend', '<section class="nvx-rel nvh-gw-s"><h2 class="nvh-gw-h">' + esc(FW.similaresTitulo || 'Productos similares') + '</h2><div class="nvh-gw">' +
         relCards.map(function (c) { return tarjetaGrilla(c, RG2); }).join('') + '</div></section>');
       rel.style.display = 'none';
+    }
+    // Si la tienda trae pocos similares (comparten categoría), se completa con el resto del catálogo para que el carrusel se vea lleno
+    var maxRel = FW.similaresCantidad || 8;
+    if (relCards.length < maxRel) {
+      var vistos = relCards.map(function (c) { return c.getAttribute('data-product-id'); });
+      var propio = (window.LS && LS.product && String(LS.product.id)) || '';
+      fetch('/productos/', { credentials: 'same-origin' }).then(function (r) { return r.text(); }).then(function (txt) {
+        var docp = new DOMParser().parseFromString(txt, 'text/html');
+        var extra = [].slice.call(docp.querySelectorAll('.js-item-product')).filter(function (c) {
+          var id = c.getAttribute('data-product-id');
+          var a = c.querySelector('a[href*="/productos/"]');
+          return id && vistos.indexOf(id) < 0 && id !== propio && !(a && a.pathname === location.pathname);
+        }).slice(0, maxRel - relCards.length);
+        if (!extra.length) return;
+        grillaCss(O);
+        var fila = document.querySelector('.nvx-rel .nvh-gw');
+        if (!fila) {
+          (document.querySelector('.nvx-wd') || root).insertAdjacentHTML('afterend', '<section class="nvx-rel nvh-gw-s"><h2 class="nvh-gw-h">' + esc(FW.similaresTitulo || 'Productos similares') + '</h2><div class="nvh-gw"></div></section>');
+          fila = document.querySelector('.nvx-rel .nvh-gw');
+        }
+        fila.insertAdjacentHTML('beforeend', extra.map(function (c) { return tarjetaGrilla(c, RG2); }).join(''));
+      }).catch(function () {});
     }
     [].forEach.call(document.querySelectorAll('.nvx-wd-go'), function (b) {
       b.addEventListener('click', function () {
@@ -1653,6 +1675,45 @@
     }
   }
 
+  // Cabecera estilo Wess (premium.tema 'wess' + config.cabecera): fondo de la marca, íconos claros y,
+  // en lugar del nombre, la inicial en 3D girando sobre sí misma (como el logo animado de Wess) con el nombre debajo.
+  function initCabecera() {
+    var P = NEVUX.premium, K = NEVUX.cabecera;
+    if (!P || P.tema !== 'wess' || !K) return;
+    var hd = document.querySelector('header[data-store="head"], header.js-head-main');
+    if (!hd || hd.classList.contains('nvx-hd')) return;
+    hd.classList.add('nvx-hd');
+    var C = NEVUX.color, O = K.fondo || (NEVUX.marca && NEVUX.marca.oscuro) || '#0c0b0a';
+    if (!document.querySelector('#nvx-cinzel')) {
+      var lk = document.createElement('link'); lk.id = 'nvx-cinzel'; lk.rel = 'stylesheet';
+      lk.href = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap';
+      document.head.appendChild(lk);
+    }
+    var capas = '';
+    for (var k = 1; k <= 9; k++) capas += '<span class="z" style="transform:translateZ(' + (-k * 0.9).toFixed(1) + 'px);color:' + (k > 7 ? '#3d3218' : k > 4 ? '#6b5a2e' : '#8a7238') + '">' + hEsc(K.inicial || 'V') + '</span>';
+    hCss('nvx-hd-css',
+      '.nvx-hd{background:' + O + '!important;border-bottom:1px solid ' + C + '55!important;box-shadow:0 6px 18px rgba(0,0,0,.35)}' +
+      '.nvx-hd .head-logo-row,.nvx-hd .container{background:transparent!important}' +
+      '.nvx-hd .btn-utility,.nvx-hd .utilities-item,.nvx-hd .cart-summary,.nvx-hd a{color:#f4efe6!important}.nvx-hd svg{fill:#f4efe6!important}' +
+      '.nvx-hd .js-cart-widget-amount,.nvx-hd .cart-widget-amount,.nvx-hd [class*="badge"]{color:' + C + '!important}' +
+      // Una sola fila como Wess: menú, logo al medio y carrito
+      '@media(max-width:767px){.nvx-hd .head-logo-row>.row{flex-wrap:nowrap!important}.nvx-hd .js-logo-container{order:0!important;flex:1 1 auto!important;max-width:none!important;width:auto!important;padding:6px 0!important}' +
+      '.nvx-hd .js-utility-col{flex:0 0 52px!important;max-width:52px!important}.nvx-hd .js-utility-col:last-child{order:1!important}}' +
+      '.nvx-hd #no-logo h1,.nvx-hd #no-logo .logo-text>*:not(.nvx-lg),.nvx-hd #logo img{display:none!important}' +
+      '.nvx-lg{display:inline-flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none!important;perspective:420px}' +
+      '.nvx-lg .r{position:relative;display:flex;flex-direction:column;align-items:center;transform-style:preserve-3d;animation:nvx-lgr 2.6s linear infinite}' +
+      '@keyframes nvx-lgr{to{transform:rotateY(360deg)}}' +
+      '.nvx-lg .m{position:relative;display:grid;place-items:center;width:46px;height:40px;transform-style:preserve-3d}' +
+      '.nvx-lg .m span{position:absolute;inset:0;display:grid;place-items:center;font:700 40px/1 Cinzel,Georgia,serif}' +
+      '.nvx-lg .m .f{background:linear-gradient(160deg,#f6e9c6 10%,' + C + ' 45%,#8a7238 75%,#e9d9a8);-webkit-background-clip:text;background-clip:text;color:transparent!important}' +
+      '.nvx-lg .n{font:600 9.5px/1 Cinzel,Georgia,serif;letter-spacing:.42em;margin-right:-.42em;color:' + C + '}' +
+      '@media (prefers-reduced-motion: reduce){.nvx-lg .r{animation:none}}');
+    var html = '<a class="nvx-lg" href="/" aria-label="' + hEsc(K.nombre || 'Inicio') + '"><span class="r"><span class="m">' + capas +
+      '<span class="f">' + hEsc(K.inicial || 'V') + '</span></span>' + (K.nombre ? '<span class="n">' + hEsc(K.nombre) + '</span>' : '') + '</span></a>';
+    var cont = hd.querySelector('#no-logo, #logo, .js-logo-container');
+    if (cont) cont.insertAdjacentHTML('afterbegin', html);
+  }
+
   // Secciones de la home
   function initHome() {
     var H = NEVUX.home;
@@ -2299,6 +2360,7 @@
     if (NEVUX.ocultar && NEVUX.ocultar.length) hCss('nvx-ocultar-css', NEVUX.ocultar.join(',') + '{display:none!important}');
     detectarMarca();
     initPie();
+    initCabecera();
     initBarra();
     initVentas();
     initHome();
