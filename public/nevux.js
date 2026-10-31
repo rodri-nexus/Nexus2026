@@ -1019,6 +1019,73 @@
     });
   }
 
+  // Grilla estilo Wess: trae las tarjetas reales de la categoría y las arma con foto, etiqueta sobre la foto, precio de lista tachado,
+  // "QUEDAN N" (stock real), "MEJOR PRECIO" por transferencia, cuotas y "VER →" (ver tarjetaWess)
+  function cargarGrilla(G, oscuro) {
+    var C = NEVUX.color, CT = NEVUX.colorTexto;
+    if (!document.querySelector('#nvx-anton')) {
+      var lk = document.createElement('link'); lk.id = 'nvx-anton'; lk.rel = 'stylesheet';
+      lk.href = 'https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600;700&display=swap';
+      document.head.appendChild(lk);
+    }
+    hCss('nvx-gw-css',
+      '.nvh-gw-s{background:#fff!important;color:#111!important;padding-top:40px!important}' +
+      '.nvh-gw-h{margin:0 0 22px;text-align:center;font:400 clamp(26px,7vw,40px)/1 Anton,Oswald,sans-serif;text-transform:uppercase;letter-spacing:-.005em;color:#111}' +
+      '.nvh-gw{display:grid;grid-template-columns:1fr 1fr;gap:26px 14px}@media(min-width:768px){.nvh-gw{grid-template-columns:repeat(3,1fr);max-width:980px;margin:0 auto;gap:34px 22px}.nvh-gw-cats{max-width:760px;margin-left:auto!important;margin-right:auto!important}}' +
+      '.nvh-gw-c{min-width:0;display:flex;flex-direction:column}' +
+      '.nvh-gw-c .f{position:relative;display:block;background:#f1efea;aspect-ratio:4/5;overflow:hidden}' +
+      '.nvh-gw-c .f img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}' +
+      '.nvh-gw-c .f:hover img{transform:scale(1.04)}' +
+      '.nvh-gw-c .f em{position:absolute;left:8px;bottom:8px;font-style:normal;background:' + C + ';color:' + CT + ';font:800 10px/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:6px 9px;border-radius:3px}' +
+      '.nvh-gw-c .n{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:12px 0 0;font:500 13px/1.35 Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#111!important;text-decoration:none!important}' +
+      '.nvh-gw-c .nvx-tw2{display:flex;flex-direction:column;flex:1}.nvh-gw-c .nvx-tw2 .ver{margin-top:auto}.nvh-gw-c .nvx-tw2 .q{margin-bottom:10px}' +
+      '.nvh-gw-c .nvx-tw2 .l{margin-top:4px}' +
+      '.nvh-gw-c .nvx-tw2 .ver{background:' + oscuro + '}' +
+      '.nvh-gw-c .qd{align-self:flex-start;margin-top:4px;background:' + C + '26;color:#7a6330;font:800 10px/1 Inter,sans-serif;letter-spacing:.12em;padding:5px 7px;border-radius:3px}' +
+      '.nvh-gw-cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:44px}.nvh-gw-cats:first-child{margin-top:0}' +
+      '.nvh-gw-cats a{display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none!important;color:#111!important;perspective:500px}' +
+      '.nvh-gw-cats img{width:100%;max-width:120px;aspect-ratio:5/6;object-fit:contain;animation:nvh-gi 3.6s ease-in-out infinite}' +
+      '.nvh-gw-cats a:nth-child(2) img{animation-delay:-.9s}.nvh-gw-cats a:nth-child(3) img{animation-delay:-1.8s}.nvh-gw-cats a:nth-child(4) img{animation-delay:-2.7s}' +
+      '@keyframes nvh-gi{0%,100%{transform:rotateY(-24deg) rotate(-3deg)}50%{transform:rotateY(24deg) rotate(3deg)}}' +
+      '.nvh-gw-cats span{font:400 clamp(12px,3.4vw,16px)/1 Anton,Oswald,sans-serif;text-transform:uppercase;letter-spacing:.02em;text-align:center}' +
+      '@media (prefers-reduced-motion: reduce){.nvh-gw-cats img{animation:none}}');
+    var box = document.querySelector('.nvh-gw');
+    if (!box) return;
+    var quitar = function () {
+      var s = box.closest('.nvh-gw-s'), h = s && s.querySelector('.nvh-gw-h');
+      box.remove(); if (h) h.remove();
+      if (s && !s.querySelector('.nvh-gw-cats')) s.remove();
+    };
+    fetch(G.url, { credentials: 'same-origin' }).then(function (r) { return r.text(); }).then(function (txt) {
+      var doc = new DOMParser().parseFromString(txt, 'text/html');
+      var cards = [].slice.call(doc.querySelectorAll('.js-item-product')).slice(0, G.cantidad || 6);
+      if (!cards.length) { quitar(); return; }
+      cards.forEach(function (c) {
+        var a = c.querySelector('a[href*="/productos/"]'), href = a ? a.getAttribute('href') : G.url;
+        var im = c.querySelector('img'), src = '';
+        if (im) { var ss = im.getAttribute('data-srcset') || im.getAttribute('srcset'); src = im.getAttribute('data-src') || (ss ? ss.split(',').pop().trim().split(' ')[0] : im.getAttribute('src') || ''); }
+        var nom = ((c.querySelector('.js-item-name, .item-name, [data-store^="product-item-name"]') || a || {}).textContent || '').trim();
+        var pr = c.querySelector('.js-price-display');
+        var datos = tarjetaWess(c, pr ? hNum(pr.textContent) : 0, NEVUX.tarjetas || {});
+        // "QUEDAN N" solo con el stock real de la tienda
+        var qd = '';
+        if (G.quedan) {
+          try {
+            var dv = c.hasAttribute('data-variants') ? c : c.querySelector('[data-variants]');
+            var vs = dv ? JSON.parse(dv.getAttribute('data-variants')) : null;
+            if (vs && vs.every(function (v) { return v.stock != null; })) {
+              var st = vs.reduce(function (s, v) { return s + (+v.stock || 0); }, 0);
+              if (st > 0 && st <= G.quedan) qd = '<span class="qd">QUEDAN ' + st + '</span>';
+            }
+          } catch (e) {}
+        }
+        if (qd) datos = datos.indexOf('</s>') > -1 ? datos.replace('</s>', '</s>' + qd) : datos.replace('<div class="nvx-tw2">', '<div class="nvx-tw2">' + qd);
+        box.insertAdjacentHTML('beforeend', '<div class="nvh-gw-c"><a class="f" href="' + hEsc(href) + '">' + (src ? '<img src="' + hEsc(src) + '" alt="" loading="lazy">' : '') +
+          (G.pill ? '<em>' + hEsc(G.pill) + '</em>' : '') + '</a><a class="n" href="' + hEsc(href) + '">' + hEsc(nom) + '</a>' + datos + '</div>');
+      });
+    }).catch(quitar);
+  }
+
   // Secciones de la home
   function initHome() {
     var H = NEVUX.home;
@@ -1135,6 +1202,15 @@
         '<div class="nvh-vit-row" data-vit="' + n + '"></div>' +
         '<div style="text-align:center;margin-top:20px"><a class="nvh-btn" href="' + hEsc(V.url) + '">' + hEsc(V.boton || 'Ver todos') + ' →</a></div>');
     });
+    // Grilla estilo Wess ("Promociones limitadas"): productos reales en 2 columnas y, debajo, categorías con fotos recortadas que giran
+    var G = H.grilla;
+    if (G && (G.url || (G.categorias && G.categorias.length))) {
+      html += '<section class="nvh-sec nvh-gw-s"><div class="nvh-in">' + (G.titulo ? '<h2 class="nvh-gw-h">' + hEsc(G.titulo) + '</h2>' : '') +
+        (G.url ? '<div class="nvh-gw"></div>' : '') +
+        (G.categorias && G.categorias.length ? '<div class="nvh-gw-cats">' + G.categorias.map(function (c) {
+          return '<a href="' + hEsc(c.url) + '">' + (c.foto ? '<img src="' + hEsc(c.foto) + '" alt="" loading="lazy">' : '') + '<span>' + hEsc(c.nombre) + '</span></a>';
+        }).join('') + '</div>' : '') + '</div></section>';
+    }
     var W = H.porQue;
     if (W && W.items && W.items.length) {
       html += sec('nvh-dark', W.etiqueta || '', W.titulo || 'Por qué elegirnos', W.texto || '',
@@ -1184,6 +1260,7 @@
       }
     }
     cargarVitrinas(H.vitrinas || []);
+    if (G) cargarGrilla(G, oscuro);
     // Portada estilo Wess: franja con reloj en vivo (o cuenta regresiva del evento), logo, etiqueta, título gigante y botón
     var PO = H.portada;
     if (PO && !document.querySelector('.nvp')) {
@@ -1303,7 +1380,7 @@
         portadaEl.insertAdjacentHTML('afterend', ben);
         // Las vitrinas estilo Wess van pegadas a los beneficios, como en la portada de Wess
         var benEl = portadaEl.nextElementSibling;
-        [].slice.call(document.querySelectorAll('.nvh-vw-s')).reverse().forEach(function (s) {
+        [].slice.call(document.querySelectorAll('.nvh-vw-s, .nvh-gw-s')).reverse().forEach(function (s) {
           benEl.insertAdjacentHTML('afterend', '<div class="nvh"></div>');
           benEl.nextElementSibling.appendChild(s);
         });
