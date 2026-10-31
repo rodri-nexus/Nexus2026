@@ -1021,7 +1021,7 @@
 
   // Grilla estilo Wess: trae las tarjetas reales de la categoría y las arma con foto, etiqueta sobre la foto, precio de lista tachado,
   // "QUEDAN N" (stock real), "MEJOR PRECIO" por transferencia, cuotas y "VER →" (ver tarjetaWess)
-  function cargarGrilla(G, oscuro) {
+  function cargarGrilla(G, oscuro, n) {
     var C = NEVUX.color, CT = NEVUX.colorTexto;
     if (!document.querySelector('#nvx-anton')) {
       var lk = document.createElement('link'); lk.id = 'nvx-anton'; lk.rel = 'stylesheet';
@@ -1049,7 +1049,7 @@
       '@keyframes nvh-gi{0%,100%{transform:rotateY(-24deg) rotate(-3deg)}50%{transform:rotateY(24deg) rotate(3deg)}}' +
       '.nvh-gw-cats span{font:400 clamp(12px,3.4vw,16px)/1 Anton,Oswald,sans-serif;text-transform:uppercase;letter-spacing:.02em;text-align:center}' +
       '@media (prefers-reduced-motion: reduce){.nvh-gw-cats img{animation:none}}');
-    var box = document.querySelector('.nvh-gw');
+    var box = document.querySelector('.nvh-gw[data-g="' + (n || 0) + '"]');
     if (!box) return;
     var quitar = function () {
       var s = box.closest('.nvh-gw-s'), h = s && s.querySelector('.nvh-gw-h');
@@ -1084,6 +1084,72 @@
           (G.pill ? '<em>' + hEsc(G.pill) + '</em>' : '') + '</a><a class="n" href="' + hEsc(href) + '">' + hEsc(nom) + '</a>' + datos + '</div>');
       });
     }).catch(quitar);
+  }
+
+  // Foto con puntos estilo Wess: título, link, 4 detalles en las esquinas y una línea de cada detalle a su punto sobre la foto.
+  // Al aparecer en pantalla se dibujan las líneas y aparecen los puntos, que después laten.
+  function puntosWess(PT) {
+    var C = NEVUX.color;
+    hCss('nvx-pw-css',
+      '.nvh-pw-s{background:#fff!important;color:#111!important}' +
+      '.nvh-pw-s .nvh-in{max-width:760px}' +
+      '.nvh-pw-h{margin:0;font:400 clamp(30px,8.4vw,46px)/1.02 Anton,Oswald,sans-serif;letter-spacing:-.005em;color:#111;text-wrap:balance}' +
+      '.nvh-pw-l{display:inline-flex;align-items:center;gap:10px;margin-top:18px;font:500 16px/1 Inter,sans-serif;color:#111!important;text-decoration:none!important}' +
+      '.nvh-pw-l i{display:grid;place-items:center;width:20px;height:20px;border:1.5px solid #111;border-radius:50%;font-style:normal;font-size:12px}' +
+      '.nvh-pw{position:relative;margin-top:28px}' +
+      '.nvh-pw-r{display:grid;grid-template-columns:1fr 1fr;gap:16px;position:relative;z-index:2}' +
+      '.nvh-pw-i b{display:block;font:400 clamp(14px,4vw,18px)/1.1 Anton,Oswald,sans-serif;text-transform:uppercase;letter-spacing:.01em}' +
+      '.nvh-pw-i p{margin:5px 0 0;font:400 13px/1.45 Inter,sans-serif;color:#6b7280}' +
+      '.nvh-pw-i:nth-child(2){text-align:right}' +
+      '.nvh-pw-f{position:relative;margin:26px 0}.nvh-pw-f img{width:100%;display:block}' +
+      '.nvh-pw svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1}' +
+      '.nvh-pw path{fill:none;stroke:' + C + ';stroke-width:1.6;transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1)}' +
+      '.nvh-pw-p{position:absolute;z-index:3;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;background:#fff;border:3px solid ' + C + ';box-shadow:0 2px 8px rgba(0,0,0,.25);transform:scale(0);transition:transform .45s cubic-bezier(.3,1.6,.5,1)}' +
+      '.nvh-pw-p:after{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px;border-radius:50%;background:#111}' +
+      '.nvh-pw.on .nvh-pw-p{transform:scale(1);animation:nvh-pwp 2.2s ease-out infinite}' +
+      '@keyframes nvh-pwp{0%{box-shadow:0 0 0 0 ' + C + 'aa,0 2px 8px rgba(0,0,0,.25)}70%,100%{box-shadow:0 0 0 14px ' + C + '00,0 2px 8px rgba(0,0,0,.25)}}' +
+      '@media (prefers-reduced-motion: reduce){.nvh-pw path{transition:none}.nvh-pw-p{transform:scale(1);transition:none}.nvh-pw.on .nvh-pw-p{animation:none}}');
+    var it = PT.items.slice(0, 4);
+    var item = function (x, i) { return x ? '<div class="nvh-pw-i" data-i="' + i + '"><b>' + hEsc(x.titulo) + '</b>' + (x.texto ? '<p>' + hEsc(x.texto) + '</p>' : '') + '</div>' : '<div></div>'; };
+    return '<section class="nvh-sec nvh-pw-s"><div class="nvh-in"><h2 class="nvh-pw-h">' + hEsc(PT.titulo || '') + '</h2>' +
+      (PT.url ? '<a class="nvh-pw-l" href="' + hEsc(PT.url) + '"><i>→</i>' + hEsc(PT.boton || 'Ver producto') + '</a>' : '') +
+      '<div class="nvh-pw"><svg aria-hidden="true"></svg><div class="nvh-pw-r">' + item(it[0], 0) + item(it[1], 1) + '</div>' +
+      '<div class="nvh-pw-f"><img src="' + hEsc(PT.foto) + '" alt="">' +
+      it.map(function (x, i) { return '<span class="nvh-pw-p" data-i="' + i + '" style="left:' + x.x + '%;top:' + x.y + '%;transition-delay:' + (0.5 + i * 0.25) + 's"></span>'; }).join('') +
+      '</div><div class="nvh-pw-r">' + item(it[2], 2) + item(it[3], 3) + '</div></div></div></section>';
+  }
+  function initPuntosWess() {
+    [].forEach.call(document.querySelectorAll('.nvh-pw:not([data-nvx-a])'), function (box) {
+      box.setAttribute('data-nvx-a', '1');
+      var svg = box.querySelector('svg'), img = box.querySelector('img'), on = false;
+      // Cada línea baja (o sube) desde su texto hasta la altura del punto y dobla hacia él
+      var dibujar = function () {
+        var b = box.getBoundingClientRect(), d = '';
+        if (!b.width) return;
+        svg.setAttribute('viewBox', '0 0 ' + b.width + ' ' + b.height);
+        svg.innerHTML = [].map.call(box.querySelectorAll('.nvh-pw-p'), function (p) {
+          var i = +p.getAttribute('data-i'), lab = box.querySelector('.nvh-pw-i[data-i="' + i + '"]');
+          if (!lab) return '';
+          var r = p.getBoundingClientRect(), l = lab.getBoundingClientRect();
+          var px = r.left + r.width / 2 - b.left, py = r.top + r.height / 2 - b.top;
+          var ay = i < 2 ? l.bottom - b.top + 8 : l.top - b.top - 8;
+          var ax = Math.max(l.left - b.left + 14, Math.min(l.right - b.left - 14, px));
+          return '<path d="M' + ax.toFixed(1) + ' ' + ay.toFixed(1) + 'V' + py.toFixed(1) + 'H' + px.toFixed(1) + '" style="transition-delay:' + (i * 0.25) + 's"/>';
+        }).join('');
+        [].forEach.call(svg.querySelectorAll('path'), function (pa) {
+          var len = pa.getTotalLength();
+          pa.style.strokeDasharray = len;
+          pa.style.strokeDashoffset = on ? 0 : len;
+        });
+      };
+      if (img.complete) dibujar(); else img.addEventListener('load', dibujar);
+      window.addEventListener('resize', dibujar);
+      var prender = function () { on = true; box.classList.add('on'); [].forEach.call(svg.querySelectorAll('path'), function (pa) { pa.style.strokeDashoffset = 0; }); };
+      if ('IntersectionObserver' in window && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+        var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); dibujar(); requestAnimationFrame(prender); } }, { threshold: 0.35 });
+        io.observe(box);
+      } else { dibujar(); prender(); }
+    });
   }
 
   // Secciones de la home
@@ -1181,7 +1247,7 @@
     }
     // Foto con puntos que explican cada detalle del producto
     var PT = H.puntos;
-    if (PT && PT.foto && PT.items && PT.items.length) {
+    if (PT && PT.foto && PT.items && PT.items.length && PT.estilo !== 'wess') {
       html += sec('', PT.etiqueta || '', PT.titulo || '', PT.texto || '',
         '<div class="nvh-pts"><div class="nvh-pts-f"><img src="' + hEsc(PT.foto) + '" alt="" loading="lazy">' +
         PT.items.map(function (it, i) { return '<button class="nvh-pt" data-i="' + i + '" style="left:' + it.x + '%;top:' + it.y + '%" aria-label="' + hEsc(it.titulo) + '">' + (i + 1) + '</button>'; }).join('') +
@@ -1202,15 +1268,19 @@
         '<div class="nvh-vit-row" data-vit="' + n + '"></div>' +
         '<div style="text-align:center;margin-top:20px"><a class="nvh-btn" href="' + hEsc(V.url) + '">' + hEsc(V.boton || 'Ver todos') + ' →</a></div>');
     });
-    // Grilla estilo Wess ("Promociones limitadas"): productos reales en 2 columnas y, debajo, categorías con fotos recortadas que giran
-    var G = H.grilla;
-    if (G && (G.url || (G.categorias && G.categorias.length))) {
+    // Grillas estilo Wess ("Promociones limitadas", "Ofertas"): productos reales en 2 columnas y, debajo, categorías con fotos recortadas que giran.
+    // H.grilla puede ser una sola o una lista. La foto con puntos estilo Wess va después de la primera grilla, como en Wess.
+    var GS = [].concat(H.grilla || []).filter(function (G) { return G && (G.url || (G.categorias && G.categorias.length)); });
+    var pw = PT && PT.estilo === 'wess' && PT.foto && PT.items && PT.items.length ? puntosWess(PT) : '';
+    GS.forEach(function (G, n) {
       html += '<section class="nvh-sec nvh-gw-s"><div class="nvh-in">' + (G.titulo ? '<h2 class="nvh-gw-h">' + hEsc(G.titulo) + '</h2>' : '') +
-        (G.url ? '<div class="nvh-gw"></div>' : '') +
+        (G.url ? '<div class="nvh-gw" data-g="' + n + '"></div>' : '') +
         (G.categorias && G.categorias.length ? '<div class="nvh-gw-cats">' + G.categorias.map(function (c) {
           return '<a href="' + hEsc(c.url) + '">' + (c.foto ? '<img src="' + hEsc(c.foto) + '" alt="" loading="lazy">' : '') + '<span>' + hEsc(c.nombre) + '</span></a>';
         }).join('') + '</div>' : '') + '</div></section>';
-    }
+      if (!n) { html += pw; pw = ''; }
+    });
+    html += pw;
     var W = H.porQue;
     if (W && W.items && W.items.length) {
       html += sec('nvh-dark', W.etiqueta || '', W.titulo || 'Por qué elegirnos', W.texto || '',
@@ -1260,7 +1330,8 @@
       }
     }
     cargarVitrinas(H.vitrinas || []);
-    if (G) cargarGrilla(G, oscuro);
+    GS.forEach(function (G, n) { cargarGrilla(G, oscuro, n); });
+    initPuntosWess();
     // Portada estilo Wess: franja con reloj en vivo (o cuenta regresiva del evento), logo, etiqueta, título gigante y botón
     var PO = H.portada;
     if (PO && !document.querySelector('.nvp')) {
@@ -1380,7 +1451,7 @@
         portadaEl.insertAdjacentHTML('afterend', ben);
         // Las vitrinas estilo Wess van pegadas a los beneficios, como en la portada de Wess
         var benEl = portadaEl.nextElementSibling;
-        [].slice.call(document.querySelectorAll('.nvh-vw-s, .nvh-gw-s')).reverse().forEach(function (s) {
+        [].slice.call(document.querySelectorAll('.nvh-vw-s, .nvh-gw-s, .nvh-pw-s')).reverse().forEach(function (s) {
           benEl.insertAdjacentHTML('afterend', '<div class="nvh"></div>');
           benEl.nextElementSibling.appendChild(s);
         });

@@ -236,6 +236,20 @@ export const CLIENTES: Record<string, Cliente> = {
             { nombre: 'Tressa', url: '/search/?q=tressa', foto: 'https://nevux.ar/clientes/valmont/cat-smartwatches.svg' }
           ]
         },
+        // Parte 4: foto con puntos estilo Wess ("Buscá el jean que no pase desapercibido"). Reloj dibujado, sin marca.
+        puntos: {
+          estilo: 'wess',
+          titulo: 'Buscá el reloj que no pase desapercibido.',
+          url: '/productos/',
+          boton: 'Ver todos los relojes',
+          foto: 'https://nevux.ar/clientes/valmont/detalle-reloj.svg',
+          items: [
+            { titulo: 'Esfera prolija', texto: 'Índices y textos nítidos, bien alineados.', x: 56.8, y: 45.1 },
+            { titulo: 'Corona firme', texto: 'Gira suave y ajusta sin juego.', x: 58.6, y: 21.5 },
+            { titulo: 'Caja sin marcas', texto: 'Terminación pareja en cada borde.', x: 54.7, y: 76.3 },
+            { titulo: 'Malla original', texto: 'Con el cierre de su marca.', x: 82.6, y: 75.5 }
+          ]
+        },
         porQue: {
           etiqueta: 'Valmont & Co.',
           titulo: 'Por qué Valmont',
