@@ -1,0 +1,48 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&display=block" rel="stylesheet">
+<style>*{margin:0}html,body{width:100vw;height:100vh;overflow:hidden}body{display:grid;place-items:center}</style></head><body><div id="x"></div>
+<script>
+const M=window.M, S=window.S||1024;
+const fondos={estudio:'radial-gradient(ellipse at 50% 42%,#2a2520 0%,#110f0d 55%,#060505 100%)',claro:'radial-gradient(ellipse at 50% 40%,#fbf8f2 0%,#ece5d8 70%,#ddd3c2 100%)',none:'transparent'};
+document.body.style.background=fondos[window.F||'estudio'];
+const caja={oro:['#f7e7b0','#c9a961','#8a6d2f'],acero:['#f4f5f6','#b7bcc2','#6c727a'],negro:['#5a5a5a','#262626','#0b0b0b'],rosa:['#f6d9c8','#c99a80','#8a5f4a']}[M.caja];
+const malla={cuero:['#6b4226','#4a2c18'],cueroNegro:['#2b2522','#151210'],goma:['#2a2a2a','#121212'],acero:caja,oro:caja}[M.malla];
+const metal=M.malla==='acero'||M.malla==='oro';
+let links='';
+if(metal){for(let i=0;i<7;i++){const y=i*34;links+=`<rect x="378" y="${y}" width="268" height="30" rx="4" fill="url(#mg)"/><rect x="452" y="${y}" width="120" height="30" rx="3" fill="url(#mg2)" opacity=".85"/>`;}}
+const strapTop=metal?`<g>${links}</g>`:`<path d="M392 0 H632 L612 250 H412 Z" fill="url(#sg)"/>${M.malla!=='goma'?'<path d="M404 20 V230 M620 20 V230" stroke="#00000055" stroke-width="2" stroke-dasharray="6 7"/>':''}`;
+const strapBot=metal?`<g transform="translate(0,780)">${links}</g>`:`<path d="M412 774 H612 L632 1024 H392 Z" fill="url(#sg)"/>${M.malla!=='goma'?'<path d="M404 800 V1010 M620 800 V1010" stroke="#00000055" stroke-width="2" stroke-dasharray="6 7"/>':''}`;
+let idx='';for(let i=0;i<12;i++){const a=i*30*Math.PI/180;const r1=M.cron?178:186,r2=i%3==0?140:156;const x1=512+r1*Math.sin(a),y1=512-r1*Math.cos(a),x2=512+r2*Math.sin(a),y2=512-r2*Math.cos(a);idx+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${M.ind}" stroke-width="${i%3==0?9:5}" stroke-linecap="round"/>`;}
+let mins='';for(let i=0;i<60;i++){if(i%5==0)continue;const a=i*6*Math.PI/180;mins+=`<line x1="${512+190*Math.sin(a)}" y1="${512-190*Math.cos(a)}" x2="${512+182*Math.sin(a)}" y2="${512-182*Math.cos(a)}" stroke="${M.ind}" stroke-width="2" opacity=".7"/>`;}
+const sub=(cx,cy)=>`<circle cx="${cx}" cy="${cy}" r="40" fill="${M.sub}" stroke="${M.ind}" stroke-opacity=".5" stroke-width="2"/><line x1="${cx}" y1="${cy}" x2="${cx+18}" y2="${cy-26}" stroke="${M.ind}" stroke-width="3"/><circle cx="${cx}" cy="${cy}" r="4" fill="${M.ind}"/>`;
+const subs=M.cron?sub(512,600)+sub(430,512)+sub(594,512):'';
+const bezel=M.bisel?`<circle cx="512" cy="512" r="236" fill="none" stroke="${M.bisel}" stroke-width="30"/>${Array.from({length:12},(_,i)=>{const a=i*30*Math.PI/180;return `<line x1="${512+228*Math.sin(a)}" y1="${512-228*Math.cos(a)}" x2="${512+244*Math.sin(a)}" y2="${512-244*Math.cos(a)}" stroke="${M.ind}" stroke-width="${i==0?7:3}"/>`}).join('')}`:'';
+document.getElementById('x').innerHTML=`<svg width="${S}" height="${S}" viewBox="0 0 1024 1024">
+<defs>
+<linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${caja[0]}"/><stop offset=".45" stop-color="${caja[1]}"/><stop offset="1" stop-color="${caja[2]}"/></linearGradient>
+<linearGradient id="mg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${caja[2]}"/><stop offset=".5" stop-color="${caja[0]}"/><stop offset="1" stop-color="${caja[2]}"/></linearGradient>
+<linearGradient id="mg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${caja[0]}"/><stop offset="1" stop-color="${caja[1]}"/></linearGradient>
+<linearGradient id="sg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${malla[1]}"/><stop offset=".5" stop-color="${malla[0]}"/><stop offset="1" stop-color="${malla[1]}"/></linearGradient>
+<radialGradient id="dg" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="${M.dial[0]}"/><stop offset="1" stop-color="${M.dial[1]}"/></radialGradient>
+<linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="28" stdDeviation="30" flood-color="#000" flood-opacity=".55"/></filter>
+</defs>
+<g filter="url(#sh)">
+${strapTop}${strapBot}
+<rect x="370" y="236" width="284" height="60" rx="18" fill="url(#cg)"/><rect x="370" y="728" width="284" height="60" rx="18" fill="url(#cg)"/>
+<rect x="752" y="478" width="34" height="68" rx="8" fill="url(#cg)"/>${M.cron?'<rect x="738" y="400" width="26" height="40" rx="6" fill="url(#cg)" transform="rotate(30 751 420)"/><rect x="738" y="584" width="26" height="40" rx="6" fill="url(#cg)" transform="rotate(-30 751 604)"/>':''}
+<circle cx="512" cy="512" r="262" fill="url(#cg)"/>
+<circle cx="512" cy="512" r="250" fill="none" stroke="${caja[2]}" stroke-width="2" opacity=".6"/>
+${bezel}
+<circle cx="512" cy="512" r="${M.bisel?218:232}" fill="url(#dg)"/>
+${mins}${idx}${subs}
+<path d="M498 ${M.cron?650:580} L512 ${M.cron?676:606} L526 ${M.cron?650:580}" fill="none" stroke="${M.ind}" stroke-width="4"/>
+<text x="512" y="${M.cron?706:640}" text-anchor="middle" font-family="Cinzel" font-size="22" letter-spacing="5" fill="${M.ind}">VALMONT</text>
+${M.fecha?`<rect x="626" y="496" width="40" height="32" rx="3" fill="#fff" stroke="${M.ind}" stroke-width="2"/><text x="646" y="520" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111">17</text>`:''}
+<line x1="512" y1="512" x2="${512-96}" y2="${512-84}" stroke="${M.manos}" stroke-width="13" stroke-linecap="round"/>
+<line x1="512" y1="512" x2="${512+120}" y2="${512-150}" stroke="${M.manos}" stroke-width="8" stroke-linecap="round"/>
+<line x1="${512+40}" y1="${512-30}" x2="${512-150}" y2="${512+112}" stroke="${M.seg}" stroke-width="3" stroke-linecap="round"/>
+<circle cx="512" cy="512" r="13" fill="${M.manos}"/><circle cx="512" cy="512" r="5" fill="${M.seg}"/>
+<circle cx="512" cy="512" r="${M.bisel?218:232}" fill="url(#gl)"/>
+</g></svg>`;
+</script></body></html>

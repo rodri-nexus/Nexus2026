@@ -66,6 +66,13 @@ Probado en Doggies (Morelia): las 6 piezas funcionan, el carrito recibe el produ
 - **Home: vitrinas** (`home.vitrinas`): trae las tarjetas reales de una categoría y las muestra en carrusel con botón "Ver".
 - **Tarjetas destacadas** (`tarjetas.estilo: 'destacado'`) y **comparativa con barra animada**.
 
+### Hecho (31/10/2026): plan Premium
+
+- **Tipografías de marca y entrada animada** de cada sección al bajar (`premium`).
+- **Portada de lujo en la home** (`home.hero`): foto que gira y se agranda suave al bajar.
+- **Especificaciones** (`especificaciones`), **medidor de muñeca** (`muneca`: compara el diámetro de la caja con la muñeca), **qué incluye** (`incluye`) y **para regalar** (`regalo`).
+- **Demo de Valmont & Co.** en `nevux.ar/demo/valmont/` (generador: `scripts/demo/valmont.py`). Fotos, precios y datos ilustrativos.
+
 ### Arreglos conocidos
 
 - ✅ Insignias angostas en Brasilia y Recife: arreglado en v4. Se insertan debajo del primer bloque que ocupa al menos el 90% del ancho del formulario.
