@@ -89,6 +89,12 @@ WhatsApp del cliente: +54 2954 688637 (`whatsapp: '5492954688637'`). Pendiente: 
 - **Productos similares llenos:** Tiendanube solo trae los de la misma categoría (a veces 1). Se completa con el resto del catálogo hasta 8 (`ficha.similaresCantidad`).
 - **Plantilla:** Wess usa **Recife** (`LS.theme.code: "recife"`). El 31/10 Rodrigo pasó Valmont de Morelia a Recife. Nevux se probó entero sobre Recife (home, ficha, cabecera y pie). En Recife el pie ya trae el newsletter arriba, "Categorías" desplegable y la franja legal: `initPie` solo le pone colores, marca y redes. **Al cambiar de plantilla se pierde la línea de Nevux de "Sellos personalizados": hay que volver a pegarla.**
 
+## Cobro
+
+- **Plan Premium:** $69.900/mes. Link para mandarle al cliente: **https://nevux.ar/suscribirme?c=valmont**. Abre la página con el plan Premium y el botón a `mpago.la/2mkcebx`.
+- **Cuando el cliente dé el ok:** apagar Nevux (`activo: false`) hasta que pague.
+- **Cuando pague:** `activo: true` y `cobro: { tipo: 'mercadopago', email: '<email con el que se suscribió>', gracia: 5 }`.
+
 ## Cómo probar sin productos
 
 - **Home:** probarla en la tienda real de Valmont.

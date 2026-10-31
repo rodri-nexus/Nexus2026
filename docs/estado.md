@@ -22,6 +22,7 @@
   - Vista previa de marca al compartir: `public/compartir.jpg`.
 - **Página de links:** `nevux.ar/links`, para la bio de Instagram. Miniaturas en `public/links/`.
 - **Suscripción:**
+  - Planes: Básico $39.900/mes (`mpago.la/1LqFYin`) y **Premium $69.900/mes** (`mpago.la/2mkcebx`, creado el 31/10). Ver `lib/planes.ts` y `docs/clientes.md`.
   - Página de pago: `nevux.ar/suscribirme?c=<cliente>`.
   - Página de gracias: `nevux.ar/gracias`.
   - Mercado Pago: `mpago.la/1LqFYin` ($39.900/mes).
@@ -63,7 +64,6 @@ Lo que se está haciendo ahora. **Ver `docs/valmont.md`.**
 ## Decisiones pendientes de Rodrigo
 
 - Si la home va incluida en los $39.900 o se cobra aparte.
-- Precio del plan Premium (sugerido: más alto que el Básico, o un pago inicial por el diseño más el mensual).
 - Días de gracia antes de apagar por falta de pago (hoy 5).
 
 ## Pendientes técnicos
