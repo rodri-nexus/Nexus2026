@@ -177,6 +177,9 @@ export const CLIENTES: Record<string, Cliente> = {
       porProducto: {
         '/productos/valmontco-com/': {
           fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-gshock-gst-b400.mp4', poster: 'https://nevux.ar/clientes/valmont/video-gshock-gst-b400.jpg' }]
+        },
+        '/productos/rolex-submariner-date-acero-inoxidable-1roj1/': {
+          fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-rolex-submariner.mp4', poster: 'https://nevux.ar/clientes/valmont/video-rolex-submariner.jpg' }]
         }
       },
       estiloFicha: 'wess',
