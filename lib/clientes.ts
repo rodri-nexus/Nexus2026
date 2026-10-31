@@ -156,16 +156,82 @@ export const CLIENTES: Record<string, Cliente> = {
     activo: true,
     cobro: { tipo: 'manual' },
     dominios: ['valmontrelojes.mitiendanube.com'],
-    // Plan Premium con estilo Wess (negro y dorado). Contenido real a medida que lleguen fotos, precios y datos.
+    // Relojería multimarca de originales (Casio, G-Shock, Mistral, Tressa, smartwatches) con estilo Wess en negro y dorado.
+    // Garantía, envíos y medios de pago: textos genéricos hasta confirmar los datos reales con el cliente.
     config: {
       color: '#c9a961',
       marca: { oscuro: '#0c0b0a' },
-      premium: { titulos: 'Cinzel', texto: 'Cormorant Garamond', animar: true },
+      premium: { titulos: 'Oswald', texto: 'Inter', animar: true, tema: 'wess' },
       estiloFicha: 'oscuro',
       precios: true,
-      tarjetas: { estilo: 'destacado' },
+      tarjetas: { estilo: 'wess' },
       packs: [],
-      ventas: false
+      ventas: false,
+      anuncios: ['⌚ Relojes originales con garantía oficial', '🚚 Envíos a todo el país', '🎁 Listos para regalar'],
+      cinta: ['Originales', 'Garantía oficial', 'Envíos a todo el país', 'Listos para regalar'],
+      incluye: {
+        titulo: 'Qué incluye tu reloj',
+        items: [
+          { icono: '⌚', titulo: 'Reloj original', texto: 'Nuevo, en su caja.' },
+          { icono: '📜', titulo: 'Garantía oficial', texto: 'De la marca.' },
+          { icono: '🧾', titulo: 'Factura', texto: 'A tu nombre.' },
+          { icono: '🚚', titulo: 'Envío protegido', texto: 'Con seguimiento.' }
+        ]
+      },
+      regalo: { titulo: '¿Es para regalar?', texto: 'Avisanos por WhatsApp y lo preparamos para regalo.' },
+      problemaSolucion: {
+        etiqueta: 'El problema que todos conocen',
+        titulo: 'Antes vs. con Valmont',
+        antesTitulo: 'Comprando en cualquier lado',
+        antes: ['No sabés si es original', 'Sin factura ni garantía', 'Si falla, nadie responde', 'Te llega sin caja ni papeles'],
+        despuesTitulo: 'Con Valmont',
+        despues: ['Relojes originales de cada marca', 'Factura y garantía oficial', 'Atención personalizada', 'Llega en su caja original']
+      },
+      comparativa: {
+        titulo: 'Valmont vs. comprar en cualquier lado',
+        marca: 'Valmont',
+        otro: 'Otros',
+        filas: ['Relojes originales', 'Garantía oficial de la marca', 'Factura a tu nombre', 'Caja y papeles originales', 'Atención personalizada']
+      },
+      faq: [
+        { p: '¿Los relojes son originales?', r: 'Sí. Vendemos relojes originales comprados a distribuidores oficiales de cada marca, con factura y garantía.' },
+        { p: '¿Tienen garantía?', r: 'Sí, la garantía oficial de cada marca. Te ayudamos con cualquier gestión.' },
+        { p: '¿Cuánto tarda el envío?', r: 'Enviamos a todo el país. Te pasamos el seguimiento apenas sale.' },
+        { p: '¿Viene en su caja?', r: 'Sí, cada reloj llega en su caja original con sus papeles.' },
+        { p: '¿Cómo elijo el tamaño?', r: 'En cada reloj te dejamos el diámetro de la caja y un medidor para ver cómo te queda en la muñeca.' }
+      ],
+      home: {
+        hero: {
+          etiqueta: 'Valmont & Co. · Relojería',
+          titulo: 'Relojes originales.',
+          destacado: 'Elegí el tuyo.',
+          texto: 'Las marcas que conocés, con factura y garantía oficial. Envíos a todo el país.',
+          url: '/productos/',
+          boton: 'Ver todos los relojes',
+          reemplazarBanner: true
+        },
+        beneficios: [
+          { icono: '⌚', titulo: 'Originales', texto: 'De distribuidores oficiales.' },
+          { icono: '🛡️', titulo: 'Garantía oficial', texto: 'De cada marca.' },
+          { icono: '🚚', titulo: 'Envíos', texto: 'A todo el país.' }
+        ],
+        porQue: {
+          etiqueta: 'Valmont & Co.',
+          titulo: 'Por qué Valmont',
+          items: [
+            { destacado: 'Original', titulo: 'Sin dudas', texto: 'Cada reloj viene de un distribuidor oficial de la marca.', pie: 'Origen garantizado' },
+            { destacado: 'Factura', titulo: 'A tu nombre', texto: 'Con la garantía oficial de la marca.', pie: 'Compra segura' },
+            { destacado: 'Atención', titulo: 'Personalizada', texto: 'Te ayudamos a elegir el reloj y el tamaño.', pie: 'Relojería' }
+          ]
+        },
+        faqTitulo: 'Lo que siempre nos preguntan',
+        faq: [
+          { p: '¿Los relojes son originales?', r: 'Sí, comprados a distribuidores oficiales, con factura y garantía.' },
+          { p: '¿Tienen garantía?', r: 'Sí, la garantía oficial de cada marca.' },
+          { p: '¿Hacen envíos?', r: 'Sí, a todo el país, con seguimiento.' }
+        ],
+        cierre: { etiqueta: 'Valmont & Co.', titulo: 'Esto fue una selección', texto: 'Todos los relojes, con factura y garantía oficial.', boton: 'Ver el catálogo completo', url: '/productos/' }
+      }
     }
   },
 };

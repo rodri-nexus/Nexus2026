@@ -600,7 +600,7 @@
     }
     var CP = NEVUX.comparativa;
     if (CP && CP.filas && CP.filas.length) {
-      cont += '<div class="nvx-sec"><div class="nvx-h">' + esc(CP.titulo || '¿Por qué elegirnos?') + '</div><div class="nvx-card" style="padding:6px 10px">' +
+      cont += '<div class="nvx-sec nvx-sec-cmp"><div class="nvx-h">' + esc(CP.titulo || '¿Por qué elegirnos?') + '</div><div class="nvx-card" style="padding:6px 10px">' +
         '<div class="nvx-cmpw"><div class="nvx-cmp-bar"></div><table class="nvx-cmp"><tr><th></th><th class="nvx-m">' + esc(CP.marca || 'Nosotros') + '</th><th>' + esc(CP.otro || 'Otros') + '</th></tr>' +
         CP.filas.map(function (f) { return '<tr><td>' + esc(f) + '</td><td class="nvx-m">✓</td><td class="nvx-x">✕</td></tr>'; }).join('') +
         '</table></div></div></div>';
@@ -619,7 +619,7 @@
       faqs.push({ p: '¿Puedo devolverlo si me arrepiento?', r: 'Sí. Por ser una compra a distancia tenés 10 días corridos desde que lo recibís para arrepentirte (art. 34 de la Ley 24.240 de Defensa del Consumidor). Escribinos y te indicamos cómo devolverlo.' });
     }
     if (faqs.length) {
-      cont += '<div class="nvx-sec"><div class="nvx-h">Preguntas frecuentes</div>' +
+      cont += '<div class="nvx-sec nvx-sec-faq"><div class="nvx-h">Preguntas frecuentes</div>' +
         faqs.map(function (f) { return '<details class="nvx-faq"><summary>' + esc(f.p) + '</summary><div>' + esc(f.r) + '</div></details>'; }).join('') + '</div>';
     }
     if (cont) {
@@ -812,7 +812,9 @@
       if (!pr) return;
       var precio = hNum(pr.textContent);
       var html = '';
-      if (T.estilo === 'destacado') {
+      if (T.estilo === 'wess') {
+        html += tarjetaWess(card, precio, T);
+      } else if (T.estilo === 'destacado') {
         html += tarjetaDestacada(card, precio, T);
       } else if (T.transferencia > 0 && precio) {
         html += '<div class="nvx-tc"><span>MEJOR PRECIO</span><b>' + hMoney(precio * (1 - T.transferencia / 100)) + '</b><small>pagando por transferencia</small></div>';
@@ -882,6 +884,39 @@
       else if (max > 1 && valMax) out += '<div class="nvx-td-q"><span>Hasta ' + max + ' cuotas de</span><b>' + hMoney(valMax) + '</b></div>';
     } catch (e) {}
     return out ? '<div class="nvx-td">' + out + '</div>' : '';
+  }
+
+  // Tarjeta estilo Wess: precio de lista tachado, caja "MEJOR PRECIO" por transferencia, cuotas y botón "VER →"
+  function tarjetaWess(card, precio, T) {
+    var C = NEVUX.color;
+    hCss('nvx-tw2-css',
+      '.nvx-tw2{margin-top:6px;font-family:' + FONT + ';text-align:left}' +
+      '.nvx-tw2 .l{font-size:9.5px;font-weight:800;letter-spacing:.14em;color:#9ca3af;text-transform:uppercase}' +
+      '.nvx-tw2 s{display:block;font-size:12px;color:#9ca3af}' +
+      '.nvx-tw2 .mp{background:' + C + '1f;border-radius:12px;padding:8px 10px;margin:8px 0}' +
+      '.nvx-tw2 .mp span{display:block;font-size:9.5px;font-weight:900;letter-spacing:.12em;color:' + C + '}' +
+      '.nvx-tw2 .mp b{display:block;font-size:20px;font-weight:900;color:#111;line-height:1.1}' +
+      '.nvx-tw2 .mp small{display:block;font-size:10.5px;color:' + C + ';opacity:.85}' +
+      '.nvx-tw2 .q{font-size:11px;color:#4b5563}.nvx-tw2 .q b{display:block;font-size:15px;color:#111}' +
+      '.nvx-tw2 .ver{display:flex;justify-content:center;gap:8px;margin-top:10px;background:#0c0b0a;color:#fff!important;border-radius:999px;padding:10px;font:800 11px/1 ' + FONT + ';letter-spacing:.14em;text-transform:uppercase;text-decoration:none!important}');
+    var v = null;
+    try { var dv = card.hasAttribute('data-variants') ? card : card.querySelector('[data-variants]'); v = dv ? JSON.parse(dv.getAttribute('data-variants'))[0] : null; } catch (e) {}
+    precio = (v && v.price_number) || precio;
+    if (!precio) return '';
+    var out = '';
+    if (v && v.compare_at_price_number > precio) out += '<span class="l">Precio de lista</span><s>' + hMoney(v.compare_at_price_number) + '</s>';
+    var transf = T.transferencia || 0;
+    if (!transf && v && v.price_with_payment_discount_short) { var pd = hNum(v.price_with_payment_discount_short); if (pd && pd < precio) transf = Math.round((1 - pd / precio) * 100); }
+    if (transf > 0) out += '<div class="mp"><span>MEJOR PRECIO</span><b>' + hMoney(precio * (1 - transf / 100)) + '</b><small>pagando por transferencia</small></div>';
+    try {
+      var inst = JSON.parse(v.installments_data), sin = 0, max = 0, valMax = 0;
+      Object.keys(inst).forEach(function (g) { Object.keys(inst[g]).forEach(function (n) { var q = inst[g][n]; if (q.without_interests && +n > sin) sin = +n; if (+n > max) { max = +n; valMax = q.installment_value; } }); });
+      if (sin > 1) out += '<div class="q">' + sin + ' cuotas sin interés<b>' + hMoney(precio / sin) + '</b></div>';
+      else if (max > 1 && valMax) out += '<div class="q">Hasta ' + max + ' cuotas de<b>' + hMoney(valMax) + '</b></div>';
+    } catch (e) {}
+    var a = card.querySelector('a[href*="/productos/"]');
+    if (a) out += '<a class="ver" href="' + a.getAttribute('href') + '">Ver →</a>';
+    return '<div class="nvx-tw2">' + out + '</div>';
   }
 
   // Comparativa: al bajar, una barra recorre la columna de la marca y cada ✓ se ilumina al pasar
@@ -1099,7 +1134,7 @@
     }
     cargarVitrinas(H.vitrinas || []);
     var HE = H.hero;
-    if (HE && HE.foto && !document.querySelector('.nvh-hero')) {
+    if (HE && (HE.foto || HE.titulo) && !document.querySelector('.nvh-hero')) {
       hCss('nvx-hero-css',
         '.nvh-hero{position:relative;overflow:hidden;background:' + oscuro + ';color:#fff;text-align:center;padding:56px 18px 0;font-family:' + (M.fuente || 'inherit') + '}' +
         '.nvh-hero .nvh-eb{color:' + CA + '}' +
@@ -1113,7 +1148,7 @@
       var heroHtml = '<section class="nvh-hero"><div class="nvh-eb">' + hEsc(HE.etiqueta || '') + '</div><h1>' + hEsc(HE.titulo || '') +
         (HE.destacado ? '<br><em>' + hEsc(HE.destacado) + '</em>' : '') + '</h1>' + (HE.texto ? '<p>' + hEsc(HE.texto) + '</p>' : '') +
         (HE.url ? '<a class="nvh-btn" href="' + hEsc(HE.url) + '">' + hEsc(HE.boton || 'Ver la colección') + ' →</a>' : '') +
-        '<div class="nvh-hero-f"><div class="nvh-hero-g"></div><img src="' + hEsc(HE.foto) + '" alt=""></div></section>';
+        (HE.foto ? '<div class="nvh-hero-f"><div class="nvh-hero-g"></div><img src="' + hEsc(HE.foto) + '" alt=""></div>' : '<div style="height:56px"></div>') + '</section>';
       var sl = document.querySelector('[data-store="home-slider"]');
       if (sl) { sl.insertAdjacentHTML('beforebegin', heroHtml); if (HE.reemplazarBanner) sl.style.display = 'none'; }
       else (document.querySelector('.nvh') || footer || document.body).insertAdjacentHTML('beforebegin', heroHtml);
@@ -1385,6 +1420,34 @@
       (P.texto ? '.nvh-p,.nvh-hero p,.nvx-rg p,.nvh-faq details div{font-family:"' + P.texto + '",serif;font-size:1.08em}' : '') +
       '.nvx-rv{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}.nvx-rv.nvx-in{opacity:1;transform:none}' +
       '@media (prefers-reduced-motion: reduce){.nvx-rv{opacity:1;transform:none;transition:none}}');
+    if (P.tema === 'wess') {
+      var C = NEVUX.color, CT = NEVUX.colorTexto, O = (NEVUX.marca && NEVUX.marca.oscuro) || '#0c0b0a';
+      hCss('nvx-wess-css',
+        // Títulos condensados en mayúsculas y etiquetas con rombos
+        '.nvx-h,.nvh-h,.nvh-hero h1{text-transform:uppercase;letter-spacing:.01em!important;line-height:1.02!important}' +
+        '.nvh-hero h1{font-size:clamp(42px,12vw,92px)!important}' +
+        '.nvx-eb,.nvh-eb{letter-spacing:.32em!important}.nvx-eb:before,.nvx-eb:after,.nvh-eb:before,.nvh-eb:after{content:"◆";margin:0 10px;font-size:.8em}' +
+        // Comparativa con la columna de la marca rellena y tildes en círculos
+        '.nvx-sec-cmp .nvx-card{background:#141210!important;border-color:rgba(255,255,255,.08)!important}' +
+        '.nvx-sec-cmp th.nvx-m{background:' + C + '!important;color:' + CT + '!important;border-radius:16px 16px 0 0;padding:16px 4px!important;font-size:14px!important;letter-spacing:.14em;text-transform:uppercase}' +
+        '.nvx-sec-cmp td.nvx-m{background:' + C + '!important;color:' + CT + '!important;opacity:1!important}' +
+        '.nvx-sec-cmp tr:last-child td.nvx-m{border-radius:0 0 16px 16px}' +
+        '.nvx-sec-cmp td.nvx-m:before{content:"✓";display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.18);font-weight:900}' +
+        '.nvx-sec-cmp td.nvx-m{font-size:0!important}.nvx-sec-cmp td.nvx-m:before{font-size:15px}' +
+        '.nvx-sec-cmp td.nvx-x{font-size:0!important}.nvx-sec-cmp td.nvx-x:before{content:"✕";display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);color:#6b7280;font-size:13px}' +
+        '.nvx-sec-cmp td:first-child{color:#e5e7eb!important}.nvx-sec-cmp th{color:#9ca3af!important}' +
+        '.nvx-sec-cmp .nvx-cmp-bar{display:none}' +
+        // Preguntas frecuentes sobre el color de la marca, con tarjetas blancas
+        '.nvx-sec-faq{background:' + C + ';margin:0 -16px;padding:30px 16px 22px;border-radius:28px 28px 0 0}' +
+        '.nvx-sec-faq .nvx-h{color:' + CT + '!important}' +
+        '.nvx-sec-faq .nvx-faq{background:#fff!important;border:0!important;color:#111!important;border-radius:14px}' +
+        '.nvx-sec-faq .nvx-faq div{color:#4b5563!important}.nvx-sec-faq .nvx-faq summary:after{color:' + C + '!important}' +
+        '.nvx-sec-faq .nvx-faq summary:before{content:"◆";color:' + C + ';margin-right:10px;font-size:11px}' +
+        // Cinta más grande y en mayúsculas
+        '.nvx-cinta{border-radius:0!important;margin-left:-16px!important;margin-right:-16px!important;padding:13px 0!important}.nvx-cinta div{font-size:14px!important;letter-spacing:.18em!important}' +
+        // Bloques de la home más contrastados
+        '.nvh-dark{background:' + O + '!important}');
+    }
     if (P.animar === false || !('IntersectionObserver' in window)) return;
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('nvx-in'); io.unobserve(e.target); } });
