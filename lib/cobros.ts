@@ -28,11 +28,12 @@ async function mp<T>(ruta: string): Promise<T> {
   return r.json() as Promise<T>;
 }
 
-// Busca la suscripción del cliente: por ID si está, si no por el email con el que se suscribió (la más reciente)
-async function buscarSuscripcion(id?: string, email?: string): Promise<Preapproval | null> {
+// Busca la suscripción del cliente: por ID si está; si no, por el email con el que se suscribió o por el plan (la más reciente)
+async function buscarSuscripcion(id?: string, email?: string, planMp?: string): Promise<Preapproval | null> {
   if (id) return mp<Preapproval>(`/preapproval/${encodeURIComponent(id)}`);
-  if (!email) return null;
-  const r = await mp<{ results?: Preapproval[] }>(`/preapproval/search?payer_email=${encodeURIComponent(email)}&limit=50`);
+  if (!email && !planMp) return null;
+  const filtro = email ? `payer_email=${encodeURIComponent(email)}` : `preapproval_plan_id=${encodeURIComponent(planMp as string)}`;
+  const r = await mp<{ results?: Preapproval[] }>(`/preapproval/search?${filtro}&limit=50`);
   const lista = (r.results || []).slice().sort((a, b) => (b.date_created || "").localeCompare(a.date_created || ""));
   return lista.find((s) => s.status === "authorized") || lista[0] || null;
 }
@@ -45,7 +46,7 @@ export async function estadoCobro(c: Cliente, ahora = Date.now()): Promise<Estad
   if (!process.env.MP_ACCESS_TOKEN) return { prendida: true, motivo: "Falta MP_ACCESS_TOKEN: no se puede consultar Mercado Pago (queda prendida)" };
   let s: Preapproval | null;
   try {
-    s = await buscarSuscripcion(c.cobro.suscripcion, c.cobro.email);
+    s = await buscarSuscripcion(c.cobro.suscripcion, c.cobro.email, c.cobro.planMp);
   } catch (e) {
     return { prendida: true, motivo: `No se pudo consultar Mercado Pago (queda prendida): ${(e as Error).message}` };
   }

@@ -8,6 +8,9 @@ export type Cobro =
       // ID de la suscripción en Mercado Pago (preferido) o email con el que se suscribió
       suscripcion?: string;
       email?: string;
+      // ID del plan de Mercado Pago (preapproval_plan_id): sirve cuando el cliente todavía no se suscribió y no sabemos su email.
+      // Toma la suscripción más reciente de ese plan, así que solo vale mientras el plan tenga un único cliente.
+      planMp?: string;
       // Días de tolerancia después del vencimiento antes de apagar la tienda
       gracia?: number;
     };
@@ -156,7 +159,9 @@ export const CLIENTES: Record<string, Cliente> = {
   valmont: {
     nombre: "Valmont & Co. (cliente de relojes)",
     activo: true,
-    cobro: { tipo: 'manual' },
+    // Miguel dio el ok el 31/10: queda apagada hasta que se suscriba al plan Premium y se prende sola cuando cobra.
+    // Cuando pague, cambiar planMp por su email (o el ID de la suscripción), sobre todo si otro cliente se suma al Premium.
+    cobro: { tipo: 'mercadopago', planMp: '86ce0bba2cc849f3b04e9208748581af', gracia: 5 },
     dominios: ['valmontrelojes.mitiendanube.com'],
     plan: 'premium',
     // Relojería premium multimarca con estilo Wess en negro y dorado. Rodrigo pidió no usar la palabra "original": va "premium".
