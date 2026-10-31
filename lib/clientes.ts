@@ -222,7 +222,7 @@ export const CLIENTES: Record<string, Cliente> = {
           { estilo: 'wess', logo: 'https://nevux.ar/clientes/valmont/logo-dorado.png', etiqueta: 'Selección Valmont', titulo: 'Más vendidos', pill: 'Original', url: '/productos/', boton: 'Ver todos los relojes' }
         ],
         // Parte 3: grilla de productos ("Promociones limitadas" en Wess) y categorías con relojes que giran.
-        // Las categorías buscan por tipo hasta que la tienda tenga categorías propias.
+        // Categorías por marca: buscan en la tienda hasta que haya categorías propias. Los dibujos son relojes genéricos, sin logos.
         grilla: {
           titulo: 'Relojes destacados',
           url: '/productos/',
@@ -230,10 +230,10 @@ export const CLIENTES: Record<string, Cliente> = {
           pill: 'Original',
           quedan: 3,
           categorias: [
-            { nombre: 'Analógicos', url: '/search/?q=analogico', foto: 'https://nevux.ar/clientes/valmont/cat-analogicos.svg' },
-            { nombre: 'Digitales', url: '/search/?q=digital', foto: 'https://nevux.ar/clientes/valmont/cat-digitales.svg' },
-            { nombre: 'Smartwatch', url: '/search/?q=smartwatch', foto: 'https://nevux.ar/clientes/valmont/cat-smartwatches.svg' },
-            { nombre: 'Deportivos', url: '/search/?q=deportivo', foto: 'https://nevux.ar/clientes/valmont/cat-deportivos.svg' }
+            { nombre: 'Casio', url: '/search/?q=casio', foto: 'https://nevux.ar/clientes/valmont/cat-digitales.svg' },
+            { nombre: 'G-Shock', url: '/search/?q=g-shock', foto: 'https://nevux.ar/clientes/valmont/cat-deportivos.svg' },
+            { nombre: 'Mistral', url: '/search/?q=mistral', foto: 'https://nevux.ar/clientes/valmont/cat-analogicos.svg' },
+            { nombre: 'Tressa', url: '/search/?q=tressa', foto: 'https://nevux.ar/clientes/valmont/cat-smartwatches.svg' }
           ]
         },
         porQue: {
