@@ -82,6 +82,17 @@
     problemaSolucion: null, // ej: { etiqueta: 'El problema', titulo: 'Antes vs. después', antesTitulo: 'Sin...', antes: [...], despuesTitulo: 'Con...', despues: [...] }
     // Estilo de las secciones de la ficha: '' (claro) u 'oscuro' (fondo negro con separadores en ola)
     estiloFicha: '',
+    // ----- Premium -----
+    // Tipografías de marca (Google Fonts) y animación de entrada de las secciones al bajar
+    premium: null, // ej: { titulos: 'Cinzel', texto: 'Cormorant Garamond', animar: true }
+    // Tabla de especificaciones del producto (solo datos reales)
+    especificaciones: null, // ej: { titulo: 'Especificaciones', filas: [['Diámetro', '42 mm'], ['Malla', 'Acero']] }
+    // Medidor de muñeca: compara el diámetro de la caja (mm) con la muñeca del cliente
+    muneca: null, // ej: { caja: 42 }
+    // Qué incluye la compra (caja, garantía, etc.)
+    incluye: null, // ej: { titulo: 'Qué incluye', items: [{ icono: '🎁', titulo: 'Caja de regalo', texto: '...' }] }
+    // Bloque para regalo
+    regalo: null, // ej: { titulo: 'Ideal para regalar', texto: '...' }
     // Avisos de venta en vivo con productos de la tienda (foto, nombre y precio). false = apagados
     ventas: true, // también: { nombres: [...], ciudades: [...], cada: 20 }
     boton: 'COMPRAR AHORA'
@@ -170,7 +181,7 @@
       '.nvx-fs-bg i{display:block;height:100%;background:' + C + ';border-radius:99px}' +
       '.nvx-wa{display:block;text-align:center;margin:-4px 0 14px;font:13px ' + FONT + ';color:#374151;text-decoration:none}' +
       '.nvx-wa b{text-decoration:underline}' +
-      '.nvx-c{font-family:inherit;color:#111827;margin:8px 0 18px}' +
+      '.nvx-c{font-family:inherit;color:#111827;margin:8px 0 18px;min-width:0;max-width:100%}' +
       '.nvx-c *{box-sizing:border-box}' +
       '.nvx-sec{margin:0 0 22px}' +
       '.nvx-h{font-size:19px;font-weight:800;line-height:1.2;margin:0 0 10px;text-align:center}' +
@@ -216,6 +227,18 @@
       '.nvx-ps i{font-style:normal;font-weight:900;flex:none}' +
       '.nvx-ps-a{background:#fef2f2;border:1px solid #fecaca;color:#7f1d1d}.nvx-ps-a b,.nvx-ps-a i{color:#dc2626}' +
       '.nvx-ps-d{background:' + C + '12;border:1px solid ' + C + '55;color:#111827}.nvx-ps-d b,.nvx-ps-d i{color:' + C + '}' +
+      '.nvx-spec{padding:4px 16px}.nvx-spec div{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #f1f1f1;font-size:14px}.nvx-spec div:last-child{border:0}' +
+      '.nvx-spec span{opacity:.6}.nvx-spec b{text-align:right}' +
+      '.nvx-mu p{font-size:13.5px;opacity:.75;margin:0 0 10px;text-align:center}' +
+      '.nvx-mu-in{display:flex;gap:8px;align-items:center}.nvx-mu-in input{flex:1;min-width:0;border:1px solid #d1d5db;border-radius:10px;padding:11px;font-size:16px;color:#111;background:#fff}' +
+      '.nvx-mu-in span{font-size:13px;opacity:.6}.nvx-mu-in button{border:0;border-radius:10px;padding:12px 14px;background:' + C + ';color:' + NEVUX.colorTexto + ';font-weight:800;font-size:13px;cursor:pointer}' +
+      '.nvx-mu-r{text-align:center;margin-top:12px}.nvx-mu-r svg{width:100%;max-width:300px;height:auto}' +
+      '.nvx-mu-r .w{fill:#e8d5c0}.nvx-mu-r .c{fill:#d6d3cd;stroke:#8b867d;stroke-width:3;transition:r .5s}.nvx-mu-r .d{fill:#111;transition:r .5s}' +
+      '.nvx-mu-r b{display:block;font-size:16px;margin-top:6px}.nvx-mu-r small{display:block;font-size:13px;opacity:.7;margin-top:2px}.nvx-mu-n{display:block;text-align:center;font-size:12px;opacity:.55;margin-top:10px}' +
+      '.nvx-inc{display:grid;grid-template-columns:1fr 1fr;gap:10px}.nvx-inc>div{border:1px solid #e5e7eb;border-radius:14px;padding:14px;text-align:center}' +
+      '.nvx-inc i{display:block;font-style:normal;font-size:24px}.nvx-inc b{display:block;font-size:13.5px;margin-top:6px}.nvx-inc small{display:block;font-size:12px;opacity:.65;margin-top:3px;line-height:1.35}' +
+      '.nvx-rg{display:flex;gap:14px;align-items:center;border-radius:16px;padding:16px;background:' + C + '14;border:1px solid ' + C + '55}.nvx-rg i{font-style:normal;font-size:30px}' +
+      '.nvx-rg b{display:block;font-size:15px}.nvx-rg p{margin:3px 0 0;font-size:13.5px;opacity:.75;line-height:1.4}' +
       '.nvx-cmpw{position:relative}' +
       '.nvx-cmpw .nvx-cmp{position:relative;z-index:1}' +
       '.nvx-cmp-bar{position:absolute;top:0;height:0;border-radius:12px;background:linear-gradient(180deg,' + C + '30,' + C + '55);box-shadow:inset 0 -4px 0 ' + C + ';pointer-events:none;transition:height .15s linear}' +
@@ -545,6 +568,28 @@
             (it.texto ? '<p>' + esc(it.texto) + '</p>' : '') + (it.foto ? '<img src="' + esc(it.foto) + '" alt="" loading="lazy">' : '') + '</div></div>';
         }).join('') + '</div></div>';
     }
+    var ES = NEVUX.especificaciones;
+    if (ES && ES.filas && ES.filas.length) {
+      cont += '<div class="nvx-sec"><div class="nvx-h">' + esc(ES.titulo || 'Especificaciones') + '</div><div class="nvx-card nvx-spec">' +
+        ES.filas.map(function (f) { return '<div><span>' + esc(f[0]) + '</span><b>' + esc(f[1]) + '</b></div>'; }).join('') + '</div></div>';
+    }
+    var MU = NEVUX.muneca;
+    if (MU && MU.caja) {
+      cont += '<div class="nvx-sec"><div class="nvx-h">' + esc(MU.titulo || '¿Cómo te queda en la muñeca?') + '</div><div class="nvx-card nvx-mu">' +
+        '<p>Medí el contorno de tu muñeca con un centímetro o un hilo y escribilo acá.</p>' +
+        '<div class="nvx-mu-in"><input type="number" inputmode="decimal" min="12" max="24" step="0.5" placeholder="Ej: 17" aria-label="Contorno de muñeca en cm"><span>cm</span><button type="button">Ver cómo queda</button></div>' +
+        '<div class="nvx-mu-r" hidden><svg viewBox="0 0 300 140" aria-hidden="true"><rect class="w" x="0" y="30" width="300" height="80" rx="40"/><circle class="c" cx="150" cy="70" r="30"/><circle class="d" cx="150" cy="70" r="22"/></svg><b></b><small></small></div>' +
+        '<small class="nvx-mu-n">Caja de ' + esc(MU.caja) + ' mm de diámetro.</small></div></div>';
+    }
+    var IN = NEVUX.incluye;
+    if (IN && IN.items && IN.items.length) {
+      cont += '<div class="nvx-sec"><div class="nvx-h">' + esc(IN.titulo || 'Qué incluye') + '</div><div class="nvx-inc">' +
+        IN.items.map(function (it) { return '<div><i>' + esc(it.icono || '✓') + '</i><b>' + esc(it.titulo) + '</b>' + (it.texto ? '<small>' + esc(it.texto) + '</small>' : '') + '</div>'; }).join('') + '</div></div>';
+    }
+    var RG = NEVUX.regalo;
+    if (RG && RG.titulo) {
+      cont += '<div class="nvx-sec"><div class="nvx-rg"><i>🎁</i><div><b>' + esc(RG.titulo) + '</b>' + (RG.texto ? '<p>' + esc(RG.texto) + '</p>' : '') + '</div></div></div>';
+    }
     var PS = NEVUX.problemaSolucion;
     if (PS && PS.antes && PS.despues) {
       cont += '<div class="nvx-sec">' + (PS.etiqueta ? '<div class="nvx-eb">' + esc(PS.etiqueta) + '</div>' : '') +
@@ -591,6 +636,8 @@
           '.nvx-osc .nvx-card,.nvx-osc .nvx-faq,.nvx-osc .nvx-step{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f3f4f6}' +
           '.nvx-osc .nvx-faq div,.nvx-osc .nvx-step p,.nvx-osc .nvx-rv p{color:#cbd5e1}' +
           '.nvx-osc .nvx-cmp td{border-color:rgba(255,255,255,.08)}.nvx-osc .nvx-cmp td:first-child,.nvx-osc .nvx-cmp th{color:#f3f4f6}' +
+          '.nvx-osc .nvx-spec div{border-color:rgba(255,255,255,.08)}.nvx-osc .nvx-inc>div{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.04)}' +
+          '.nvx-osc .nvx-mu-in input{background:#15130f;border-color:rgba(255,255,255,.18);color:#f3f4f6}' +
           '.nvx-osc .nvx-combo{background:rgba(255,255,255,.06);color:#f3f4f6}.nvx-osc .nvx-combo *{color:inherit}.nvx-osc .nvx-combo button,.nvx-osc .nvx-combo .nvx-cb-add{color:' + NEVUX.colorTexto + '}' +
           '.nvx-osc .nvx-ps-a{background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.35);color:#fecaca}' +
           '.nvx-osc .nvx-ps-d{background:' + C + '1f;border-color:' + C + '66;color:#f3f4f6}');
@@ -599,6 +646,26 @@
         after.insertAdjacentHTML('afterend', '<div class="nvx-c">' + cont + '</div>');
       }
       var box = root.querySelector('.nvx-c');
+      var mu = root.querySelector('.nvx-mu');
+      if (mu) {
+        var calc = function () {
+          var cm = parseFloat(String(mu.querySelector('input').value).replace(',', '.'));
+          if (!cm || cm < 12 || cm > 24) return;
+          // Diámetro de caja que suele quedar proporcionado para cada contorno de muñeca
+          var ideal = cm < 15.5 ? [34, 38] : cm < 17 ? [38, 41] : cm < 18.5 ? [40, 43] : cm < 20 ? [42, 45] : [44, 48];
+          var caja = +NEVUX.muneca.caja, r = mu.querySelector('.nvx-mu-r');
+          var t = caja < ideal[0] ? 'Te queda discreto y elegante' : caja > ideal[1] ? 'Te queda grande y llamativo' : 'Te queda proporcionado';
+          r.hidden = false;
+          r.querySelector('b').textContent = t;
+          r.querySelector('small').textContent = 'Para una muñeca de ' + cm + ' cm suelen quedar bien cajas de ' + ideal[0] + ' a ' + ideal[1] + ' mm. Esta tiene ' + caja + ' mm.';
+          // Dibujo a escala: el ancho de la muñeca (vista de frente) es cerca de un tercio del contorno
+          var px = 80 / (cm * 10 / 3.2);
+          r.querySelector('.c').setAttribute('r', (caja / 2 * px * 1.0).toFixed(1));
+          r.querySelector('.d').setAttribute('r', (caja / 2 * px * 0.74).toFixed(1));
+        };
+        mu.querySelector('button').addEventListener('click', calc);
+        mu.querySelector('input').addEventListener('keydown', function (e) { if (e.key === 'Enter') calc(); });
+      }
 
       // Calculadora: busca el talle y lo elige en la ficha
       var tlBtn = box.querySelector('.nvx-tl-row button');
@@ -1031,6 +1098,36 @@
       }
     }
     cargarVitrinas(H.vitrinas || []);
+    var HE = H.hero;
+    if (HE && HE.foto && !document.querySelector('.nvh-hero')) {
+      hCss('nvx-hero-css',
+        '.nvh-hero{position:relative;overflow:hidden;background:' + oscuro + ';color:#fff;text-align:center;padding:56px 18px 0;font-family:' + (M.fuente || 'inherit') + '}' +
+        '.nvh-hero .nvh-eb{color:' + CA + '}' +
+        '.nvh-hero h1{font-size:clamp(34px,9vw,68px);line-height:1.02;font-weight:500;margin:10px 0 12px;letter-spacing:-.01em}' +
+        '.nvh-hero h1 em{font-style:italic;color:' + CA + '}' +
+        '.nvh-hero p{opacity:.75;max-width:520px;margin:0 auto 24px;font-size:16px;line-height:1.5}' +
+        '.nvh-hero .nvh-btn{background:' + CA + ';color:' + (luz(CA) > 0.45 ? '#111' : '#fff') + '!important}' +
+        '.nvh-hero-f{position:relative;max-width:560px;margin:34px auto 0;will-change:transform}' +
+        '.nvh-hero-f img{width:100%;display:block;filter:drop-shadow(0 40px 60px rgba(0,0,0,.6))}' +
+        '.nvh-hero-g{position:absolute;left:50%;top:55%;width:120%;aspect-ratio:1;transform:translate(-50%,-50%);background:radial-gradient(circle,' + CA + '40,transparent 60%);pointer-events:none}');
+      var heroHtml = '<section class="nvh-hero"><div class="nvh-eb">' + hEsc(HE.etiqueta || '') + '</div><h1>' + hEsc(HE.titulo || '') +
+        (HE.destacado ? '<br><em>' + hEsc(HE.destacado) + '</em>' : '') + '</h1>' + (HE.texto ? '<p>' + hEsc(HE.texto) + '</p>' : '') +
+        (HE.url ? '<a class="nvh-btn" href="' + hEsc(HE.url) + '">' + hEsc(HE.boton || 'Ver la colección') + ' →</a>' : '') +
+        '<div class="nvh-hero-f"><div class="nvh-hero-g"></div><img src="' + hEsc(HE.foto) + '" alt=""></div></section>';
+      var sl = document.querySelector('[data-store="home-slider"]');
+      if (sl) { sl.insertAdjacentHTML('beforebegin', heroHtml); if (HE.reemplazarBanner) sl.style.display = 'none'; }
+      else (document.querySelector('.nvh') || footer || document.body).insertAdjacentHTML('beforebegin', heroHtml);
+      var hf = document.querySelector('.nvh-hero-f');
+      if (hf && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+        var pend = false;
+        var mov = function () {
+          pend = false;
+          var y = Math.min(window.scrollY, 700);
+          hf.style.transform = 'translateY(' + (-y * 0.12) + 'px) scale(' + (1 + y / 2200) + ') rotate(' + (y / 90) + 'deg)';
+        };
+        window.addEventListener('scroll', function () { if (!pend) { pend = true; requestAnimationFrame(mov); } }, { passive: true });
+      }
+    }
     [].forEach.call(document.querySelectorAll('.nvh-pts'), function (box) {
       var marcar = function (i) {
         [].forEach.call(box.querySelectorAll('[data-i]'), function (e) { e.classList.toggle('on', e.getAttribute('data-i') === String(i)); });
@@ -1272,6 +1369,29 @@
     }
   }
 
+  // Premium: tipografías de marca y entrada animada de cada sección de Nevux al aparecer en pantalla
+  function initPremium() {
+    var P = NEVUX.premium;
+    if (!P) return;
+    var fams = [P.titulos, P.texto].filter(Boolean);
+    if (fams.length && !document.querySelector('#nvx-fonts')) {
+      var l = document.createElement('link');
+      l.id = 'nvx-fonts'; l.rel = 'stylesheet';
+      l.href = 'https://fonts.googleapis.com/css2?' + fams.map(function (f) { return 'family=' + f.replace(/ /g, '+') + ':ital,wght@0,400;0,500;0,600;1,400;1,500'; }).join('&') + '&display=swap';
+      document.head.appendChild(l);
+    }
+    hCss('nvx-prem-css',
+      (P.titulos ? '.nvx-h,.nvh-h,.nvh-hero h1,.nvh-tag big,.nvh-pti b{font-family:"' + P.titulos + '",serif!important;font-weight:500!important;letter-spacing:.02em}' : '') +
+      (P.texto ? '.nvh-p,.nvh-hero p,.nvx-rg p,.nvh-faq details div{font-family:"' + P.texto + '",serif;font-size:1.08em}' : '') +
+      '.nvx-rv{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}.nvx-rv.nvx-in{opacity:1;transform:none}' +
+      '@media (prefers-reduced-motion: reduce){.nvx-rv{opacity:1;transform:none;transition:none}}');
+    if (P.animar === false || !('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('nvx-in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    [].forEach.call(document.querySelectorAll('.nvx-sec, .nvh-sec .nvh-in > *'), function (el) { el.classList.add('nvx-rv'); io.observe(el); });
+  }
+
   function arrancar() {
     detectarMarca();
     initBarra();
@@ -1280,6 +1400,7 @@
     initTarjetas();
     init();
     initCmpAnim();
+    initPremium();
     // Las tarjetas que la plantilla carga después (carruseles, scroll infinito) también se completan
     if (NEVUX.tarjetas && 'MutationObserver' in window) {
       var t;
