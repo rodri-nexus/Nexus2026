@@ -151,4 +151,21 @@ export const CLIENTES: Record<string, Cliente> = {
       }
     }
   },
+  valmont: {
+    nombre: "Valmont & Co. (cliente de relojes)",
+    activo: true,
+    cobro: { tipo: 'manual' },
+    dominios: ['valmontrelojes.mitiendanube.com'],
+    // Plan Premium con estilo Wess (negro y dorado). Contenido real a medida que lleguen fotos, precios y datos.
+    config: {
+      color: '#c9a961',
+      marca: { oscuro: '#0c0b0a' },
+      premium: { titulos: 'Cinzel', texto: 'Cormorant Garamond', animar: true },
+      estiloFicha: 'oscuro',
+      precios: true,
+      tarjetas: { estilo: 'destacado' },
+      packs: [],
+      ventas: false
+    }
+  },
 };
