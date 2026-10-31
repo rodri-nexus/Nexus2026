@@ -163,6 +163,8 @@ export const CLIENTES: Record<string, Cliente> = {
       marca: { oscuro: '#0c0b0a' },
       premium: { titulos: 'Oswald', texto: 'Inter', animar: true, tema: 'wess' },
       // Ficha estilo Wess pasada a relojes (ver docs/valmont.md). Envíos: valores provisorios hasta confirmar con el cliente.
+      // WhatsApp del cliente (+54 2954 688637), con el 9 que pide WhatsApp para celulares de Argentina
+      whatsapp: '5492954688637',
       estiloFicha: 'wess',
       envio: { corte: 14, dias: [1, 2, 3, 4, 5], min: 3, max: 6, zona: 'a todo el país' },
       ficha: {
