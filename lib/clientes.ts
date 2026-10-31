@@ -180,6 +180,9 @@ export const CLIENTES: Record<string, Cliente> = {
         },
         '/productos/rolex-submariner-date-acero-inoxidable-1roj1/': {
           fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-rolex-submariner.mp4', poster: 'https://nevux.ar/clientes/valmont/video-rolex-submariner.jpg' }]
+        },
+        '/productos/omega-speedmaster-professional-anniversary-series-silver-snoopy-award-1qvrw/': {
+          fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-omega-speedmaster.mp4', poster: 'https://nevux.ar/clientes/valmont/video-omega-speedmaster.jpg' }]
         }
       },
       estiloFicha: 'wess',
