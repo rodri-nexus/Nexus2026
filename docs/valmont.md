@@ -87,7 +87,7 @@ WhatsApp del cliente: +54 2954 688637 (`whatsapp: '5492954688637'`). Pendiente: 
 - **Sin la palabra "original":** Rodrigo pidió reemplazarla por "premium" o algo más elegante en todos lados (etiquetas, beneficios, por qué, preguntas, anuncios y cinta).
 - **Cabecera estilo Wess:** fondo negro con borde dorado, íconos claros, todo en una fila y, en lugar del nombre en texto, la **V en 3D girando sobre sí misma** con "VALMONT" debajo (Wess usa un logo WebP animado de 46 cuadros que gira igual). Config: `cabecera: { inicial: 'V', nombre: 'VALMONT' }`, motor: `initCabecera`.
 - **Productos similares llenos:** Tiendanube solo trae los de la misma categoría (a veces 1). Se completa con el resto del catálogo hasta 8 (`ficha.similaresCantidad`).
-- **Plantilla de Wess:** usa **Recife** (`LS.theme.code: "recife"`), con diseño a medida de Praxis por encima. Valmont está en Morelia.
+- **Plantilla:** Wess usa **Recife** (`LS.theme.code: "recife"`). El 31/10 Rodrigo pasó Valmont de Morelia a Recife. Nevux se probó entero sobre Recife (home, ficha, cabecera y pie). En Recife el pie ya trae el newsletter arriba, "Categorías" desplegable y la franja legal: `initPie` solo le pone colores, marca y redes. **Al cambiar de plantilla se pierde la línea de Nevux de "Sellos personalizados": hay que volver a pegarla.**
 
 ## Cómo probar sin productos
 

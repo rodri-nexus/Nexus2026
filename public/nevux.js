@@ -1638,9 +1638,19 @@
       '.nvx-ft-rs{display:flex;gap:12px;padding:20px 0 26px}.nvx-ft-rs a{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.2);color:#fff!important}.nvx-ft-rs svg{width:19px;height:19px}.nvx-ft-rs svg *{fill:none!important}' +
       '.nvx-ft-lg{background:#1b1a18;margin:0 -15px;padding:22px 16px 26px;text-align:center;font-size:12px;color:#a3a3a3}.nvx-ft-lg a{color:#d4d4d4!important}' +
       '.nvx-ft .powered-by-logo svg{fill:#d4d4d4}');
-    var cont = ft.querySelector('.container') || ft;
-    // Newsletter: pasa arriba de todo como franja de color
-    var nl = ft.querySelector('.js-newsletter');
+    var menuEl = ft.querySelector('.list');
+    var cont = (menuEl && menuEl.closest('.container')) || ft.querySelector('.container') || ft;
+    hCss('nvx-ft2-css',
+      '.nvx-ft .newsletter-footer{background:' + C + '!important;color:' + CT + '!important;text-align:center}' +
+      '.nvx-ft .newsletter-footer .h2,.nvx-ft .newsletter-footer .h1-md{display:none}' +
+      '.nvx-ft .newsletter-footer .font-small{font:600 14.5px/1.4 Inter,sans-serif!important;color:' + CT + '!important;text-align:center}' +
+      '.nvx-ft .newsletter-footer input[type=email]{background:transparent!important;border:1.5px solid rgba(17,17,17,.45)!important;border-radius:0!important;color:' + CT + '!important}' +
+      '.nvx-ft .newsletter-footer input[type=email]::placeholder{color:' + CT + ';opacity:.7}' +
+      '.nvx-ft .newsletter-footer input[type=submit]{color:' + CT + '!important;text-decoration:underline;font-weight:700}' +
+      '.nvx-ft .footer-legal{background:#1b1a18!important;color:#a3a3a3!important}.nvx-ft .footer-legal a{color:#d4d4d4!important}' +
+      '.nvx-ft .js-accordion-private-toggle-mobile,.nvx-ft .js-accordion-private-toggle-mobile *{color:#fff!important}.nvx-ft svg{fill:#d4d4d4}');
+    // Newsletter: pasa arriba de todo como franja de color (Recife ya la trae arriba: solo se le dan los colores)
+    var nl = ft.querySelector('.newsletter-footer') ? null : ft.querySelector('.js-newsletter');
     if (nl) {
       var bloque = nl.parentElement && nl.parentElement !== cont ? nl.parentElement : nl;
       var band = document.createElement('div');
@@ -1695,11 +1705,13 @@
       '.nvx-hd{background:' + O + '!important;border-bottom:1px solid ' + C + '55!important;box-shadow:0 6px 18px rgba(0,0,0,.35)}' +
       '.nvx-hd .head-logo-row,.nvx-hd .container{background:transparent!important}' +
       '.nvx-hd .btn-utility,.nvx-hd .utilities-item,.nvx-hd .cart-summary,.nvx-hd a{color:#f4efe6!important}.nvx-hd svg{fill:#f4efe6!important}' +
-      '.nvx-hd .js-cart-widget-amount,.nvx-hd .cart-widget-amount,.nvx-hd [class*="badge"]{color:' + C + '!important}' +
+      '.nvx-hd .js-cart-widget-amount,.nvx-hd .cart-widget-amount,.nvx-hd .badge{background:' + C + '!important;color:#111!important}' +
       // Una sola fila como Wess: menú, logo al medio y carrito
       '@media(max-width:767px){.nvx-hd .head-logo-row>.row{flex-wrap:nowrap!important}.nvx-hd .js-logo-container{order:0!important;flex:1 1 auto!important;max-width:none!important;width:auto!important;padding:6px 0!important}' +
       '.nvx-hd .js-utility-col{flex:0 0 52px!important;max-width:52px!important}.nvx-hd .js-utility-col:last-child{order:1!important}}' +
-      '.nvx-hd #no-logo h1,.nvx-hd #no-logo .logo-text>*:not(.nvx-lg),.nvx-hd #logo img{display:none!important}' +
+      '.nvx-hd #no-logo .logo-text,.nvx-hd #logo img,.nvx-hd #logo>a:not(.nvx-lg){display:none!important}' +
+      '.nvx-hd .js-logo-container{text-align:center!important}' +
+      '@media(max-width:767px){.nvx-hd .col-utility{flex:0 0 52px!important;max-width:52px!important}.nvx-hd .js-logo-container{margin:0!important}}' +
       '.nvx-lg{display:inline-flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none!important;perspective:420px}' +
       '.nvx-lg .r{position:relative;display:flex;flex-direction:column;align-items:center;transform-style:preserve-3d;animation:nvx-lgr 2.6s linear infinite}' +
       '@keyframes nvx-lgr{to{transform:rotateY(360deg)}}' +
