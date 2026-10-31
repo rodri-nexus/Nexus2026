@@ -156,7 +156,7 @@ export const CLIENTES: Record<string, Cliente> = {
     activo: true,
     cobro: { tipo: 'manual' },
     dominios: ['valmontrelojes.mitiendanube.com'],
-    // Relojería multimarca de originales (Casio, G-Shock, Mistral, Tressa, smartwatches) con estilo Wess en negro y dorado.
+    // Relojería premium multimarca con estilo Wess en negro y dorado. Rodrigo pidió no usar la palabra "original": va "premium".
     // Garantía, envíos y medios de pago: textos genéricos hasta confirmar los datos reales con el cliente.
     config: {
       color: '#c9a961',
@@ -165,10 +165,13 @@ export const CLIENTES: Record<string, Cliente> = {
       // Ficha estilo Wess pasada a relojes (ver docs/valmont.md). Envíos: valores provisorios hasta confirmar con el cliente.
       // WhatsApp del cliente (+54 2954 688637), con el 9 que pide WhatsApp para celulares de Argentina
       whatsapp: '5492954688637',
+      // Secciones de Morelia que no van (el newsletter gris de la home; el del pie queda como franja dorada)
+      ocultar: ['[data-store="home-newsletter"]'],
+      pie: { logo: 'https://nevux.ar/clientes/valmont/logo-dorado.png', titulo: 'Valmont & Co.', texto: 'Relojería premium', instagram: 'https://www.instagram.com/valmont.relojes/', newsletter: 'Registrate y recibí nuestras novedades.' },
       estiloFicha: 'wess',
       envio: { corte: 14, dias: [1, 2, 3, 4, 5], min: 3, max: 6, zona: 'a todo el país' },
       ficha: {
-        pill: 'Original',
+        pill: 'Premium',
         regaloLinea: 'Llega en su caja, con papeles y accesorios. Listo para regalar.',
         calidad: 'Calidad Valmont',
         whatsappTexto: '¿Dudas con el tamaño?',
@@ -218,18 +221,20 @@ export const CLIENTES: Record<string, Cliente> = {
           ]
         },
         faqTitulo: 'Lo que nos preguntan',
-        cta: { etiqueta: 'Valmont & Co.', titulo: 'Elegí el tuyo', boton: 'Comprar ahora' }
+        cta: { etiqueta: 'Valmont & Co.', titulo: 'Elegí el tuyo', boton: 'Comprar ahora' },
+        similaresTitulo: 'Productos similares',
+        similaresPill: 'Premium'
       },
       precios: true,
       tarjetas: { estilo: 'wess' },
       packs: [],
       ventas: false,
-      anuncios: ['⌚ Relojes originales con garantía oficial', '🚚 Envíos a todo el país', '🎁 Listos para regalar'],
-      cinta: ['Originales', 'Garantía oficial', 'Envíos a todo el país', 'Listos para regalar'],
+      anuncios: ['⌚ Relojería premium · Caja y papeles', '🚚 Envíos a todo el país', '🎁 Listos para regalar'],
+      cinta: ['Premium', 'Caja y papeles', 'Envíos a todo el país', 'Listos para regalar'],
       incluye: {
         titulo: 'Qué incluye tu reloj',
         items: [
-          { icono: '⌚', titulo: 'Reloj original', texto: 'Nuevo, en su caja.' },
+          { icono: '⌚', titulo: 'Reloj premium', texto: 'Nuevo, en su caja.' },
           { icono: '📜', titulo: 'Garantía oficial', texto: 'De la marca.' },
           { icono: '🧾', titulo: 'Factura', texto: 'A tu nombre.' },
           { icono: '🚚', titulo: 'Envío protegido', texto: 'Con seguimiento.' }
@@ -240,21 +245,21 @@ export const CLIENTES: Record<string, Cliente> = {
         etiqueta: 'El problema que todos conocen',
         titulo: 'Antes vs. con Valmont',
         antesTitulo: 'Comprando en cualquier lado',
-        antes: ['No sabés si es original', 'Sin factura ni garantía', 'Si falla, nadie responde', 'Te llega sin caja ni papeles'],
+        antes: ['No sabés qué te llega', 'Sin factura ni garantía', 'Si falla, nadie responde', 'Te llega sin caja ni papeles'],
         despuesTitulo: 'Con Valmont',
-        despues: ['Relojes originales de cada marca', 'Factura y garantía oficial', 'Atención personalizada', 'Llega en su caja original']
+        despues: ['Relojes premium seleccionados', 'Factura y garantía oficial', 'Atención personalizada', 'Llega en su caja con papeles']
       },
       comparativa: {
         titulo: 'Valmont vs. comprar en cualquier lado',
         marca: 'Valmont',
         otro: 'Otros',
-        filas: ['Relojes originales', 'Garantía oficial de la marca', 'Factura a tu nombre', 'Caja y papeles originales', 'Atención personalizada']
+        filas: ['Relojes premium seleccionados', 'Garantía oficial de la marca', 'Factura a tu nombre', 'Caja y papeles', 'Atención personalizada']
       },
       faq: [
-        { p: '¿Los relojes son originales?', r: 'Sí. Vendemos relojes originales comprados a distribuidores oficiales de cada marca, con factura y garantía.' },
+        { p: '¿Cómo llega el reloj?', r: 'En su caja, con papeles y accesorios. Listo para usar o para regalar.' },
         { p: '¿Tienen garantía?', r: 'Sí, la garantía oficial de cada marca. Te ayudamos con cualquier gestión.' },
         { p: '¿Cuánto tarda el envío?', r: 'Enviamos a todo el país. Te pasamos el seguimiento apenas sale.' },
-        { p: '¿Viene en su caja?', r: 'Sí, cada reloj llega en su caja original con sus papeles.' },
+        { p: '¿Viene en su caja?', r: 'Sí, cada reloj llega en su caja con sus papeles.' },
         { p: '¿Cómo elijo el tamaño?', r: 'En cada reloj te dejamos el diámetro de la caja y un medidor para ver cómo te queda en la muñeca.' }
       ],
       home: {
@@ -262,7 +267,7 @@ export const CLIENTES: Record<string, Cliente> = {
           marca: 'Valmont & Co.',
           franja: 'Hora oficial',
           logo: 'https://nevux.ar/clientes/valmont/logo-dorado.png',
-          etiqueta: 'Relojes originales',
+          etiqueta: 'Relojería premium',
           titulo: 'Valmont',
           titulo2: 'Relojería',
           texto: 'Las marcas que conocés, con factura y garantía oficial. Envíos a todo el país.',
@@ -271,12 +276,12 @@ export const CLIENTES: Record<string, Cliente> = {
           reemplazarBanner: true
         },
         beneficios: [
-          { icono: 'original', titulo: 'Relojes originales', texto: 'Comprados a distribuidores oficiales de cada marca, con factura.' },
+          { icono: 'original', titulo: 'Relojes premium', texto: 'Piezas seleccionadas, con caja y papeles.' },
           { icono: 'garantia', titulo: 'Garantía oficial', texto: 'La garantía de la marca, y te ayudamos con cualquier gestión.' },
           { icono: 'envio', titulo: 'Envío a todo el país', texto: 'Con seguimiento desde que sale hasta tu casa.' }
         ],
         vitrinas: [
-          { estilo: 'wess', logo: 'https://nevux.ar/clientes/valmont/logo-dorado.png', etiqueta: 'Selección Valmont', titulo: 'Más vendidos', pill: 'Original', url: '/productos/', boton: 'Ver todos los relojes' }
+          { estilo: 'wess', logo: 'https://nevux.ar/clientes/valmont/logo-dorado.png', etiqueta: 'Selección Valmont', titulo: 'Más vendidos', pill: 'Premium', url: '/productos/', boton: 'Ver todos los relojes' }
         ],
         // Parte 3: grilla de productos ("Promociones limitadas" en Wess) y categorías con relojes que giran.
         // Categorías por marca: buscan en la tienda hasta que haya categorías propias. Los dibujos son relojes genéricos, sin logos.
@@ -284,7 +289,7 @@ export const CLIENTES: Record<string, Cliente> = {
           titulo: 'Relojes destacados',
           url: '/productos/',
           cantidad: 6,
-          pill: 'Original',
+          pill: 'Premium',
           quedan: 3,
           boton: 'Ver todos los relojes',
           categorias: [
@@ -322,7 +327,7 @@ export const CLIENTES: Record<string, Cliente> = {
           etiqueta: 'Valmont & Co.',
           titulo: 'Por qué Valmont',
           items: [
-            { destacado: 'Original', titulo: 'Sin dudas', texto: 'Cada reloj viene de un distribuidor oficial de la marca.', pie: 'Origen garantizado' },
+            { destacado: 'Premium', titulo: 'Selección cuidada', texto: 'Cada reloj está elegido pieza por pieza.', pie: 'Selección Valmont' },
             { destacado: 'Factura', titulo: 'A tu nombre', texto: 'Con la garantía oficial de la marca.', pie: 'Compra segura' },
             { destacado: 'Atención', titulo: 'Personalizada', texto: 'Te ayudamos a elegir el reloj y el tamaño.', pie: 'Relojería' },
             { destacado: 'Envío', titulo: 'A todo el país', texto: 'Con seguimiento desde que sale hasta tu casa.', pie: 'Envío protegido' }
@@ -331,7 +336,7 @@ export const CLIENTES: Record<string, Cliente> = {
         faqTitulo: 'Lo que siempre nos preguntan',
         faqLink: { texto: 'Medí tu muñeca en 20 segundos', url: '#medidor' },
         faq: [
-          { p: '¿Los relojes son originales?', r: 'Sí, comprados a distribuidores oficiales, con factura y garantía.' },
+          { p: '¿Cómo llega el reloj?', r: 'En su caja, con papeles y accesorios.' },
           { p: '¿Tienen garantía?', r: 'Sí, la garantía oficial de cada marca.' },
           { p: '¿Hacen envíos?', r: 'Sí, a todo el país, con seguimiento.' }
         ],
