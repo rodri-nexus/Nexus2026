@@ -57,6 +57,28 @@ Siempre revisar **los efectos**: qué se mueve, qué aparece al bajar, qué avan
    - Encabezado en negro #0C0B0A con texto blanco.
    - Subir `valmont-horizontal-dorado.png` como logo.
 
+## Ficha de producto estilo Wess (31/10/2026)
+
+Rodrigo mandó la ficha completa de Wess y pidió "igual pero al mundo reloj". Se armó como `estiloFicha: 'wess'` con los textos en `config.ficha` (motor: `fichaWessArriba` y `fichaWessAbajo`).
+
+| En Wess | En Valmont |
+|---|---|
+| Etiqueta "EXCLUSIVO CYBER" y título condensado | Etiqueta dorada "ORIGINAL" (`ficha.pill`) y título en Anton |
+| "Precio final", "MEJOR PRECIO", precio grande con % OFF, "ahorrás", cuotas y logos de pago | Igual, con los datos reales: con descuento por transferencia muestra ese precio; si no, el precio de lista tachado y el % OFF. Cuotas solo si la tienda tiene cuotas sin interés |
+| Recuadro de envío: cuenta regresiva "Comprá antes de las 18 h", fechas de llegada y envío gratis | Igual con `envio` (**provisorio: corte 14 h, lunes a viernes, 3 a 6 días hábiles; confirmar con el cliente**) |
+| Armá tu combo (2 o 3 bermudas) | No aplica a relojes. Se reemplazó por "Elegí cómo pagarlo" en el bloque negro (solo con transferencia o cuotas reales) |
+| "Te llega en bolsita de regalo", ★★★★★ CALIDAD WESS, botón rojo | "Llega en su caja, con papeles y accesorios", ★★★★★ CALIDAD VALMONT, botón dorado redondeado |
+| Lista: Despachamos en el día, Probátelo en el local, Cambio en 10 días | Envío a todo el país, Caja, papeles y accesorios, Compra protegida (`ficha.confianza`) |
+| Videos "03 · CORTE / CAÍDA BAGGY" | "MIRALO DE CERCA": fotos reales del producto con la misma etiqueta encima (`ficha.detalles`) |
+| "LA BERMUDA QUE VA CON TODO" + viñetas + "ARMAR MI COMBO" | "EL RELOJ QUE VA CON TODO" + viñetas + "LO QUIERO" (lleva al botón de compra) |
+| "HECHA PARA USARLA TODOS LOS DÍAS" (fotos con títulos) | "HECHO PARA USARLO TODOS LOS DÍAS": Esfera, Caja, Malla, Presentación |
+| "VIENE LISTO PARA REGALAR" | Igual, "Caja y papeles" |
+| "ELEGÍ TU TALLE SIN DUDAR" + "El modelo usa L" | Tabla muñeca → diámetro de caja + "¿Entre dos tamaños?" (o "Este reloj mide X mm" si el producto tiene `muneca.caja` en `porProducto`) y botón al medidor de la home |
+| "WESS, DESDE CÓRDOBA" (6 tarjetas) | "COMPRÁ TRANQUILO · VALMONT & CO." (6 tarjetas sin datos inventados) |
+| Preguntas y "ARMÁ EL TUYO" | Preguntas de `faq` y "ELEGÍ EL TUYO" con botón a la compra |
+
+Pendiente: WhatsApp del cliente (`whatsapp`) para que aparezca "¿Dudas con el tamaño? Escribinos por WhatsApp"; datos reales de envío; videos propios si el cliente los tiene.
+
 ## Cómo probar sin productos
 
 - **Home:** probarla en la tienda real de Valmont.
