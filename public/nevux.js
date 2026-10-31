@@ -1133,6 +1133,79 @@
       }
     }
     cargarVitrinas(H.vitrinas || []);
+    // Portada estilo Wess: franja con reloj en vivo (o cuenta regresiva del evento), logo, etiqueta, título gigante y botón
+    var PO = H.portada;
+    if (PO && !document.querySelector('.nvp')) {
+      var EVp = NEVUX.evento;
+      if (!document.querySelector('#nvx-anton')) {
+        var lk = document.createElement('link'); lk.id = 'nvx-anton'; lk.rel = 'stylesheet';
+        lk.href = 'https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600;700&display=swap';
+        document.head.appendChild(lk);
+      }
+      var CC = CA, CT2 = luz(CC) > 0.45 ? '#111' : '#fff';
+      hCss('nvx-portada-css',
+        '.nvp{position:relative;overflow:hidden;background:' + oscuro + ';color:#fff;font-family:Inter,system-ui,sans-serif}' +
+        '.nvp-fr{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border-top:1px solid rgba(255,255,255,.08);border-bottom:2px solid ' + CC + ';' +
+        'background:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 18px,transparent 18px 46px),' + oscuro + '}' +
+        '.nvp-fr .m{font:400 19px/1 Anton,Oswald,sans-serif;letter-spacing:.02em;text-transform:uppercase}.nvp-fr .m em{font-style:normal;color:' + CC + '}' +
+        '.nvp-fr .dot{width:7px;height:7px;border-radius:50%;background:' + CC + ';animation:nvp-bl 1s steps(2) infinite}' +
+        '@keyframes nvp-bl{50%{opacity:.25}}' +
+        '.nvp-fr .t{font:700 12px/1 Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase}' +
+        '.nvp-fr .n{display:flex;gap:5px}.nvp-fr .n b{background:' + CC + ';color:' + CT2 + ';border-radius:4px;padding:5px 7px 4px;font:400 17px/1 Anton,Oswald,sans-serif;font-variant-numeric:tabular-nums;min-width:38px;text-align:center}' +
+        '.nvp-fr .n b small{font:700 10px Inter,sans-serif;margin-left:2px;opacity:.85}' +
+        '.nvp-in{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:44px 20px 56px}' +
+        '.nvp-logo{width:min(230px,58vw);display:block;margin-bottom:26px}' +
+        '.nvp-pill{display:inline-block;background:' + CC + ';color:' + CT2 + ';border-radius:6px;padding:9px 16px;font:800 15px/1 Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase}' +
+        '.nvp h1{margin:14px 0 0;font:400 clamp(78px,24vw,190px)/.86 Anton,Oswald,sans-serif;text-transform:uppercase;letter-spacing:-.005em}' +
+        '.nvp h1 .a{display:block;color:' + CC + '}.nvp h1 .b{display:block;color:#fff;font-size:.82em}' +
+        '.nvp p{margin:22px 0 30px;max-width:520px;font-size:clamp(16px,4.6vw,20px);line-height:1.45;color:rgba(255,255,255,.75)}' +
+        '.nvp-btn{display:inline-flex;align-items:center;gap:14px;background:#fff;color:#111!important;border-radius:999px;padding:20px 28px;white-space:nowrap;font:800 clamp(12px,3.4vw,16px)/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;text-decoration:none!important}' +
+        '.nvp-btn i{font-style:normal;font-size:20px;animation:nvp-dn 1.4s ease-in-out infinite}@keyframes nvp-dn{50%{transform:translateY(4px)}}' +
+        '.nvp-diag{position:absolute;z-index:1;right:-46%;top:64%;width:100%;height:64px;background:' + CC + ';transform:rotate(-58deg);transform-origin:center;opacity:.95;box-shadow:0 0 60px ' + CC + '55}' +
+        '.nvp-dial{position:absolute;z-index:0;right:-170px;top:60px;width:560px;height:560px;opacity:.13}' +
+        '.nvp-dial .sg{transform-origin:280px 280px;animation:nvp-sg 60s steps(60) infinite}@keyframes nvp-sg{to{transform:rotate(360deg)}}' +
+        '@media(min-width:900px){.nvp-dial{right:4%;top:40px;width:640px;height:640px;opacity:.18}.nvp-diag{right:-20%;top:58%;width:70%}}' +
+        '@media (prefers-reduced-motion: reduce){.nvp-dial .sg,.nvp-btn i,.nvp-fr .dot{animation:none}}');
+      var ticks = '';
+      for (var tk = 0; tk < 60; tk++) {
+        var ang = tk * 6 * Math.PI / 180, r1 = 262, r2 = tk % 5 ? 250 : 226;
+        ticks += '<line x1="' + (280 + r1 * Math.sin(ang)).toFixed(1) + '" y1="' + (280 - r1 * Math.cos(ang)).toFixed(1) + '" x2="' + (280 + r2 * Math.sin(ang)).toFixed(1) + '" y2="' + (280 - r2 * Math.cos(ang)).toFixed(1) + '" stroke="#fff" stroke-width="' + (tk % 5 ? 2 : 6) + '"/>';
+      }
+      var dial = '<svg class="nvp-dial" viewBox="0 0 560 560" aria-hidden="true"><circle cx="280" cy="280" r="276" fill="none" stroke="#fff" stroke-width="3"/>' + ticks +
+        '<line x1="280" y1="280" x2="200" y2="160" stroke="#fff" stroke-width="12" stroke-linecap="round"/><line x1="280" y1="280" x2="420" y2="200" stroke="#fff" stroke-width="7" stroke-linecap="round"/>' +
+        '<g class="sg"><line x1="280" y1="320" x2="280" y2="40" stroke="' + CC + '" stroke-width="3"/></g><circle cx="280" cy="280" r="10" fill="' + CC + '"/></svg>';
+      var frTexto = PO.franja || 'Hora oficial';
+      var poHtml = '<section class="nvp"><div class="nvp-fr"><span class="m">' + (PO.marca ? hEsc(PO.marca).replace(/^(\S+)/, '<em>$1</em>') : '') + '</span><span class="dot"></span>' +
+        '<span class="t"></span><span class="n"></span></div>' + dial + '<div class="nvp-diag"></div><div class="nvp-in">' +
+        (PO.logo ? '<img class="nvp-logo" src="' + hEsc(PO.logo) + '" alt="">' : '') +
+        (PO.etiqueta ? '<span class="nvp-pill">' + hEsc(PO.etiqueta) + '</span>' : '') +
+        '<h1><span class="a">' + hEsc(PO.titulo || '') + '</span>' + (PO.titulo2 ? '<span class="b">' + hEsc(PO.titulo2) + '</span>' : '') + '</h1>' +
+        (PO.texto ? '<p>' + hEsc(PO.texto) + '</p>' : '') +
+        (PO.boton ? '<a class="nvp-btn" href="' + hEsc(PO.url || '#') + '">' + hEsc(PO.boton) + ' <i>↓</i></a>' : '') + '</div></section>';
+      var hdr = document.querySelector('header.js-head-main, .js-head-main, header');
+      var slp = document.querySelector('[data-store="home-slider"]');
+      if (hdr && hdr.parentNode) hdr.insertAdjacentHTML('afterend', poHtml);
+      else if (slp) slp.insertAdjacentHTML('beforebegin', poHtml);
+      else document.body.insertAdjacentHTML('afterbegin', poHtml);
+      if (slp && PO.reemplazarBanner) slp.style.display = 'none';
+      // Franja: cuenta regresiva si hay un evento en curso o por venir; si no, la hora de Argentina en vivo
+      var fr = document.querySelector('.nvp-fr'), tN = fr.querySelector('.n'), tT = fr.querySelector('.t');
+      var dosD = function (n) { return (n < 10 ? '0' : '') + n; };
+      var cajaP = function (n, l) { return '<b>' + dosD(n) + '<small>' + l + '</small></b>'; };
+      var tickP = function () {
+        var meta = EVENTO === 'durante' ? EVp.hasta : EVENTO === 'antes' ? EVp.desde : null;
+        if (meta) {
+          var ms = new Date(meta) - Date.now(), sg = Math.max(0, Math.floor(ms / 1000));
+          tT.textContent = EVENTO === 'durante' ? 'Termina' : 'Empieza';
+          tN.innerHTML = cajaP(Math.floor(sg / 86400), 'D') + cajaP(Math.floor(sg % 86400 / 3600), 'H') + cajaP(Math.floor(sg % 3600 / 60), 'M') + cajaP(sg % 60, 'S');
+        } else {
+          var ar = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
+          tT.textContent = frTexto;
+          tN.innerHTML = cajaP(ar.getHours(), 'H') + cajaP(ar.getMinutes(), 'M') + cajaP(ar.getSeconds(), 'S');
+        }
+      };
+      tickP(); setInterval(tickP, 1000);
+    }
     var HE = H.hero;
     if (HE && (HE.foto || HE.titulo) && !document.querySelector('.nvh-hero')) {
       hCss('nvx-hero-css',

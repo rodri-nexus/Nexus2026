@@ -201,13 +201,16 @@ export const CLIENTES: Record<string, Cliente> = {
         { p: '¿Cómo elijo el tamaño?', r: 'En cada reloj te dejamos el diámetro de la caja y un medidor para ver cómo te queda en la muñeca.' }
       ],
       home: {
-        hero: {
-          etiqueta: 'Valmont & Co. · Relojería',
-          titulo: 'Relojes originales.',
-          destacado: 'Elegí el tuyo.',
+        portada: {
+          marca: 'Valmont & Co.',
+          franja: 'Hora oficial',
+          logo: 'https://nevux.ar/clientes/valmont/logo-dorado.png',
+          etiqueta: 'Relojes originales',
+          titulo: 'Valmont',
+          titulo2: 'Relojería',
           texto: 'Las marcas que conocés, con factura y garantía oficial. Envíos a todo el país.',
+          boton: 'Tocá acá y mirá los relojes',
           url: '/productos/',
-          boton: 'Ver todos los relojes',
           reemplazarBanner: true
         },
         beneficios: [
