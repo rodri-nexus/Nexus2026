@@ -56,7 +56,7 @@ Lo que se está haciendo ahora. **Ver `docs/valmont.md`.**
   - un post por día a las ~19:30;
   - historias a las 9:47, 13:17 y 20:17.
 
-  Las tareas programadas están atadas **a la sesión anterior**. Ver `docs/instagram.md` y `public/ig/agenda.json`.
+  Las tareas programadas corren desde el 31/10 en la sesión `session_01PDD9EtCY9JFJzsoyimb9Yn` (las de la sesión "Nexus2026 docs review" quedaron apagadas porque se trababan esperando permiso). Ver `docs/instagram.md` y `public/ig/agenda.json`.
 - **Informe y semana 2:** el sábado 7/11 hay que hacer el informe de la semana 1 y armar la semana 2 con la misma estructura.
 - **@valmont.relojes:** creado y con 3 publicaciones de marca. De ahora en más lo maneja el cliente.
 
