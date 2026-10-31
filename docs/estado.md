@@ -8,6 +8,7 @@
 - **Publicar:** Rodrigo autorizó publicar en nevux.ar sin preguntarle. El camino es: rama de trabajo → pull request a `main` → merge (merge commit) → Vercel lo publica. Antes de publicar, el build tiene que pasar y la página tiene que estar revisada en el celular. Después, comprobar que esté en vivo con `curl`.
 - **Cambios en una tienda:** se prueban en la tienda real con Playwright (Chromium ya instalado), cargando el motor nuevo solo en el navegador de prueba (`page.route`). Sacar capturas en celular (390 px) y en computadora, y mandárselas.
 - **Panel de Tiendanube:** no puedo entrar. Rodrigo hace los clics (pegar la línea, subir banners, colores, importar productos) con mi guía paso a paso y, si hace falta, me manda capturas.
+- **Reels con narración (pedido de Rodrigo, 31/10, vale para esta y todas las sesiones futuras):** todos los Reels llevan una voz que narra lo que pasa en el video, profesional y no robótica, con acento argentino (Rodrigo pidió rosarino). Se hace con voces neuronales de Microsoft `es-AR-TomasNeural` (masculina) o `es-AR-ElenaNeural` (femenina) usando `edge-tts` (`pip install edge-tts`). En el contenedor hay que confiar en el CA del proxy: en Python, parchear `ssl.create_default_context` para que cargue `/root/.ccr/ca-bundle.crt`. No hay voces con tonada rosarina: son rioplatenses. Rodrigo todavía no eligió entre Tomás y Elena.
 - **Límites que ya se hablaron:**
   - Nada de datos inventados: ni reseñas, ni números de ventas, ni descuentos que no existan.
   - **Nunca réplicas de marcas** (Rolex, Omega, Patek, G-Shock, etc.).
@@ -49,7 +50,7 @@
 
 ### Valmont & Co. · valmontrelojes.mitiendanube.com · plantilla Recife (desde el 31/10; antes Morelia) · plan Premium (estilo Wess)
 
-Lo que se está haciendo ahora. **Ver `docs/valmont.md`.**
+**Terminada el 31/10: Rodrigo dijo que no se toca más.** Falta solo el ok del cliente (Miguel), apagarla hasta que pague y pasarla a cobro automático. Ver `docs/valmont.md`.
 
 ## Instagram
 
