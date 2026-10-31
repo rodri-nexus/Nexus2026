@@ -46,7 +46,7 @@
   - Que active descuento por transferencia y cuotas sin interés: el bloque de precios aparece solo cuando los tenga.
   - Que se suscriba en `nevux.ar/suscribirme?c=hogar-digital` para pasarlo a cobro automático.
 
-### Valmont & Co. · valmontrelojes.mitiendanube.com · plantilla Morelia · plan Premium (estilo Wess)
+### Valmont & Co. · valmontrelojes.mitiendanube.com · plantilla Recife (desde el 31/10; antes Morelia) · plan Premium (estilo Wess)
 
 Lo que se está haciendo ahora. **Ver `docs/valmont.md`.**
 
