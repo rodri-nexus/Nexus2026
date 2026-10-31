@@ -2,6 +2,7 @@ import { readFile } from "fs/promises";
 import { join } from "path";
 import { ImageResponse } from "next/og";
 import { CLIENTES } from "@/lib/clientes";
+import { planDe, precioTexto } from "@/lib/planes";
 
 // Imagen de vista previa (1200x630) que muestran WhatsApp, Instagram y Facebook al compartir un link de nevux.ar.
 // /og?v=suscripcion&c=<cliente> → "Activá Nevux en <tienda>" con el precio. Sin parámetros → imagen general de Nevux.
@@ -23,10 +24,11 @@ export async function GET(req: Request) {
   const suscripcion = q.get("v") === "suscripcion";
   const cliente = q.get("c") ? CLIENTES[q.get("c") as string] : undefined;
   const tienda = cliente?.nombre.replace(/\s*\(.*\)\s*$/, "");
+  const plan = planDe(q.get("plan") || undefined, cliente?.plan);
 
   const etiqueta = suscripcion ? "SUSCRIPCIÓN MENSUAL" : "OPTIMIZACIÓN DE FICHAS PARA TIENDANUBE";
   const titulo = suscripcion ? (tienda ? `Activá Nevux en ${tienda}` : "Activá Nevux en tu tienda") : "No te faltan visitas.";
-  const destacado = suscripcion ? "Pack Landing Page Pro" : "Te faltan ventas.";
+  const destacado = suscripcion ? plan.nombre : "Te faltan ventas.";
 
   const fuente = await cargarFuente();
 
@@ -75,7 +77,7 @@ export async function GET(req: Request) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           {suscripcion ? (
             <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
-              <div style={{ fontSize: 58, fontWeight: 800 }}>$39.900</div>
+              <div style={{ fontSize: 58, fontWeight: 800 }}>{precioTexto(plan.precio)}</div>
               <div style={{ fontSize: 28, color: "#a1a1aa" }}>/ mes · Garantía de 7 días</div>
             </div>
           ) : (

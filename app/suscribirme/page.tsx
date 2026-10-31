@@ -3,21 +3,23 @@ import { Check, ShieldCheck, MessageCircle, CreditCard, Wrench, Rocket } from "l
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import { CLIENTES } from "@/lib/clientes";
 import BotonPago from "./BotonPago";
+import { planDe, precioTexto } from "@/lib/planes";
 
 // Página de suscripción: lo que se le manda al cliente en lugar del link pelado de Mercado Pago.
-// Con ?c=<cliente> se personaliza con el nombre de su tienda (ver lib/clientes.ts).
+// Con ?c=<cliente> se personaliza con el nombre de su tienda y su plan (ver lib/clientes.ts y lib/planes.ts). ?plan=premium sin cliente.
 
-const MP_SUSCRIPCION = "https://mpago.la/1LqFYin";
 const WHATSAPP = "5493434163999";
 
 // Título, descripción e imagen que muestran WhatsApp e Instagram al compartir el link (personalizados con ?c=)
-export function generateMetadata({ searchParams }: { searchParams: { c?: string } }): Metadata {
+export function generateMetadata({ searchParams }: { searchParams: { c?: string; plan?: string } }): Metadata {
   const c = searchParams.c && CLIENTES[searchParams.c] ? searchParams.c : undefined;
   const tienda = c ? CLIENTES[c].nombre.replace(/\s*\(.*\)\s*$/, "") : undefined;
   const titulo = tienda ? `Activá Nevux en ${tienda}` : "Activá Nevux en tu tienda";
-  const descripcion = "Pack Landing Page Pro · $39.900 por mes con cobro automático por Mercado Pago. Cancelás cuando quieras. Garantía de 7 días.";
-  const url = `/suscribirme${c ? `?c=${c}` : ""}`;
-  const imagen = `/og?v=suscripcion${c ? `&c=${c}` : ""}`;
+  const plan = planDe(searchParams.plan, c ? CLIENTES[c].plan : undefined);
+  const descripcion = `${plan.nombre} · ${precioTexto(plan.precio)} por mes con cobro automático por Mercado Pago. Cancelás cuando quieras. Garantía de 7 días.`;
+  const extra = c ? `?c=${c}` : searchParams.plan ? `?plan=${searchParams.plan}` : "";
+  const url = `/suscribirme${extra}`;
+  const imagen = `/og?v=suscripcion${c ? `&c=${c}` : searchParams.plan ? `&plan=${searchParams.plan}` : ""}`;
   return {
     title: `${titulo} · Nevux`,
     description: descripcion,
@@ -35,24 +37,15 @@ export function generateMetadata({ searchParams }: { searchParams: { c?: string 
   };
 }
 
-const INCLUYE = [
-  "Packs Llevá 2 y Llevá 3 con descuento",
-  "Cuenta regresiva de despacho y entrega estimada",
-  "Botón de compra fijo y avisos de venta en vivo",
-  "Combiná con, comparativa y preguntas frecuentes",
-  "Home de tu tienda con secciones de confianza",
-  "Configuración con tus colores, tus productos y tus datos",
-  "Cambios y ajustes por WhatsApp sin costo extra",
-];
-
 const PASOS = [
   { icon: CreditCard, t: "Te suscribís", d: "Pagás con tarjeta en Mercado Pago. Se cobra solo cada mes, el mismo día." },
   { icon: Wrench, t: "Lo configuramos", d: "Te escribimos por WhatsApp y dejamos Nevux armado con los datos de tu tienda." },
   { icon: Rocket, t: "Tu tienda vende más", d: "Pegás una línea en tu Tiendanube (te guiamos) y queda funcionando." },
 ];
 
-export default function SuscribirmePage({ searchParams }: { searchParams: { c?: string } }) {
+export default function SuscribirmePage({ searchParams }: { searchParams: { c?: string; plan?: string } }) {
   const cliente = searchParams.c ? CLIENTES[searchParams.c] : undefined;
+  const plan = planDe(searchParams.plan, cliente?.plan);
   const tienda = cliente?.nombre.replace(/\s*\(.*\)\s*$/, "");
   const whatsapp = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
     `Hola! Tengo una consulta sobre la suscripción a Nevux${tienda ? ` para ${tienda}` : ""}.`
@@ -83,21 +76,21 @@ export default function SuscribirmePage({ searchParams }: { searchParams: { c?: 
           )}
         </h1>
         <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-8">
-          Tus fichas de producto y tu home, transformadas para vender más. Sin cambiar de plantilla y sin apps.
+          {plan.bajada}
         </p>
 
         <div className="bg-[#0f1013] border border-emerald-500/40 rounded-3xl p-6 sm:p-8 shadow-[0_0_80px_-20px_rgba(16,185,129,0.35)]">
           <div className="flex items-baseline justify-between gap-3 mb-1">
-            <h2 className="text-lg font-extrabold">Pack Landing Page Pro</h2>
+            <h2 className="text-lg font-extrabold">{plan.nombre}</h2>
           </div>
           <div className="flex items-end gap-2 mb-1">
-            <span className="text-5xl font-black tracking-tight">$39.900</span>
+            <span className="text-5xl font-black tracking-tight">{precioTexto(plan.precio)}</span>
             <span className="text-neutral-400 text-sm font-semibold mb-2">ARS / mes</span>
           </div>
           <p className="text-xs text-neutral-500 mb-6">Precio final. Se cobra automáticamente cada mes. Cancelás cuando quieras.</p>
 
           <ul className="space-y-2.5 text-sm text-neutral-300 mb-8">
-            {INCLUYE.map((t) => (
+            {plan.incluye.map((t) => (
               <li key={t} className="flex items-start gap-3">
                 <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 {t}
@@ -105,7 +98,7 @@ export default function SuscribirmePage({ searchParams }: { searchParams: { c?: 
             ))}
           </ul>
 
-          <BotonPago url={MP_SUSCRIPCION} tienda={tienda} />
+          <BotonPago url={plan.link} tienda={tienda} plan={plan.nombre} precio={plan.precio} />
           <p className="text-[11px] text-neutral-500 text-center mt-3">
             Vas a ir a Mercado Pago para cargar tu tarjeta de forma segura. Nevux nunca ve los datos de tu tarjeta.
           </p>

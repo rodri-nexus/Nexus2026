@@ -17,6 +17,8 @@ export type Cliente = {
   activo: boolean;
   cobro: Cobro;
   dominios: string[];
+  // Plan de suscripción (lib/planes.ts). Sin plan = básico
+  plan?: "basico" | "premium";
   config: Record<string, unknown>;
 };
 
@@ -156,6 +158,7 @@ export const CLIENTES: Record<string, Cliente> = {
     activo: true,
     cobro: { tipo: 'manual' },
     dominios: ['valmontrelojes.mitiendanube.com'],
+    plan: 'premium',
     // Relojería premium multimarca con estilo Wess en negro y dorado. Rodrigo pidió no usar la palabra "original": va "premium".
     // Garantía, envíos y medios de pago: textos genéricos hasta confirmar los datos reales con el cliente.
     config: {
