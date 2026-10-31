@@ -173,6 +173,12 @@ export const CLIENTES: Record<string, Cliente> = {
       // Cabecera negra con la V en 3D girando (como el logo animado de Wess) en lugar del nombre de texto
       cabecera: { inicial: 'V', nombre: 'VALMONT' },
       pie: { logo: 'https://nevux.ar/clientes/valmont/logo-dorado.png', titulo: 'Valmont & Co.', texto: 'Relojería premium', instagram: 'https://www.instagram.com/valmont.relojes/', newsletter: 'Registrate y recibí nuestras novedades.' },
+      // Videos por producto (en "Miralo de cerca" de la ficha). La clave es la dirección del producto.
+      porProducto: {
+        '/productos/valmontco-com/': {
+          fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-gshock-gst-b400.mp4', poster: 'https://nevux.ar/clientes/valmont/video-gshock-gst-b400.jpg' }]
+        }
+      },
       estiloFicha: 'wess',
       envio: { corte: 14, dias: [1, 2, 3, 4, 5], min: 3, max: 6, zona: 'a todo el país' },
       ficha: {

@@ -232,10 +232,10 @@
       '.nvx-wd h2 em{font:inherit;font-size:1em;font-style:normal;color:' + C + ';display:block}' +
       '.nvx-wd p.tx{margin:0 0 16px;font-size:15px;line-height:1.55;color:#d4d4d4}' +
       '.nvx-wd .bt{display:inline-block;background:' + C + ';color:' + CT + '!important;border:0;border-radius:8px;padding:15px 22px;font:400 18px/1 Anton,Oswald,sans-serif;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;text-decoration:none!important}' +
-      '.nvx-wd-cards{display:grid;grid-auto-flow:column;grid-auto-columns:78%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:0 16px}.nvx-wd-cards::-webkit-scrollbar{display:none}' +
+      '.nvx-wd-cards{display:grid;grid-auto-flow:column;grid-auto-columns:78%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 16px;scrollbar-width:none;margin:0 -16px;padding:0 16px}.nvx-wd-cards::-webkit-scrollbar{display:none}' +
       '@media(min-width:768px){.nvx-wd-cards{grid-auto-columns:40%}}' +
       '.nvx-wd-cd{position:relative;scroll-snap-align:start;border-radius:16px;overflow:hidden;aspect-ratio:4/5;background:#1a1816}' +
-      '.nvx-wd-cd img{width:100%;height:100%;object-fit:cover;display:block}' +
+      '.nvx-wd-cd img,.nvx-wd-cd video{width:100%;height:100%;object-fit:cover;display:block}.nvx-wd-cd.nvx-wd-v{aspect-ratio:9/16;background:#000}' +
       '.nvx-wd-cd .lb{position:absolute;left:16px;top:22px;max-width:80%;background:rgba(10,10,10,.82);border-left:4px solid ' + C + ';padding:10px 14px}' +
       '.nvx-wd-cd .lb small{display:block;font:800 10px/1 Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:' + C + '}' +
       '.nvx-wd-cd .lb b{display:block;margin-top:6px;font:400 24px/1 Anton,Oswald,sans-serif;text-transform:uppercase;color:#fff}' +
@@ -281,8 +281,14 @@
     var html = '';
     // 1) Mirala de cerca: tarjetas con las fotos y una etiqueta encima (en Wess son videos)
     var DT = FW.detalles || [];
-    if (fotos.length && DT.length) {
-      html += sec(FW.detallesEtiqueta || '', titulo(FW.detallesTitulo || ''), '<div class="nvx-wd-cards">' + fotos.slice(0, Math.max(DT.length, 1)).map(function (f, i) {
+    // Videos del producto (como los de Wess): van primero, verticales, y se reproducen solos sin sonido cuando están en pantalla.
+    // Se cargan por producto con porProducto: { '/productos/<url>/': { fichaVideos: [{ mp4, poster }] } }
+    var VD = NEVUX.fichaVideos || [];
+    var vidHtml = VD.map(function (v) {
+      return '<div class="nvx-wd-cd nvx-wd-v"><video src="' + esc(v.mp4) + '"' + (v.poster ? ' poster="' + esc(v.poster) + '"' : '') + ' muted loop playsinline preload="metadata"></video></div>';
+    }).join('');
+    if ((fotos.length && DT.length) || vidHtml) {
+      html += sec(FW.detallesEtiqueta || '', titulo(FW.detallesTitulo || ''), '<div class="nvx-wd-cards">' + vidHtml + (DT.length ? fotos : []).slice(0, Math.max(DT.length, 1)).map(function (f, i) {
         var x = DT[i % DT.length] || {};
         return '<div class="nvx-wd-cd"><img src="' + esc(f) + '" alt="" loading="lazy"><div class="lb"><small>' + (i < 9 ? '0' : '') + (i + 1) + (x.etiqueta ? ' · ' + esc(x.etiqueta) : '') + '</small><b>' + esc(x.titulo || '') + '</b>' + (x.texto ? '<span>' + esc(x.texto) + '</span>' : '') + '</div></div>';
       }).join('') + '</div>');
@@ -377,6 +383,13 @@
         }
         fila.insertAdjacentHTML('beforeend', extra.map(function (c) { return tarjetaGrilla(c, RG2); }).join(''));
       }).catch(function () {});
+    }
+    var vs = document.querySelectorAll('.nvx-wd video');
+    if (vs.length) {
+      if ('IntersectionObserver' in window) {
+        var iov = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) e.target.play().catch(function () {}); else e.target.pause(); }); }, { threshold: 0.5 });
+        [].forEach.call(vs, function (v) { iov.observe(v); });
+      } else [].forEach.call(vs, function (v) { v.autoplay = true; });
     }
     [].forEach.call(document.querySelectorAll('.nvx-wd-go'), function (b) {
       b.addEventListener('click', function () {

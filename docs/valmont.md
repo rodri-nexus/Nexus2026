@@ -89,6 +89,12 @@ WhatsApp del cliente: +54 2954 688637 (`whatsapp: '5492954688637'`). Pendiente: 
 - **Productos similares llenos:** Tiendanube solo trae los de la misma categoría (a veces 1). Se completa con el resto del catálogo hasta 8 (`ficha.similaresCantidad`).
 - **Plantilla:** Wess usa **Recife** (`LS.theme.code: "recife"`). El 31/10 Rodrigo pasó Valmont de Morelia a Recife. Nevux se probó entero sobre Recife (home, ficha, cabecera y pie). En Recife el pie ya trae el newsletter arriba, "Categorías" desplegable y la franja legal: `initPie` solo le pone colores, marca y redes. **Al cambiar de plantilla se pierde la línea de Nevux de "Sellos personalizados": hay que volver a pegarla.**
 
+## Videos de producto
+
+- **Cómo se hacen:** con una foto del reloj se arma un video vertical de unos 11 segundos (`/home/user/vid/render.py` en la sesión del 31/10). Tiene intro con la V, el reloj recortado sobre fondo negro con brillo dorado, destello de luz, tres primeros planos con etiqueta estilo Wess y el cierre "VALMONT & CO. · Relojería premium". Es animación sobre la foto real: no inventa ángulos.
+- **Dónde van:** primera tarjeta de "Miralo de cerca" en la ficha (`fichaVideos` por producto en `porProducto`). Arrancan solos, sin sonido, en bucle, y se pausan fuera de pantalla.
+- **Hechos:** Casio G-Shock G-Steel GST-B400BB-1A (`/productos/valmontco-com/`, `video-gshock-gst-b400.mp4`).
+
 ## Cobro
 
 - **Plan Premium:** $69.900/mes. Link para mandarle al cliente: **https://nevux.ar/suscribirme?c=valmont**. Abre la página con el plan Premium y el botón a `mpago.la/2mkcebx`.
