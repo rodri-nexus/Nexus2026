@@ -17,7 +17,7 @@ Las demos son `public/demo/disenos/*.html` y se generan con `python3 scripts/dem
 | Plan | Precio | Diseños |
 |---|---|---|
 | **Básico** | $39.900/mes | **Ficha Pro** clara u oscura con todos sus efectos y home con secciones de confianza |
-| **Premium** | $69.900/mes | Todo lo del Básico + **Home Premium** (portada con clips, historias, categorías que rotan, foto que alterna), cabecera con logo animado, pie a medida, herramientas del rubro y el estilo Wess completo (como Valmont) |
+| **Premium** | $69.900/mes | Todo lo del Básico + **Home Premium · Destino** (la que se promete y se muestra en la landing), carrito con barra de envío gratis, cabecera con logo animado, pie a medida y herramientas del rubro. Valmont tiene el estilo Wess completo |
 
 Lo que incluye cada plan, tal como lo ve el cliente, está en `lib/planes.ts`, que usan `nevux.ar/suscribirme` y `nevux.ar/disenos`.
 
@@ -32,7 +32,7 @@ Lo que incluye cada plan, tal como lo ve el cliente, está en `lib/planes.ts`, q
 | 6 | **Home Premium · Destino** (referencia oficial del Premium: portada con tarjetitas, íconos que se dibujan, tira de categorías, números que suben, comunidad, locales con mapa) | Home | Premium | Hecho (`home.destino` + `home.rotador`, `tarjetas.cuotas`, `ventas.estilo: 'destino'`). Demo: `nevux.ar/demo/disenos/home-destino.html`. Referencia: `docs/referencias/destino.md` | — |
 | 5 | **Ficha oscura con olas** (la anterior) | Ficha | Básico | Hecho (`estiloFicha: 'oscuro'`) | Hogar Digital |
 
-**Pendiente de proponer:** pasar a Hogar Digital (Básico) de la ficha oscura con olas a la Ficha Pro. Cambia una tienda en vivo: primero mostrársela a Marcelo.
+**Pendiente:** Marcelo (Hogar Digital) está decidiendo entre Básico y Premium. Si es Premium, activar la home Destino ya probada en su tienda; si es Básico, proponerle la Ficha Pro. Ver `docs/estado.md`.
 
 ## Ficha Pro: configuración
 
