@@ -214,79 +214,6 @@ const FAQS = [
 
 /* ---------- Piezas visuales ---------- */
 
-function HeroPhone() {
-  return (
-    <div className="relative w-[250px] sm:w-[290px] mx-auto">
-      <div className="absolute -inset-10 bg-emerald-500/20 blur-[80px] rounded-full pointer-events-none" />
-      <div className="relative rounded-[2.6rem] border-[10px] border-[#1c1c1f] bg-[#1c1c1f] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9)] overflow-hidden">
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-5 bg-[#1c1c1f] rounded-full z-20" />
-        <div className="relative h-[480px] sm:h-[560px] overflow-hidden rounded-[1.9rem] bg-white">
-          <img src="/landing/caso-ficha.jpg" alt="Ficha de producto de una tienda real con Nevux" className="nvx-hero-scroll w-full" draggable={false} />
-          <div className="absolute left-0 right-0 bottom-0 z-10 bg-white border-t border-neutral-200 px-3 py-2.5 flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <div className="text-[10px] font-semibold text-neutral-900 truncate">Parlante Bluetooth V8</div>
-              <div className="text-xs font-black text-emerald-600">$45.900</div>
-            </div>
-            <span className="shrink-0 bg-emerald-500 text-white text-[10px] font-black px-3 py-2 rounded-lg">COMPRAR AHORA</span>
-          </div>
-        </div>
-      </div>
-      {[
-        { t: "📦 Llevá 2 · 15% OFF", c: "-left-8 sm:-left-16 top-24", d: 0.8 },
-        { t: "🚚 Entrega estimada", c: "-right-6 sm:-right-14 top-56", d: 1.1 },
-        { t: "💸 Mejor precio transferencia", c: "-left-6 sm:-left-14 bottom-28", d: 1.4 },
-      ].map((b) => (
-        <motion.div
-          key={b.t}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: b.d }}
-          className={`absolute ${b.c} bg-[#111214]/90 backdrop-blur border border-white/10 rounded-xl px-3 py-2 text-xs font-bold text-white shadow-xl`}
-        >
-          {b.t}
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
-function BeforeAfter() {
-  const [pos, setPos] = useState(50);
-  return (
-    <div className="relative w-full max-w-[320px] mx-auto">
-      <div className="relative rounded-[2.6rem] border-[10px] border-[#1c1c1f] bg-[#1c1c1f] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9)] overflow-hidden">
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-5 bg-[#1c1c1f] rounded-full z-20" />
-        <div className="relative aspect-[780/1500] select-none overflow-hidden rounded-[1.9rem] bg-white">
-          <img src="/landing/caso-antes.jpg" alt="Ficha de producto sin Nevux" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
-          <img
-            src="/landing/caso-despues.jpg"
-            alt="Ficha de producto con Nevux"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ clipPath: `inset(0 0 0 ${pos}%)` }}
-            draggable={false}
-          />
-          <span className="absolute top-8 left-3 z-10 text-[10px] font-black tracking-wider bg-black/70 text-white px-2 py-1 rounded-md">ANTES</span>
-          <span className="absolute top-8 right-3 z-10 text-[10px] font-black tracking-wider bg-emerald-500 text-black px-2 py-1 rounded-md">CON NEVUX</span>
-          <div className="absolute top-0 bottom-0 z-10 w-0.5 bg-white shadow-[0_0_12px_rgba(0,0,0,0.6)] pointer-events-none" style={{ left: `${pos}%` }}>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white text-black grid place-items-center text-sm font-black shadow-xl">
-              ↔
-            </div>
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            value={pos}
-            onChange={(e) => setPos(Number(e.target.value))}
-            aria-label="Comparar antes y después"
-            className="absolute inset-0 z-20 w-full h-full opacity-0 cursor-ew-resize"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 const DEMO_SIZES = [
   { talle: "S", min: 48, max: 51 },
   { talle: "M", min: 52, max: 55 },
@@ -611,8 +538,8 @@ export default function Landing() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 nvx-grid-bg pointer-events-none" />
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-emerald-500/15 blur-[140px] rounded-full pointer-events-none" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-20 md:pt-20 md:pb-28 grid lg:grid-cols-[1.3fr_1fr] gap-14 items-center">
-          <div className="text-center lg:text-left">
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 pt-12 pb-20 md:pt-20 md:pb-28">
+          <div className="text-center">
             <motion.span
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -635,19 +562,19 @@ export default function Landing() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-base sm:text-lg text-neutral-400 max-w-xl mx-auto lg:mx-0 mb-9 leading-relaxed"
+              className="text-base sm:text-lg text-neutral-400 max-w-2xl mx-auto mb-9 leading-relaxed"
             >
               Transformamos las fichas de producto de tu Tiendanube para que <b className="text-white font-semibold">más visitas terminen en compra</b>:
               precio claro, packs, entrega estimada y un botón de compra siempre a mano. Sin cambiar de plantilla y sin apps.
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row items-center gap-4 justify-center">
                 <WhatsAppCta origen="hero" className="w-full sm:w-auto" />
                 <a href="#solucion" className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-300 hover:text-white transition-colors">
-                  Ver el antes y después <ArrowDown className="w-4 h-4" />
+                  Ver el caso real <ArrowDown className="w-4 h-4" />
                 </a>
               </div>
-              <ul className="mt-8 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-xs text-neutral-400">
+              <ul className="mt-8 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-neutral-400">
                 {["Lo probamos en tu ficha antes de activarlo", "Garantía de 7 días", "Cancelás cuando quieras"].map((t) => (
                   <li key={t} className="inline-flex items-center gap-1.5">
                     <Check className="w-3.5 h-3.5 text-emerald-400" />
@@ -657,9 +584,6 @@ export default function Landing() {
               </ul>
             </motion.div>
           </div>
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.8 }}>
-            <HeroPhone />
-          </motion.div>
         </div>
       </section>
 
@@ -725,20 +649,20 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* 4. SOLUCIÓN: antes y después real */}
+      {/* 4. SOLUCIÓN: caso real */}
       <section id="solucion" className="relative py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5 scroll-mt-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-14 items-center">
-          <motion.div {...fadeUp} className="text-center lg:text-left order-2 lg:order-1">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <motion.div {...fadeUp} className="text-center">
             <Eyebrow>Caso real · Hogar Digital</Eyebrow>
             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-5">
               Mismo producto.
               <br />
               <Grad>Otra ficha.</Grad>
             </h2>
-            <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
-              Deslizá sobre el celular para comparar. Misma tienda, misma plantilla, mismo precio. Lo único que cambió es lo que la persona ve al decidir.
+            <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-8 max-w-lg mx-auto">
+              Misma tienda, misma plantilla, mismo precio. Lo único que cambió es lo que la persona ve al decidir.
             </p>
-            <ul className="space-y-3 text-sm text-neutral-300 max-w-md mx-auto lg:mx-0 text-left">
+            <ul className="space-y-3 text-sm text-neutral-300 max-w-md mx-auto text-left">
               {[
                 "El ahorro por transferencia, grande y claro",
                 "Packs Llevá 2 y Llevá 3 que cambian la cantidad del carrito",
@@ -753,10 +677,6 @@ export default function Landing() {
                 </li>
               ))}
             </ul>
-          </motion.div>
-          <motion.div {...fadeUp} className="order-1 lg:order-2">
-            <BeforeAfter />
-            <p className="text-center text-xs text-neutral-500 mt-4">← Deslizá para comparar →</p>
           </motion.div>
         </div>
       </section>
