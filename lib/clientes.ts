@@ -31,7 +31,7 @@ export const CLIENTES: Record<string, Cliente> = {
     // Interruptor manual: false = apagada siempre, aunque esté al día con el pago
     activo: true,
     // Cobro: 'manual' = solo cuenta el interruptor. 'mercadopago' = se prende y apaga sola según su suscripción
-    // (para pasarlo a automático: { tipo: 'mercadopago', email: 'mail-con-el-que-pagó@...', gracia: 5 })
+    // (para pasarlo a automático: { tipo: 'mercadopago', email: 'mail-con-el-que-pagó@...', gracia: 3 })
     cobro: { tipo: 'manual' },
     // Dominios donde puede funcionar esta línea (sin www)
     dominios: ['hogardigital.com.ar'],
@@ -161,7 +161,7 @@ export const CLIENTES: Record<string, Cliente> = {
     activo: true,
     // Miguel dio el ok el 31/10: queda apagada hasta que se suscriba al plan Premium y se prende sola cuando cobra.
     // Cuando pague, cambiar planMp por su email (o el ID de la suscripción), sobre todo si otro cliente se suma al Premium.
-    cobro: { tipo: 'mercadopago', planMp: '86ce0bba2cc849f3b04e9208748581af', gracia: 5 },
+    cobro: { tipo: 'mercadopago', planMp: '86ce0bba2cc849f3b04e9208748581af', gracia: 3 },
     dominios: ['valmontrelojes.mitiendanube.com'],
     plan: 'premium',
     // Relojería premium multimarca con estilo Wess en negro y dorado. Rodrigo pidió no usar la palabra "original": va "premium".

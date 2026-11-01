@@ -35,8 +35,8 @@
 
 **Falta:**
 1. Rodrigo elige voz para los Reels: Tomás (masculina, la que se usa ahora) o Elena (femenina).
-2. Miguel paga el Premium → pasar su email a `cobro` en `lib/clientes.ts` (valmont).
-3. Marcelo se suscribe al Básico mensual (`nevux.ar/suscribirme?c=hogar-digital`) → pasarlo a cobro automático con su email. Rodrigo desactiva el link viejo `mpago.la/1LqFYin` (pago único) cuando lo encuentre.
+2. Miguel paga el Premium **entre el 5 y el 7/11** (cuando cobra; ya lo acordó con Rodrigo). Hasta entonces la tienda sigue apagada. Cuando pague → pasar su email a `cobro` en `lib/clientes.ts` (valmont).
+3. Rodrigo habla con Marcelo el 2/11 para pasarlo del pago viejo a la suscripción nueva. Marcelo se suscribe al Básico mensual (`nevux.ar/suscribirme?c=hogar-digital`) → pasarlo a cobro automático con su email. Rodrigo desactiva el link viejo `mpago.la/1LqFYin` (pago único) cuando lo encuentre.
 4. Perfil de Instagram de Hogar Digital: nueva bio y destacadas (desde la app); dejar de seguir cuentas sin relación, de a 50 por día como máximo.
 5. Sábado 7/11: informe de la semana 1 y semana 2 de @nevux.app (7 al 13/11) y de Hogar Digital (9 al 13/11).
 6. Windsor sigue en plan de prueba: si vence, se cortan las publicaciones de las dos cuentas.
@@ -90,10 +90,11 @@
 - **@hogardigitaltiendaonline (Marcelo):** conectado a Windsor el 01/11 (account 17841448464906393). Diagnóstico y plan en `docs/instagram-hogar-digital.md`.
 - **@valmont.relojes:** creado y con 3 publicaciones de marca. De ahora en más lo maneja el cliente.
 
-## Decisiones pendientes de Rodrigo
+## Decisiones de Rodrigo (01/11/2026)
 
-- Si la home va incluida en los $39.900 o se cobra aparte.
-- Días de gracia antes de apagar por falta de pago (hoy 5).
+- La home **va incluida** en los $39.900 del plan Básico (ya figura en `lib/planes.ts`).
+- **3 días de gracia** antes de apagar por falta de pago (`lib/cobros.ts`, valor por defecto, y `gracia: 3` en cada cliente).
+- Banner del Cyber de Hogar Digital: el jueves 5/11 Rodrigo vuelve al banner anterior (ya lo tiene anotado).
 
 ## Pendientes técnicos
 

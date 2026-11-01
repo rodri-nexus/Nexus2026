@@ -52,7 +52,7 @@ export async function estadoCobro(c: Cliente, ahora = Date.now()): Promise<Estad
   }
   if (!s) return { prendida: false, motivo: "No se encontró ninguna suscripción en Mercado Pago" };
 
-  const gracia = (c.cobro.gracia ?? 5) * DIA;
+  const gracia = (c.cobro.gracia ?? 3) * DIA;
   const ultimo = s.summarized?.last_charged_date || null;
   const datos = { id: s.id, estado: s.status, ultimoCobro: ultimo, proximoCobro: s.next_payment_date || null };
 

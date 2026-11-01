@@ -50,7 +50,7 @@ El token da acceso a tu cuenta de Mercado Pago: va solo en Vercel, nunca en el c
 En `lib/clientes.ts`, en ese cliente:
 
 ```ts
-cobro: { tipo: 'mercadopago', email: 'email-con-el-que-se-suscribió@...', gracia: 5 },
+cobro: { tipo: 'mercadopago', email: 'email-con-el-que-se-suscribió@...', gracia: 3 },
 ```
 
 En lugar de `email` se puede usar `suscripcion: '<ID de la suscripción>'`. Después, revisá en el panel que diga "Al día con Mercado Pago".
@@ -72,7 +72,8 @@ En lugar de `email` se puede usar `suscripcion: '<ID de la suscripción>'`. Desp
 
 | Cliente | Archivo | Estado | Pendiente |
 |---|---|---|---|
-| Hogar Digital (Marcelo) | `c/hogar-digital.js` | **Prendido** | Permiso para la landing; categorías con fotos y reseñas reales para la home |
+| Hogar Digital (Marcelo) | `c/hogar-digital.js` | **Prendido** (cobro manual) | Pasarse a la suscripción del Básico; categorías con fotos y reseñas reales para la home |
+| Valmont & Co. (Miguel) | `c/valmont.js` | **Apagada** hasta que pague el Premium (5 al 7/11) | Al pagar, cambiar `planMp` por su email |
 
 ## Eventos con fecha (Cyber Monday, Hot Sale, Black Friday)
 
@@ -96,4 +97,4 @@ El link viejo del básico (`mpago.la/1LqFYin`) era un pago único, no una suscri
 
 - **Tarjeta:** suscripción de Mercado Pago a $39.900/mes. Se cobra sola cada mes.
 - **Efectivo y transferencia:** no se pueden debitar solos, porque el cliente tiene que pagar cada mes. Se le manda un link de pago antes del vencimiento.
-- **Si un pago no entra:** con cobro automático la tienda se apaga sola después de los días de gracia y se prende sola cuando paga. Con cobro manual, apagala con el interruptor.
+- **Si un pago no entra:** con cobro automático la tienda se apaga sola después de los días de gracia (3 por defecto) y se prende sola cuando paga. Con cobro manual, apagala con el interruptor.
