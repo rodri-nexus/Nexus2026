@@ -3,7 +3,7 @@
 - **Qué es:** video de 35 s que mandó Rodrigo. Una página de muestra con un celular que va bajando solo por la ficha del Buzo Polo Wellness de Wess (abajo dice "Producto verificado · Wess Indumentaria") y vuelve a empezar al llegar a las preguntas. Arriba de la página hay una cinta de texto ("…ctos donde se ve el cambio") y botones "Ver ejemplo".
 - **Para qué:** subir el nivel de las fichas que armamos y sumarla al **catálogo de diseños** (`docs/disenos.md`) para ofrecérsela a los clientes.
 - **Capturas:** `img/wess-buzo-1.jpg` (arriba), `img/wess-buzo-2.jpg` (medio) e `img/wess-buzo-3.jpg` (final).
-- **Efectos:** no hay apariciones al bajar ni animaciones en las secciones. La ficha baja pareja (unos 24 s de punta a punta) y vuelve arriba. Lo único que cambia al tocar son las pestañas de "En acción" y el acordeón de preguntas.
+- **Efectos:** en el video (una grabación) no se notan, pero medidos en la ficha real de Wess hay: barra que entra desde abajo (E1), columna de la comparativa que se llena con tildes con rebote (E2), reseñas que entran con rebote (E4), brillo que cruza el botón (E5) y olas en movimiento (E6). Ver `docs/efectos.md`. Además: La ficha baja pareja (unos 24 s de punta a punta) y vuelve arriba. Lo único que cambia al tocar son las pestañas de "En acción" y el acordeón de preguntas.
 
 ## Estilo general
 

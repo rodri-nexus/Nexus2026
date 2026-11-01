@@ -16,3 +16,8 @@ Pedido de Rodrigo (01/11/2026): **cuando editemos una tienda, preguntarle al cli
 | 2 | **Ficha oscura con olas** | Ficha | — | Hecho (`estiloFicha: 'oscuro'`) | Hogar Digital |
 | 3 | **Wess Buzo Polo** (escalera de precios, 3 pasos, problema/solución, pestañas "En acción", "Llevalo hoy") | Ficha | `docs/referencias/wess-buzo.md` (video 1 de 3) | Estudiado, falta el ok de Rodrigo para armarlo | — |
 | 4 | **Praxis clara en bordó** (cuenta regresiva en cajitas, packs con selector por unidad, comparativa con barra de color, tarjeta "Último paso") | Ficha | `docs/referencias/praxis-medias.md` (video 2 de 3) | Estudiado, falta el ok de Rodrigo para armarlo | — |
+| 5 | **Home con video** (portada en video, beneficios tipo historias, categorías que rotan, shop the look, reseñas de Google, Instagram, locales) | Home | `docs/referencias/praxis-home.md` (video 3 de 3) | Estudiado, falta el ok de Rodrigo para armarlo | — |
+
+**Efectos de cada diseño:** `docs/efectos.md`. Al ofrecerle un diseño a un cliente, mostrarle también los efectos, que son los que generan el "wow".
+
+**Presentación:** la página de diseños va con la vitrina 3D de celulares (E22): cada diseño bajando solo dentro de un celular.

@@ -3,7 +3,7 @@
 - **Qué es:** video de 24 s que mandó Rodrigo. Es la página de muestra de Praxis (`praxisapp.pages.dev`), la agencia que hace la tienda de Wess, con un celular que baja solo por una ficha de "Medias Jordan (00543)" con logo de Wess.
 - **Para qué:** diseño n.º 4 del catálogo (`docs/disenos.md`). Es la versión **clara** (fondo blanco y bordó) de la ficha del video 1: misma idea de venta, otra estética.
 - **Capturas:** `img/praxis-medias-1.jpg` (arriba), `-2` (medio) y `-3` (final).
-- **Efectos:** baja parejo, sin apariciones al bajar. Lo que se mueve es la **cuenta regresiva** (segundo a segundo), el **selector de packs** (al elegir uno aparecen los selectores por unidad) y el acordeón de preguntas.
+- **Efectos:** cuenta regresiva en cajitas (E13), selector por unidad (E14), elegir pack (E9), botón "Agregado ✓" con onda (E10), pilar de la comparativa que crece (E3) y barra que entra (E1). Ver `docs/efectos.md`. En el video, además: Lo que se mueve es la **cuenta regresiva** (segundo a segundo), el **selector de packs** (al elegir uno aparecen los selectores por unidad) y el acordeón de preguntas.
 
 ## Estilo general
 
