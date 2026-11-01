@@ -54,5 +54,6 @@ Pedido de Rodrigo (01/11/2026): de cada referencia se guardan **los efectos**, n
 - **Ficha Pro** (`estiloFicha: 'pro'`): E1, E2/E3, E4, E5, E9, E10 y E13, más las pestañas de "En acción".
 - **Home Premium:** E15 (`home.portadaVideo`, con videos o fotos), E16 (historias), E17 (`home.rotador`) y E18 (`tarjetas.alternar`).
 - **Página de diseños:** E22 (`nevux.ar/disenos`).
+- **Home Destino** (`home.destino`): E23, E24, E25, E27, E28, E29 y E30; E26 con `home.rotador` usando videos.
 - **De antes:** cinta de anuncios (≈E7), vitrina que se balancea, puntos que laten, segundero y V en 3D (Valmont).
 - **Falta:** E8 (avisos de compra, solo con ventas reales), E11 (video con barra de progreso), E14 (selector por unidad), E19 (shop the look), E20 (reseñas de Google) y E21 (Instagram).

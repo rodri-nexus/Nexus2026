@@ -29,7 +29,7 @@ Lo que incluye cada plan, tal como lo ve el cliente, está en `lib/planes.ts`, q
 | 2 | **Ficha Pro · Oscura** (negro, títulos gigantes) | Ficha | Básico | Hecho (`estiloFicha: 'pro'`, `pro.tema: 'oscuro'`). Referencia: `docs/referencias/wess-buzo.md` | — |
 | 3 | **Home Premium con clips** | Home | Premium | Hecho (`home.portadaVideo`, `home.rotador`, `tarjetas.alternar`). Referencia: `docs/referencias/praxis-home.md` | — |
 | 4 | **Wess clásica** (ficha y home a medida) | Ficha y home | Premium | Hecho (`estiloFicha: 'wess'`) | Valmont |
-| 6 | **Home Premium · Destino** (referencia oficial del Premium: portada con tarjetitas, íconos que se dibujan, tira de categorías, números que suben, comunidad, locales con mapa) | Home | Premium | **Estudiado, por armar**. Referencia: `docs/referencias/destino.md` | — |
+| 6 | **Home Premium · Destino** (referencia oficial del Premium: portada con tarjetitas, íconos que se dibujan, tira de categorías, números que suben, comunidad, locales con mapa) | Home | Premium | Hecho (`home.destino` + `home.rotador`, `tarjetas.cuotas`, `ventas.estilo: 'destino'`). Demo: `nevux.ar/demo/disenos/home-destino.html`. Referencia: `docs/referencias/destino.md` | — |
 | 5 | **Ficha oscura con olas** (la anterior) | Ficha | Básico | Hecho (`estiloFicha: 'oscuro'`) | Hogar Digital |
 
 **Pendiente de proponer:** pasar a Hogar Digital (Básico) de la ficha oscura con olas a la Ficha Pro. Cambia una tienda en vivo: primero mostrársela a Marcelo.
@@ -72,3 +72,30 @@ tarjetas: { estilo: 'destacado', transferencia: 20, alternar: true }   // altern
 ```
 
 Videos y fotos, **solo los del cliente**. Sin videos, la portada funciona con fotos (con zoom lento).
+
+## Home Premium · Destino: configuración (la que se usa para los clientes Premium nuevos)
+
+```js
+transferencia: 15, whatsapp: '549...',
+tarjetas: { transferencia: 15, cuotas: 6 },              // cuotas sin interés reales de la tienda
+ventas: { estilo: 'destino', marca: 'Nombre de la tienda' }, // aviso de compra abajo a la izquierda con punto que late
+home: {
+  destino: {
+    cinta: ['Envío gratis + *2 prendas*', '3 y 6 cuotas *sin interés*'],  // lo que va entre * sale en rojo
+    acento: '#e3262f',                                                       // rojo de Destino o el color de la marca
+    portada: { videos: [...] /* o fotos */, etiqueta, titulo, texto, boton, url, boton2, url2, productosUrl: '/productos/' },
+    beneficios: [{ icono: 'transferencia'|'cuotas'|'envio'|'cambios'|'garantia'|'regalo'|'chat', titulo, texto }],
+    tira: { items: [{ nombre, url, foto }] },                // prendas recortadas por categoría
+    destacados: [{ etiqueta, titulo, url: '/categoria/', cantidad: 4 }, { ..., carrusel: true }, { ... }], // 1.º después de la tira, 2.º después de las reseñas, 3.º al final
+    comunidad: { etiqueta, titulo, cuenta: '@instagram', url, fotos: [{ foto, producto, url }] },   // solo fotos reales de clientes
+    numeros: { titulo: 'Nos eligen *todos los días*', items: [{ valor: 27622, prefijo: '+', texto: 'Ventas' }] }, // solo números reales
+    resenas: { titulo, puntaje: 4.9, cantidad: '+1.000', url, items: [{ nombre, producto, texto, estrellas }] }, // solo reales
+    faq: [{ p, r }], faqTitulo,
+    banner: { etiqueta, titulo, foto, boton, url },
+    locales: { etiqueta, titulo, texto, items: [{ zona, nombre, direccion, horario }] }   // mapa de Google con la dirección
+  },
+  rotador: { etiqueta: 'Arma tu outfit', items: [{ nombre, url, video | foto }] }       // va en su lugar dentro de Destino
+}
+```
+
+Los productos (fotos, precios, % OFF, precio con transferencia y cuotas) se leen solos de la tienda. **Falta de Destino:** el carrito lateral con barra de envío gratis (depende de la plantilla) y las dos columnas de "Arma tu outfit" en computadora.

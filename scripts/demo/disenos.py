@@ -171,3 +171,61 @@ home = f"""<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name
 <script src="/nevux.js"></script></body></html>"""
 open(os.path.join(SALIDA, 'home.html'), 'w').write(home)
 print('ok home')
+
+# ----- Home Premium estilo Destino (referencia oficial del Premium, docs/referencias/destino.md) -----
+# catalogo.html hace de "/productos/": el motor lee de ahí los productos reales, como en una tienda.
+CATALOGO = [('Noir Sport', 'noir', 56250, 69900), ('Royal Gold', 'royal', 61900, 0), ('Chrono Azul', 'chrono', 58900, 72900), ('Classic Silver', 'classic', 49900, 0),
+            ('Heritage', 'heritage', 52900, 64900), ('Noir Sport Dorado', 'royal', 61900, 0), ('Chrono Edición Azul', 'chrono', 58900, 0), ('Classic Cuero', 'classic', 49900, 59900)]
+def var_cat(p, l):
+    v = variante(p, 0, 5); v['compare_at_price_number'] = l or None; return v
+cat = ''.join(f"""<div class="js-item-product" data-variants="{html.escape(json.dumps([var_cat(p, l)]))}"><a href="ficha-oscura.html" title="{html.escape(n)}"><img src="{IMG}{f}-1.jpg" alt=""><img src="{IMG}{f}-2.jpg" alt=""></a>
+<div class="js-item-name">{html.escape(n)}</div><span class="js-price-display">{pesos(p)}</span></div>""" for n, f, p, l in CATALOGO)
+open(os.path.join(SALIDA, 'catalogo.html'), 'w').write(f'<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Catálogo demo</title></head><body>{cat}</body></html>')
+
+CAT_URL = '/demo/disenos/catalogo.html'
+DESTINO_CFG = {
+    'color': '#111111', 'transferencia': 15, 'whatsapp': '5490000000000',
+    'tarjetas': {'transferencia': 15, 'cuotas': 6},
+    'ventas': {'estilo': 'destino', 'marca': 'Nevux Demo', 'cada': 9},
+    'home': {
+        'destino': {
+            'cinta': ['Envío gratis + *2 relojes*', '3 y 6 cuotas *sin interés*', '-15% off *transferencia*', 'Cambios *fáciles*'],
+            'portada': {'fotos': [IMG + 'hero-royal.png', IMG + 'noir-2.jpg', IMG + 'chrono-2.jpg'], 'etiqueta': 'Nevux Demo™ · Hecho en Argentina',
+                        'titulo': 'No es solo un reloj.', 'texto': 'Es una forma de expresarte.', 'boton': 'Ver nuevos', 'url': '#nvd', 'boton2': 'Armá tu look', 'url2': '#nvd', 'productosUrl': CAT_URL},
+            'beneficios': [{'icono': 'transferencia', 'titulo': '15% off', 'texto': 'Pagando con transferencia'}, {'icono': 'cuotas', 'titulo': '3 y 6 cuotas', 'texto': 'Sin interés'},
+                           {'icono': 'envio', 'titulo': 'Envío gratis +120K', 'texto': '2 relojes · envío gratis'}, {'icono': 'garantia', 'titulo': 'Garantía', 'texto': '6 meses por escrito'}],
+            'tira': {'items': [{'nombre': n, 'url': '#', 'foto': IMG + f + '-1.jpg'} for n, f in [('Deportivos', 'noir'), ('Dorados', 'royal'), ('Cronógrafos', 'chrono'), ('Clásicos', 'classic'), ('Cuero', 'heritage'), ('Black', 'noir')]]},
+            'destacados': [{'etiqueta': 'Ofertas · Stock limitado', 'titulo': 'Destacados', 'url': CAT_URL, 'cantidad': 4},
+                           {'etiqueta': 'Destacados', 'titulo': 'Lo más elegido', 'url': CAT_URL, 'carrusel': True, 'desde': 2, 'cantidad': 6},
+                           {'etiqueta': 'Van con tu estilo', 'titulo': 'Esto es para vos', 'url': CAT_URL, 'carrusel': True, 'desde': 1, 'cantidad': 6}],
+            'comunidad': {'etiqueta': 'Comunidad 👻', 'titulo': 'Así lo usan', 'cuenta': '@nevux.demo', 'url': '#',
+                          'fotos': [{'foto': IMG + f, 'producto': n} for f, n in [('noir-2.jpg', 'Noir Sport'), ('royal-2.jpg', 'Royal Gold'), ('chrono-2.jpg', 'Chrono Azul'), ('classic-2.jpg', 'Classic Silver'), ('heritage-2.jpg', 'Heritage'), ('noir-1.jpg', 'Noir Sport'), ('royal-1.jpg', 'Royal Gold')]]},
+            'numeros': {'titulo': 'Nos eligen *todos los días*', 'items': [{'valor': 38, 'texto': 'Envíos diarios'}, {'valor': 27622, 'prefijo': '+', 'texto': 'Ventas'}, {'valor': 889, 'prefijo': '+', 'texto': 'Reseñas'}, {'valor': 2, 'texto': 'Locales'}]},
+            'resenas': {'titulo': 'Ellos ya compraron *Nevux Demo*', 'puntaje': 4.9, 'cantidad': '+1.000', 'url': '#', 'items': [
+                {'nombre': 'Reseña de ejemplo', 'producto': 'Noir Sport', 'texto': 'Acá van las reseñas reales de tus clientes, con su nombre y el producto que compraron.'},
+                {'nombre': 'Reseña de ejemplo', 'producto': 'Royal Gold', 'texto': 'Se leen de tu app de reseñas o las cargamos a mano. Nunca inventadas.'},
+                {'nombre': 'Reseña de ejemplo', 'producto': 'Chrono Azul', 'texto': 'La pista avanza sola de a una tarjeta, como en Destino.'},
+                {'nombre': 'Reseña de ejemplo', 'producto': 'Classic Silver', 'texto': 'Arriba se muestra tu puntaje real y el botón para dejar una reseña.'},
+                {'nombre': 'Reseña de ejemplo', 'producto': 'Heritage', 'texto': 'Sin reseñas reales, esta sección no aparece.'}]},
+            'faq': [{'p': '¿Cómo elijo mi reloj?', 'r': 'Escribinos por WhatsApp y te ayudamos a elegir.'}, {'p': '¿Cuándo llega mi pedido?', 'r': 'Entre 3 y 6 días hábiles a todo el país.'}, {'p': '¿Puedo cambiarlo?', 'r': 'Sí, tenés 30 días para cambiarlo.'}],
+            'banner': {'etiqueta': '[ Nevux Demo™ ]', 'titulo': 'Armá tu look.', 'foto': IMG + 'hero-royal.png', 'boton': 'Nuevo drop', 'url': '#'},
+            'locales': {'etiqueta': 'Nevux Demo® / Buenos Aires', 'titulo': '¿Lo querés ver en persona?', 'texto': 'Vení al local a probártelo. Te ayudamos a elegir.',
+                        'items': [{'zona': 'Microcentro', 'nombre': 'Local Obelisco', 'direccion': 'Obelisco, Buenos Aires', 'horario': 'Lun a vie 10 a 19 h · Sáb 10 a 14 h'}]},
+        },
+        'rotador': {'etiqueta': 'Armá tu look', 'items': [{'nombre': 'Deportivos', 'url': '#', 'foto': IMG + 'noir-2.jpg'}, {'nombre': 'Dorados', 'url': '#', 'foto': IMG + 'royal-2.jpg'},
+                                                          {'nombre': 'Cronógrafos', 'url': '#', 'foto': IMG + 'chrono-2.jpg'}, {'nombre': 'Clásicos', 'url': '#', 'foto': IMG + 'classic-2.jpg'}]},
+    },
+}
+dest = f"""<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home Premium estilo Destino · Demo de Nevux</title><meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>{CSS}</style><script>window.LS={json.dumps({'template': 'home'})};window.NEVUX_CFG={json.dumps(DESTINO_CFG, ensure_ascii=False)};</script></head><body>
+<div class="demo">DEMO de Nevux Premium · Marca, fotos, números y reseñas ilustrativos</div>
+<header class="js-head-main"><span>☰</span><b>NEVUX DEMO</b><span>🛒</span></header>
+<div data-store="home-slider"></div>
+<div class="wrap" id="nvd" style="height:20px"></div>
+<div style="display:none">{cat}</div>
+<footer class="js-footer">Nevux Demo · Tienda de demostración</footer>
+<script src="/nevux.js"></script></body></html>"""
+open(os.path.join(SALIDA, 'home-destino.html'), 'w').write(dest)
+print('ok home-destino')

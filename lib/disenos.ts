@@ -21,6 +21,14 @@ export const DISENOS: DisenoCatalogo[] = [
     efectos: ["El problema y la solución en tarjetas", "Pestañas que cambian la foto", "Secciones que entran con rebote al bajar", "Barra de compra que aparece desde abajo", "“Llevalo hoy” con qué recibís"],
   },
   {
+    id: "home-destino",
+    nombre: "Home Premium · Destino",
+    plan: "Premium",
+    demo: "/demo/disenos/home-destino.html",
+    texto: "La home de las marcas grandes de ropa: portada en video, comunidad, números que suben y locales con mapa. Con tus productos.",
+    efectos: ["Portada en video con productos flotando", "Íconos que se dibujan solos", "Tira de categorías que corre", "Números que suben al aparecer", "Reseñas que se deslizan y banner con zoom"],
+  },
+  {
     id: "home",
     nombre: "Home Premium con clips",
     plan: "Premium",
