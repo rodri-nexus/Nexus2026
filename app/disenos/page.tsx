@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PLANES, precioTexto } from "@/lib/planes";
-import Vitrina, { type Diseno } from "./Vitrina";
+import Vitrina from "./Vitrina";
+import { DISENOS } from "@/lib/disenos";
 
 // Catálogo de diseños para mostrarle a un cliente nuevo: nevux.ar/disenos (ver docs/disenos.md y docs/efectos.md)
 
@@ -11,33 +12,6 @@ export const metadata: Metadata = {
 };
 
 const WHATSAPP = (t: string) => `https://wa.me/5493434163999?text=${encodeURIComponent(t)}`;
-
-const DISENOS: (Diseno & { texto: string; efectos: string[] })[] = [
-  {
-    id: "ficha-clara",
-    nombre: "Ficha Pro · Clara",
-    plan: "Básico",
-    demo: "/demo/disenos/ficha-clara.html",
-    texto: "Fondo blanco con el color de tu marca. Ideal para hogar, cosmética, accesorios y regalería.",
-    efectos: ["Precios en escalera con la cinta de descuento", "Cuenta regresiva de la promo", "Packs que se marcan al elegirlos", "Comparativa que se llena sola", "Botón con brillo y “Agregado ✓”"],
-  },
-  {
-    id: "ficha-oscura",
-    nombre: "Ficha Pro · Oscura",
-    plan: "Básico",
-    demo: "/demo/disenos/ficha-oscura.html",
-    texto: "Negro con el color de tu marca y títulos gigantes. Ideal para indumentaria, tecnología y marcas con actitud.",
-    efectos: ["El problema y la solución en tarjetas", "Pestañas que cambian la foto", "Secciones que entran con rebote al bajar", "Barra de compra que aparece desde abajo", "“Llevalo hoy” con qué recibís"],
-  },
-  {
-    id: "home",
-    nombre: "Home Premium con clips",
-    plan: "Premium",
-    demo: "/demo/disenos/home.html",
-    texto: "La portada se mueve sola con tus fotos o videos y las categorías van rotando. La tienda se ve de marca grande.",
-    efectos: ["Portada con clips que cambian solos", "Beneficios en tarjeta tipo historias", "Categorías que rotan con su foto", "Productos con la foto que se da vuelta", "Todo lo de la Ficha Pro"],
-  },
-];
 
 export default function DisenosPage() {
   const B = PLANES.basico;

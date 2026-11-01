@@ -51,6 +51,13 @@ export default function LinksPage() {
             texto="Caso real: Hogar Digital"
           />
           <LinkCard
+            href="/disenos"
+            origen="disenos"
+            imagen="/links/disenos.jpg"
+            titulo="Así puede quedar tu tienda"
+            texto="Diseños con efectos para Tiendanube"
+          />
+          <LinkCard
             href="/#cuenta"
             origen="calculadora"
             imagen="/links/calculadora.jpg"

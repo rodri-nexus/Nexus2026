@@ -100,7 +100,8 @@ WhatsApp del cliente: +54 2954 688637 (`whatsapp: '5492954688637'`). Pendiente: 
 - **Plan Premium:** $69.900/mes. Link para mandarle al cliente: **https://nevux.ar/suscribirme?c=valmont**. Abre la página con el plan Premium y el botón a `mpago.la/2mkcebx`.
 - **Fecha de pago:** Miguel paga entre el 5 y el 7/11, cuando cobra (lo acordó con Rodrigo el 01/11). Hasta entonces queda apagada.
 - **31/10: Miguel dio el ok.** Quedó con `cobro: { tipo: 'mercadopago', planMp: '86ce0bba2cc849f3b04e9208748581af' }` (el ID del plan Premium). Mientras no haya suscripción a ese plan, la tienda está apagada; cuando pague y Mercado Pago cobre, se prende sola en hasta 5 minutos.
-- **Después de que pague:** cambiar `planMp` por su email o el ID de la suscripción (sobre todo si otro cliente se suscribe al Premium).
+- **Después de que pague:** sumarla como caso real en la landing y en `nevux.ar/links` (pedido de Rodrigo).
+- **También después de que pague:** cambiar `planMp` por su email o el ID de la suscripción (sobre todo si otro cliente se suscribe al Premium).
 - **Envíos:** los despacha Miguel por Correo Argentino. Se dejan los valores provisorios (corte 14 h, lunes a viernes, 3 a 6 días hábiles).
 
 ## Cómo probar sin productos

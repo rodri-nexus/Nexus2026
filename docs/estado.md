@@ -37,7 +37,7 @@
 
 **Falta:**
 1. ~~Voz de los Reels~~: Tomás + música de fondo (01/11). Ya están hechos así los Reels de esta semana de las dos cuentas.
-2. Miguel paga el Premium **entre el 5 y el 7/11** (cuando cobra; ya lo acordó con Rodrigo). Hasta entonces la tienda sigue apagada. Cuando pague → pasar su email a `cobro` en `lib/clientes.ts` (valmont).
+2. Miguel paga el Premium **entre el 5 y el 7/11** (cuando cobra; ya lo acordó con Rodrigo). Hasta entonces la tienda sigue apagada. Cuando pague → pasar su email a `cobro` en `lib/clientes.ts` (valmont). Además, **sumar Valmont como segundo caso real** en la landing (al lado de Hogar Digital, sección `#solucion`) y una tarjeta en `nevux.ar/links` (pedido de Rodrigo del 01/11).
 3. Rodrigo habla con Marcelo el 2/11 para pasarlo del pago viejo a la suscripción nueva. Marcelo se suscribe al Básico mensual (`nevux.ar/suscribirme?c=hogar-digital`) → pasarlo a cobro automático con su email. El link viejo `mpago.la/1LqFYin` ya lo borró Rodrigo (01/11).
 4. Perfil de Instagram de Hogar Digital: nueva bio y destacadas (desde la app); dejar de seguir cuentas sin relación, de a 50 por día como máximo.
 5. Sábado 7/11: informe de la semana 1 y semana 2 de @nevux.app (7 al 13/11) y de Hogar Digital (9 al 13/11).
@@ -51,7 +51,8 @@
   - CTA "Quiero mi análisis gratis" a WhatsApp 3434163999.
   - Calculadora, antes y después, testimonio de Marcelo y precio sin tachado.
   - Vista previa de marca al compartir: `public/compartir.jpg`.
-- **Página de links:** `nevux.ar/links`, para la bio de Instagram. Miniaturas en `public/links/`.
+- **Página de links:** `nevux.ar/links`, para la bio de Instagram. Miniaturas en `public/links/`. Tiene la tarjeta "Así puede quedar tu tienda" → `nevux.ar/disenos`.
+- **Landing:** sección "Así puede quedar tu tienda" (`#disenos`) con la vitrina 3D de diseños, después del caso real.
 - **Suscripción:**
   - Planes: Básico $39.900/mes (`mpago.la/2u5gT97`; el viejo `1LqFYin` era pago único y ya está borrado) y **Premium $69.900/mes** (`mpago.la/2mkcebx`, creado el 31/10). Ver `lib/planes.ts` y `docs/clientes.md`.
   - Página de pago: `nevux.ar/suscribirme?c=<cliente>`.
