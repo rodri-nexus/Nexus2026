@@ -32,6 +32,7 @@ FICHAS = {
         'titulo': 'Reloj Noir Sport', 'fotos': ['noir-1.jpg', 'noir-2.jpg', 'royal-1.jpg'], 'precio': 56250, 'stock': 1,
         'cfg': {
             'color': '#e1251b', 'transferencia': 20, 'estiloFicha': 'pro', 'packs': [], 'ventas': False,
+            'carrito': {'envioGratis': 100000}, 'envio': {'corte': 14, 'dias': [1, 2, 3, 4, 5], 'min': 3, 'max': 6},
             'cuentaRegresiva': None,
             'pro': {
                 'tema': 'oscuro', 'sello': 'Producto verificado · Nevux Demo',
@@ -65,6 +66,7 @@ FICHAS = {
         'titulo': 'Reloj Classic Silver', 'fotos': ['classic-1.jpg', 'classic-2.jpg', 'chrono-1.jpg'], 'precio': 8750, 'stock': 15,
         'cfg': {
             'color': '#9b2c43', 'transferencia': 20, 'estiloFicha': 'pro', 'ventas': False,
+            'carrito': {'envioGratis': 20000, 'acento': '#9b2c43'}, 'envio': {'corte': 14, 'dias': [1, 2, 3, 4, 5], 'min': 3, 'max': 6},
             'packs': [{'cantidad': 1, 'titulo': 'Llevá 1', 'descuento': 0}, {'cantidad': 2, 'titulo': 'Llevá 2', 'descuento': 10, 'etiqueta': 'MÁS ELEGIDO'},
                       {'cantidad': 3, 'titulo': 'Llevá 3', 'descuento': 15, 'etiqueta': 'MEJOR PRECIO'}],
             'cuentaRegresiva': {'hasta': '2099-01-01T00:00:00-03:00', 'texto': '🕐 El descuento por cantidad termina en'},
@@ -102,6 +104,17 @@ def variante(precio, transf, stock):
             'stock': stock, 'available': True, 'installments_data': json.dumps({'Mercado Pago': cuotas})}
 
 
+
+CARRITO_HTML = """<div id="modal-cart" style="position:fixed;top:0;right:0;bottom:0;width:min(420px,92vw);background:#fff;z-index:100000;box-shadow:-10px 0 40px rgba(0,0,0,.2);transform:translateX(105%);transition:transform .45s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;font-family:Inter,sans-serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:18px 18px 14px"><b style="font:800 16px Inter;letter-spacing:.04em;text-transform:uppercase">Carrito de compras</b><span onclick="cerrarCarrito()" style="cursor:pointer;font-size:24px">×</span></div>
+<div style="flex:1;overflow:auto;padding:0 18px"><div class="js-ajax-cart-list"></div></div>
+<div style="padding:14px 18px 20px;border-top:1px solid #eee"><div style="display:flex;justify-content:space-between;font:600 14px Inter"><span>Subtotal (sin envío):</span><span class="js-cart-subtotal">$0,00</span></div>
+<button style="width:100%;margin-top:12px;background:#111;color:#fff;border:0;border-radius:999px;padding:15px;font:800 13px Inter;letter-spacing:.1em;text-transform:uppercase">Iniciar compra</button></div></div>
+<script>
+function abrirCarrito(nombre,foto,precio,cant){var l=document.querySelector('#modal-cart .js-ajax-cart-list');l.innerHTML='<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #eee"><img src="'+foto+'" style="width:64px;height:64px;object-fit:cover;border-radius:8px"><div style="font:13px Inter"><b>'+nombre+'</b><div style="margin-top:4px">'+cant+' × $'+precio.toLocaleString('es-AR')+'</div></div></div>';
+document.querySelector('#modal-cart .js-cart-subtotal').textContent='$'+(precio*cant).toLocaleString('es-AR')+',00';document.getElementById('modal-cart').style.transform='none';}
+function cerrarCarrito(){document.getElementById('modal-cart').style.transform='translateX(105%)';}
+</script>"""
 os.makedirs(SALIDA, exist_ok=True)
 for nombre, F in FICHAS.items():
     v = variante(F['precio'], F['cfg'].get('transferencia', 0), F['stock'])
@@ -120,12 +133,13 @@ if(NEVUX_CFG.cuentaRegresiva){{var f=new Date();f.setHours(23,59,59,0);NEVUX_CFG
 <div class="wrap"><div id="single-product" class="js-product-detail"><div class="gal">{fotos}<div class="thumbs">{thumbs}</div></div>
 <div><div class="migas">Inicio · Productos · {html.escape(F['titulo'])}</div><h1 class="js-product-name">{html.escape(F['titulo'])}</h1>
 <div class="js-price-container"><span id="price_display" class="js-price-display">{pesos(F['precio'])}</span></div>
-<form id="product_form" class="js-product-form" onsubmit="event.preventDefault()">
+<form id="product_form" class="js-product-form" onsubmit="event.preventDefault();setTimeout(function(){{abrirCarrito(&#39;{html.escape(F['titulo'])}&#39;,'{IMG}{F['fotos'][0]}',{F['precio']},+document.querySelector('.js-quantity-input').value||1)}},700)">
 <label>Color</label><select><option>Negro</option><option>Plateado</option></select>
 <div class="qty"><input class="js-quantity-input" name="quantity" type="number" value="1" min="1"><button type="submit" class="js-addtocart btn-add">Agregar al carrito</button></div>
 <div class="stock">{stock}</div></form>
 <h3 style="font:700 16px Inter;margin:26px 0 6px">Descripción</h3><p class="desc">Fotos y precios de demostración. En tu tienda se usan tus productos, tus precios y tus datos reales.</p></div></div></div>
 <footer>Nevux Demo · Tienda de demostración</footer>
+{CARRITO_HTML}
 <script src="/nevux.js"></script></body></html>"""
     open(os.path.join(SALIDA, nombre + '.html'), 'w').write(pagina)
     print('ok', nombre)
@@ -187,6 +201,7 @@ DESTINO_CFG = {
     'color': '#111111', 'transferencia': 15, 'whatsapp': '5490000000000',
     'tarjetas': {'transferencia': 15, 'cuotas': 6},
     'ventas': {'estilo': 'destino', 'marca': 'Nevux Demo', 'cada': 9},
+    'carrito': {'envioGratis': 120000}, 'envio': {'corte': 14, 'dias': [1, 2, 3, 4, 5], 'min': 3, 'max': 6},
     'home': {
         'destino': {
             'cinta': ['Envío gratis + *2 relojes*', '3 y 6 cuotas *sin interés*', '-15% off *transferencia*', 'Cambios *fáciles*'],
@@ -221,11 +236,12 @@ dest = f"""<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>{CSS}</style><script>window.LS={json.dumps({'template': 'home'})};window.NEVUX_CFG={json.dumps(DESTINO_CFG, ensure_ascii=False)};</script></head><body>
 <div class="demo">DEMO de Nevux Premium · Marca, fotos, números y reseñas ilustrativos</div>
-<header class="js-head-main"><span>☰</span><b>NEVUX DEMO</b><span>🛒</span></header>
+<header class="js-head-main"><span>☰</span><b>NEVUX DEMO</b><span style="cursor:pointer" onclick="abrirCarrito('Noir Sport','{IMG}noir-1.jpg',56250,1)">🛒</span></header>
 <div data-store="home-slider"></div>
 <div class="wrap" id="nvd" style="height:20px"></div>
 <div style="display:none">{cat}</div>
 <footer class="js-footer">Nevux Demo · Tienda de demostración</footer>
+{CARRITO_HTML}
 <script src="/nevux.js"></script></body></html>"""
 open(os.path.join(SALIDA, 'home-destino.html'), 'w').write(dest)
 print('ok home-destino')
