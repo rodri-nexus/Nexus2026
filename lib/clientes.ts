@@ -29,7 +29,7 @@ export const CLIENTES: Record<string, Cliente> = {
   "hogar-digital": {
     nombre: "Hogar Digital (Marcelo)",
     // Interruptor manual: false = apagada siempre, aunque esté al día con el pago
-    activo: true,
+    activo: false, // Apagada el 01/11 hasta que pague el Premium el 10/11 (Marcelo cobra ese día). Al pagar: activo: true y cobro automático con su email.
     // Cobro: 'manual' = solo cuenta el interruptor. 'mercadopago' = se prende y apaga sola según su suscripción
     // (para pasarlo a automático: { tipo: 'mercadopago', email: 'mail-con-el-que-pagó@...', gracia: 3 }). No usar planMp: lo usa Valmont.
     cobro: { tipo: 'manual' },
