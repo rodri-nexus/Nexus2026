@@ -2999,7 +2999,9 @@
       '.nvq-pg span.lleno i{width:100%}.nvq-pg span.va i{width:100%;transition:width linear}' +
       // Categorías que rotan solas
       '.nvr{padding:38px 16px 10px;font-family:Inter,sans-serif}.nvr-c{position:relative;max-width:1100px;margin:0 auto;height:min(78vh,640px);min-height:460px;border-radius:24px;overflow:hidden;background:#111;color:#fff}' +
-      '.nvr-m>*{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease}.nvr-m>.on{opacity:1}' +
+      '.nvr-m>*,.nvr-d>*{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .45s ease}.nvr-m>.on,.nvr-d>.on{opacity:1}' +
+      '.nvr-d{display:none}@media(min-width:900px){.nvr.dos .nvr-w{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1248px;margin:0 auto}.nvr.dos .nvr-c{max-width:none;margin:0}' +
+      '.nvr.dos .nvr-d{display:block;position:relative;height:min(78vh,640px);min-height:460px;border-radius:24px;overflow:hidden;background:#111}}' +
       '.nvr-c:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,0) 30%,rgba(0,0,0,.2) 55%,rgba(0,0,0,.8));pointer-events:none}' +
       '.nvr-eb{position:absolute;z-index:2;left:18px;top:18px;font:800 11px/1 Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase}' +
       '.nvr-n{position:absolute;z-index:2;right:16px;top:16px;display:grid;gap:10px;font:700 11px/1 Inter,sans-serif;text-align:center}.nvr-n span{opacity:.45;transition:opacity .3s}.nvr-n span.on{opacity:1}' +
@@ -3050,22 +3052,29 @@
     }
     if (RT && RT.items && RT.items.length && !document.querySelector('.nvr')) {
       var its = RT.items, esVR = its.some(function (x) { return x.video; });
-      var r = '<section class="nvr"><div class="nvr-c"><div class="nvr-m">' + its.map(function (x, i) {
+      // Dos columnas en computadora, como Destino: a la derecha, foto2/video2 de cada categoría (o la misma si no hay otra)
+      var dos = RT.columnas !== false && (RT.columnas || !!document.querySelector('.nvd-outfit'));
+      var medio2 = function (x, i) {
+        var v = x.video2 || (!x.foto2 && x.video), f = x.foto2 || x.foto || '';
+        return v ? '<video src="' + hEsc(v) + '" muted playsinline loop preload="metadata"' + (i ? '' : ' class="on"') + '></video>' : '<img src="' + hEsc(f) + '" alt="" loading="lazy"' + (i ? '' : ' class="on"') + '>';
+      };
+      var r = '<section class="nvr' + (dos ? ' dos' : '') + '"><div class="nvr-w"><div class="nvr-c"><div class="nvr-m">' + its.map(function (x, i) {
         return x.video ? '<video src="' + hEsc(x.video) + '" muted playsinline loop preload="metadata"' + (i ? '' : ' class="on" autoplay') + '></video>' : '<img src="' + hEsc(x.foto || '') + '" alt=""' + (i ? ' loading="lazy"' : ' class="on"') + '>';
       }).join('') + '</div><div class="nvr-eb">' + hEsc(RT.etiqueta || 'Encontrá lo tuyo') + '</div><div class="nvr-n">' + its.map(function (x, i) { return '<span' + (i ? '' : ' class="on"') + '>' + (i + 1) + '</span>'; }).join('') + '</div>' +
         '<ul class="nvr-l">' + its.map(function (x, i) { return '<li' + (i ? '' : ' class="on"') + ' data-i="' + i + '">' + hEsc(x.nombre) + '</li>'; }).join('') + '</ul>' +
-        '<a class="nvr-bt" href="' + hEsc(its[0].url) + '">Ver ' + hEsc(its[0].nombre) + ' →</a></div></section>';
+        '<a class="nvr-bt" href="' + hEsc(its[0].url) + '">Ver ' + hEsc(its[0].nombre) + ' →</a></div>' + (dos ? '<div class="nvr-d">' + its.map(medio2).join('') + '</div>' : '') + '</div></section>';
       var hueco = document.querySelector('.nvd-outfit');
       var dest = hueco || document.querySelector('.nvq-hs') || document.querySelector('.nvq') || document.querySelector('.nvp') || document.querySelector('.nvh-hero');
       if (dest) dest.insertAdjacentHTML('afterend', r);
       else { var nvh = document.querySelector('.nvh'); if (nvh) nvh.insertAdjacentHTML('afterbegin', r); else if (slp) slp.insertAdjacentHTML('afterend', r); else document.body.insertAdjacentHTML('afterbegin', r); }
-      var rc = document.querySelector('.nvr-c'), rm = [].slice.call(rc.querySelectorAll('.nvr-m>*')), rl = [].slice.call(rc.querySelectorAll('.nvr-l li')), rn = [].slice.call(rc.querySelectorAll('.nvr-n span')), rb = rc.querySelector('.nvr-bt'), ri = 0;
+      var rc = document.querySelector('.nvr-c'), rm = [].slice.call(document.querySelectorAll('.nvr-m>*, .nvr-d>*')), rl = [].slice.call(rc.querySelectorAll('.nvr-l li')), rn = [].slice.call(rc.querySelectorAll('.nvr-n span')), rb = rc.querySelector('.nvr-bt'), ri = 0;
       var verR = function (n) {
         ri = n;
-        rm.forEach(function (x, j) { x.classList.toggle('on', j === n); if (x.tagName === 'VIDEO') { if (j === n) { x.currentTime = 0; x.play().catch(function () {}); } else x.pause(); } });
+        rm.forEach(function (x, j) { j = j % its.length; x.classList.toggle('on', j === n); if (x.tagName === 'VIDEO') { if (j === n && x.offsetParent) { x.currentTime = 0; x.play().catch(function () {}); } else x.pause(); } });
         rl.forEach(function (x, j) { x.classList.toggle('on', j === n); }); rn.forEach(function (x, j) { x.classList.toggle('on', j === n); });
         rb.href = its[n].url; rb.textContent = 'Ver ' + its[n].nombre + ' →';
       };
+      verR(0);
       var timer = !quieto && setInterval(function () { verR((ri + 1) % its.length); }, RT.cada || 2200);
       rl.forEach(function (li) { li.addEventListener('click', function () { if (timer) clearInterval(timer); verR(+li.getAttribute('data-i')); }); });
     }
