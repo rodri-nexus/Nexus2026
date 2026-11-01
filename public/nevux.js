@@ -2861,6 +2861,11 @@
       // "Arma tu outfit" fijo mientras se baja: la categoría cambia con el scroll (Destino: alto de pantalla + 37 % por categoría)
       '.nvd .nvr.pin .nvr-w{position:sticky;top:0;height:100vh;height:100svh}.nvd .nvr.pin .nvr-eb{top:120px}.nvd .nvr.pin .nvr-n{top:120px}' +
       '@media(min-width:900px){.nvd .nvr.pin .nvr-eb{top:130px;left:24px}.nvd .nvr.pin .nvr-n{top:50%}}' +
+      // Locales (Destino): tarjeta blanca translúcida con el mapa arriba; con un solo local, en computadora el mapa a la izquierda
+      '.nvd-loc>div{' + VID + 'padding:4px}.nvd-loc iframe{border-radius:14px;height:220px}.nvd-loc .d{padding:14px 12px 12px}.nvd-loc small{font:400 10px/1 ' + SG + ';letter-spacing:.16em}.nvd-loc b{font-size:17px!important;text-transform:uppercase}' +
+      '.nvd-loc p{font:400 11px/1.5 ' + SG + ';letter-spacing:.06em;text-transform:uppercase;color:#4B4B4B}.nvd-loc .bs a{font-family:' + SG + '!important;font-weight:600}' +
+      '@media(min-width:900px){.nvd-loc>div:only-child{grid-column:1/-1;display:grid;grid-template-columns:1.4fr 1fr;align-items:center}.nvd-loc>div:only-child iframe{height:340px}.nvd-loc>div:only-child .d{padding:24px 28px}}' +
+      '.nvd-loc-t{font:400 13px/1.5 ' + SG + ';color:#4B4B4B}' +
       '.nvd-c .a a{white-space:nowrap;overflow:hidden;font-size:10px;letter-spacing:.06em;padding:11px 6px}@media(max-width:899px){.nvd-row .nvd-c .a a{font-size:9px;letter-spacing:.03em}}' +
       // "Arma tu outfit" (medido en Destino): un solo panel de 20 px de radio, lista en Unbounded 19/24 px con líneas, inactivas al 42 %,
       // "VER X" subrayado y números con línea a la derecha. En computadora, dos fotos lado a lado y la lista a la izquierda.
