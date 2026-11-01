@@ -804,26 +804,26 @@ export default function Landing() {
             <Eyebrow>Precio</Eyebrow>
             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4">Dos planes. Todo incluido.</h2>
           </motion.div>
-          <div className="grid md:grid-cols-2 gap-5 items-start">
+          <div className="grid md:grid-cols-2 gap-5 items-stretch max-w-[860px] mx-auto">
           <motion.div
             {...fadeUp}
-            className="relative bg-[#0f1013] border border-emerald-400/40 rounded-3xl p-5 sm:p-10 shadow-[0_0_80px_-20px_rgba(16,185,129,0.35)]"
+            className="relative min-w-0 w-full max-w-[420px] mx-auto bg-[#0f1013] border border-emerald-400/40 rounded-3xl p-5 sm:p-7 shadow-[0_0_80px_-20px_rgba(16,185,129,0.35)]"
           >
             <div className="text-center">
               <span className="inline-block bg-emerald-400/10 border border-emerald-400/30 text-emerald-300 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">
                 Precio de lanzamiento
               </span>
-              <h3 className="text-2xl font-extrabold mb-1">Pack Landing Page Pro</h3>
+              <h3 className="text-xl sm:text-2xl font-extrabold mb-1">Pack Landing Page Pro</h3>
               <p className="text-neutral-500 text-sm mb-6">Para tiendas en Tiendanube</p>
               <div className="flex items-end justify-center gap-2 mb-2">
-                <span className="text-[clamp(2.6rem,13vw,3.75rem)] leading-none font-black tracking-tight tabular-nums">{ars(PRECIO)}</span>
+                <span className="text-[clamp(2.2rem,10vw,3rem)] leading-none font-black tracking-tight tabular-nums">{ars(PRECIO)}</span>
                 <span className="text-neutral-400 text-sm font-semibold mb-1.5">/mes</span>
               </div>
-              <p className="text-sm text-emerald-300 font-semibold mb-8">
+              <p className="text-[13px] text-emerald-300 font-semibold mb-6">
                 Con un ticket de {ars(ticket)}, se paga con {seaPagaCon} venta{seaPagaCon === 1 ? "" : "s"} al mes.
               </p>
             </div>
-            <ul className="space-y-3 text-left text-sm text-neutral-300 mb-8 max-w-sm mx-auto">
+            <ul className="space-y-2.5 text-left text-[13.5px] text-neutral-300 mb-7">
               {INCLUYE.map((t) => (
                 <li key={t} className="flex items-start gap-3">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
@@ -831,7 +831,7 @@ export default function Landing() {
                 </li>
               ))}
             </ul>
-            <WhatsAppCta origen="precio" label="Empezar con el análisis gratis" className="w-full" />
+            <WhatsAppCta origen="precio" label="Empezar con el análisis gratis" className="w-full !whitespace-normal !px-4 text-center" />
             <a
               href={SUSCRIPCION_URL}
               className="mt-3 w-full inline-flex items-center justify-center gap-2 border border-white/15 hover:border-white/30 text-white font-bold px-6 py-3.5 rounded-2xl text-sm transition-colors"
@@ -848,18 +848,18 @@ export default function Landing() {
           </motion.div>
           <motion.div
             {...fadeUp}
-            className="relative bg-gradient-to-b from-amber-200 to-amber-400 text-black rounded-3xl p-5 sm:p-10 shadow-[0_0_80px_-20px_rgba(251,191,36,0.45)]"
+            className="relative min-w-0 w-full max-w-[420px] mx-auto bg-gradient-to-b from-amber-200 to-amber-400 text-black rounded-3xl p-5 sm:p-7 shadow-[0_0_80px_-20px_rgba(251,191,36,0.45)]"
           >
             <div className="text-center">
               <span className="inline-block bg-black text-amber-300 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">Premium</span>
-              <h3 className="text-2xl font-extrabold mb-1">{PLANES.premium.nombre}</h3>
+              <h3 className="text-xl sm:text-2xl font-extrabold mb-1">{PLANES.premium.nombre}</h3>
               <p className="text-black/60 text-sm mb-6">Tu tienda como las marcas grandes</p>
-              <div className="flex items-end justify-center gap-2 mb-8">
-                <span className="text-[clamp(2.6rem,13vw,3.75rem)] leading-none font-black tracking-tight tabular-nums">{ars(PLANES.premium.precio)}</span>
+              <div className="flex items-end justify-center gap-2 mb-6">
+                <span className="text-[clamp(2.2rem,10vw,3rem)] leading-none font-black tracking-tight tabular-nums">{ars(PLANES.premium.precio)}</span>
                 <span className="text-black/60 text-sm font-semibold mb-1.5">/mes</span>
               </div>
             </div>
-            <ul className="space-y-3 text-left text-sm mb-8 max-w-sm mx-auto">
+            <ul className="space-y-2.5 text-left text-[13.5px] mb-7">
               {PLANES.premium.incluye.map((t) => (
                 <li key={t} className="flex items-start gap-3">
                   <Check className="w-4 h-4 shrink-0 mt-0.5" />
