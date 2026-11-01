@@ -9,7 +9,7 @@ const WHATSAPP = `https://wa.me/5493434163999?text=${encodeURIComponent("Hola! V
 
 export const metadata: Metadata = {
   title: "Nevux · Links",
-  description: "Análisis gratis de tu tienda, el antes y después, la calculadora y el precio de Nevux.",
+  description: "Análisis gratis de tu tienda, un caso real, los diseños, la calculadora y el precio de Nevux.",
 };
 
 export default function LinksPage() {
@@ -47,8 +47,8 @@ export default function LinksPage() {
             href="/#solucion"
             origen="antes-despues"
             imagen="/links/antes-despues.jpg"
-            titulo="Mirá el antes y después"
-            texto="Caso real: Hogar Digital"
+            titulo="Caso real: Hogar Digital"
+            texto="Qué cambió en su tienda"
           />
           <LinkCard
             href="/disenos"
