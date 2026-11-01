@@ -1,6 +1,6 @@
 # Estado de Nevux
 
-**Actualizado:** 31/10/2026. Leer esto al empezar cada sesión, junto con `docs/valmont.md` (lo que se está haciendo ahora), `docs/clientes.md`, `docs/home.md`, `docs/landing.md`, `docs/instagram.md` y `docs/referencias/`.
+**Actualizado:** 01/11/2026.
 
 ## Cómo trabajamos
 
@@ -14,6 +14,33 @@
   - **Nunca réplicas de marcas** (Rolex, Omega, Patek, G-Shock, etc.).
   - De otras tiendas se replica la idea y el diseño, no el código.
 - **Permisos:** `.claude/settings.json` (lo creó Rodrigo) permite usar Windsor (publicar en Instagram y leer métricas) sin pedir confirmación.
+
+## Para retomar en un chat nuevo (01/11/2026)
+
+**Tareas programadas:** todas corren en la sesión `session_01PDD9EtCY9JFJzsoyimb9Yn` ("Nexus2026" del 30/10 al 01/11). **No archivar esa sesión**: si se archiva, dejan de publicarse. Para pasarlas a otra sesión: `list_triggers`, crear las mismas con `create_trigger` desde la sesión nueva y apagar las viejas con `update_trigger enabled=false`.
+
+| Tarea | Horario (Argentina) | Cuenta |
+|---|---|---|
+| Historias de @nevux.app | 9:47 · 13:17 · 20:17, todos los días | 17841439255112405 |
+| Post de @nevux.app | 19:30, todos los días (agenda hasta el 6/11) | 17841439255112405 |
+| Historias de Hogar Digital | 10:12 · 14:42 · 21:12, lunes a viernes | 17841448464906393 |
+| Post de Hogar Digital | 19:48, lunes a viernes (agenda del 2 al 6/11) | 17841448464906393 |
+| Informe y semana 2 de las dos cuentas | Sábado 7/11, 12:00 | las dos |
+
+**Hecho en la sesión del 30/10 al 01/11:**
+- Valmont & Co.: tienda terminada (home y ficha estilo Wess, plantilla Recife, videos de los 5 relojes). Miguel dio el ok; está apagada hasta que se suscriba al Premium y se prende sola al cobrar (`cobro.planMp`). Ver `docs/valmont.md`.
+- Planes de Mercado Pago: Básico $39.900/mes `mpago.la/2u5gT97` y Premium $69.900/mes `mpago.la/2mkcebx` (`lib/planes.ts`). Links para clientes: `nevux.ar/suscribirme?c=<id>`.
+- Instagram de Hogar Digital: conectado a Windsor, diagnóstico y semana 1 programada. Servicio de contenido: $85.000/mes. Ver `docs/instagram-hogar-digital.md`.
+- Regla: todos los Reels con narración en voz argentina (ver "Cómo trabajamos").
+
+**Falta:**
+1. Rodrigo elige voz para los Reels: Tomás (masculina, la que se usa ahora) o Elena (femenina).
+2. Miguel paga el Premium → pasar su email a `cobro` en `lib/clientes.ts` (valmont).
+3. Marcelo se suscribe al Básico mensual (`nevux.ar/suscribirme?c=hogar-digital`) → pasarlo a cobro automático con su email. Rodrigo desactiva el link viejo `mpago.la/1LqFYin` (pago único) cuando lo encuentre.
+4. Perfil de Instagram de Hogar Digital: nueva bio y destacadas (desde la app); dejar de seguir cuentas sin relación, de a 50 por día como máximo.
+5. Sábado 7/11: informe de la semana 1 y semana 2 de @nevux.app (7 al 13/11) y de Hogar Digital (9 al 13/11).
+6. Windsor sigue en plan de prueba: si vence, se cortan las publicaciones de las dos cuentas.
+7. Pendientes técnicos y decisiones de abajo.
 
 ## Qué está funcionando
 
