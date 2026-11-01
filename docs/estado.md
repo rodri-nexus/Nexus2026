@@ -36,7 +36,7 @@
 **Falta:**
 1. ~~Voz de los Reels~~: Tomás + música de fondo (01/11). Ya están hechos así los Reels de esta semana de las dos cuentas.
 2. Miguel paga el Premium **entre el 5 y el 7/11** (cuando cobra; ya lo acordó con Rodrigo). Hasta entonces la tienda sigue apagada. Cuando pague → pasar su email a `cobro` en `lib/clientes.ts` (valmont).
-3. Rodrigo habla con Marcelo el 2/11 para pasarlo del pago viejo a la suscripción nueva. Marcelo se suscribe al Básico mensual (`nevux.ar/suscribirme?c=hogar-digital`) → pasarlo a cobro automático con su email. Rodrigo desactiva el link viejo `mpago.la/1LqFYin` (pago único) cuando lo encuentre.
+3. Rodrigo habla con Marcelo el 2/11 para pasarlo del pago viejo a la suscripción nueva. Marcelo se suscribe al Básico mensual (`nevux.ar/suscribirme?c=hogar-digital`) → pasarlo a cobro automático con su email. El link viejo `mpago.la/1LqFYin` ya lo borró Rodrigo (01/11).
 4. Perfil de Instagram de Hogar Digital: nueva bio y destacadas (desde la app); dejar de seguir cuentas sin relación, de a 50 por día como máximo.
 5. Sábado 7/11: informe de la semana 1 y semana 2 de @nevux.app (7 al 13/11) y de Hogar Digital (9 al 13/11).
 6. **Windsor:** plan de prueba de 30 días desde el ~30/10 (vence ~29/11). Rodrigo **no va a pagar**: cuando venza, publica él a mano (ver `docs/instagram.md`, "Si vence Windsor"). Hay un aviso programado para el 23/11 en la sesión `session_01PDD9EpeUFqobvhnuTnY9ML`.
@@ -50,7 +50,7 @@
   - Vista previa de marca al compartir: `public/compartir.jpg`.
 - **Página de links:** `nevux.ar/links`, para la bio de Instagram. Miniaturas en `public/links/`.
 - **Suscripción:**
-  - Planes: Básico $39.900/mes (`mpago.la/2u5gT97`; el viejo `1LqFYin` era pago único y se da de baja) y **Premium $69.900/mes** (`mpago.la/2mkcebx`, creado el 31/10). Ver `lib/planes.ts` y `docs/clientes.md`.
+  - Planes: Básico $39.900/mes (`mpago.la/2u5gT97`; el viejo `1LqFYin` era pago único y ya está borrado) y **Premium $69.900/mes** (`mpago.la/2mkcebx`, creado el 31/10). Ver `lib/planes.ts` y `docs/clientes.md`.
   - Página de pago: `nevux.ar/suscribirme?c=<cliente>`.
   - Página de gracias: `nevux.ar/gracias`.
   - Mercado Pago: plan Básico `mpago.la/2u5gT97` ($39.900/mes) y plan Premium `mpago.la/2mkcebx` ($69.900/mes).
