@@ -269,7 +269,8 @@ export const CLIENTES: Record<string, Cliente> = {
               {
                 "zona": "Campana · Buenos Aires",
                 "nombre": "Hogar Digital",
-                "direccion": "Belgrano 276, Campana (2804), Buenos Aires"
+                "direccion": "Belgrano 276, Campana (2804), Buenos Aires",
+                "horario": "Lunes a sábado de 8 a 21 h"
               }
             ]
           },
@@ -287,8 +288,9 @@ export const CLIENTES: Record<string, Cliente> = {
                 "texto": "Ventas en 2026"
               },
               {
-                "valor": 30,
-                "texto": "Días de garantía"
+                "valor": 800,
+                "prefijo": "+",
+                "texto": "Calificaciones en Mercado Libre"
               },
               {
                 "valor": 1,
