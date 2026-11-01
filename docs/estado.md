@@ -41,6 +41,9 @@
 
 ### Lo que falta (en orden)
 
+> **LO QUE SIGUE (pedido de Rodrigo, 01/11): pasar a Marcelo (Hogar Digital) al plan Premium.**
+> El Premium se arma **tal cual la tienda Destino** (`destinoclothes.mitiendanube.com`, ver `docs/referencias/destino.md`): mismas secciones, mismo orden, mismos diseños y **mismos efectos** que prometemos en el plan (`lib/planes.ts`, la landing y `nevux.ar/disenos`). **Nada inventado**: no agregar secciones ni efectos que no estén en Destino o en el plan, y solo con datos reales de su tienda. Partir de `docs/hogar-digital-premium.md` (ya probado en su tienda) y completar lo que falte de Destino con material real de Marcelo (videos, fotos, reseñas, números) si lo tiene.
+
 1. **Contestarle a Marcelo** (preguntó si debe algo, cuánto sale por mes y las fechas de pago). Hay un borrador en el chat del 01/11 que espera dos datos de Rodrigo: **si Marcelo ya pagó algo** (plan o Instagram de noviembre) y **cómo cobra el Instagram** ($85.000/mes: aparte por transferencia o junto). Totales: Básico + Instagram **$124.900/mes**; Premium + Instagram **$154.900/mes**. La suscripción de Mercado Pago se debita sola el mismo día de cada mes en que se suscribe. Links: Básico `nevux.ar/suscribirme?c=hogar-digital`, Premium `nevux.ar/suscribirme?plan=premium`.
 2. **Si Marcelo elige el Premium:** en `lib/clientes.ts` (hogar-digital) poner `plan: 'premium'`, pasar a cobro automático con su email y activar `home.destino` + `home.rotador` con la configuración ya probada en su tienda (**`docs/hogar-digital-premium.md`**: cinta azul `#3498db`, portada con el OVNI, beneficios reales, tira de categorías, destacados de humidificadores y audio, preguntas y banner "Tu rincón relax"; sin comunidad, números ni reseñas porque no tiene reales). Probar con Playwright y una compra real antes de dejarlo.
 3. **Si se queda en Básico:** proponerle la **Ficha Pro** (hoy tiene `estiloFicha: 'oscuro'`) y prenderla con su ok.
