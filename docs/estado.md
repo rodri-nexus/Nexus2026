@@ -41,6 +41,15 @@
 
 ### Lo que falta (en orden)
 
+> **INTENTO DEL 01/11 (tarde), REVERTIDO:** se prendió la home Destino en la tienda de Marcelo (PR #87) y Rodrigo dijo que **"no se parece nada a la tienda de Destino"**. Se revirtió (Marcelo vuelve a su home anterior y al plan Básico). Por qué no se parecía, comparando con `docs/referencias/img/destino-*.jpg`:
+> 1. **Cabecera y pie** seguían siendo los de Brasilia (barra azul, buscador ancho, menú azul, pie azul). Destino: cabecera blanca con el logo grande y la lupa roja, cinta debajo y pie negro.
+> 2. **Portada:** foto gigante de producto sobre fondo negro y título en 3 renglones. Destino: video de gente real, título mediano.
+> 3. **Fotos:** renders con fondo negro (quedan como cajas oscuras en la tira y las tarjetas). Destino: prendas recortadas sobre gris claro y fotos de gente en "Arma tu outfit".
+> 4. **Faltaban 4 secciones** (comunidad, números, reseñas y locales) por no tener datos reales: la home quedaba corta.
+> 5. **Colores:** el azul de Brasilia mezclado con la base blanca y negra de Destino.
+>
+> **Plan acordado con Rodrigo:** (a) en el motor, **cabecera blanca y pie negro estilo Destino** para todos los clientes Premium; (b) portada con video de persona o ambiente; (c) fotos recortadas sobre gris claro para la tira y las tarjetas; (d) pedirle a Marcelo material real para comunidad, números y reseñas. Recién después volver a prenderlo, **mostrándole capturas a Rodrigo antes de publicar**. La configuración del intento está en el commit `b0aa694` (y el clip real del Parlante RGB, sacado de su Reel `DcRbx7esRZI`, en `public/clientes/hogar-digital/parlante-rgb.mp4` de ese commit). Sus otros Reels no sirven para la portada: tienen texto o marca de agua, están en horizontal o muestran productos que no vende.
+>
 > **LO QUE SIGUE (pedido de Rodrigo, 01/11): pasar a Marcelo (Hogar Digital) al plan Premium.**
 > El Premium se arma **tal cual la tienda Destino** (`destinoclothes.mitiendanube.com`, ver `docs/referencias/destino.md`): mismas secciones, mismo orden, mismos diseños y **mismos efectos** que prometemos en el plan (`lib/planes.ts`, la landing y `nevux.ar/disenos`). **Nada inventado**: no agregar secciones ni efectos que no estén en Destino o en el plan, y solo con datos reales de su tienda. Partir de `docs/hogar-digital-premium.md` (ya probado en su tienda) y completar lo que falte de Destino con material real de Marcelo (videos, fotos, reseñas, números) si lo tiene.
 
