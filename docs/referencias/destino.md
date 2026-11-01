@@ -71,3 +71,27 @@
   - locales con mapa;
   - aviso de compra estilo Destino;
   - carrito con barra de envío gratis.
+
+## Medidas exactas de cabecera, pie y estilo general (medido en vivo el 01/11/2026, tarde)
+
+Medido con Playwright después de que Rodrigo dijera que la home Premium de Hogar Digital "no se parece nada a Destino". **Estas medidas mandan sobre lo de arriba.**
+
+**Estilo general**
+- Fondo de la página: `#eaeaea` (gris claro, no blanco). Textos secundarios `#4B4B4B`. Negro `#0B0B0B`.
+- Rojo: **`#BD0003`** (no `#e3262f`).
+- Tipografías: títulos en **Dela Gothic One** (peso 400, mayúsculas; títulos de sección 25 px; tarjetas 13 px) y textos en **Archivo** (11 px, `letter-spacing: .14em` en los "Ver todo").
+- Portada: esquinas de abajo redondeadas de 20 px (`border-radius: 0 0 20px 20px`).
+
+**Cabecera (fija, flotante)**
+- `position: fixed` en la home, a 8 px de los bordes (`margin: 8px 8px 0`, `top: 8px`), `border-radius: 16px`. Alto: 100 px en el celular (92 px al bajar) y 155 px en la computadora (con el menú abajo).
+- **Sobre la portada** (`html.dsx-sobre`): fondo transparente, borde `1px rgba(255,255,255,.18)`, sin sombra ni desenfoque. Logo en blanco (`filter: brightness(0) invert(1)`), íconos y menú en blanco.
+- **Al bajar:** `background: rgba(255,255,255,.62)`, `backdrop-filter: blur(20px) saturate(1.8)`, borde `1px rgba(255,255,255,.75)`, sombra `0 1px 0 rgba(255,255,255,.55) inset, 0 8px 30px rgba(0,0,0,.06)`. Logo negro. Transición de fondo, borde y sombra: `.35s ease`.
+- Logo a la izquierda (176×40 px en el celular, 198×45 en la computadora), **lupa roja en círculo** de 32 px (`#BD0003`, lupa calada en blanco) y carrito con el globito rojo.
+- La **cinta de anuncios va adentro de la cabecera**, debajo del logo, con una línea arriba.
+- Menú (computadora): Archivo 11 px, peso 500, `letter-spacing: .14em`, mayúsculas. Buscador en pastilla (`border-radius: 999px`, fondo `rgba(255,255,255,.55)`).
+
+**Pie**
+- Fondo `#0B0B0B`. Títulos ("CATEGORÍAS", "CONTACTÁNOS") en Dela Gothic One, blancos y en mayúsculas, como acordeón con "+". Links y textos en mayúsculas, 12 px, `letter-spacing: .08em`, blanco al 78 %.
+- Newsletter negro: título "NEWSLETTER" en Dela Gothic One, campo en pastilla (`rgba(255,255,255,.08)`, borde `rgba(255,255,255,.25)`).
+- Redes centradas y logos de medios de envío.
+- Franja legal con degradé `#0B0B0B → #121212 → #1C1C1C` y texto blanco al 82 %.
