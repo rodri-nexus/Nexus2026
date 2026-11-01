@@ -5,7 +5,7 @@
 ## Qué es
 
 - **El cliente:** un cliente de Rodrigo arma una relojería online. Rodrigo se encarga de todo y cobra cuando la tienda esté lista.
-- **La tienda:** `valmontrelojes.mitiendanube.com`, plantilla **Morelia**. Ya no tiene contraseña.
+- **La tienda:** `valmontrelojes.mitiendanube.com`, plantilla **Recife** (desde el 31/10; antes Morelia). Ya no tiene contraseña.
 - **Nevux:** pegado y funcionando. Línea: `<script src="https://nevux.ar/c/valmont.js" async></script>`. La configuración está en `lib/clientes.ts` → `valmont`.
 - **Producto:** relojería **multimarca de originales**: Casio, G-Shock, Mistral, Tressa y smartwatches, comprados a distribuidores oficiales con factura y garantía.
   - **No se trabaja con réplicas.** El proveedor que mostró el cliente (@alltime.mayoristas: "Rolex", "Omega", "Patek", "Hublot", "TAG" y "G-Shock" a $20.000) vende réplicas. Se rechazó usar sus fotos y videos.
@@ -98,6 +98,7 @@ WhatsApp del cliente: +54 2954 688637 (`whatsapp: '5492954688637'`). Pendiente: 
 ## Cobro
 
 - **Plan Premium:** $69.900/mes. Link para mandarle al cliente: **https://nevux.ar/suscribirme?c=valmont**. Abre la página con el plan Premium y el botón a `mpago.la/2mkcebx`.
+- **Fecha de pago:** Miguel paga entre el 5 y el 7/11, cuando cobra (lo acordó con Rodrigo el 01/11). Hasta entonces queda apagada.
 - **31/10: Miguel dio el ok.** Quedó con `cobro: { tipo: 'mercadopago', planMp: '86ce0bba2cc849f3b04e9208748581af' }` (el ID del plan Premium). Mientras no haya suscripción a ese plan, la tienda está apagada; cuando pague y Mercado Pago cobre, se prende sola en hasta 5 minutos.
 - **Después de que pague:** cambiar `planMp` por su email o el ID de la suscripción (sobre todo si otro cliente se suscribe al Premium).
 - **Envíos:** los despacha Miguel por Correo Argentino. Se dejan los valores provisorios (corte 14 h, lunes a viernes, 3 a 6 días hábiles).
