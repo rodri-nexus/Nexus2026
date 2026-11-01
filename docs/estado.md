@@ -41,6 +41,8 @@
 
 ### Lo que falta (en orden)
 
+> **01/11 (noche) · TIENDA DE MARCELO APAGADA (`activo: false`)** a pedido de Rodrigo, hasta que pague el Premium el **10/11**. Link de pago: `nevux.ar/suscribirme?c=hogar-digital` ($69.900/mes, `mpago.la/2mkcebx`). Cuando pague: `activo: true` y `cobro: { tipo: 'mercadopago', email: '<su email>', gracia: 3 }`. La configuración Premium queda guardada tal cual.
+>
 > **01/11 (noche) · PUBLICADO: Hogar Digital con el Premium tal cual Destino, en azul** (pedido de Rodrigo: "mandale hasta que quede completo al 100% como Destino"). Home y ficha de producto con las medidas reales de Destino (`docs/referencias/destino.md`). Detalle y lo que falta en `docs/hogar-digital-premium.md`.
 > **Lo que sigue:** Rodrigo lo revisa y le avisa a Marcelo. **Si Marcelo da el ok → apagarla (`activo: false` en `lib/clientes.ts`, hogar-digital) hasta el 10/11, que cobra y paga.** Cuando pague el Premium (`nevux.ar/suscribirme?c=hogar-digital`) → `activo: true` y `cobro: { tipo: 'mercadopago', email: '<su email>', gracia: 3 }` (no `planMp`: lo usa Valmont). Local de Campana publicado (falta el horario). Reseñas en espera de verificación (ver `docs/hogar-digital-premium.md`). Faltan de Marcelo: reseñas verificables con producto y foto, si tiene local con atención al público, envío gratis desde algún monto y videos verticales limpios para la portada.
 >

@@ -72,7 +72,7 @@ En lugar de `email` se puede usar `suscripcion: '<ID de la suscripción>'`. Desp
 
 | Cliente | Archivo | Estado | Pendiente |
 |---|---|---|---|
-| Hogar Digital (Marcelo) | `c/hogar-digital.js` | **Prendido, plan Premium tal cual Destino** desde el 01/11 (cobro manual) | Si Marcelo da el ok, apagarla (`activo: false`) hasta el 10/11; cuando pague el Premium, cobro automático con su email. Faltan reseñas y locales reales |
+| Hogar Digital (Marcelo) | `c/hogar-digital.js` | **Apagada desde el 01/11 hasta que pague el Premium (10/11)**. Configuración Premium tal cual Destino lista | Si Marcelo da el ok, apagarla (`activo: false`) hasta el 10/11; cuando pague el Premium, cobro automático con su email. Faltan reseñas y locales reales |
 | Valmont & Co. (Miguel) | `c/valmont.js` | **Apagada** hasta que pague el Premium (5 al 7/11) | Al pagar, cambiar `planMp` por su email |
 
 ## Eventos con fecha (Cyber Monday, Hot Sale, Black Friday)
