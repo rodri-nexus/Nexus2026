@@ -10,6 +10,8 @@ Pedido de Rodrigo (01/11/2026): **cuando venga un cliente nuevo o editemos una t
 
 Las demos son `public/demo/disenos/*.html` y se generan con `python3 scripts/demo/disenos.py` (marca "Nevux Demo" y fotos ilustrativas de relojes, **sin reseñas**).
 
+**Pedido de Rodrigo (01/11):** a los clientes que pidan el Premium, dejarles la home **tal cual Destino** (`docs/referencias/destino.md`), con sus productos.
+
 ## Qué entra en cada plan
 
 | Plan | Precio | Diseños |
@@ -27,6 +29,7 @@ Lo que incluye cada plan, tal como lo ve el cliente, está en `lib/planes.ts`, q
 | 2 | **Ficha Pro · Oscura** (negro, títulos gigantes) | Ficha | Básico | Hecho (`estiloFicha: 'pro'`, `pro.tema: 'oscuro'`). Referencia: `docs/referencias/wess-buzo.md` | — |
 | 3 | **Home Premium con clips** | Home | Premium | Hecho (`home.portadaVideo`, `home.rotador`, `tarjetas.alternar`). Referencia: `docs/referencias/praxis-home.md` | — |
 | 4 | **Wess clásica** (ficha y home a medida) | Ficha y home | Premium | Hecho (`estiloFicha: 'wess'`) | Valmont |
+| 6 | **Home Premium · Destino** (referencia oficial del Premium: portada con tarjetitas, íconos que se dibujan, tira de categorías, números que suben, comunidad, locales con mapa) | Home | Premium | **Estudiado, por armar**. Referencia: `docs/referencias/destino.md` | — |
 | 5 | **Ficha oscura con olas** (la anterior) | Ficha | Básico | Hecho (`estiloFicha: 'oscuro'`) | Hogar Digital |
 
 **Pendiente de proponer:** pasar a Hogar Digital (Básico) de la ficha oscura con olas a la Ficha Pro. Cambia una tienda en vivo: primero mostrársela a Marcelo.
