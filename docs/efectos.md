@@ -36,11 +36,10 @@ Pedido de Rodrigo (01/11/2026): de cada referencia se guardan **los efectos**, n
 | E21 | **Videos de Instagram reproduciéndose** | Grilla de videos verticales sin sonido y en bucle |
 | E22 | **Vitrina 3D de celulares** | Tres celulares: el del centro adelante y los de los costados chicos, girados hacia adentro y con fundido. Cada uno baja solo por una tienda (para nuestra página de diseños) |
 
-## Ya los tiene Nevux
+## Ya los tiene Nevux (01/11/2026)
 
-- Cinta de anuncios (≈E7).
-- Barra de compra fija (sin la entrada E1).
-- Vitrina que se balancea y avanza sola, en Valmont.
-- Puntos que laten y líneas que se dibujan, en Valmont.
-- Segundero y V en 3D, en Valmont.
-- Cuenta regresiva (sin cajitas).
+- **Ficha Pro** (`estiloFicha: 'pro'`): E1, E2/E3, E4, E5, E9, E10 y E13, más las pestañas de "En acción".
+- **Home Premium:** E15 (`home.portadaVideo`, con videos o fotos), E16 (historias), E17 (`home.rotador`) y E18 (`tarjetas.alternar`).
+- **Página de diseños:** E22 (`nevux.ar/disenos`).
+- **De antes:** cinta de anuncios (≈E7), vitrina que se balancea, puntos que laten, segundero y V en 3D (Valmont).
+- **Falta:** E8 (avisos de compra, solo con ventas reales), E11 (video con barra de progreso), E14 (selector por unidad), E19 (shop the look), E20 (reseñas de Google) y E21 (Instagram).
