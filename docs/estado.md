@@ -1,6 +1,6 @@
 # Estado de Nevux
 
-**Actualizado:** 01/11/2026.
+**Actualizado:** 01/11/2026 (noche).
 
 ## Cómo trabajamos
 
@@ -10,6 +10,7 @@
 - **Panel de Tiendanube:** no puedo entrar. Rodrigo hace los clics (pegar la línea, subir banners, colores, importar productos) con mi guía paso a paso y, si hace falta, me manda capturas.
 - **Reels con narración (pedido de Rodrigo, vale para todas las sesiones):** todos los Reels llevan la voz de **Tomás** (`es-AR-TomasNeural`, elegida el 01/11; Rodrigo no quiere pagar por clonar su voz) y **música de fondo suave** que baja sola cuando habla. Todo está en `scripts/instagram/audio.py`: voz con `edge-tts` (`pip install edge-tts numpy`; en el contenedor se parchea `ssl.create_default_context` para cargar `/root/.ccr/ca-bundle.crt`) y música generada por el propio script (acordes propios, sin derechos de autor). Reels de @nevux.app: `python3 scripts/instagram/narrar.py <nombre>` (si la voz necesita más tiempo, arma la animación más lenta en la medida justa). Reels de Hogar Digital: `python3 scripts/instagram/hd/reels.py`.
 - **Diseños para clientes (pedido de Rodrigo, 01/11):** Rodrigo manda videos de tiendas de a uno. Cada uno se estudia cuadro por cuadro, se le pasa el desglose y, con su ok, se replica igual con código propio en el motor. Se guardan **también los efectos** (`docs/efectos.md`, medidos con exactitud), porque son los que generan el "wow". Cada diseño queda guardado en `docs/disenos.md`: **cuando se edite una tienda, preguntarle al cliente qué diseño quiere** mostrándole ese catálogo.
+- **Cliente nuevo:** mostrarle **https://nevux.ar/disenos** (diseños en celulares 3D + planes Básico y Premium) y que elija. Ver `docs/disenos.md`.
 - **Límites que ya se hablaron:**
   - Nada de datos inventados: ni reseñas, ni números de ventas, ni descuentos que no existan.
   - **Nunca réplicas de marcas** (Rolex, Omega, Patek, G-Shock, etc.).
@@ -42,6 +43,7 @@
 5. Sábado 7/11: informe de la semana 1 y semana 2 de @nevux.app (7 al 13/11) y de Hogar Digital (9 al 13/11).
 6. **Windsor:** plan de prueba de 30 días desde el ~30/10 (vence ~29/11). Rodrigo **no va a pagar**: cuando venza, publica él a mano (ver `docs/instagram.md`, "Si vence Windsor"). Hay un aviso programado para el 23/11 en la sesión `session_01PDD9EpeUFqobvhnuTnY9ML`.
 7. Pendientes técnicos y decisiones de abajo.
+8. Proponerle a Marcelo la Ficha Pro (su plan Básico ya la incluye; hoy tiene la ficha oscura con olas).
 
 ## Qué está funcionando
 
@@ -55,6 +57,7 @@
   - Página de pago: `nevux.ar/suscribirme?c=<cliente>`.
   - Página de gracias: `nevux.ar/gracias`.
   - Mercado Pago: plan Básico `mpago.la/2u5gT97` ($39.900/mes) y plan Premium `mpago.la/2mkcebx` ($69.900/mes).
+- **Diseños nuevos (01/11):** Ficha Pro clara y oscura (`estiloFicha: 'pro'`), Home Premium (`home.portadaVideo`, `home.rotador`, `tarjetas.alternar`) y la página `nevux.ar/disenos`. Ver `docs/disenos.md` y `docs/efectos.md`.
 - **Motor (`public/nevux.js`)**, con todas las piezas que se configuran por cliente en `lib/clientes.ts`:
   - **Ficha:** packs, precio por transferencia, bloque de precios (`precios`), cuotas reales, entrega estimada, cuenta regresiva, envío gratis, urgencia, avisos de venta, botón fijo, WhatsApp, cinta, talles, antes y después, pasos, comparativa animada, reseñas, preguntas frecuentes, Combiná con, videos, colores, medios de pago (`mediosDePago`), antes vs. después en lista (`problemaSolucion`), ficha oscura con olas (`estiloFicha: 'oscuro'`), ficha estilo Wess (`estiloFicha: 'wess'` con textos en `ficha`), especificaciones, medidor de muñeca (`muneca`), qué incluye (`incluye`) y para regalar (`regalo`).
   - **Home:** portada estilo Wess (`home.portada`), portada de lujo (`home.hero`), beneficios (con íconos de línea si `icono` es `cuotas`, `descuento`, `envio`, `garantia`, `original`, `regalo` o `factura`), categorías, foto con puntos (`home.puntos`), vitrinas (`home.vitrinas`; con `estilo: 'wess'` cuelgan de una barra y avanzan solas), grilla estilo Wess con categorías que giran (`home.grilla`, una o varias), foto con puntos y líneas estilo Wess (`home.puntos` con `estilo: 'wess'`), medidor de reloj en pasos (`home.medidor`), "Colgado por poco tiempo" (`home.colgado`), por qué elegirnos, números, reseñas, preguntas frecuentes, locales y cierre.

@@ -80,8 +80,10 @@
     mediosDePago: [], // ej: ['Visa', 'Mastercard', 'Débito', 'Mercado Pago']
     // Antes / después en lista: los problemas sin el producto contra lo que resuelve (solo afirmaciones reales)
     problemaSolucion: null, // ej: { etiqueta: 'El problema', titulo: 'Antes vs. después', antesTitulo: 'Sin...', antes: [...], despuesTitulo: 'Con...', despues: [...] }
-    // Estilo de las secciones de la ficha: '' (claro) u 'oscuro' (fondo negro con separadores en ola)
+    // Estilo de las secciones de la ficha: '' (claro), 'oscuro' (fondo negro con separadores en ola), 'wess' o 'pro' (Ficha Pro, ver docs/disenos.md)
     estiloFicha: '',
+    // Textos de la Ficha Pro: tema 'oscuro' | 'claro', sello, presentacion, problema, galeria, porque, oferta (ver docs/disenos.md)
+    pro: null,
     // ----- Premium -----
     // Tipografías de marca (Google Fonts) y animación de entrada de las secciones al bajar
     premium: null, // ej: { titulos: 'Cinzel', texto: 'Cormorant Garamond', animar: true }
@@ -399,6 +401,321 @@
     });
   }
 
+  // ===== FICHA PRO (estiloFicha: 'pro', textos en NEVUX.pro) =====
+  // Estructura de las fichas de referencia de 2026 (docs/referencias/wess-buzo.md y praxis-medias.md) con dos estéticas:
+  // pro.tema = 'oscuro' (negro con el color de la marca) o 'claro' (blanco con el color de la marca). Efectos en docs/efectos.md.
+  // Todo lo que muestra sale de datos reales: precio, transferencia, cuotas y stock de la tienda; reseñas solo si se cargan.
+  function proTema() {
+    var P = NEVUX.pro || {}, osc = P.tema !== 'claro', C = NEVUX.color;
+    return {
+      osc: osc, C: C, CT: NEVUX.colorTexto,
+      bg: osc ? (P.fondo || '#0a0a0a') : (P.fondo || '#ffffff'),
+      tx: osc ? '#ffffff' : '#141414', sub: osc ? '#a3a3a3' : '#5f6368',
+      card: osc ? '#151515' : '#ffffff', borde: osc ? 'rgba(255,255,255,.12)' : '#e7e2de',
+      suave: osc ? '#1d1d1d' : '#f6f3f1', verde: '#15803d',
+      tit: osc ? "Anton,'Archivo Black',sans-serif" : "'Archivo',Inter,sans-serif"
+    };
+  }
+  function proFuentes() {
+    if (document.querySelector('#nvx-pro-f')) return;
+    var lk = document.createElement('link'); lk.id = 'nvx-pro-f'; lk.rel = 'stylesheet';
+    lk.href = 'https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap';
+    document.head.appendChild(lk);
+  }
+  var PRO_IC = {
+    tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>',
+    escudo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
+    tarjeta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
+    remera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M8 3 3 6l2 4 2-1v12h10V9l2 1 2-4-5-3c-.5 1.5-2 2.5-4 2.5S8.5 4.5 8 3z"/></svg>',
+    carrito: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L22 7H6"/></svg>',
+    camion: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4h14v12H1zM15 9h4l3 3v4h-7"/><circle cx="5.5" cy="18.5" r="1.8"/><circle cx="18.5" cy="18.5" r="1.8"/></svg>',
+    chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 21l2.1-5.7A8.4 8.4 0 1 1 21 11.5z"/></svg>',
+    estrella: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m12 2 3 6.5 7 .9-5.1 4.8 1.3 7L12 17.8 5.8 21.2l1.3-7L2 9.4l7-.9z"/></svg>',
+    rayo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg>',
+    corazon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21.2l8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>',
+    cruz: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>'
+  };
+
+  // Arriba: sello, escalera de precios (lista → mejor precio con cinta → cuotas), 3 pasos y estilo de packs, barra y botón.
+  function fichaProArriba(root, d) {
+    var P = NEVUX.pro || {}, T = proTema(), C = T.C, money = d.money, esc = hEsc;
+    proFuentes();
+    hCss('nvx-pa-css',
+      '#single-product .js-product-name,#single-product h1{font-family:' + T.tit + '!important;font-weight:' + (T.osc ? 400 : 800) + '!important;' + (T.osc ? 'text-transform:uppercase;' : '') + 'letter-spacing:' + (T.osc ? '.01em' : '-.01em') + '!important;line-height:1.05!important}' +
+      '.nvx-ps0{text-align:left;font:600 10.5px/1.3 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8a8a8a;margin:6px 0 0}.nvx-ps0 b{color:#b08d3c}.nvx-ps0 i{font-style:normal;display:block;color:#c9a227;letter-spacing:.2em;font-size:15px;margin-top:4px}' +
+      '.nvx-esc{margin:14px 0 16px;font-family:Inter,sans-serif;text-align:left;color:#141414}' +
+      '.nvx-esc .lp{display:flex;align-items:center;gap:12px;padding:2px 4px}.nvx-esc .lp i{width:22px;height:22px;color:#141414}.nvx-esc .lp svg{width:22px;height:22px}' +
+      '.nvx-esc small{display:block;font:700 9.5px/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8a8a8a;margin-bottom:4px}' +
+      '.nvx-esc .lp b{font:800 25px/1 Inter,sans-serif;font-variant-numeric:tabular-nums}.nvx-esc .lp b.tch{text-decoration:line-through;color:#8a8a8a;font-size:19px}' +
+      '.nvx-esc .fl{display:block;text-align:center;color:#c4c4c4;font-size:13px;line-height:1;margin:5px 0}' +
+      '.nvx-esc .mp{position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid ' + T.verde + ';border-radius:14px;padding:14px 16px}' +
+      '.nvx-esc .mp>i{flex:none;width:40px;height:40px;border-radius:50%;background:' + T.verde + ';color:#fff;display:grid;place-items:center}.nvx-esc .mp>i svg{width:20px;height:20px}' +
+      '.nvx-esc .mp small{color:#3f6212}.nvx-esc .mp b{display:block;font:800 30px/1 Inter,sans-serif;color:' + T.verde + ';font-variant-numeric:tabular-nums}.nvx-esc .mp span{display:block;font-size:12px;color:#5f6368;margin-top:4px}' +
+      '.nvx-esc .cin{position:absolute;right:-34px;top:14px;transform:rotate(38deg);background:' + T.verde + ';color:#fff;font:900 10px/1.15 Inter,sans-serif;letter-spacing:.04em;text-align:center;padding:5px 38px;text-transform:uppercase}.nvx-esc .cin small{color:#fff;font-size:8px;letter-spacing:.06em;margin:0;opacity:.9}' +
+      '.nvx-esc .cq{display:flex;align-items:center;gap:12px;background:#0d0d0d;color:#fff;border-radius:14px;padding:14px 16px}.nvx-esc .cq>i{flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid #fff;display:grid;place-items:center}.nvx-esc .cq>i svg{width:19px;height:19px}' +
+      '.nvx-esc .cq div{flex:1;font:800 14px/1.15 Inter,sans-serif}.nvx-esc .cq div span{display:block;font:500 11px/1.3 Inter,sans-serif;color:#bdbdbd;margin-top:3px}.nvx-esc .cq strong{text-align:right;font:800 23px/1 Inter,sans-serif;color:#4ade80;font-variant-numeric:tabular-nums}.nvx-esc .cq strong small{color:#bdbdbd;letter-spacing:0;text-transform:none;font-weight:500;font-size:11px;margin:4px 0 0}' +
+      '.nvx-3p{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 16px;text-align:center;font:700 11px/1.25 Inter,sans-serif;color:#141414}' +
+      '.nvx-3p em{display:grid;place-items:center;width:20px;height:20px;margin:0 auto 6px;border-radius:50%;background:#0d0d0d;color:#fff;font:800 10.5px/1 Inter,sans-serif;font-style:normal}.nvx-3p i{display:block;width:20px;height:20px;margin:0 auto 6px;color:#141414}.nvx-3p svg{width:20px;height:20px}' +
+      // Packs (E9): tarjeta elegida con fondo y borde, crece apenas; punto de opción animado
+      '.nvx-packs-t{font:800 15px/1.2 ' + T.tit + '!important;' + (T.osc ? 'text-transform:uppercase;font-weight:400!important;letter-spacing:.02em;' : '') + 'color:#141414}' +
+      '.nvx-pack{position:relative;border:1.5px solid #e5e5e5!important;border-radius:14px!important;padding:13px 14px 13px 44px!important;transition:background-color .35s ease,border-color .35s ease,transform .35s ease!important}' +
+      '.nvx-pack:before{content:"";position:absolute;left:14px;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:50%;border:2px solid #c4c4c4;box-sizing:border-box;transition:border-color .3s ease,transform .3s ease}' +
+      '.nvx-pack.nvx-on{border-color:#141414!important;background:#fafafa!important;transform:scale(1.015)}.nvx-pack.nvx-on:before{border:6px solid #141414;transform:scale(1.08)}' +
+      '.nvx-pack .nvx-tag{background:' + T.verde + '!important;color:#fff!important;border-radius:4px!important;letter-spacing:.06em}' +
+      // Botón de compra con brillo que lo cruza (E5) y "Agregado ✓" con onda (E10)
+      '#single-product .js-addtocart{position:relative;overflow:hidden;background:' + C + '!important;color:' + T.CT + '!important;border:0!important;border-radius:' + (T.osc ? '10px' : '12px') + '!important;font:800 14px/1 Inter,sans-serif!important;letter-spacing:.08em!important;text-transform:uppercase!important;min-height:52px;transition:background-color .3s ease!important}' +
+      '.nvx-brillo:after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.38),transparent);transform:skewX(-18deg);animation:nvx-brillo 5.5s linear infinite;pointer-events:none}' +
+      '@keyframes nvx-brillo{0%{left:-60%}22%{left:130%}100%{left:130%}}' +
+      '.nvx-onda{position:absolute;border-radius:50%;background:rgba(255,255,255,.55);transform:scale(0);animation:nvx-onda .6s linear;pointer-events:none}@keyframes nvx-onda{to{transform:scale(4);opacity:0}}' +
+      '.nvx-ok{background:#16a34a!important}.nvx-ok:before{content:"Agregado ✓";position:absolute;inset:0;display:grid;place-items:center;background:#16a34a;color:#fff;font:800 14px/1 Inter,sans-serif;letter-spacing:.06em;z-index:2}' +
+      // Barra de compra fija (E1): pastilla de color que entra desde abajo
+      '.nvx-bar{transition:transform .5s cubic-bezier(.2,.8,.2,1)!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0 12px calc(12px + env(safe-area-inset-bottom,0px))!important;pointer-events:none}' +
+      '.nvx-bar .nvx-bar-i{display:none}.nvx-bar button{pointer-events:auto;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:999px!important;padding:15px 18px!important;background:' + C + '!important;box-shadow:0 10px 26px rgba(0,0,0,.28);font:800 13px/1.1 Inter,sans-serif!important;letter-spacing:.02em;text-transform:none}' +
+      '.nvx-bar button svg{width:18px;height:18px;flex:none}.nvx-bar button span{opacity:.85;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62vw}' +
+      '.nvx-trust{display:none!important}.nvx-cr-ficha .nvh-cr{background:#3b302b!important;box-shadow:none!important;border-radius:14px!important;padding:12px!important}.nvx-cr-ficha .nvh-cr-t{font:700 13px/1.2 Inter,sans-serif!important;text-transform:none!important}.nvx-cr-ficha .nvh-cr-n b{background:#5a4d46!important;border-radius:8px!important;min-width:40px!important;font-size:19px!important}');
+    if (P.sello && d.titleEl) d.titleEl.insertAdjacentHTML('afterend', '<div class="nvx-ps0">' + esc(P.sello) + (P.estrellas ? '<i>★★★★★</i>' : '') + '</div>');
+    var pb = d.priceBox, precio = d.precio;
+    if (pb && precio) {
+      var v = d.variant, lista = v && v.compare_at_price_number > precio ? v.compare_at_price_number : 0, h = '';
+      var mejor = d.transf > 0 ? precio * (1 - d.transf / 100) : (lista ? precio : 0);
+      var ref = d.transf > 0 ? precio : lista;
+      if (mejor) {
+        var off = Math.round((1 - mejor / ref) * 100);
+        h += '<div class="lp"><i>' + PRO_IC.tag + '</i><div><small>' + (d.transf > 0 ? 'Precio de lista' : 'Antes') + '</small><b' + (d.transf > 0 ? '' : ' class="tch"') + '>' + money(ref) + '</b></div></div><span class="fl">⌄</span>' +
+          '<div class="mp"><i>' + PRO_IC.escudo + '</i><div><small>Mejor precio</small><b class="nvx-cnt" data-v="' + Math.round(mejor) + '">' + money(mejor) + '</b><span>' + (d.transf > 0 ? 'Transferencia o depósito bancario' : 'Ahorrás ' + money(ref - mejor)) + '</span></div>' +
+          '<div class="cin">' + off + '% OFF<small>aplicado</small></div></div>';
+      } else {
+        h += '<div class="lp"><i>' + PRO_IC.tag + '</i><div><small>Precio</small><b>' + money(precio) + '</b></div></div>';
+      }
+      if (d.cuotasSin > 1) h += '<span class="fl">⌄</span><div class="cq"><i>' + PRO_IC.tarjeta + '</i><div>' + d.cuotasSin + ' cuotas<br>sin interés<span>con débito / medios disponibles</span></div><strong>' + money(precio / d.cuotasSin) + '<small>por cuota</small></strong></div>';
+      pb.insertAdjacentHTML('afterend', '<div class="nvx-esc">' + h + '</div><div class="nvx-3p">' +
+        [[PRO_IC.remera, (P.paso1 || 'Elegí color y talle')], [PRO_IC.carrito, 'Agregá al carrito'], [PRO_IC.camion, 'Recibí en tu casa']].map(function (x, i) {
+          return '<div><em>' + (i + 1) + '</em><i>' + x[0] + '</i>' + esc(x[1]) + '</div>';
+        }).join('') + '</div>');
+      pb.style.display = 'none';
+    }
+  }
+
+  // Abajo: secciones de la ficha Pro de lado a lado, con entrada al aparecer (E4) y la comparativa que se llena (E2/E3).
+  function fichaProAbajo(root, d) {
+    var P = NEVUX.pro || {}, T = proTema(), C = T.C, CT = T.CT, money = d.money, esc = d.esc;
+    var tc = T.osc ? 'text-transform:uppercase;font-weight:400;letter-spacing:.005em;' : 'font-weight:800;letter-spacing:-.015em;';
+    hCss('nvx-pb-css',
+      'html,body{overflow-x:clip}' +
+      '.nvx-pro{position:relative;left:50%;width:100vw;margin:26px 0 0 -50vw;background:' + T.bg + ';color:' + T.tx + ';font-family:Inter,sans-serif;text-align:left}' +
+      '.nvx-pro *{box-sizing:border-box}.nvx-pro-in{max-width:720px;margin:0 auto;padding:46px 16px 60px}' +
+      '.nvx-pro section{margin:0 0 58px}.nvx-pro section:last-child{margin-bottom:0}' +
+      '.nvx-pro .eb{font:700 10.5px/1 Inter,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:' + (T.osc ? '#bdbdbd' : C) + ';margin:0 0 12px;text-align:center}' +
+      '.nvx-pro h2{margin:0 0 10px;font:clamp(30px,8.4vw,46px)/1 ' + T.tit + ';' + tc + 'text-align:center;color:' + T.tx + '}' +
+      '.nvx-pro p.bj{margin:0 auto 22px;max-width:520px;text-align:center;font-size:14.5px;line-height:1.55;color:' + T.sub + '}' +
+      '.nvx-pro .bt{position:relative;overflow:hidden;display:block;width:100%;background:' + C + ';color:' + CT + '!important;border:0;border-radius:' + (T.osc ? '10px' : '12px') + ';padding:17px 20px;font:800 14px/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;text-align:center;cursor:pointer;text-decoration:none!important}' +
+      '.nvx-pro .pls{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}.nvx-pro .pls span{display:inline-flex;align-items:center;gap:6px;border:1px solid ' + T.borde + ';border-radius:999px;padding:7px 12px;font:700 12px/1 Inter,sans-serif;color:' + T.tx + '}.nvx-pro .pls span.ac{background:' + C + ';border-color:' + C + ';color:' + CT + '}' +
+      '.nvx-pro .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}' +
+      '.nvx-pro .ck{display:flex;gap:10px;align-items:center;background:' + T.card + ';border:1px solid ' + T.borde + ';border-radius:14px;padding:14px 12px;font:700 13.5px/1.25 Inter,sans-serif}' +
+      '.nvx-pro .ck i{flex:none;width:22px;height:22px;border-radius:50%;background:' + T.tx + ';color:' + T.bg + ';display:grid;place-items:center}.nvx-pro .ck i svg{width:13px;height:13px}' +
+      '.nvx-pro .pres h2{text-align:left}.nvx-pro .pres .eb{text-align:left}.nvx-pro .pres .st{color:#facc15;letter-spacing:.12em;margin:4px 0 10px}.nvx-pro .pres .sb{font:800 13.5px/1.3 Inter,sans-serif;margin:0 0 10px}' +
+      '.nvx-pro .pres p.tx{font-size:15px;line-height:1.6;color:' + T.sub + ';margin:0 0 18px}.nvx-pro .pres .bt{margin-top:16px}' +
+      '.nvx-pro .ft{position:relative;border-radius:18px;overflow:hidden;background:#fff}.nvx-pro .ft img{display:block;width:100%;aspect-ratio:1;object-fit:contain;background:#fff}' +
+      '.nvx-pro .ft div{position:absolute;left:14px;right:14px;bottom:14px;background:rgba(70,70,70,.9);color:#fff;border-radius:12px;padding:12px 14px;font:800 14px/1.3 Inter,sans-serif}.nvx-pro .ft div small{display:block;font-weight:500;font-size:11.5px;opacity:.85;margin-top:4px}' +
+      '.nvx-pro .cf{display:flex;gap:10px;align-items:center;background:' + T.card + ';border:1px solid ' + T.borde + ';border-radius:14px;padding:14px 12px}.nvx-pro .cf i{flex:none;width:22px;height:22px;color:' + T.tx + '}.nvx-pro .cf svg{width:22px;height:22px}' +
+      '.nvx-pro .cf b{display:block;font:800 13.5px/1.2 Inter,sans-serif}.nvx-pro .cf small{display:block;font-size:11.5px;color:' + T.sub + ';margin-top:2px}' +
+      '.nvx-pro .pb{background:' + T.card + ';border:1px solid ' + T.borde + ';border-radius:14px;padding:14px 12px}.nvx-pro .pb i{display:block;width:18px;height:18px;color:#ef4444;margin-bottom:8px}.nvx-pro .pb i svg{width:18px;height:18px}' +
+      '.nvx-pro .pb b{display:block;font:800 13.5px/1.25 Inter,sans-serif}.nvx-pro .pb span{display:block;font-size:12px;line-height:1.45;color:' + T.sub + ';margin-top:5px}' +
+      '.nvx-pro .so{margin-top:14px;border-radius:16px;padding:18px 18px;text-align:' + (T.osc ? 'center' : 'left') + ';' + (T.osc ? 'background:#fff;color:#111;font:800 15px/1.4 Inter,sans-serif' : 'background:#fff;border:2px solid ' + C + ';color:#141414') + '}' +
+      '.nvx-pro .so .sh{display:flex;align-items:center;gap:10px;margin-bottom:10px;font:700 10.5px/1 Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:' + C + '}.nvx-pro .so .sh i{width:30px;height:30px;border-radius:9px;background:' + C + ';color:' + CT + ';display:grid;place-items:center}.nvx-pro .so .sh i svg{width:16px;height:16px}' +
+      '.nvx-pro .so b{display:block;font:800 17px/1.25 Inter,sans-serif;margin-bottom:10px}.nvx-pro .so p{display:flex;gap:10px;margin:0 0 10px;font-size:14px;line-height:1.45}.nvx-pro .so p i{flex:none;width:20px;height:20px;border-radius:50%;background:' + C + ';color:' + CT + ';display:grid;place-items:center;margin-top:1px}.nvx-pro .so p i svg{width:11px;height:11px}' +
+      '.nvx-pro .tabs{display:flex;gap:6px;justify-content:center;background:' + T.suave + ';border-radius:999px;padding:5px;width:max-content;max-width:100%;margin:0 auto 14px;overflow-x:auto}' +
+      '.nvx-pro .tabs button{border:0;background:transparent;color:' + T.sub + ';border-radius:999px;padding:9px 14px;font:800 11px/1 Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background-color .3s,color .3s;white-space:nowrap}.nvx-pro .tabs button.on{background:' + (T.osc ? '#fff' : C) + ';color:' + (T.osc ? '#111' : CT) + '}' +
+      '.nvx-pro .vis{border-radius:18px;overflow:hidden;background:#fff}.nvx-pro .vis img{display:block;width:100%;aspect-ratio:1;object-fit:contain;transition:opacity .35s ease}' +
+      '.nvx-pro .vtx{background:' + T.card + ';border:1px solid ' + T.borde + ';border-radius:0 0 18px 18px;margin-top:-18px;padding:30px 16px 16px}.nvx-pro .vtx b{display:block;font:800 18px/1.2 Inter,sans-serif}.nvx-pro .vtx span{display:block;font-size:13.5px;line-height:1.5;color:' + T.sub + ';margin-top:6px}' +
+      '.nvx-pro .pq{background:' + (T.osc ? '#fff' : 'transparent') + ';' + (T.osc ? 'color:#111;' : '') + 'border-radius:14px;padding:' + (T.osc ? '16px 14px' : '6px 2px') + '}.nvx-pro .pq i{display:block;width:22px;height:22px;color:' + C + ';margin-bottom:10px}.nvx-pro .pq i svg{width:22px;height:22px}' +
+      '.nvx-pro .pq b{display:block;font:800 14.5px/1.25 Inter,sans-serif}.nvx-pro .pq span{display:block;font-size:12.5px;line-height:1.5;color:' + (T.osc ? '#555' : T.sub) + ';margin-top:6px}' +
+      // Comparativa: la columna de la marca se llena de abajo hacia arriba y los tildes saltan con rebote
+      '.nvx-pro .cmp{position:relative;background:' + (T.osc ? '#fff' : 'transparent') + ';color:' + (T.osc ? '#111' : T.tx) + ';border-radius:18px;padding:16px 10px 8px}' +
+      '.nvx-pro .cmp table{position:relative;z-index:1;width:100%;border-collapse:collapse}.nvx-pro .cmp th{font:700 9.5px/1.2 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:10px 6px;color:#8a8a8a}' +
+      '.nvx-pro .cmp td{padding:13px 6px;font:500 13px/1.35 Inter,sans-serif;vertical-align:middle}.nvx-pro .cmp td.o{color:#9a9a9a;text-decoration:line-through;width:40%}.nvx-pro .cmp td.m{font-weight:800;width:44%}' +
+      '.nvx-pro .cmp.cl td.f{font-weight:700;width:46%}.nvx-pro .cmp.cl td.m,.nvx-pro .cmp.cl td.x{text-align:center;width:27%}.nvx-pro .cmp.cl th.m{color:' + CT + ';opacity:0;transition:opacity .4s ease .15s}.nvx-pro .cmp.cl.go th.m{opacity:1}' +
+      '.nvx-pro .cmp .ci{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;opacity:0;transform:scale(.3);transition:opacity .35s ease,transform .35s cubic-bezier(.175,.885,.32,1.275)}.nvx-pro .cmp .ci svg{width:12px;height:12px}' +
+      '.nvx-pro .cmp .ci.ok{background:' + (T.osc ? C : '#fff') + ';color:' + (T.osc ? CT : C) + '}.nvx-pro .cmp .ci.no{color:#ef4444}.nvx-pro .cmp.go .ci{opacity:1;transform:none}' +
+      '.nvx-pro .cmp .col{position:absolute;z-index:0;top:8px;bottom:8px;border-radius:16px;background:' + C + ';transform:scaleY(0);transform-origin:50% 100%;transition:transform 1.4s cubic-bezier(.3,.8,.2,1)}.nvx-pro .cmp.go .col{transform:none}' +
+      '.nvx-pro .rvs{display:grid;grid-auto-flow:column;grid-auto-columns:82%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:4px 16px 8px}.nvx-pro .rvs::-webkit-scrollbar{display:none}' +
+      '.nvx-pro .rv{scroll-snap-align:start;background:' + T.card + ';border:1px solid ' + T.borde + ';border-radius:16px;overflow:hidden}.nvx-pro .rv img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}.nvx-pro .rv div{padding:14px}' +
+      '.nvx-pro .rv .s{color:' + (T.osc ? '#facc15' : C) + ';letter-spacing:.1em}.nvx-pro .rv b{display:block;font:800 15px/1.25 Inter,sans-serif;margin:6px 0}.nvx-pro .rv p{margin:0;font-size:13.5px;line-height:1.5;color:' + T.sub + '}.nvx-pro .rv small{display:block;margin-top:10px;font:700 12.5px/1.3 Inter,sans-serif}.nvx-pro .rv small em{display:block;font-style:normal;font-weight:500;color:' + T.sub + '}' +
+      '.nvx-pro .of{border-radius:22px;padding:30px 18px;text-align:center;' + (T.osc ? 'background:#111;border:1px solid rgba(255,255,255,.1)' : 'background:' + C + ';color:' + CT) + '}' +
+      '.nvx-pro .of .eb{color:' + (T.osc ? '#bdbdbd' : CT) + ';' + (T.osc ? '' : 'display:table;margin:0 auto 14px;background:rgba(255,255,255,.18);padding:7px 12px;border-radius:999px') + '}.nvx-pro .of h2{color:' + (T.osc ? '#fff' : CT) + '}.nvx-pro .of p.bj{color:' + (T.osc ? '#bdbdbd' : CT) + ';opacity:.92}' +
+      '.nvx-pro .of .rc{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px;margin:0 0 16px}.nvx-pro .of .rc b{display:block;font:' + (T.osc ? '400 22px/1 Anton,sans-serif;text-transform:uppercase' : '800 17px/1 Inter,sans-serif') + '}.nvx-pro .of .rc span{display:block;font-size:13px;color:#bdbdbd;margin-top:8px}' +
+      '.nvx-pro .of .pls{justify-content:center;margin:0 0 16px}.nvx-pro .of .bt{' + (T.osc ? '' : 'background:#fff;color:' + C + '!important;box-shadow:0 10px 24px rgba(0,0,0,.18);text-transform:none;letter-spacing:0;font-size:16px') + '}' +
+      '.nvx-pro .of ul{list-style:none;margin:16px 0 0;padding:0;font:700 13px/1.9 Inter,sans-serif}' +
+      '.nvx-pro .fq details{border-bottom:1px solid ' + T.borde + '}.nvx-pro .fq summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:16px 0;font:700 14.5px/1.35 Inter,sans-serif}' +
+      '.nvx-pro .fq summary::-webkit-details-marker{display:none}.nvx-pro .fq summary em{flex:none;width:22px;height:22px;border-radius:50%;background:' + T.tx + ';color:' + T.bg + ';display:grid;place-items:center;font:800 12px/1 Inter,sans-serif;font-style:normal}' +
+      '.nvx-pro .fq summary:after{content:"+";margin-left:auto;font-size:22px;font-weight:300;transition:transform .3s}.nvx-pro .fq details[open] summary:after{transform:rotate(45deg)}.nvx-pro .fq details div{padding:0 0 16px 34px;font-size:14px;line-height:1.55;color:' + T.sub + '}' +
+      // Entrada al aparecer en pantalla (E4): sube y aparece con rebote
+      '.nvx-pro .rev{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s cubic-bezier(.175,.885,.32,1.275)}.nvx-pro .rev.vis-on{opacity:1;transform:none}' +
+      '@media (prefers-reduced-motion:reduce){.nvx-pro .rev,.nvx-pro .cmp .col,.nvx-pro .cmp .ci{transition:none;opacity:1;transform:none}.nvx-brillo:after{animation:none}}');
+    // Fotos reales del producto
+    var fotos = [];
+    [].forEach.call(root.querySelectorAll('.js-product-slide img, .js-swiper-product img, img[data-srcset*="/products/"], img[src*="/products/"], .gal img'), function (im) {
+      var ss = im.getAttribute('data-srcset') || im.getAttribute('srcset') || '';
+      var src = ss ? ss.split(',').pop().trim().split(' ')[0] : (im.getAttribute('data-src') || im.getAttribute('src') || '');
+      if (!src || /data:image|placeholder/.test(src)) return;
+      src = src.replace(/^\/\//, 'https://');
+      var key = src.replace(/-\d+-\d+\.(webp|jpg|jpeg|png)/i, '').replace(/\?.*$/, '');
+      if (!fotos.some(function (f) { return f.k === key; })) fotos.push({ k: key, s: src });
+    });
+    fotos = fotos.map(function (f) { return f.s; });
+    if (!fotos.length) { var og = document.querySelector('meta[property="og:image"]'); if (og) fotos.push(og.content); }
+    var nombre = d.titleEl ? d.titleEl.textContent.trim() : '';
+    var sec = function (cls, eb, h, bj, body) {
+      return '<section class="rev ' + (cls || '') + '">' + (eb ? '<div class="eb">' + esc(eb) + '</div>' : '') + (h ? '<h2>' + esc(h) + '</h2>' : '') + (bj ? '<p class="bj">' + esc(bj) + '</p>' : '') + body + '</section>';
+    };
+    var pastillas = function (acento) {
+      var a = [];
+      if (d.cuotasSin > 1) a.push('<span>💳 ' + d.cuotasSin + ' cuotas sin interés</span>');
+      a.push('<span>🚚 ' + esc(P.envios || 'Envíos a todo el país') + '</span>');
+      if (d.transf > 0) a.push('<span' + (acento ? ' class="ac"' : '') + '>⚡ ' + d.transf + '% OFF transferencia</span>');
+      return '<div class="pls">' + a.join('') + '</div>';
+    };
+    var html = '';
+    // 1) Presentación: título grande, texto, 4 tarjetas con tilde, botón y pastillas
+    var PR = P.presentacion;
+    if (PR && PR.titulo) {
+      html += '<section class="rev pres">' + '<div class="eb">' + esc(PR.etiqueta || nombre) + '</div><h2>' + esc(PR.titulo) + '</h2>' +
+        (P.estrellas ? '<div class="st">★★★★★</div>' : '') + (PR.resumen ? '<div class="sb">' + esc(PR.resumen) + '</div>' : '') +
+        (PR.texto ? '<p class="tx">' + esc(PR.texto) + '</p>' : '') +
+        (PR.puntos && PR.puntos.length ? '<div class="g2">' + PR.puntos.slice(0, 4).map(function (t) { return '<div class="ck"><i>' + PRO_IC.check + '</i>' + esc(t) + '</div>'; }).join('') + '</div>' : '') +
+        '<button type="button" class="bt nvx-brillo nvx-pro-go">' + esc(PR.boton || 'Comprar ahora') + '</button>' + pastillas(true) + '</section>';
+    }
+    // 2) Foto del producto con el recuadro de transferencia
+    if (fotos[0] && (d.transf > 0 || d.cuotasSin > 1)) {
+      html += '<section class="rev"><div class="ft"><img src="' + esc(fotos[0]) + '" alt="" loading="lazy"><div>' +
+        (d.transf > 0 ? d.transf + '% OFF pagando por transferencia' : d.cuotasSin + ' cuotas sin interés') +
+        '<small>' + (d.transf > 0 && d.cuotasSin > 1 ? 'O con tarjeta, en ' + d.cuotasSin + ' cuotas sin interés.' : 'Precio final ' + money(d.precio)) + '</small></div></div></section>';
+    }
+    // 3) Confianza en 2×2
+    var CF = P.confianza || [
+      { icono: 'camion', titulo: 'Envíos', texto: 'A todo el país' },
+      { icono: 'escudo', titulo: 'Compra segura', texto: 'Pago protegido' }
+    ].concat(d.cuotasSin > 1 ? [{ icono: 'tarjeta', titulo: d.cuotasSin + ' cuotas', texto: 'Sin interés' }] : [])
+     .concat(NEVUX.whatsapp ? [{ icono: 'chat', titulo: 'Atención', texto: 'Por WhatsApp' }] : []);
+    if (CF.length) html += '<section class="rev"><div class="g2">' + CF.slice(0, 4).map(function (c) { return '<div class="cf"><i>' + (PRO_IC[c.icono] || PRO_IC.check) + '</i><div><b>' + esc(c.titulo) + '</b><small>' + esc(c.texto || '') + '</small></div></div>'; }).join('') + '</div></section>';
+    // 4) El problema y la solución
+    var PB = P.problema;
+    if (PB && PB.items && PB.items.length) {
+      var sol = PB.solucion;
+      var solHtml = '';
+      if (sol) {
+        if (typeof sol === 'string') solHtml = '<div class="so">' + esc(sol) + '</div>';
+        else solHtml = '<div class="so"><div class="sh"><i>' + PRO_IC.check + '</i>' + esc(sol.etiqueta || 'La solución') + '</div><b>' + esc(sol.titulo || '') + '</b>' + (sol.items || []).map(function (t) { return '<p><i>' + PRO_IC.check + '</i>' + esc(t) + '</p>'; }).join('') + '</div>';
+      }
+      html += sec('', PB.etiqueta || 'El problema', PB.titulo, PB.bajada, '<div class="g2">' + PB.items.slice(0, 4).map(function (x) {
+        return '<div class="pb"><i>' + PRO_IC.cruz + '</i><b>' + esc(x.titulo || x) + '</b>' + (x.texto ? '<span>' + esc(x.texto) + '</span>' : '') + '</div>';
+      }).join('') + '</div>' + solHtml);
+    }
+    // 5) En acción: pestañas que cambian la foto
+    var GA = P.galeria;
+    if (GA && GA.items && GA.items.length && fotos.length) {
+      html += sec('', GA.etiqueta || 'En acción', GA.titulo || 'Miralo de todos los lados', GA.bajada, '<div class="tabs">' + GA.items.map(function (it, i) {
+        return '<button type="button" data-i="' + i + '"' + (i ? '' : ' class="on"') + '>' + esc(it.tab) + '</button>';
+      }).join('') + '</div><div class="vis"><img src="' + esc(fotos[0]) + '" alt="" loading="lazy"></div><div class="vtx"><b>' + esc(GA.items[0].titulo || '') + '</b><span>' + esc(GA.items[0].texto || '') + '</span></div>');
+    }
+    // 6) Por qué este: 4 detalles
+    var PQ = P.porque;
+    if (PQ && PQ.items && PQ.items.length) {
+      var icp = ['estrella', 'escudo', 'rayo', 'corazon'];
+      html += sec('', PQ.etiqueta || 'Por qué este', PQ.titulo, PQ.bajada, '<div class="g2">' + PQ.items.slice(0, 4).map(function (x, i) {
+        return '<div class="pq">' + (T.osc ? '' : '<i>' + PRO_IC[x.icono || icp[i]] + '</i>') + '<b>' + esc(x.titulo) + '</b>' + (x.texto ? '<span>' + esc(x.texto) + '</span>' : '') + '</div>';
+      }).join('') + '</div>');
+    }
+    // 7) Comparativa
+    var CM = NEVUX.comparativa;
+    if (CM && CM.filas && CM.filas.length) {
+      var tabla;
+      if (T.osc) {
+        tabla = '<div class="cmp os"><table><tr><th>' + esc(CM.otro || 'Genérico') + '</th><th>' + esc(CM.marca || 'Nosotros') + '</th></tr>' + CM.filas.map(function (f, i) {
+          var o = (CM.otroFilas && CM.otroFilas[i]) || '—';
+          return '<tr><td class="o">' + esc(o) + '</td><td class="m"><span class="ci ok" style="transition-delay:' + (350 + i * 120) + 'ms">' + PRO_IC.check + '</span> ' + esc(f) + '</td></tr>';
+        }).join('') + '</table></div>';
+      } else {
+        tabla = '<div class="cmp cl"><span class="col"></span><table><tr><th></th><th class="m">' + esc(CM.marca || 'Nosotros') + '</th><th>' + esc(CM.otro || 'Genérico') + '</th></tr>' + CM.filas.map(function (f, i) {
+          return '<tr><td class="f">' + esc(f) + '</td><td class="m"><span class="ci ok" style="transition-delay:' + (350 + i * 120) + 'ms">' + PRO_IC.check + '</span></td><td class="x"><span class="ci no" style="transition-delay:' + (450 + i * 120) + 'ms">' + PRO_IC.cruz + '</span></td></tr>';
+        }).join('') + '</table></div>';
+      }
+      html += sec('', CM.etiqueta || 'Comparativa', CM.titulo || '¿Por qué este?', CM.bajada, tabla);
+    }
+    // 8) Reseñas (solo reales)
+    var RS = (NEVUX.resenas || []).filter(function (r) { return r && r.texto; });
+    if (RS.length) {
+      html += sec('', P.resenasEtiqueta || 'Reseñas', P.resenasTitulo || 'Lo que dicen nuestros clientes', P.resenasBajada || '', '<div class="rvs">' + RS.map(function (r) {
+        var n = Math.max(1, Math.min(5, r.estrellas || 5));
+        return '<div class="rv">' + (r.foto ? '<img src="' + esc(r.foto) + '" alt="" loading="lazy">' : '') + '<div><span class="s">' + '★★★★★'.slice(0, n) + '</span>' + (r.titulo ? '<b>' + esc(r.titulo) + '</b>' : '') +
+          '<p>' + esc(r.texto) + '</p><small>' + esc(r.nombre || '') + (r.verificada ? '<em>✓ Compra verificada</em>' : (r.lugar ? '<em>' + esc(r.lugar) + '</em>' : '')) + '</small></div></div>';
+      }).join('') + '</div>');
+    }
+    // 9) Oferta final ("Llevalo hoy" / "Último paso")
+    var OF = P.oferta || {};
+    if (OF.titulo !== false) {
+      var tOf = OF.titulo || (T.osc ? 'Llevalo hoy.' : 'Llevalo hoy y notalo desde el primer uso');
+      var bOf = OF.texto || (d.transf > 0 ? 'Pagando por transferencia te llevás un ' + d.transf + '% de descuento.' : 'Si tenés una duda antes de comprar, escribinos y te respondemos.');
+      html += '<section class="rev"><div class="of"><div class="eb">' + esc(OF.etiqueta || (T.osc ? 'Oferta' : 'Último paso')) + '</div><h2>' + esc(tOf) + '</h2><p class="bj">' + esc(bOf) + '</p>' +
+        (T.osc && OF.recibis !== false ? '<div class="rc"><b>Qué recibís</b><span>' + esc(OF.recibis || (nombre + ' en la variante que elijas.')) + '</span></div>' + pastillas(true) : '') +
+        '<button type="button" class="bt nvx-brillo nvx-pro-go">' + esc(OF.boton || (T.osc ? 'Lo quiero' : 'Agregar al carrito')) + '</button>' +
+        (T.osc ? '' : '<ul>' + (OF.garantias || ['Envíos a todo el país', 'Compra protegida', 'Cambios sin vueltas']).map(function (g) { return '<li>✓ ' + esc(g) + '</li>'; }).join('') + '</ul>') + '</div></section>';
+    }
+    // 10) Preguntas frecuentes
+    var FQ = (NEVUX.faq || []).slice();
+    if (NEVUX.faqDevoluciones) FQ.push({ p: '¿Puedo devolverlo si me arrepiento?', r: 'Sí. Tenés 10 días corridos desde que lo recibís para arrepentirte (art. 34 de la Ley 24.240). Escribinos y te indicamos cómo devolverlo.' });
+    if (FQ.length) html += sec('', 'Preguntas frecuentes', P.faqTitulo || 'Antes de comprar', '', '<div class="fq">' + FQ.map(function (f) { return '<details><summary><em>?</em>' + esc(f.p) + '</summary><div>' + esc(f.r) + '</div></details>'; }).join('') + '</div>');
+    if (!html) return;
+    root.insertAdjacentHTML('afterend', '<div class="nvx-pro"><div class="nvx-pro-in">' + html + '</div></div>');
+    var box = document.querySelector('.nvx-pro');
+    // Entrada al aparecer y comparativa que se llena (una sola vez, cuando entra en pantalla)
+    var cmp = box.querySelector('.cmp.cl');
+    if (cmp) {
+      var col = cmp.querySelector('.col'), th = cmp.querySelector('th.m');
+      var ubicar = function () { col.style.left = th.offsetLeft + 'px'; col.style.width = th.offsetWidth + 'px'; };
+      ubicar(); window.addEventListener('resize', ubicar);
+    }
+    var mostrar = function (el) { el.classList.add('vis-on'); var c = el.querySelector('.cmp'); if (c) setTimeout(function () { c.classList.add('go'); }, 250); };
+    var revs = box.querySelectorAll('.rev');
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { mostrar(e.target); io.unobserve(e.target); } }); }, { threshold: 0.18 });
+      [].forEach.call(revs, function (s) { io.observe(s); });
+    } else [].forEach.call(revs, mostrar);
+    // Pestañas de "En acción"
+    var tabs = box.querySelectorAll('.tabs button');
+    [].forEach.call(tabs, function (b) {
+      b.addEventListener('click', function () {
+        var i = +b.getAttribute('data-i'), it = GA.items[i], im = box.querySelector('.vis img');
+        [].forEach.call(tabs, function (x) { x.classList.toggle('on', x === b); });
+        im.style.opacity = 0;
+        setTimeout(function () { im.src = fotos[i % fotos.length]; im.style.opacity = 1; }, 200);
+        box.querySelector('.vtx b').textContent = it.titulo || '';
+        box.querySelector('.vtx span').textContent = it.texto || '';
+      });
+    });
+    // Botones que llevan a la compra
+    [].forEach.call(box.querySelectorAll('.nvx-pro-go'), function (b) {
+      b.addEventListener('click', function () {
+        var y = d.buyBtn.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2;
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      });
+    });
+  }
+
+  // Botón de compra: brillo que lo cruza, onda donde se toca y "Agregado ✓" (E5 y E10). No frena el envío del formulario.
+  function proBoton(buyBtn) {
+    buyBtn.classList.add('nvx-brillo');
+    buyBtn.addEventListener('click', function (e) {
+      var r = buyBtn.getBoundingClientRect(), s = Math.max(r.width, r.height), o = document.createElement('span');
+      o.className = 'nvx-onda'; o.style.width = o.style.height = s + 'px';
+      o.style.left = ((e.clientX || r.left + r.width / 2) - r.left - s / 2) + 'px'; o.style.top = ((e.clientY || r.top + r.height / 2) - r.top - s / 2) + 'px';
+      buyBtn.appendChild(o); setTimeout(function () { o.remove(); }, 650);
+      if (buyBtn.disabled || buyBtn.classList.contains('disabled')) return;
+      setTimeout(function () { buyBtn.classList.add('nvx-ok'); setTimeout(function () { buyBtn.classList.remove('nvx-ok'); }, 1800); }, 250);
+    });
+  }
+
   function init() {
     Object.keys(NEVUX.porProducto || {}).forEach(function (k) {
       if (location.pathname.indexOf(k) > -1) {
@@ -597,8 +914,10 @@
 
     // 1) Barra de urgencia, debajo del bloque de precio (la ficha estilo Wess no la usa)
     var WS = NEVUX.estiloFicha === 'wess', FW = NEVUX.ficha || {};
+    // Ficha Pro (estiloFicha: 'pro'): arma su propio bloque de precios y sus secciones, como la de Wess
+    var PRO = NEVUX.estiloFicha === 'pro', SK = WS || PRO;
     var priceBox = priceEl ? (priceEl.closest('.js-price-container, .price-container') || priceEl.parentElement) : null;
-    if (priceBox && !WS) {
+    if (priceBox && !SK) {
       priceBox.insertAdjacentHTML('afterend',
         '<div class="nvx-urg"><div class="nvx-urg-top"><span>' + NEVUX.urgencia.texto + '</span><span>' +
         NEVUX.urgencia.porcentaje + '% vendido</span></div><div class="nvx-urg-bg"><div class="nvx-urg-fill"></div></div></div>');
@@ -621,7 +940,7 @@
     }
 
     // 1b) Bloque de precios en tarjetas: transferencia (color de la tienda) y cuotas sin interés (oscura)
-    if (priceBox && !WS && NEVUX.precios && precio && (transf > 0 || cuotasSin > 1)) {
+    if (priceBox && !SK && NEVUX.precios && precio && (transf > 0 || cuotasSin > 1)) {
       var PR = NEVUX.precios === true ? {} : NEVUX.precios;
       var Mp = NEVUX.marca || {};
       var oscuro = Mp.oscuro || '#111827';
@@ -652,7 +971,7 @@
     }
 
     // 1b) Mejor precio por transferencia, pegado al precio (si no se usa el bloque de precios)
-    if (priceBox && !WS && !NEVUX.precios && transf > 0 && precio) {
+    if (priceBox && !SK && !NEVUX.precios && transf > 0 && precio) {
       var conDesc = precio * (1 - transf / 100);
       priceBox.insertAdjacentHTML('afterend',
         '<div class="nvx-best"><span class="nvx-best-tag">MEJOR PRECIO</span><div class="nvx-best-p">' + money(conDesc) +
@@ -710,13 +1029,14 @@
 
     // 1d) Ficha estilo Wess: etiqueta y título condensado, bloque de precio, envío con cuenta regresiva y fechas
     if (WS) fichaWessArriba(root, { priceBox: priceBox, priceEl: priceEl, titleEl: titleEl, precio: precio, transf: transf, cuotasSin: cuotasSin, variant: variant, money: money });
+    if (PRO) { fichaProArriba(root, { priceBox: priceBox, priceEl: priceEl, titleEl: titleEl, precio: precio, transf: transf, cuotasSin: cuotasSin, variant: variant, money: money }); proBoton(buyBtn); }
 
     // 2) Selector de packs: cambia la cantidad del formulario
     var qtyInput = root.querySelector('.js-quantity-input, input[name="quantity"]');
     var form = buyBtn.closest('form');
     if (qtyInput && form && NEVUX.packs.length) {
       var base = priceNumber();
-      var html = '<div class="nvx-packs"><div class="nvx-packs-t">Elegí tu pack</div>';
+      var html = '<div class="nvx-packs"><div class="nvx-packs-t">' + hEsc(PRO && NEVUX.pro && NEVUX.pro.packsTitulo ? NEVUX.pro.packsTitulo : PRO ? 'Elegí cómo querés llevarlo' : 'Elegí tu pack') + '</div>';
       NEVUX.packs.forEach(function (p, i) {
         var full = base * p.cantidad;
         var final = full * (1 - p.descuento / 100);
@@ -806,8 +1126,9 @@
       return ok;
     };
     if (WS) fichaWessAbajo(root, { precio: precio, transf: transf, cuotasSin: cuotasSin, money: money, buyBtn: buyBtn, esc: esc });
+    if (PRO) fichaProAbajo(root, { precio: precio, transf: transf, cuotasSin: cuotasSin, money: money, buyBtn: buyBtn, esc: esc, titleEl: titleEl });
     var cont = '';
-    if (WS) { /* las secciones de la ficha estilo Wess ya están armadas */ }
+    if (SK) { /* las secciones de la ficha estilo Wess ya están armadas */ }
     else if (NEVUX.combina && (NEVUX.combina === 'auto' || NEVUX.combina.url)) {
       cont += '<div class="nvx-combo" hidden></div>';
     }
@@ -912,7 +1233,7 @@
       cont += '<div class="nvx-sec nvx-sec-faq"><div class="nvx-h">Preguntas frecuentes</div>' +
         faqs.map(function (f) { return '<details class="nvx-faq"><summary>' + esc(f.p) + '</summary><div>' + esc(f.r) + '</div></details>'; }).join('') + '</div>';
     }
-    if (cont && !WS) {
+    if (cont && !SK) {
       var after = root.querySelector('.nvx-wa') || root.querySelector('.nvx-trust');
       if (NEVUX.estiloFicha === 'oscuro') {
         var O = (NEVUX.marca && NEVUX.marca.oscuro) || '#0b0f17';
@@ -1067,6 +1388,7 @@
     var bar = document.getElementById('nvxBar');
     bar.querySelector('.nvx-bar-t').textContent = titleEl ? titleEl.textContent.trim() : '';
     bar.querySelector('.nvx-bar-p').textContent = priceEl ? priceEl.textContent.trim() : '';
+    if (PRO) bar.querySelector('button').innerHTML = PRO_IC.carrito + '<b>Agregar</b><span>· ' + hEsc(titleEl ? titleEl.textContent.trim() : '') + '</span>';
     bar.querySelector('button').addEventListener('click', function () { buyBtn.click(); });
     var onScroll = function () {
       var on = buyBtn.getBoundingClientRect().bottom < 0;
@@ -2380,6 +2702,127 @@
     [].forEach.call(document.querySelectorAll('.nvx-sec, .nvh-sec .nvh-in > *'), function (el) { el.classList.add('nvx-rv'); io.observe(el); });
   }
 
+  // ===== HOME PRO (premium): portada con clips, beneficios tipo historias y categorías que rotan (docs/efectos.md E15–E17) =====
+  // home.portadaVideo = { videos: ['...mp4'] o fotos: ['...jpg'], cada: 1100, etiqueta, titulo, texto, boton, url, reemplazarBanner,
+  //                       historias: [{ icono: 'camion'|'escudo'|'tarjeta'|'chat'|..., titulo, texto }] }
+  // home.rotador = { etiqueta: 'Encontrá lo tuyo', cada: 2200, items: [{ nombre, url, video | foto }] }
+  function initHomePro() {
+    var H = NEVUX.home;
+    if (!H || !window.LS || LS.template !== 'home') return;
+    var C = NEVUX.color, CT = NEVUX.colorTexto, PV = H.portadaVideo, RT = H.rotador;
+    if (!PV && !RT) return;
+    var quieto = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    proFuentes();
+    hCss('nvx-hp-css',
+      '.nvq{position:relative;height:min(86vh,760px);min-height:520px;overflow:hidden;background:#0b0b0b;color:#fff;font-family:Inter,sans-serif}' +
+      '.nvq-m{position:absolute;inset:0}.nvq-m>*{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0}.nvq-m>.on{opacity:1}' +
+      '.nvq-m img.on{animation:nvq-kb 3.2s ease-out both}@keyframes nvq-kb{from{transform:scale(1.12)}to{transform:scale(1)}}' +
+      '.nvq:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,.35) 55%,rgba(0,0,0,.88) 100%);pointer-events:none}' +
+      '.nvq-in{position:absolute;z-index:2;left:0;right:0;bottom:0;max-width:1100px;margin:0 auto;padding:0 18px 92px}' +
+      '.nvq-eb{font:800 11px/1 Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase;opacity:.9;margin-bottom:12px}' +
+      '.nvq h1{margin:0;font:italic 900 clamp(38px,11vw,78px)/.92 Archivo,Inter,sans-serif;text-transform:uppercase;letter-spacing:-.02em}' +
+      '.nvq p{margin:14px 0 0;max-width:460px;font-size:14.5px;line-height:1.5;opacity:.88}' +
+      '.nvq-bt{display:inline-block;margin-top:18px;background:#fff;color:#111!important;border-radius:999px;padding:13px 20px;font:800 12px/1 Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;text-decoration:none!important}' +
+      // Beneficios tipo historias: tarjeta que se monta sobre la portada, pasa sola, con rayitas de progreso
+      '.nvq-hs{position:relative;z-index:3;max-width:560px;margin:-64px auto 0;padding:0 16px}' +
+      '.nvq-hc{position:relative;background:#fff;color:#111;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.18);padding:22px 18px 18px;text-align:center;min-height:142px;overflow:hidden}' +
+      '.nvq-hc>div{position:absolute;inset:22px 18px 30px;opacity:0;transform:translateX(24px);transition:opacity .45s ease,transform .45s cubic-bezier(.2,.8,.2,1)}.nvq-hc>div.on{opacity:1;transform:none}' +
+      '.nvq-hc i{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 10px;border-radius:50%;background:' + C + '1f;color:' + C + '}.nvq-hc i svg{width:21px;height:21px}' +
+      '.nvq-hc b{display:block;font:800 16px/1.2 Inter,sans-serif}.nvq-hc small{display:block;margin-top:5px;font-size:12.5px;color:#666}' +
+      '.nvq-pg{position:absolute;left:18px;right:18px;bottom:14px;display:flex;gap:6px}.nvq-pg span{flex:1;height:3px;border-radius:3px;background:#e5e5e5;overflow:hidden}.nvq-pg span i{display:block;height:100%;width:0;background:#111}' +
+      '.nvq-pg span.lleno i{width:100%}.nvq-pg span.va i{width:100%;transition:width linear}' +
+      // Categorías que rotan solas
+      '.nvr{padding:38px 16px 10px;font-family:Inter,sans-serif}.nvr-c{position:relative;max-width:1100px;margin:0 auto;height:min(78vh,640px);min-height:460px;border-radius:24px;overflow:hidden;background:#111;color:#fff}' +
+      '.nvr-m>*{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease}.nvr-m>.on{opacity:1}' +
+      '.nvr-c:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,0) 30%,rgba(0,0,0,.2) 55%,rgba(0,0,0,.8));pointer-events:none}' +
+      '.nvr-eb{position:absolute;z-index:2;left:18px;top:18px;font:800 11px/1 Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase}' +
+      '.nvr-n{position:absolute;z-index:2;right:16px;top:16px;display:grid;gap:10px;font:700 11px/1 Inter,sans-serif;text-align:center}.nvr-n span{opacity:.45;transition:opacity .3s}.nvr-n span.on{opacity:1}' +
+      '.nvr-l{position:absolute;z-index:2;left:18px;right:18px;bottom:76px;margin:0;padding:0;list-style:none}' +
+      '.nvr-l li{font:italic 900 clamp(26px,8vw,44px)/1.08 Archivo,Inter,sans-serif;text-transform:uppercase;letter-spacing:-.01em;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.55);transition:color .35s ease,-webkit-text-stroke-color .35s ease;cursor:pointer}' +
+      '.nvr-l li.on{color:#fff;-webkit-text-stroke-color:#fff}' +
+      '.nvr-bt{position:absolute;z-index:2;left:18px;bottom:22px;background:#fff;color:#111!important;border-radius:999px;padding:12px 18px;font:800 11.5px/1 Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;text-decoration:none!important}' +
+      '@media (prefers-reduced-motion:reduce){.nvq-m img.on{animation:none}}');
+    var hdr = document.querySelector('header.js-head-main, .js-head-main, header');
+    var slp = document.querySelector('[data-store="home-slider"]');
+    var media = function (lista, esVideo) {
+      return lista.map(function (u, i) {
+        return esVideo ? '<video src="' + hEsc(u) + '" muted playsinline loop preload="' + (i < 2 ? 'auto' : 'metadata') + '"' + (i ? '' : ' class="on" autoplay') + '></video>'
+          : '<img src="' + hEsc(u) + '" alt=""' + (i ? ' loading="lazy"' : ' class="on"') + '>';
+      }).join('');
+    };
+    if (PV && !document.querySelector('.nvq')) {
+      var vids = PV.videos || [], fts = PV.fotos || [], esV = vids.length > 0, lista = esV ? vids : fts;
+      var hs = PV.historias || [];
+      var h = '<section class="nvq"><div class="nvq-m">' + media(lista, esV) + '</div><div class="nvq-in">' +
+        (PV.etiqueta ? '<div class="nvq-eb">' + hEsc(PV.etiqueta) + '</div>' : '') + '<h1>' + hEsc(PV.titulo || '') + '</h1>' +
+        (PV.texto ? '<p>' + hEsc(PV.texto) + '</p>' : '') + (PV.boton ? '<a class="nvq-bt" href="' + hEsc(PV.url || '/productos/') + '">' + hEsc(PV.boton) + '</a>' : '') + '</div></section>' +
+        (hs.length ? '<div class="nvq-hs"><div class="nvq-hc">' + hs.map(function (x, i) {
+          return '<div' + (i ? '' : ' class="on"') + '><i>' + (PRO_IC[x.icono] || PRO_IC.estrella) + '</i><b>' + hEsc(x.titulo) + '</b>' + (x.texto ? '<small>' + hEsc(x.texto) + '</small>' : '') + '</div>';
+        }).join('') + '<div class="nvq-pg">' + hs.map(function () { return '<span><i></i></span>'; }).join('') + '</div></div></div>' : '');
+      if (hdr && hdr.parentNode) hdr.insertAdjacentHTML('afterend', h);
+      else if (slp) slp.insertAdjacentHTML('beforebegin', h);
+      else document.body.insertAdjacentHTML('afterbegin', h);
+      if (slp && PV.reemplazarBanner !== false) slp.style.display = 'none';
+      // Cortes de clip: cambia cada "cada" ms (como un video editado)
+      var cl = [].slice.call(document.querySelectorAll('.nvq-m>*')), ci = 0;
+      if (cl.length > 1 && !quieto) setInterval(function () {
+        var a = cl[ci]; ci = (ci + 1) % cl.length; var b = cl[ci];
+        if (esV) { b.currentTime = 0; b.play().catch(function () {}); }
+        b.classList.add('on'); a.classList.remove('on'); if (esV) setTimeout(function () { a.pause(); }, 50);
+      }, PV.cada || (esV ? 1100 : 2600));
+      // Historias: una tarjeta por vez con su rayita que se llena
+      if (hs.length) {
+        var hc = [].slice.call(document.querySelectorAll('.nvq-hc>div:not(.nvq-pg)')), pg = [].slice.call(document.querySelectorAll('.nvq-pg span')), hi = 0, durH = PV.cadaHistoria || 2600;
+        var verH = function (n) {
+          hc.forEach(function (x, j) { x.classList.toggle('on', j === n); });
+          pg.forEach(function (x, j) { x.className = j < n ? 'lleno' : ''; x.firstChild.style.transitionDuration = ''; x.firstChild.style.width = ''; });
+          var b = pg[n].firstChild; void b.offsetWidth; pg[n].className = 'va'; b.style.transitionDuration = durH + 'ms';
+        };
+        verH(0);
+        if (!quieto && hs.length > 1) setInterval(function () { hi = (hi + 1) % hs.length; verH(hi); }, durH);
+      }
+    }
+    if (RT && RT.items && RT.items.length && !document.querySelector('.nvr')) {
+      var its = RT.items, esVR = its.some(function (x) { return x.video; });
+      var r = '<section class="nvr"><div class="nvr-c"><div class="nvr-m">' + its.map(function (x, i) {
+        return x.video ? '<video src="' + hEsc(x.video) + '" muted playsinline loop preload="metadata"' + (i ? '' : ' class="on" autoplay') + '></video>' : '<img src="' + hEsc(x.foto || '') + '" alt=""' + (i ? ' loading="lazy"' : ' class="on"') + '>';
+      }).join('') + '</div><div class="nvr-eb">' + hEsc(RT.etiqueta || 'Encontrá lo tuyo') + '</div><div class="nvr-n">' + its.map(function (x, i) { return '<span' + (i ? '' : ' class="on"') + '>' + (i + 1) + '</span>'; }).join('') + '</div>' +
+        '<ul class="nvr-l">' + its.map(function (x, i) { return '<li' + (i ? '' : ' class="on"') + ' data-i="' + i + '">' + hEsc(x.nombre) + '</li>'; }).join('') + '</ul>' +
+        '<a class="nvr-bt" href="' + hEsc(its[0].url) + '">Ver ' + hEsc(its[0].nombre) + ' →</a></div></section>';
+      var dest = document.querySelector('.nvq-hs') || document.querySelector('.nvq') || document.querySelector('.nvp') || document.querySelector('.nvh-hero');
+      if (dest) dest.insertAdjacentHTML('afterend', r);
+      else { var nvh = document.querySelector('.nvh'); if (nvh) nvh.insertAdjacentHTML('afterbegin', r); else if (slp) slp.insertAdjacentHTML('afterend', r); else document.body.insertAdjacentHTML('afterbegin', r); }
+      var rc = document.querySelector('.nvr-c'), rm = [].slice.call(rc.querySelectorAll('.nvr-m>*')), rl = [].slice.call(rc.querySelectorAll('.nvr-l li')), rn = [].slice.call(rc.querySelectorAll('.nvr-n span')), rb = rc.querySelector('.nvr-bt'), ri = 0;
+      var verR = function (n) {
+        ri = n;
+        rm.forEach(function (x, j) { x.classList.toggle('on', j === n); if (x.tagName === 'VIDEO') { if (j === n) { x.currentTime = 0; x.play().catch(function () {}); } else x.pause(); } });
+        rl.forEach(function (x, j) { x.classList.toggle('on', j === n); }); rn.forEach(function (x, j) { x.classList.toggle('on', j === n); });
+        rb.href = its[n].url; rb.textContent = 'Ver ' + its[n].nombre + ' →';
+      };
+      var timer = !quieto && setInterval(function () { verR((ri + 1) % its.length); }, RT.cada || 2200);
+      rl.forEach(function (li) { li.addEventListener('click', function () { if (timer) clearInterval(timer); verR(+li.getAttribute('data-i')); }); });
+    }
+  }
+
+  // Foto que alterna sola entre la primera y la segunda imagen en las tarjetas de producto (E18). tarjetas.alternar = true
+  function initAlternar() {
+    var TJ = NEVUX.tarjetas;
+    if (!TJ || !TJ.alternar || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    hCss('nvx-alt-css', '.nvx-alt{position:relative;overflow:hidden}.nvx-alt .nvx-alt-b{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease}.nvx-alt.b .nvx-alt-b{opacity:1}');
+    [].forEach.call(document.querySelectorAll('.js-item-product'), function (card, n) {
+      if (card.getAttribute('data-nvx-alt')) return;
+      var imgs = [].slice.call(card.querySelectorAll('img')).filter(function (im) { return /\/products\/|\/img\//.test(im.getAttribute('data-srcset') || im.getAttribute('srcset') || im.getAttribute('data-src') || im.src || ''); });
+      var a = imgs[0], seg = card.querySelector('.item-image-secondary img, img.item-image-secondary') || imgs[1];
+      var src2 = seg ? (seg.getAttribute('data-src') || (seg.getAttribute('data-srcset') || '').split(',').pop().trim().split(' ')[0] || seg.src) : card.getAttribute('data-foto2');
+      if (!a || !src2) return;
+      card.setAttribute('data-nvx-alt', '1');
+      var caja = a.parentElement; caja.classList.add('nvx-alt');
+      if (seg && seg.parentElement === caja) { seg.classList.add('nvx-alt-b'); seg.src = src2; }
+      else caja.insertAdjacentHTML('beforeend', '<img class="nvx-alt-b" src="' + hEsc(src2) + '" alt="" loading="lazy">');
+      setTimeout(function () { setInterval(function () { caja.classList.toggle('b'); }, TJ.alternarCada || 2400); }, (n % 4) * 600);
+    });
+  }
+
   function arrancar() {
     // Secciones de la plantilla que el cliente no quiere ver (ej: el newsletter de la home)
     if (NEVUX.ocultar && NEVUX.ocultar.length) hCss('nvx-ocultar-css', NEVUX.ocultar.join(',') + '{display:none!important}');
@@ -2389,7 +2832,9 @@
     initBarra();
     initVentas();
     initHome();
+    initHomePro();
     initTarjetas();
+    initAlternar();
     init();
     initCmpAnim();
     initPremium();
