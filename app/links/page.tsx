@@ -58,6 +58,13 @@ export default function LinksPage() {
             texto="Diseños con efectos para Tiendanube"
           />
           <LinkCard
+            href="/#premium"
+            origen="premium"
+            imagen="/links/premium.jpg"
+            titulo="Plan Premium"
+            texto="Tu tienda como las marcas grandes"
+          />
+          <LinkCard
             href="/#cuenta"
             origen="calculadora"
             imagen="/links/calculadora.jpg"
@@ -69,7 +76,7 @@ export default function LinksPage() {
             origen="precio"
             imagen="/links/precio.jpg"
             titulo="Precio y garantía"
-            texto="$39.900 por mes · 7 días de garantía"
+            texto="Básico $39.900 · Premium $69.900"
           />
           <LinkCard
             href="/"

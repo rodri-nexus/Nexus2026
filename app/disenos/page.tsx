@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PLANES, precioTexto } from "@/lib/planes";
 import Vitrina from "./Vitrina";
+import Notebook from "./Notebook";
 import { DISENOS } from "@/lib/disenos";
 
 // Catálogo de diseños para mostrarle a un cliente nuevo: nevux.ar/disenos (ver docs/disenos.md y docs/efectos.md)
@@ -33,7 +34,14 @@ export default function DisenosPage() {
           <Vitrina disenos={DISENOS.map(({ id, nombre, plan, demo }) => ({ id, nombre, plan, demo }))} />
         </div>
 
-        <section className="mt-16 grid gap-4 md:grid-cols-3">
+        <section className="mt-20 text-center">
+          <span className="inline-block rounded-full bg-amber-300 px-3 py-1 text-[10.5px] font-bold uppercase tracking-[.16em] text-black">Plan Premium</span>
+          <h2 className="mt-3 text-2xl font-extrabold sm:text-4xl">Así se ve en la compu</h2>
+          <p className="mx-auto mt-2 max-w-xl text-sm text-slate-300">La home estilo Destino: portada en video, categorías que rotan, comunidad, números que suben y locales con mapa.</p>
+          <div className="mt-8"><Notebook src="/demo/disenos/home-destino.html" titulo="Home Premium estilo Destino" /></div>
+        </section>
+
+        <section className="mt-16 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {DISENOS.map((d) => (
             <div key={d.id} className="rounded-3xl bg-white/[.06] p-5 ring-1 ring-white/10">
               <span className={`inline-block rounded-full px-3 py-1 text-[10.5px] font-bold uppercase tracking-[.16em] ${d.plan === "Premium" ? "bg-amber-300 text-black" : "bg-sky-300 text-black"}`}>Plan {d.plan}</span>

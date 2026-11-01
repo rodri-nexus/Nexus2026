@@ -51,8 +51,8 @@
   - CTA "Quiero mi análisis gratis" a WhatsApp 3434163999.
   - Calculadora, antes y después, testimonio de Marcelo y precio sin tachado.
   - Vista previa de marca al compartir: `public/compartir.jpg`.
-- **Página de links:** `nevux.ar/links`, para la bio de Instagram. Miniaturas en `public/links/`. Tiene la tarjeta "Así puede quedar tu tienda" → `nevux.ar/disenos`.
-- **Landing:** sección "Así puede quedar tu tienda" (`#disenos`) con la vitrina 3D de diseños, después del caso real.
+- **Página de links:** `nevux.ar/links`, para la bio de Instagram. Miniaturas en `public/links/`. Tiene las tarjetas "Así puede quedar tu tienda" → `nevux.ar/disenos` y "Plan Premium" → `nevux.ar/#premium`.
+- **Landing:** sección "Así puede quedar tu tienda" (`#disenos`) con la vitrina 3D de diseños, después del caso real; sección **Plan Premium** (`#premium`) con la home Destino en una notebook que baja sola; y en `#precio`, **los dos planes** (Básico y Premium).
 - **Suscripción:**
   - Planes: Básico $39.900/mes (`mpago.la/2u5gT97`; el viejo `1LqFYin` era pago único y ya está borrado) y **Premium $69.900/mes** (`mpago.la/2mkcebx`, creado el 31/10). Ver `lib/planes.ts` y `docs/clientes.md`.
   - Página de pago: `nevux.ar/suscribirme?c=<cliente>`.
