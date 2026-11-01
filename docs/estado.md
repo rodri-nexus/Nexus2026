@@ -60,6 +60,7 @@
 
   Las tareas programadas corren desde el 31/10 en la sesión `session_01PDD9EtCY9JFJzsoyimb9Yn` (las de la sesión "Nexus2026 docs review" quedaron apagadas porque se trababan esperando permiso). Ver `docs/instagram.md` y `public/ig/agenda.json`.
 - **Informe y semana 2:** el sábado 7/11 hay que hacer el informe de la semana 1 y armar la semana 2 con la misma estructura.
+- **@hogardigitaltiendaonline (Marcelo):** conectado a Windsor el 01/11 (account 17841448464906393). Diagnóstico y plan en `docs/instagram-hogar-digital.md`.
 - **@valmont.relojes:** creado y con 3 publicaciones de marca. De ahora en más lo maneja el cliente.
 
 ## Decisiones pendientes de Rodrigo
