@@ -100,3 +100,28 @@ Medido con Playwright después de que Rodrigo dijera que la home Premium de Hoga
 - Newsletter negro: título "NEWSLETTER" en Dela Gothic One, campo en pastilla (`rgba(255,255,255,.08)`, borde `rgba(255,255,255,.25)`).
 - Redes centradas y logos de medios de envío.
 - Franja legal con degradé `#0B0B0B → #121212 → #1C1C1C` y texto blanco al 82 %.
+
+## Ficha de producto (medida en vivo el 01/11/2026, `/productos/jean-harvey-baggyfit-1dqzq/`)
+
+Fondo blanco. En el celular, de arriba abajo:
+1. **Migas:** Archivo 11 px, `letter-spacing: 1.54px`, `#4B4B4B`, mayúsculas.
+2. **Título:** Dela Gothic One 22 px, `letter-spacing: -0.44px`, `#0B0B0B`.
+3. **Foto:** tarjeta con esquinas redondeadas y la pastilla "★★★★★ CALIDAD DESTINO" arriba a la izquierda. Miniaturas redondeadas debajo y la elegida con borde negro.
+4. **Precio en escalera** (`px-ep`):
+   - tachado en Dela Gothic 15 px al 38 %, con la pastilla "17% OFF" (Dela Gothic 11 px rojo `#BD0003`, borde `rgba(0,0,0,.2)`, radio 999 px, `padding: 4px 12px`);
+   - etiqueta "PRECIO" en Space Grotesk 10 px, `letter-spacing: 1.8px`, al 45 %, y el precio en Dela Gothic 40 px, `letter-spacing: -1.4px`;
+   - tarjeta **"MEJOR PRECIO"** `#2b2b2b` con radio 16 px y `padding: 13px 16px`: etiqueta blanca al 62 %, monto Dela Gothic 26 px blanco y "Por transferencia · ahorrás $X" en 12,5 px al 72 % (solo con descuento por transferencia);
+   - fila de cuotas sin interés con borde y el monto a la derecha (solo con cuotas sin interés).
+5. **Talles:** pastillas Space Grotesk 12 px 500, radio 999 px y alto 28 px; la elegida en negro `#0B0B0B` con texto blanco.
+6. **Agregar al carrito:** botón negro en pastilla a lo ancho, con la cantidad a la izquierda en la computadora.
+7. **Despacho:** caja verde `#e8f6ec` con borde `#b9e2c6` y radio 12 px, texto `#14532d` 12 px y un rayo en círculo verde: "Tu pedido sale EL LUNES a primera hora".
+8. Reseñas (estrellas, puntaje y tarjetitas) → **solo si hay reales**.
+9. Logos de medios de pago.
+10. **3 tarjetas de confianza** con borde `rgba(11,11,11,.12)`, radio 12 px y `padding: 8px 6px`: ícono de 16 px, título Unbounded 11,5 px y texto 10 px. Son "Cambios y devoluciones / Dentro de 15 días hábiles", "Atención personalizada / Te respondemos por WhatsApp" y "4,9 de puntaje" (este último solo con reseñas).
+11. "¿Dudas con el talle? **Escribinos por WhatsApp**" (Space Grotesk 12 px `#4B4B4B`, link rojo subrayado).
+12. Acordeones "Medios de envío", **Descripción** y "Compartir".
+13. **Preguntas** en acordeón con ícono a la izquierda y "+" a la derecha (borde gris, sin radio grande).
+14. **"PRODUCTOS SIMILARES"** con flechas ‹ ›: carrusel con las tarjetas de la home.
+15. **Barra fija abajo** (tarjeta de vidrio esmerilado, como la cabecera): foto, nombre, precio, precio con transferencia en rojo, selector de talle y botón negro "AGREGAR".
+
+En la computadora va en dos columnas: foto (con miniaturas abajo) a la izquierda y datos a la derecha; preguntas y "Productos similares" van abajo, a lo ancho.
