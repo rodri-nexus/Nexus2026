@@ -29,10 +29,10 @@ Lo que incluye cada plan, tal como lo ve el cliente, está en `lib/planes.ts`, q
 | 2 | **Ficha Pro · Oscura** (negro, títulos gigantes) | Ficha | Básico | Hecho (`estiloFicha: 'pro'`, `pro.tema: 'oscuro'`). Referencia: `docs/referencias/wess-buzo.md` | — |
 | 3 | **Home Premium con clips** | Home | Premium | Hecho (`home.portadaVideo`, `home.rotador`, `tarjetas.alternar`). Referencia: `docs/referencias/praxis-home.md` | — |
 | 4 | **Wess clásica** (ficha y home a medida) | Ficha y home | Premium | Hecho (`estiloFicha: 'wess'`) | Valmont |
-| 6 | **Home Premium · Destino** (referencia oficial del Premium: portada con tarjetitas, íconos que se dibujan, tira de categorías, números que suben, comunidad, locales con mapa) | Home | Premium | Hecho (`home.destino` + `home.rotador`, `tarjetas.cuotas`, `ventas.estilo: 'destino'`). Demo: `nevux.ar/demo/disenos/home-destino.html`. Referencia: `docs/referencias/destino.md` | Hogar Digital (desde el 01/11) |
-| 5 | **Ficha oscura con olas** (la anterior) | Ficha | Básico | Hecho (`estiloFicha: 'oscuro'`) | Hogar Digital (ficha) |
+| 6 | **Home Premium · Destino** (referencia oficial del Premium: portada con tarjetitas, íconos que se dibujan, tira de categorías, números que suben, comunidad, locales con mapa) | Home | Premium | Hecho (`home.destino` + `home.rotador`, `tarjetas.cuotas`, `ventas.estilo: 'destino'`). Demo: `nevux.ar/demo/disenos/home-destino.html`. Referencia: `docs/referencias/destino.md` | — |
+| 5 | **Ficha oscura con olas** (la anterior) | Ficha | Básico | Hecho (`estiloFicha: 'oscuro'`) | Hogar Digital |
 
-**Hogar Digital pasó al Premium el 01/11:** home Destino prendida (ver `docs/hogar-digital-premium.md`, con lo que falta para completarla con material real). La Ficha Pro está incluida si la quiere.
+**Pendiente:** Marcelo (Hogar Digital) está decidiendo entre Básico y Premium. Si es Premium, activar la home Destino ya probada en su tienda; si es Básico, proponerle la Ficha Pro. Ver `docs/estado.md`.
 
 ## Ficha Pro: configuración
 

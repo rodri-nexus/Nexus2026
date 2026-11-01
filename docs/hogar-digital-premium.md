@@ -1,28 +1,6 @@
-# Hogar Digital · plan Premium (home estilo Destino)
+# Hogar Digital · configuración Premium (home estilo Destino) lista para activar
 
-**Prendida el 01/11/2026** (pedido de Rodrigo: pasar a Marcelo al Premium). La configuración vive en `lib/clientes.ts` → `hogar-digital` (`plan: 'premium'`). Probada antes en `hogardigital.com.ar` con Playwright, en celular (390 px) y computadora (1440 px). Capturas en `.capturas/marcelo/premium-*.jpg` (no están en el repo).
-
-## Qué quedó prendido (01/11)
-
-Orden de Destino: cinta → portada (con las 3 tarjetitas de producto en computadora) → beneficios con íconos que se dibujan → tira de categorías → Destacados (humidificadores) → "Encontrá lo tuyo" (el "Arma tu outfit", dos columnas en computadora) → Audio y auriculares (carrusel) → preguntas → banner "Tu rincón relax." con zoom → "Más para tu casa" (carrusel del catálogo, el "Van con tu estilo" de Destino).
-
-- **Video real en "Encontrá lo tuyo" → Audio:** clip del **Parlante RGB** sacado de su propio Reel (`instagram.com/reel/DcRbx7esRZI`), recortado sin las franjas negras y sin sonido: `public/clientes/hogar-digital/parlante-rgb.mp4` (9 s, 470 KB).
-- **Portada:** fotos de sus productos (OVNI, Volcán y Parlante RGB) que cambian cada 2,8 s. Sus otros Reels no sirven: tienen texto o marca de agua encima, están en horizontal o muestran productos que **no vende** (lámpara "Saturno", lámpara aurora, karaoke, parlante B1). Cuando mande videos verticales limpios de sus productos, pasar `portada.fotos` a `portada.videos`.
-- **Aviso de compra estilo Destino** (`ventas.estilo: 'destino'`) y **carrito estilo Destino** (`carrito: true`): solo "Tu pedido sale hoy/mañana" con sus datos de envío; sin barra de envío gratis (no tiene monto mínimo) ni reseñas (no tiene reales).
-- **Secciones de Brasilia ocultas** en la home (`ocultar`: destacados, banners, producto principal, ofertas y novedades) para que quede tal cual Destino. El banner de la plantilla (donde está el del Cyber) lo tapa la portada Destino.
-- Se sacaron las secciones viejas de la home (puntos del OVNI, vitrinas, por qué, preguntas y cierre). La ficha sigue igual (ficha oscura con olas); la **Ficha Pro** está incluida si la quiere.
-- **Motor:** en la home, si el producto principal de la plantilla está oculto, ya no se arma su ficha ni su barra fija "Comprar ahora".
-
-## Falta para que sea Destino completo (solo con material real)
-
-- **Comunidad:** fotos de clientes usando sus productos (con permiso).
-- **Números que suben:** cifras reales (pedidos enviados, ventas, años, clientes).
-- **Reseñas:** reseñas reales (si las tiene, también aparecen en el carrito).
-- **Locales con mapa:** solo si tiene local o depósito con atención al público (el pie dice "Buenos Aires - Argentina").
-- **Envío gratis desde $X:** si lo ofrece, prende la barra del carrito (`carrito.envioGratis`).
-- **Cabecera con logo animado y pie a medida** (prometidos en el plan): hoy solo existen con el estilo Wess (dorado). Hace falta su logo en buena calidad para armarlos.
-- **Cobro:** sigue en `manual`. Cuando se suscriba al Premium (`nevux.ar/suscribirme?plan=premium`), pasar a `{ tipo: 'mercadopago', email: '...', gracia: 3 }`. No usar `planMp`: lo usa Valmont.
-- **Compra real** para probar el carrito estilo Destino (Tiendanube frena los navegadores automáticos).
+Probada el 01/11/2026 sobre `hogardigital.com.ar` con Playwright (motor cargado solo en el navegador de prueba). Es la que se ve en la landing (caso real, `public/casos/hogar-digital/`). **No está prendida**: se activa solo si Marcelo se suscribe al Premium.
 
 **Regla de Rodrigo (01/11):** el Premium va **tal cual Destino** (`docs/referencias/destino.md`): mismas secciones, orden, diseños y efectos que prometemos en el plan. Nada inventado y solo datos reales de la tienda.
 
@@ -34,7 +12,7 @@ Orden de Destino: cinta → portada (con las 3 tarjetitas de producto en computa
 4. Sin `comunidad`, `numeros`, `resenas` ni `locales`: no tiene datos reales para esas secciones (tienda online, sin reseñas cargadas).
 5. Probar en celular y en computadora y hacer una compra de prueba si se prende el `carrito`.
 
-## Configuración probada antes de prenderla (de `/tmp/hd/destino.js`, sesión del 01/11; la vigente está en `lib/clientes.ts`)
+## Configuración probada (de `/tmp/hd/destino.js`, sesión del 01/11)
 
 ```js
 const I = 'https://dcdn-us.mitiendanube.com/stores/007/275/409/products/';

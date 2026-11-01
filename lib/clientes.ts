@@ -25,9 +25,6 @@ export type Cliente = {
   config: Record<string, unknown>;
 };
 
-// Fotos de productos de Hogar Digital (su tienda en Tiendanube)
-const HD = 'https://dcdn-us.mitiendanube.com/stores/007/275/409/products/';
-
 export const CLIENTES: Record<string, Cliente> = {
   "hogar-digital": {
     nombre: "Hogar Digital (Marcelo)",
@@ -38,8 +35,6 @@ export const CLIENTES: Record<string, Cliente> = {
     cobro: { tipo: 'manual' },
     // Dominios donde puede funcionar esta línea (sin www)
     dominios: ['hogardigital.com.ar'],
-    // Plan Premium (home estilo Destino) desde el 01/11/2026
-    plan: 'premium',
     // Configuración de la tienda: cualquier opción del motor (public/nevux.js)
     config: {
       // Colores de la marca: blanco, negro y azul (el azul del buscador y el pie de su tienda)
@@ -111,71 +106,53 @@ export const CLIENTES: Record<string, Cliente> = {
       // estilo 'destacado': caja con el precio (y el ahorro real sobre el tachado) y caja con las cuotas, como Wess
       tarjetas: { quedan: 5, estilo: 'destacado' },
 
-      // Home tal cual Destino: después de sus secciones va directo el pie, así que se ocultan las secciones de Brasilia
-      // (el banner de la plantilla ya lo reemplaza la portada Destino). El newsletter y el pie quedan.
-      ocultar: ['[data-store="home-products-featured"]', '[data-store="home-banner-news"]', '[data-store="home-product-main"]', '[data-store="home-banner-categories"]', '[data-store="home-products-sale"]', '[data-store="home-banner-promotional"]', '[data-store="home-products-new"]'],
-      // Avisos de compra estilo Destino: abajo a la izquierda, con el punto que late (decisión de Rodrigo del 01/11: quedan prendidos)
-      ventas: { estilo: 'destino', marca: 'Hogar Digital' },
-      // Carrito estilo Destino: "Tu pedido sale hoy/mañana" con sus datos de envío reales. Sin barra de envío gratis:
-      // no tiene monto mínimo (envioGratisDesde: 0). Sin reseñas: no tiene reales.
-      carrito: true,
-
-      // Home Premium · Destino (plan Premium desde el 01/11/2026). Ver docs/hogar-digital-premium.md y docs/referencias/destino.md.
-      // Mismo orden y efectos que Destino. Solo datos reales: sin comunidad, números, reseñas ni locales hasta que los tenga.
+      // Home
       home: {
-        destino: {
-          acento: '#3498db',
-          cinta: ['Envíos a *todo el país*', '*30 días* de garantía', 'Atención por *WhatsApp*', 'Devolución *gratis* por falla'],
-          portada: {
-            fotos: [HD + '1000056709-eba39cf6e5e33054c317901025394499-1024-1024.webp', HD + '1000056700-b80630798d70727f1917901024718719-1024-1024.webp', HD + '1000064948-1b2cdbc0b81707d0f817924511811491-1024-1024.webp'],
-            etiqueta: 'Hogar Digital · Desde los años 80',
-            titulo: 'Lo que tu casa necesita.',
-            texto: 'Humidificadores, audio, smartwatches y más.',
-            boton: 'Ver productos', url: '/productos/',
-            boton2: 'Humidificadores', url2: '/humidificadores-19h94/',
-            productosUrl: '/humidificadores-19h94/'
-          },
-          beneficios: [
-            { icono: 'envio', titulo: 'Envíos a todo el país', texto: 'Llega en 5 a 6 días hábiles' },
-            { icono: 'garantia', titulo: '30 días de garantía', texto: 'Por falla, daño o error' },
-            { icono: 'chat', titulo: 'Atención por WhatsApp', texto: 'Te ayudamos a elegir' },
-            { icono: 'cambios', titulo: 'Devolución gratis', texto: 'Si hay una falla' }
-          ],
-          tira: {
-            items: [
-              { nombre: 'Humidificadores', url: '/humidificadores-19h94/', foto: HD + '1000056709-eba39cf6e5e33054c317901025394499-1024-1024.webp' },
-              { nombre: 'Audio', url: '/audio-auriculares/', foto: HD + '1000064948-1b2cdbc0b81707d0f817924511811491-1024-1024.webp' },
-              { nombre: 'Auriculares', url: '/audio-auriculares/', foto: HD + '1000056695-5a06631053060d23e217901024050439-1024-1024.webp' },
-              { nombre: 'Smartwatches', url: '/smartwatches-1jb09/', foto: HD + '1000056623-7322be0751a7f8955e17901015253577-1024-1024.webp' },
-              { nombre: 'Fitness', url: '/fitness-y-bienestar-1v0hm/', foto: HD + '1000059933-1564b3879882d329b217909447522683-1024-1024.webp' },
-              { nombre: 'Relax', url: '/humidificadores-19h94/', foto: HD + '0ac01ee3-19dc-4154-8351-c21fd5eb0e6c-cba3b0eb-12b78b996cf5c82b0417934072828698-1024-1024.webp' }
-            ]
-          },
-          // 1.º después de la tira, 2.º después de "Encontrá lo tuyo", 3.º al final (como "Van con tu estilo" de Destino)
-          destacados: [
-            { etiqueta: 'Para tu casa', titulo: 'Destacados', url: '/humidificadores-19h94/', cantidad: 4 },
-            { etiqueta: 'Sonido', titulo: 'Audio y *auriculares*', url: '/audio-auriculares/', carrusel: true, cantidad: 6 },
-            { etiqueta: 'Esto es para vos', titulo: 'Más para *tu casa*', url: '/productos/', carrusel: true, cantidad: 8 }
-          ],
-          faqTitulo: 'Antes de comprar',
-          faq: [
-            { p: '¿Cuánto tarda en llegar?', r: 'Despachamos de lunes a viernes: si comprás antes de las 18 h, sale ese mismo día. Llega en 5 a 6 días hábiles a todo el país.' },
-            { p: '¿Tiene garantía?', r: 'Sí, 30 días desde que lo recibís por falla de fabricación, producto dañado o error en el envío. En esos casos la devolución es gratis.' },
-            { p: '¿Puedo devolverlo si me arrepiento?', r: 'Sí, dentro de los 10 días corridos desde que lo recibís, sin uso y con su embalaje original.' },
-            { p: '¿Cómo puedo pagar?', r: 'Con tarjeta de crédito o débito y con Mercado Pago.' }
-          ],
-          banner: { etiqueta: '[ Hogar Digital ]', titulo: 'Tu rincón relax.', foto: HD + '1000056700-b80630798d70727f1917901024718719-1024-1024.webp', boton: 'Ver humidificadores', url: '/humidificadores-19h94/' }
-        },
-        // "Encontrá lo tuyo" (el "Arma tu outfit" de Destino): en Audio, video real del Parlante RGB sacado de su Instagram
-        rotador: {
-          etiqueta: 'Encontrá lo tuyo',
+        // Cuenta regresiva real hasta las 18 h (hora de corte del despacho)
+        cuentaRegresiva: true,
+        beneficios: [
+          { icono: '🚚', titulo: 'Envíos a todo el país', texto: 'Llega en 5 a 6 días hábiles.' },
+          { icono: '🛡️', titulo: '30 días de garantía', texto: 'Por falla, daño o error en el envío.' },
+          { icono: '💬', titulo: 'Atención por WhatsApp', texto: 'Te ayudamos a elegir.' }
+        ],
+        // Foto con puntos: características reales sacadas de la descripción del producto
+        puntos: {
+          etiqueta: 'De cerca',
+          titulo: 'Conocé el Humidificador OVNI',
+          texto: 'Tocá cada punto para ver el detalle.',
+          foto: 'https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056709-eba39cf6e5e33054c317901025394499-1024-1024.webp',
+          url: '/productos/humidificador-ovni-267/',
+          boton: 'Ver el humidificador',
           items: [
-            { nombre: 'Humidificadores', url: '/humidificadores-19h94/', foto: HD + '1000056709-eba39cf6e5e33054c317901025394499-1024-1024.webp', foto2: HD + 'aa21b036-c4fc-4cef-ba61-c371cc90d542-0530aaf0-4cc2707e7abbf2c1f317934564759826-1024-1024.webp' },
-            { nombre: 'Audio', url: '/audio-auriculares/', video: 'https://nevux.ar/clientes/hogar-digital/parlante-rgb.mp4', foto2: HD + '1000056644-af25d4fda55df67c7817901018261560-1024-1024.webp' },
-            { nombre: 'Smartwatches', url: '/smartwatches-1jb09/', foto: HD + '1000056623-7322be0751a7f8955e17901015253577-1024-1024.webp' },
-            { nombre: 'Fitness', url: '/fitness-y-bienestar-1v0hm/', foto: HD + '1000059933-1564b3879882d329b217909447522683-1024-1024.webp', foto2: HD + '1000056639-27c93a9b66ee9dee8c17901017599283-1024-1024.webp' }
+            { x: 50, y: 30, titulo: 'Efecto niebla', texto: 'Un detalle llamativo que cambia el ambiente.' },
+            { x: 31, y: 44, titulo: 'Aporta humedad', texto: 'Ideal si sentís el ambiente seco.' },
+            { x: 66, y: 58, titulo: 'Iluminación LED', texto: 'Luz cálida que acompaña la niebla.' },
+            { x: 45, y: 75, titulo: 'Diseño compacto', texto: 'Para dormitorio, escritorio, living u oficina.' }
           ]
-        }
+        },
+        // Vitrinas: productos reales de cada categoría en carrusel
+        vitrinas: [
+          { etiqueta: 'Para tu casa', titulo: 'Humidificadores', url: '/humidificadores-19h94/', oscuro: true, boton: 'Ver todos los humidificadores' },
+          { etiqueta: 'Sonido', titulo: 'Audio y auriculares', url: '/audio-auriculares/', boton: 'Ver todo audio' }
+        ],
+        porQue: {
+          etiqueta: 'Desde los años 80',
+          titulo: 'Por qué comprar en Hogar Digital',
+          items: [
+            { destacado: '30 días', titulo: 'De garantía', texto: 'Por falla de fabricación, producto dañado o error en el envío. La devolución corre por nuestra cuenta.', pie: 'Garantía Hogar Digital' },
+            { destacado: '5 a 6 días', titulo: 'Llega a tu casa', texto: 'Despachamos de lunes a viernes a todo el país.', pie: 'Envío nacional' },
+            { destacado: 'Años 80', titulo: 'Trayectoria', texto: 'Una empresa que empezó en los 80 y se fue adaptando a lo que necesitan sus clientes.', pie: 'Experiencia' },
+            { destacado: 'WhatsApp', titulo: 'Atención personalizada', texto: 'Te ayudamos a elegir y resolvemos tus dudas.', pie: 'Equipo propio' }
+          ]
+        },
+        faqTitulo: 'Lo que siempre nos preguntan',
+        faq: [
+          { p: '¿Cuánto tarda en llegar?', r: 'Despachamos de lunes a viernes: si comprás antes de las 18 h, sale ese mismo día. Llega en 5 a 6 días hábiles a todo el país.' },
+          { p: '¿Tiene garantía?', r: 'Sí, 30 días desde que lo recibís por falla de fabricación, producto dañado o error en el envío. En esos casos la devolución es gratis.' },
+          { p: '¿Puedo devolverlo si me arrepiento?', r: 'Sí, dentro de los 10 días corridos desde que lo recibís, sin uso y con su embalaje original.' },
+          { p: '¿Cómo puedo pagar?', r: 'Con tarjeta de crédito o débito y con Mercado Pago, en hasta 12 cuotas.' }
+        ],
+        cierre: { etiqueta: 'Tecnología y hogar', titulo: 'Encontrá lo que buscás', texto: 'Todo nuestro catálogo con envío a todo el país.', boton: 'Ver todos los productos', url: '/productos/' }
       }
     }
   },
