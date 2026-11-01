@@ -49,7 +49,9 @@
 
 - **Landing (nevux.ar):** ver `docs/landing.md`.
   - CTA "Quiero mi análisis gratis" a WhatsApp 3434163999.
-  - Calculadora, antes y después, testimonio de Marcelo y precio sin tachado.
+  - Orden: portada → diseños (celulares 3D) → Plan Premium (notebook) → el problema → la cuenta → caso real de Hogar Digital **con el Premium en partes** (`public/casos/hogar-digital/`, vista previa sobre su tienda real) → cómo lo hace → precio con los dos planes → preguntas.
+  - Sin el celular de la portada, sin el antes y después deslizable y sin la demo "Urbana" (pedido de Rodrigo, 01/11).
+  - Calculadora, testimonio de Marcelo y precio sin tachado.
   - Vista previa de marca al compartir: `public/compartir.jpg`.
 - **Página de links:** `nevux.ar/links`, para la bio de Instagram. Miniaturas en `public/links/`. Tiene las tarjetas "Así puede quedar tu tienda" → `nevux.ar/disenos` y "Plan Premium" → `nevux.ar/#premium`.
 - **Landing:** sección "Así puede quedar tu tienda" (`#disenos`) con la vitrina 3D de diseños, después del caso real; sección **Plan Premium** (`#premium`) con la home Destino en una notebook que baja sola; y en `#precio`, **los dos planes** (Básico y Premium).

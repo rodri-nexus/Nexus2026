@@ -176,6 +176,16 @@ const INCLUYE = [
   "Sin permanencia: cancelás cuando quieras",
 ];
 
+// Caso real: la tienda de Hogar Digital con el Premium, en partes (capturas sobre su tienda real)
+const CASO_HD = [
+  { foto: "/casos/hogar-digital/portada.jpg", titulo: "Portada que se mueve sola", texto: "Con sus productos, cambiando sola" },
+  { foto: "/casos/hogar-digital/historias.jpg", titulo: "Beneficios tipo historias", texto: "Envíos, garantía y WhatsApp" },
+  { foto: "/casos/hogar-digital/categorias.jpg", titulo: "Categorías que rotan", texto: "Humidificadores, audio, smartwatches" },
+  { foto: "/casos/hogar-digital/precios.jpg", titulo: "Precios en escalera", texto: "El ahorro grande y claro" },
+  { foto: "/casos/hogar-digital/presentacion.jpg", titulo: "Ficha que presenta el producto", texto: "Lo que tiene y por qué comprarlo" },
+  { foto: "/casos/hogar-digital/comparativa.jpg", titulo: "Comparativa que se llena", texto: "Por qué comprarle a él" },
+];
+
 // Preguntas frecuentes armadas como objeciones: precio, tiempo, confianza y necesidad
 const FAQS = [
   {
@@ -213,155 +223,6 @@ const FAQS = [
 ];
 
 /* ---------- Piezas visuales ---------- */
-
-const DEMO_SIZES = [
-  { talle: "S", min: 48, max: 51 },
-  { talle: "M", min: 52, max: 55 },
-  { talle: "L", min: 56, max: 59 },
-  { talle: "XL", min: 60, max: 64 },
-];
-
-// Demo interactiva con un producto inventado: calculadora de talle, combiná con y cuenta regresiva
-function LiveDemo() {
-  const [medida, setMedida] = useState("");
-  const [talle, setTalle] = useState("M");
-  const [msg, setMsg] = useState("");
-  const [cart, setCart] = useState(0);
-  const [combo, setCombo] = useState(false);
-  const [restante, setRestante] = useState<string | null>(null);
-
-  useEffect(() => {
-    const tick = () => {
-      const n = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
-      const fin = new Date(n);
-      fin.setHours(18, 0, 0, 0);
-      const m = Math.ceil((fin.getTime() - n.getTime()) / 60000);
-      setRestante(m > 0 ? `${m >= 60 ? `${Math.floor(m / 60)} h ` : ""}${m % 60} min` : null);
-    };
-    tick();
-    const t = setInterval(tick, 30000);
-    return () => clearInterval(t);
-  }, []);
-
-  const calcular = () => {
-    const v = parseFloat(medida.replace(",", "."));
-    if (!v) return setMsg("Ingresá tu medida en cm.");
-    const hits = DEMO_SIZES.filter((r) => v >= r.min && v <= r.max);
-    const r = hits[hits.length - 1];
-    if (!r) return setMsg("Esa medida está fuera de la tabla: escribinos y te asesoramos.");
-    setTalle(r.talle);
-    setMsg(`Tu talle es ${r.talle} · ya lo elegimos en la ficha ✓`);
-  };
-
-  return (
-    <div className="relative w-full max-w-[340px] mx-auto">
-      <div className="absolute -inset-8 bg-emerald-500/15 blur-[70px] rounded-full pointer-events-none" />
-      <div className="relative rounded-[2.6rem] border-[10px] border-[#1c1c1f] bg-white text-neutral-900 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9)] overflow-hidden">
-        <div className="flex items-center justify-between px-5 pt-6 pb-3 border-b border-neutral-100">
-          <span className="text-[11px] font-black tracking-[0.3em]">URBANA</span>
-          <span className="relative">
-            <ShoppingBag className="w-5 h-5" />
-            {cart > 0 && (
-              <span className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-emerald-500 text-white text-[9px] font-black grid place-items-center">
-                {cart}
-              </span>
-            )}
-          </span>
-        </div>
-        <div className="px-5 py-4 space-y-4">
-          <div className="flex gap-3 items-center">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-neutral-800 to-neutral-950 grid place-items-center shrink-0">
-              <Shirt className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <div className="font-bold text-sm">Remera Oversize Urbana</div>
-              <div className="text-lg font-black">$24.900</div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-neutral-200 px-3 py-2.5 text-xs">
-            <span className="mr-1">📦</span>
-            {restante ? (
-              <>
-                Pedí en las próximas <b className="text-red-600">{restante}</b> y sale hoy
-              </>
-            ) : (
-              <>Pedí antes de las 18 h y sale el mismo día</>
-            )}
-          </div>
-
-          <div>
-            <div className="text-xs font-bold mb-1.5">Talle: {talle}</div>
-            <div className="flex gap-2">
-              {DEMO_SIZES.map((r) => (
-                <button
-                  key={r.talle}
-                  type="button"
-                  onClick={() => setTalle(r.talle)}
-                  className={`w-11 h-10 rounded-lg border-2 text-sm font-bold transition-colors ${
-                    talle === r.talle ? "border-emerald-500 bg-emerald-50" : "border-neutral-200"
-                  }`}
-                >
-                  {r.talle}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-neutral-200 p-3">
-            <div className="text-xs font-bold mb-2">Encontrá tu talle · ancho de pecho (cm)</div>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                inputMode="decimal"
-                value={medida}
-                onChange={(e) => setMedida(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && calcular()}
-                placeholder="Ej: 57"
-                className="flex-1 min-w-0 border border-neutral-300 rounded-lg px-3 py-2 text-base"
-                aria-label="Ancho de pecho en cm"
-              />
-              <button type="button" onClick={calcular} className="bg-emerald-500 text-white font-black text-xs px-3 rounded-lg">
-                Ver mi talle
-              </button>
-            </div>
-            <p className="text-xs text-center mt-2 min-h-[16px] text-neutral-600">{msg}</p>
-          </div>
-
-          <div className="flex items-center gap-3 rounded-xl border border-dashed border-emerald-500 p-2.5">
-            <div className="w-11 h-11 rounded-lg bg-neutral-100 grid place-items-center shrink-0 text-lg">🧢</div>
-            <div className="min-w-0">
-              <div className="text-[9px] font-black tracking-wider text-emerald-600">COMBINÁ CON</div>
-              <div className="text-xs font-bold truncate">Gorra Urbana</div>
-              <div className="text-xs font-black">$12.900</div>
-            </div>
-            <button
-              type="button"
-              disabled={combo}
-              onClick={() => {
-                setCombo(true);
-                setCart((c) => c + 1);
-              }}
-              className="ml-auto shrink-0 bg-emerald-500 text-white text-[11px] font-black px-2.5 py-2 rounded-lg inline-flex items-center gap-1"
-            >
-              {combo ? (
-                "✓ Agregado"
-              ) : (
-                <>
-                  <Plus className="w-3 h-3" /> Agregar
-                </>
-              )}
-            </button>
-          </div>
-
-          <button type="button" onClick={() => setCart((c) => c + 1)} className="w-full bg-neutral-900 text-white font-black text-sm py-3 rounded-xl">
-            Agregar al carrito · talle {talle}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // Campo numérico con separador de miles
 function NumberField({ label, prefix, value, onChange, hint }: { label: string; prefix?: string; value: number; onChange: (n: number) => void; hint?: string }) {
@@ -715,35 +576,41 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* 4. SOLUCIÓN: caso real */}
-      <section id="solucion" className="relative py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5 scroll-mt-20">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <motion.div {...fadeUp} className="text-center">
+      {/* 4. SOLUCIÓN: caso real · Hogar Digital con el Premium, en partes (capturas de su tienda real, public/casos/hogar-digital/) */}
+      <section id="solucion" className="relative py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5 scroll-mt-20 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto mb-10">
             <Eyebrow>Caso real · Hogar Digital</Eyebrow>
             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-5">
-              Mismo producto.
+              Así queda su tienda
               <br />
-              <Grad>Otra ficha.</Grad>
+              <Grad>con el Premium.</Grad>
             </h2>
-            <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-8 max-w-lg mx-auto">
-              Misma tienda, misma plantilla, mismo precio. Lo único que cambió es lo que la persona ve al decidir.
+            <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
+              Su tienda de Tiendanube, sus productos y sus precios. Misma plantilla, sin apps. Mirá cómo queda, parte por parte.
             </p>
-            <ul className="space-y-3 text-sm text-neutral-300 max-w-md mx-auto text-left">
-              {[
-                "El ahorro por transferencia, grande y claro",
-                "Packs Llevá 2 y Llevá 3 que cambian la cantidad del carrito",
-                "Cuotas, envío y compra protegida a la vista",
-                "Botón de compra fijo mientras baja por la ficha",
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-3">
-                  <span className="mt-0.5 w-5 h-5 rounded-md bg-emerald-400/15 border border-emerald-400/30 grid place-items-center shrink-0">
-                    <Check className="w-3.5 h-3.5 text-emerald-300" />
-                  </span>
-                  {t}
-                </li>
-              ))}
-            </ul>
           </motion.div>
+          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-4 [scrollbar-width:none] lg:grid lg:grid-cols-3 lg:overflow-visible lg:mx-0 lg:px-0">
+            {CASO_HD.map((c, i) => (
+              <motion.figure
+                key={c.foto}
+                {...fadeUp}
+                transition={{ ...fadeUp.transition, delay: (i % 3) * 0.08 }}
+                className="snap-center shrink-0 w-[72%] sm:w-[46%] lg:w-auto"
+              >
+                <div className="rounded-[28px] bg-[#16181d] p-2 ring-1 ring-white/10 shadow-[0_30px_60px_-30px_rgba(0,0,0,.9)]">
+                  <div className="rounded-[22px] overflow-hidden bg-white aspect-[9/14]">
+                    <img src={c.foto} alt={c.titulo} loading="lazy" className="w-full h-full object-cover object-top" />
+                  </div>
+                </div>
+                <figcaption className="mt-3 text-center">
+                  <b className="block text-sm font-bold text-white">{c.titulo}</b>
+                  <span className="block text-xs text-neutral-400 mt-0.5">{c.texto}</span>
+                </figcaption>
+              </motion.figure>
+            ))}
+          </div>
+          <p className="text-center text-xs text-neutral-500 mt-6">Vista previa armada sobre la tienda real de Hogar Digital, con sus productos y sus datos.</p>
         </div>
       </section>
 
@@ -783,38 +650,6 @@ export default function Landing() {
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* 6. DEMO INTERACTIVA */}
-      <section className="py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-14 items-center">
-          <motion.div {...fadeUp} className="text-center lg:text-left">
-            <Eyebrow>Demo interactiva</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-5">
-              Probalo acá. <Grad>Así lo vive tu cliente.</Grad>
-            </h2>
-            <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
-              Una ficha de ejemplo con tres piezas de Nevux funcionando de verdad. En tu tienda se arman con tus productos, tus talles y tus precios.
-            </p>
-            <ul className="space-y-3 text-sm text-neutral-300 max-w-md mx-auto lg:mx-0 text-left">
-              {[
-                "Poné una medida (por ejemplo 57) y mirá cómo se elige el talle solo",
-                "Tocá “Agregar” en Combiná con: suma al carrito sin salir de la ficha",
-                "La cuenta regresiva corre en tiempo real hasta la hora de despacho",
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-3">
-                  <span className="mt-0.5 w-5 h-5 rounded-md bg-emerald-400/15 border border-emerald-400/30 grid place-items-center shrink-0">
-                    <Check className="w-3.5 h-3.5 text-emerald-300" />
-                  </span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-          <motion.div {...fadeUp}>
-            <LiveDemo />
-          </motion.div>
         </div>
       </section>
 
