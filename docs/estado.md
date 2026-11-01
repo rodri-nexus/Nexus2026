@@ -1,6 +1,6 @@
 # Estado de Nevux
 
-**Actualizado:** 01/11/2026 (noche).
+**Actualizado:** 01/11/2026 (mediodía).
 
 ## Cómo trabajamos
 
@@ -17,7 +17,41 @@
   - De otras tiendas se replica la idea y el diseño, no el código.
 - **Permisos:** `.claude/settings.json` (lo creó Rodrigo) permite usar Windsor (publicar en Instagram y leer métricas) sin pedir confirmación.
 
-## Para retomar en un chat nuevo (01/11/2026)
+## Para retomar en un chat nuevo (actualizado 01/11/2026, mediodía)
+
+**Leer primero:** este archivo, `docs/disenos.md` (catálogo de diseños y configuración de cada uno), `docs/efectos.md` (efectos medidos), `docs/referencias/destino.md` (referencia oficial del Premium), `docs/valmont.md`, `docs/clientes.md`, `docs/instagram.md` y `docs/instagram-hogar-digital.md`.
+
+**Sesiones:** el trabajo del 01/11 se hizo en `session_01PDD9EpeUFqobvhnuTnY9ML` (rama `ccr-e70b7b83-jp35vx`, todo mergeado a `main` hasta el PR #84). Ahí también está el aviso del 23/11 de Windsor. Las tareas programadas de Instagram siguen en `session_01PDD9EtCY9JFJzsoyimb9Yn` (ver abajo).
+
+### Hecho en la sesión del 01/11 (todo publicado en nevux.ar)
+
+- **Cobro:** 3 días de gracia (`lib/cobros.ts`). `www.nevux.ar` redirige a `nevux.ar` (Vercel).
+- **Reels:** voz de Tomás + música de fondo propia en todos (`scripts/instagram/audio.py`, `narrar.py`, `hd/reels.py`).
+- **Diseños nuevos en el motor** (`public/nevux.js`), todos con datos reales de la tienda:
+  - **Ficha Pro** clara u oscura (`estiloFicha: 'pro'`), incluida en el **Básico**.
+  - **Home Premium con clips** (`home.portadaVideo`, `home.rotador`, `tarjetas.alternar`).
+  - **Home Premium · Destino** (`home.destino`): **la que se promete en el Premium**, copia de `destinoclothes.mitiendanube.com` (Praxis). Con "Arma tu outfit" en dos columnas en computadora.
+  - **Carrito estilo Destino** (`carrito`): despacho, barra de envío gratis y reseñas en el carrito de la plantilla.
+- **Catálogo para clientes:** `nevux.ar/disenos` (celulares 3D + notebook + planes). Demos en `public/demo/disenos/` (`python3 scripts/demo/disenos.py`).
+- **Landing**, en este orden: portada → "Así puede quedar tu tienda" (celulares 3D) → Plan Premium (notebook con la home Destino) → el problema → la cuenta → caso real de Hogar Digital con la home Destino en 6 partes (`public/casos/hogar-digital/`, "vista previa sobre su tienda real") → cómo lo hace → precio con los 2 planes (compactos y centrados) → preguntas. Se sacaron el celular de la portada, el antes y después deslizable y la demo "Urbana".
+- **nevux.ar/links:** tarjetas "Caso real: Hogar Digital", "Así puede quedar tu tienda", "Plan Premium" y precio de los dos planes.
+- **Planes** (`lib/planes.ts`): el Premium describe la home Destino. Básico $39.900, Premium $69.900.
+- **Para Marcelo:** 3 imágenes de su tienda con el Premium (`.capturas/marcelo/`, no están en el repo) y mensaje con Básico vs. Premium.
+- **Decisiones de Rodrigo:** la home va incluida en el Básico; **Valmont se queda con el estilo Wess**; a los clientes Premium nuevos se les deja la home **tal cual Destino**; los **avisos de compra** (`ventas`, nombres de ejemplo) **se quedan prendidos** (ya se le avisó del riesgo; no volver a planteárselo).
+
+### Lo que falta (en orden)
+
+1. **Contestarle a Marcelo** (preguntó si debe algo, cuánto sale por mes y las fechas de pago). Hay un borrador en el chat del 01/11 que espera dos datos de Rodrigo: **si Marcelo ya pagó algo** (plan o Instagram de noviembre) y **cómo cobra el Instagram** ($85.000/mes: aparte por transferencia o junto). Totales: Básico + Instagram **$124.900/mes**; Premium + Instagram **$154.900/mes**. La suscripción de Mercado Pago se debita sola el mismo día de cada mes en que se suscribe. Links: Básico `nevux.ar/suscribirme?c=hogar-digital`, Premium `nevux.ar/suscribirme?plan=premium`.
+2. **Si Marcelo elige el Premium:** en `lib/clientes.ts` (hogar-digital) poner `plan: 'premium'`, pasar a cobro automático con su email y activar `home.destino` + `home.rotador` con la configuración ya probada en su tienda (**`docs/hogar-digital-premium.md`**: cinta azul `#3498db`, portada con el OVNI, beneficios reales, tira de categorías, destacados de humidificadores y audio, preguntas y banner "Tu rincón relax"; sin comunidad, números ni reseñas porque no tiene reales). Probar con Playwright y una compra real antes de dejarlo.
+3. **Si se queda en Básico:** proponerle la **Ficha Pro** (hoy tiene `estiloFicha: 'oscuro'`) y prenderla con su ok.
+4. **Miguel (Valmont)** paga el Premium entre el 5 y el 7/11 → cambiar `planMp` por su email en `lib/clientes.ts` y sumar Valmont como **segundo caso real** en la landing (`#solucion`) y en `nevux.ar/links`.
+5. **Banner del Cyber de Hogar Digital:** Rodrigo vuelve al banner anterior el jueves 5/11 (lo tiene anotado).
+6. **Sábado 7/11:** informe de la semana 1 y semana 2 de las dos cuentas de Instagram (tarea programada).
+7. **Windsor:** vence ~29/11; aviso el 23/11. Después, publicación manual paso a paso (primero @nevux.app, después Hogar Digital).
+8. **Carrito estilo Destino:** probarlo con una compra real la primera vez que se prenda en un cliente.
+9. Perfil de Instagram de Hogar Digital (bio, destacadas, dejar de seguir de a 50 por día).
+
+### Tareas programadas y lo anterior
 
 **Tareas programadas:** todas corren en la sesión `session_01PDD9EtCY9JFJzsoyimb9Yn` ("Nexus2026" del 30/10 al 01/11). **No archivar esa sesión**: si se archiva, dejan de publicarse. Para pasarlas a otra sesión: `list_triggers`, crear las mismas con `create_trigger` desde la sesión nueva y apagar las viejas con `update_trigger enabled=false`.
 
@@ -54,7 +88,6 @@
   - Calculadora, testimonio de Marcelo y precio sin tachado.
   - Vista previa de marca al compartir: `public/compartir.jpg`.
 - **Página de links:** `nevux.ar/links`, para la bio de Instagram. Miniaturas en `public/links/`. Tiene las tarjetas "Así puede quedar tu tienda" → `nevux.ar/disenos` y "Plan Premium" → `nevux.ar/#premium`.
-- **Landing:** sección "Así puede quedar tu tienda" (`#disenos`) con la vitrina 3D de diseños, después del caso real; sección **Plan Premium** (`#premium`) con la home Destino en una notebook que baja sola; y en `#precio`, **los dos planes** (Básico y Premium).
 - **Suscripción:**
   - Planes: Básico $39.900/mes (`mpago.la/2u5gT97`; el viejo `1LqFYin` era pago único y ya está borrado) y **Premium $69.900/mes** (`mpago.la/2mkcebx`, creado el 31/10). Ver `lib/planes.ts` y `docs/clientes.md`.
   - Página de pago: `nevux.ar/suscribirme?c=<cliente>`.
