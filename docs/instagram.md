@@ -86,7 +86,7 @@ Lo que no se puede programar desde afuera de la app (lo hace Rodrigo): encuestas
 
 **Fijados arriba del perfil:** 5 errores, Qué hace Nevux y La cuenta. Explican el problema, la solución y el número.
 
-**Reels animados:** los arma `scripts/instagram/generar-reels.js` a partir de `reel.html`, sin música (la API no permite sumar audio de Instagram). Los Reels con la cara de Rodrigo (guiones de abajo) suman confianza y alcance: conviene grabar uno por semana desde la semana 2.
+**Reels animados:** los arma `scripts/instagram/generar-reels.js` a partir de `reel.html`, y `scripts/instagram/narrar.py` les pone la voz de Tomás y la música de fondo (propia; la API no permite sumar música de Instagram). Los Reels con la cara de Rodrigo (guiones de abajo) suman confianza y alcance: conviene grabar uno por semana desde la semana 2.
 
 ## Guiones de Reels (para grabar con el celular, de 20 a 35 segundos)
 
@@ -148,3 +148,11 @@ Cuando alguien comenta **FICHA** o escribe **ANÁLISIS**:
 
 - Piezas listas: `public/ig/<publicación>/<n>.jpg` + `caption.txt`. Se publican desde `https://nevux.ar/ig/...`.
 - Para crear o cambiar piezas: editar `scripts/instagram/semana-N.js` y correr `node scripts/instagram/generar.js semana-N`.
+
+## Si vence Windsor (prueba hasta ~29/11; Rodrigo decidió no pagar)
+
+Rodrigo publica a mano desde la app de Instagram, programando cada pieza. Se le pasa el contenido **paso a paso y ordenado, nunca todo junto**:
+
+1. **Primero @nevux.app**, día por día: las 3 historias (imagen y hora), después el post o Reel del día (archivo, portada y el texto para pegar, desde `caption.txt` o `reels/<nombre>.txt`).
+2. **Recién cuando termina con su cuenta, Hogar Digital**, con el mismo orden.
+3. Antes, apagar las tareas programadas de publicación (`update_trigger enabled=false`) para que no fallen.

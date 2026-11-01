@@ -1,5 +1,5 @@
-# Reels con narración de Hogar Digital: fotos reales de la tienda, textos con la marca y voz argentina (edge-tts, es-AR).
-# Uso: python3 scripts/instagram/hd/reels.py [ovni relax parlantes]   (necesita edge-tts, Pillow y ffmpeg)
+# Reels con narración de Hogar Digital: fotos reales de la tienda, textos con la marca, voz argentina (edge-tts, es-AR) y música de fondo suave.
+# Uso: python3 scripts/instagram/hd/reels.py [ovni relax parlantes]   (necesita edge-tts, numpy, Pillow y ffmpeg)
 # Cada escena dura lo que dura su frase narrada, así la voz y la imagen van juntas.
 import asyncio, json, math, os, ssl, subprocess, sys, tempfile
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -22,6 +22,8 @@ def _ctx2(*a, **k):
     return c
 ssl.create_default_context = _ctx2
 import edge_tts
+sys.path.insert(0, os.path.join(AQUI, ".."))
+from audio import mezclar  # voz + música de fondo suave
 
 REELS = {
     "ovni": [
@@ -153,8 +155,10 @@ def armar(nombre):
             cuadro(e, j / FPS, dd).save(os.path.join(fr, f"{n:05d}.jpg"), quality=90); n += 1
     os.makedirs(os.path.join(PUB, "reels"), exist_ok=True)
     out = os.path.join(PUB, "reels", f"{nombre}.mp4")
+    sinmusica = os.path.join(tmp, "video.mp4")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(fr, "%05d.jpg"), "-i", voz,
-        "-c:v", "libx264", "-preset", "slow", "-crf", "21", "-pix_fmt", "yuv420p", "-profile:v", "high", "-c:a", "copy", "-shortest", "-movflags", "+faststart", out], check=True)
+        "-c:v", "libx264", "-preset", "slow", "-crf", "21", "-pix_fmt", "yuv420p", "-profile:v", "high", "-c:a", "copy", "-shortest", "-movflags", "+faststart", sinmusica], check=True)
+    mezclar(sinmusica, voz, out)
     # Portada: la primera foto de producto
     port = next(i for i, e in enumerate(escenas) if e["tipo"] in ("foto", "precio"))
     ini = int(sum(durs[:port]) * FPS) + 20
