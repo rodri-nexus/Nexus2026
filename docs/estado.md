@@ -1,6 +1,6 @@
 # Estado de Nevux
 
-**Actualizado:** 01/11/2026 (tarde).
+**Actualizado:** 01/11/2026 (mediodía).
 
 ## Cómo trabajamos
 
@@ -41,15 +41,21 @@
 
 ### Lo que falta (en orden)
 
-> **HECHO (01/11, tarde): Marcelo (Hogar Digital) pasó al plan Premium.** Home Destino prendida en `hogardigital.com.ar` (`plan: 'premium'` en `lib/clientes.ts`), con aviso de compra y carrito estilo Destino y un video real del Parlante RGB sacado de su Instagram. Detalle y lo que falta para que sea Destino completo (comunidad, números, reseñas, locales, envío gratis, cabecera y pie, videos limpios para la portada, cobro automático y compra real de prueba) en **`docs/hogar-digital-premium.md`**.
+> **INTENTO DEL 01/11 (tarde), REVERTIDO:** se prendió la home Destino en la tienda de Marcelo (PR #87) y Rodrigo dijo que **"no se parece nada a la tienda de Destino"**. Se revirtió (Marcelo vuelve a su home anterior y al plan Básico). Por qué no se parecía, comparando con `docs/referencias/img/destino-*.jpg`:
+> 1. **Cabecera y pie** seguían siendo los de Brasilia (barra azul, buscador ancho, menú azul, pie azul). Destino: cabecera blanca con el logo grande y la lupa roja, cinta debajo y pie negro.
+> 2. **Portada:** foto gigante de producto sobre fondo negro y título en 3 renglones. Destino: video de gente real, título mediano.
+> 3. **Fotos:** renders con fondo negro (quedan como cajas oscuras en la tira y las tarjetas). Destino: prendas recortadas sobre gris claro y fotos de gente en "Arma tu outfit".
+> 4. **Faltaban 4 secciones** (comunidad, números, reseñas y locales) por no tener datos reales: la home quedaba corta.
+> 5. **Colores:** el azul de Brasilia mezclado con la base blanca y negra de Destino.
 >
-> Pedido original de Rodrigo (01/11): pasar a Marcelo (Hogar Digital) al plan Premium.
+> **Plan acordado con Rodrigo:** (a) en el motor, **cabecera blanca y pie negro estilo Destino** para todos los clientes Premium; (b) portada con video de persona o ambiente; (c) fotos recortadas sobre gris claro para la tira y las tarjetas; (d) pedirle a Marcelo material real para comunidad, números y reseñas. Recién después volver a prenderlo, **mostrándole capturas a Rodrigo antes de publicar**. La configuración del intento está en el commit `b0aa694` (y el clip real del Parlante RGB, sacado de su Reel `DcRbx7esRZI`, en `public/clientes/hogar-digital/parlante-rgb.mp4` de ese commit). Sus otros Reels no sirven para la portada: tienen texto o marca de agua, están en horizontal o muestran productos que no vende.
+>
+> **LO QUE SIGUE (pedido de Rodrigo, 01/11): pasar a Marcelo (Hogar Digital) al plan Premium.**
 > El Premium se arma **tal cual la tienda Destino** (`destinoclothes.mitiendanube.com`, ver `docs/referencias/destino.md`): mismas secciones, mismo orden, mismos diseños y **mismos efectos** que prometemos en el plan (`lib/planes.ts`, la landing y `nevux.ar/disenos`). **Nada inventado**: no agregar secciones ni efectos que no estén en Destino o en el plan, y solo con datos reales de su tienda. Partir de `docs/hogar-digital-premium.md` (ya probado en su tienda) y completar lo que falte de Destino con material real de Marcelo (videos, fotos, reseñas, números) si lo tiene.
 
 1. **Contestarle a Marcelo** (preguntó si debe algo, cuánto sale por mes y las fechas de pago). Hay un borrador en el chat del 01/11 que espera dos datos de Rodrigo: **si Marcelo ya pagó algo** (plan o Instagram de noviembre) y **cómo cobra el Instagram** ($85.000/mes: aparte por transferencia o junto). Totales: Básico + Instagram **$124.900/mes**; Premium + Instagram **$154.900/mes**. La suscripción de Mercado Pago se debita sola el mismo día de cada mes en que se suscribe. Links: Básico `nevux.ar/suscribirme?c=hogar-digital`, Premium `nevux.ar/suscribirme?plan=premium`.
-2. ~~**Si Marcelo elige el Premium:**~~ **Hecho el 01/11** salvo el cobro automático (falta su email: sigue `manual`) y la compra real de prueba. Antes decía: en `lib/clientes.ts` (hogar-digital) poner `plan: 'premium'`, pasar a cobro automático con su email y activar `home.destino` + `home.rotador` con la configuración ya probada en su tienda (**`docs/hogar-digital-premium.md`**: cinta azul `#3498db`, portada con el OVNI, beneficios reales, tira de categorías, destacados de humidificadores y audio, preguntas y banner "Tu rincón relax"; sin comunidad, números ni reseñas porque no tiene reales). Probar con Playwright y una compra real antes de dejarlo.
-3. ~~Si se queda en Básico~~ (pasó al Premium). Igual se le puede ofrecer la **Ficha Pro** (incluida; hoy tiene `estiloFicha: 'oscuro'`).
-3b. **Pedirle a Marcelo material real** para completar la home Destino: videos verticales limpios de sus productos (sin texto encima), fotos de clientes, números reales, reseñas, si tiene local y si tiene envío gratis desde algún monto. Y su logo en buena calidad para la cabecera animada y el pie.
+2. **Si Marcelo elige el Premium:** en `lib/clientes.ts` (hogar-digital) poner `plan: 'premium'`, pasar a cobro automático con su email y activar `home.destino` + `home.rotador` con la configuración ya probada en su tienda (**`docs/hogar-digital-premium.md`**: cinta azul `#3498db`, portada con el OVNI, beneficios reales, tira de categorías, destacados de humidificadores y audio, preguntas y banner "Tu rincón relax"; sin comunidad, números ni reseñas porque no tiene reales). Probar con Playwright y una compra real antes de dejarlo.
+3. **Si se queda en Básico:** proponerle la **Ficha Pro** (hoy tiene `estiloFicha: 'oscuro'`) y prenderla con su ok.
 4. **Miguel (Valmont)** paga el Premium entre el 5 y el 7/11 → cambiar `planMp` por su email en `lib/clientes.ts` y sumar Valmont como **segundo caso real** en la landing (`#solucion`) y en `nevux.ar/links`.
 5. **Banner del Cyber de Hogar Digital:** Rodrigo vuelve al banner anterior el jueves 5/11 (lo tiene anotado).
 6. **Sábado 7/11:** informe de la semana 1 y semana 2 de las dos cuentas de Instagram (tarea programada).
@@ -109,9 +115,7 @@
 
 ## Clientes
 
-### Hogar Digital (Marcelo) · hogardigital.com.ar · plantilla Brasilia · plan Premium (desde el 01/11) · prendido, cobro manual
-
-- **Premium (01/11):** home tal cual Destino, ver `docs/hogar-digital-premium.md`. Las secciones de Brasilia de la home están ocultas y el banner de la plantilla (donde está el del Cyber) lo tapa la portada Destino.
+### Hogar Digital (Marcelo) · hogardigital.com.ar · plantilla Brasilia · plan Básico · prendido, cobro manual
 
 - **Diseño:** azul #3498db y negro. Tiene barra de anuncios, tarjetas destacadas, comparativa animada, medios de pago, ficha oscura, antes vs. después, foto con puntos del Humidificador OVNI y vitrinas de Humidificadores y Audio.
 - **Semana Cyber (2 al 4/11):** modo evento con barra, cuenta regresiva y cinta. Se apaga solo el 4/11 a las 23:59.
@@ -122,7 +126,7 @@
 - **Pendiente:**
   - Que confirme los descuentos del Cyber, para sumarlos a la barra y la cinta.
   - Que active descuento por transferencia y cuotas sin interés: el bloque de precios aparece solo cuando los tenga.
-  - Que se suscriba al Premium (`nevux.ar/suscribirme?c=hogar-digital`, que ahora muestra el Premium) para pasarlo a cobro automático con su email. No usar `planMp`: lo usa Valmont.
+  - Que se suscriba en `nevux.ar/suscribirme?c=hogar-digital` para pasarlo a cobro automático.
 
 ### Valmont & Co. · valmontrelojes.mitiendanube.com · plantilla Recife (desde el 31/10; antes Morelia) · plan Premium (estilo Wess)
 
