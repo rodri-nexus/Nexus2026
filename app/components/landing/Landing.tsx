@@ -31,6 +31,8 @@ import {
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import Vitrina from "@/app/disenos/Vitrina";
 import { DISENOS } from "@/lib/disenos";
+import Notebook from "@/app/disenos/Notebook";
+import { PLANES } from "@/lib/planes";
 
 // Landing de Nevux. Cada sección sigue el orden del curso de ventas:
 // gancho → dolor → implicación (calculadora) → solución → evaluación → oferta → objeciones → cierre.
@@ -166,6 +168,7 @@ const TESTIMONIOS: { nombre: string; tienda: string; texto: string; foto?: strin
 
 const INCLUYE = [
   "Análisis de tu tienda antes de empezar",
+  "Ficha Pro clara u oscura, con tus colores y efectos",
   `Las ${PIECE_COUNT} piezas, configuradas con tus datos`,
   "Secciones de confianza para la home de tu tienda",
   "Ajustes cada vez que cambies precios o promos",
@@ -780,6 +783,50 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* 4c. PREMIUM: la home estilo Destino funcionando en una notebook (docs/referencias/destino.md) */}
+      <section id="premium" className="relative py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5 overflow-hidden scroll-mt-20">
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-amber-400/10 blur-[140px] rounded-full pointer-events-none" />
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-[1fr_1.35fr] gap-12 items-center">
+          <motion.div {...fadeUp} className="text-center lg:text-left">
+            <span className="inline-block bg-amber-300 text-black text-[11px] font-extrabold uppercase tracking-[.18em] px-3 py-1 rounded-full">Plan Premium</span>
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-5 mb-5">
+              Tu tienda como <span className="text-amber-300">las marcas grandes.</span>
+            </h2>
+            <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-7 max-w-lg mx-auto lg:mx-0">
+              La home que usan las marcas de ropa que más venden en Tiendanube, armada con tus productos. Sin apps y sin cambiar de plantilla.
+            </p>
+            <ul className="space-y-3 text-sm text-neutral-300 max-w-md mx-auto lg:mx-0 text-left">
+              {[
+                "Portada en video con tus productos flotando",
+                "Categorías que rotan con video y tira de categorías que corre",
+                "Comunidad, números que suben y reseñas",
+                "Locales con mapa y carrito con barra de envío gratis",
+                "Todo con efectos: lo que hace que el cliente diga “wow”",
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-3">
+                  <span className="mt-0.5 w-5 h-5 rounded-md bg-amber-300/15 border border-amber-300/30 grid place-items-center shrink-0">
+                    <Check className="w-3.5 h-3.5 text-amber-300" />
+                  </span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+              <a href="/demo/disenos/home-destino.html" target="_blank" rel="noopener" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-300 hover:bg-amber-200 text-black font-extrabold px-6 py-3.5 transition-colors">
+                Ver la demo en grande <ArrowRight className="w-4 h-4" />
+              </a>
+              <a href="#precio" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 hover:border-white/30 text-white font-bold px-6 py-3.5 transition-colors">
+                {ars(PLANES.premium.precio)}/mes
+              </a>
+            </div>
+          </motion.div>
+          <motion.div {...fadeUp}>
+            <Notebook src="/demo/disenos/home-destino.html" titulo="Home Premium estilo Destino" />
+            <p className="text-center text-xs text-neutral-500 mt-4">Demo con una marca de ejemplo. En tu tienda van tus productos, tus fotos y tus datos reales.</p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* 5. MECANISMO: las piezas agrupadas por lo que resuelven */}
       <section className="py-20 md:py-28">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -997,11 +1044,12 @@ export default function Landing() {
       {/* 10. OFERTA: garantía y cierre de alternativa */}
       <section id="precio" className="relative py-20 md:py-28 border-t border-white/5 overflow-hidden scroll-mt-20">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-emerald-500/10 blur-[140px] rounded-full pointer-events-none" />
-        <div className="relative max-w-xl mx-auto px-4 sm:px-6">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
           <motion.div {...fadeUp} className="text-center mb-10">
             <Eyebrow>Precio</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 sm:whitespace-nowrap">Un precio. Todo incluido.</h2>
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4">Dos planes. Todo incluido.</h2>
           </motion.div>
+          <div className="grid md:grid-cols-2 gap-5 items-start">
           <motion.div
             {...fadeUp}
             className="relative bg-[#0f1013] border border-emerald-400/40 rounded-3xl p-5 sm:p-10 shadow-[0_0_80px_-20px_rgba(16,185,129,0.35)]"
@@ -1043,6 +1091,35 @@ export default function Landing() {
               </p>
             </div>
           </motion.div>
+          <motion.div
+            {...fadeUp}
+            className="relative bg-gradient-to-b from-amber-200 to-amber-400 text-black rounded-3xl p-5 sm:p-10 shadow-[0_0_80px_-20px_rgba(251,191,36,0.45)]"
+          >
+            <div className="text-center">
+              <span className="inline-block bg-black text-amber-300 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">Premium</span>
+              <h3 className="text-2xl font-extrabold mb-1">{PLANES.premium.nombre}</h3>
+              <p className="text-black/60 text-sm mb-6">Tu tienda como las marcas grandes</p>
+              <div className="flex items-end justify-center gap-2 mb-8">
+                <span className="text-[clamp(2.6rem,13vw,3.75rem)] leading-none font-black tracking-tight tabular-nums">{ars(PLANES.premium.precio)}</span>
+                <span className="text-black/60 text-sm font-semibold mb-1.5">/mes</span>
+              </div>
+            </div>
+            <ul className="space-y-3 text-left text-sm mb-8 max-w-sm mx-auto">
+              {PLANES.premium.incluye.map((t) => (
+                <li key={t} className="flex items-start gap-3">
+                  <Check className="w-4 h-4 shrink-0 mt-0.5" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+            <a href="/suscribirme?plan=premium" className="w-full inline-flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white font-extrabold px-6 py-4 rounded-2xl transition-colors">
+              Quiero el Premium <ArrowRight className="w-4 h-4" />
+            </a>
+            <a href="/demo/disenos/home-destino.html" target="_blank" rel="noopener" className="mt-3 w-full inline-flex items-center justify-center gap-2 border border-black/20 hover:border-black/40 font-bold px-6 py-3.5 rounded-2xl text-sm transition-colors">
+              Ver la demo <ArrowRight className="w-4 h-4" />
+            </a>
+          </motion.div>
+          </div>
         </div>
       </section>
 
