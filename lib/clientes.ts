@@ -31,129 +31,343 @@ export const CLIENTES: Record<string, Cliente> = {
     // Interruptor manual: false = apagada siempre, aunque esté al día con el pago
     activo: true,
     // Cobro: 'manual' = solo cuenta el interruptor. 'mercadopago' = se prende y apaga sola según su suscripción
-    // (para pasarlo a automático: { tipo: 'mercadopago', email: 'mail-con-el-que-pagó@...', gracia: 3 })
+    // (para pasarlo a automático: { tipo: 'mercadopago', email: 'mail-con-el-que-pagó@...', gracia: 3 }). No usar planMp: lo usa Valmont.
     cobro: { tipo: 'manual' },
     // Dominios donde puede funcionar esta línea (sin www)
     dominios: ['hogardigital.com.ar'],
-    // Configuración de la tienda: cualquier opción del motor (public/nevux.js)
+    // Plan Premium tal cual Destino (01/11/2026, pedido de Rodrigo), en azul. Ver docs/hogar-digital-premium.md y docs/referencias/destino.md.
+    // Solo datos reales: comunidad con cuadros de sus Reels, números verificables (desde los 80, garantía, cuotas, envíos al país).
+    // Sin reseñas ni locales hasta que Marcelo los pase. Si da el ok, se apaga (activo: false) hasta que pague el 10/11.
+    plan: 'premium',
     config: {
-      // Colores de la marca: blanco, negro y azul (el azul del buscador y el pie de su tienda)
-      color: '#3498db',
-      marca: { oscuro: '#0b0f17' },
-      anuncios: ['🚚 Envíos a todo el país', '🛡️ 30 días de garantía', '💬 Atención personalizada por WhatsApp'],
-      mediosDePago: ['Visa', 'Mastercard', 'Débito', 'Mercado Pago'],
-      estiloFicha: 'oscuro',
-      packs: [
-        { cantidad: 1, titulo: 'Llevá 1', descuento: 0 },
-        { cantidad: 2, titulo: 'Llevá 2', descuento: 15, etiqueta: 'MÁS ELEGIDO' },
-        { cantidad: 3, titulo: 'Llevá 3', descuento: 25 }
+      "color": "#3498db",
+      "marca": {
+        "oscuro": "#0b0f17"
+      },
+      "anuncios": [
+        "🚚 Envíos a todo el país",
+        "🛡️ 30 días de garantía",
+        "💬 Atención personalizada por WhatsApp"
       ],
-      // Datos de Marcelo: despacha lunes a viernes hasta las 18 h, el envío tarda 5 a 6 días hábiles
-      envio: { corte: 18, dias: [1, 2, 3, 4, 5], min: 5, max: 6, zona: '' },
-      envioGratisDesde: 0, // no tiene monto mínimo
-      cuentaRegresiva: true, // cuenta regresiva grande en la ficha, hasta las 18 h
-      precios: true, // bloque de precios en tarjetas (transferencia y cuotas sin interés reales de la tienda)
-      whatsapp: '5493489520436',
-
-      // Contenido de la ficha (sacado de las políticas y textos de la tienda)
-      cinta: ['Envíos a todo el país', 'Garantía de 30 días', 'Compra segura', 'Atención por WhatsApp', 'Desde los años 80'],
-      pasos: {
-        titulo: 'Comprá en 3 pasos',
-        items: [
-          { titulo: 'Elegí tu pack', texto: 'Llevando 2 ahorrás 15% y llevando 3, 25%.' },
-          { titulo: 'Pagá seguro', texto: 'Con tarjeta o Mercado Pago, en hasta 12 cuotas.' },
-          { titulo: 'Recibilo en tu casa', texto: 'Despachamos de lunes a viernes y llega en 5 a 6 días hábiles.' }
+      "mediosDePago": [
+        "Visa",
+        "Mastercard",
+        "Débito",
+        "Mercado Pago"
+      ],
+      "estiloFicha": "destino",
+      "envio": {
+        "corte": 18,
+        "dias": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "min": 5,
+        "max": 6,
+        "zona": ""
+      },
+      "envioGratisDesde": 0,
+      "whatsapp": "5493489520436",
+      "evento": {
+        "nombre": "La Semana Cyber",
+        "desde": "2026-11-02T00:00:00-03:00",
+        "hasta": "2026-11-04T23:59:59-03:00",
+        "anticipo": 3,
+        "barraAntes": "⚡ Se viene la Semana Cyber · Lunes 2 al miércoles 4 de noviembre",
+        "barra": "🔥 Semana Cyber en Hogar Digital · Hasta el miércoles 4 de noviembre",
+        "cinta": [
+          "Semana Cyber",
+          "Del 2 al 4 de noviembre",
+          "Hasta 12 cuotas"
         ]
       },
-      // Antes / después en lista: todo sale de las políticas reales de la tienda
-      problemaSolucion: {
-        etiqueta: 'Comprar online',
-        titulo: 'Antes vs. con Hogar Digital',
-        antesTitulo: 'Comprando en cualquier lado',
-        antes: ['No sabés cuándo te lo despachan', 'Si llega fallado, nadie se hace cargo', 'Escribís y nadie te responde', 'La devolución la pagás vos'],
-        despuesTitulo: 'Con Hogar Digital',
-        despues: ['Despachamos de lunes a viernes: antes de las 18 h sale en el día', '30 días de garantía por falla, daño o error en el envío', 'Atención personalizada por WhatsApp', 'Si hay una falla, la devolución corre por nuestra cuenta']
+      "tarjetas": {
+        "quedan": 5,
+        "estilo": "destacado"
       },
-      comparativa: {
-        titulo: '¿Por qué comprar en Hogar Digital?',
-        marca: 'Hogar Digital',
-        otro: 'Otras tiendas',
-        filas: ['Garantía de 30 días', 'Devolución gratis por falla', 'Atención personalizada por WhatsApp', 'Compra segura', 'Envíos a todo el país']
-      },
-      faq: [
-        { p: '¿Cuánto tarda en llegar?', r: 'Despachamos de lunes a viernes: si comprás antes de las 18 h, sale ese mismo día. Llega en 5 a 6 días hábiles a todo el país.' },
-        { p: '¿Cuánto cuesta el envío?', r: 'Depende de tu código postal: lo calculás en el carrito antes de pagar. Muchos productos tienen envío gratis.' },
-        { p: '¿Tiene garantía?', r: 'Sí, 30 días desde que lo recibís por falla de fabricación, producto dañado o error en el envío. En esos casos la devolución es gratis y nos encargamos de todo.' },
-        { p: '¿Puedo devolverlo si me arrepiento?', r: 'Sí, dentro de los 10 días corridos desde que lo recibís, sin uso y con su embalaje original.' },
-        { p: '¿Cómo puedo pagar?', r: 'Con tarjeta de crédito o débito y con Mercado Pago, en hasta 12 cuotas.' },
-        { p: '¿Tengo una duda, a quién le escribo?', r: 'Escribinos por WhatsApp y te atendemos personalmente.' }
+      "ocultar": [
+        "[data-store=\"home-products-featured\"]",
+        "[data-store=\"home-banner-news\"]",
+        "[data-store=\"home-product-main\"]",
+        "[data-store=\"home-banner-categories\"]",
+        "[data-store=\"home-products-sale\"]",
+        "[data-store=\"home-banner-promotional\"]",
+        "[data-store=\"home-products-new\"]",
+        "[data-store=\"banner-services\"]"
       ],
-      combina: 'auto',
-
-      // Semana Cyber (Cyber Monday 2026, sin el logo oficial: no está inscripto en la CACE).
-      // Se prende sola 3 días antes y se apaga sola el 4/11 a las 23:59. Descuentos: cuando Marcelo los confirme.
-      evento: {
-        nombre: 'La Semana Cyber',
-        desde: '2026-11-02T00:00:00-03:00',
-        hasta: '2026-11-04T23:59:59-03:00',
-        anticipo: 3,
-        barraAntes: '⚡ Se viene la Semana Cyber · Lunes 2 al miércoles 4 de noviembre',
-        barra: '🔥 Semana Cyber en Hogar Digital · Hasta el miércoles 4 de noviembre',
-        cinta: ['Semana Cyber', 'Del 2 al 4 de noviembre', 'Hasta 12 cuotas']
+      "ventas": {
+        "estilo": "destino",
+        "marca": "Hogar Digital"
       },
-
-      // Tarjetas de producto: "QUEDAN N" cuando quedan 5 o menos (stock real de la tienda)
-      // estilo 'destacado': caja con el precio (y el ahorro real sobre el tachado) y caja con las cuotas, como Wess
-      tarjetas: { quedan: 5, estilo: 'destacado' },
-
-      // Home
-      home: {
-        // Cuenta regresiva real hasta las 18 h (hora de corte del despacho)
-        cuentaRegresiva: true,
-        beneficios: [
-          { icono: '🚚', titulo: 'Envíos a todo el país', texto: 'Llega en 5 a 6 días hábiles.' },
-          { icono: '🛡️', titulo: '30 días de garantía', texto: 'Por falla, daño o error en el envío.' },
-          { icono: '💬', titulo: 'Atención por WhatsApp', texto: 'Te ayudamos a elegir.' }
-        ],
-        // Foto con puntos: características reales sacadas de la descripción del producto
-        puntos: {
-          etiqueta: 'De cerca',
-          titulo: 'Conocé el Humidificador OVNI',
-          texto: 'Tocá cada punto para ver el detalle.',
-          foto: 'https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056709-eba39cf6e5e33054c317901025394499-1024-1024.webp',
-          url: '/productos/humidificador-ovni-267/',
-          boton: 'Ver el humidificador',
-          items: [
-            { x: 50, y: 30, titulo: 'Efecto niebla', texto: 'Un detalle llamativo que cambia el ambiente.' },
-            { x: 31, y: 44, titulo: 'Aporta humedad', texto: 'Ideal si sentís el ambiente seco.' },
-            { x: 66, y: 58, titulo: 'Iluminación LED', texto: 'Luz cálida que acompaña la niebla.' },
-            { x: 45, y: 75, titulo: 'Diseño compacto', texto: 'Para dormitorio, escritorio, living u oficina.' }
-          ]
+      "carrito": true,
+      "home": {
+        "destino": {
+          "acento": "#3498db",
+          "cinta": [
+            "Envíos a *todo el país*",
+            "*30 días* de garantía",
+            "Atención por *WhatsApp*",
+            "Devolución *gratis* por falla"
+          ],
+          "portada": {
+            "fotos": [
+              "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/aa21b036-c4fc-4cef-ba61-c371cc90d542-0530aaf0-4cc2707e7abbf2c1f317934564759826-1024-1024.webp",
+              "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/0ac01ee3-19dc-4154-8351-c21fd5eb0e6c-cba3b0eb-12b78b996cf5c82b0417934072828698-1024-1024.webp",
+              "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056700-b80630798d70727f1917901024718719-1024-1024.webp"
+            ],
+            "etiqueta": "Hogar Digital · Desde los años 80",
+            "titulo": "Lo que tu casa necesita.",
+            "texto": "Humidificadores, audio, smartwatches y más.",
+            "boton": "Ver productos",
+            "url": "/productos/",
+            "boton2": "Humidificadores",
+            "url2": "/humidificadores-19h94/",
+            "productosUrl": "/humidificadores-19h94/"
+          },
+          "beneficios": [
+            {
+              "icono": "envio",
+              "titulo": "Envíos a todo el país",
+              "texto": "Llega en 5 a 6 días hábiles"
+            },
+            {
+              "icono": "garantia",
+              "titulo": "30 días de garantía",
+              "texto": "Por falla, daño o error"
+            },
+            {
+              "icono": "chat",
+              "titulo": "Atención por WhatsApp",
+              "texto": "Te ayudamos a elegir"
+            },
+            {
+              "icono": "cambios",
+              "titulo": "Devolución gratis",
+              "texto": "Si hay una falla"
+            }
+          ],
+          "tira": {
+            "items": [
+              {
+                "nombre": "Humidificadores",
+                "url": "/humidificadores-19h94/",
+                "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056709-eba39cf6e5e33054c317901025394499-1024-1024.webp"
+              },
+              {
+                "nombre": "Audio",
+                "url": "/audio-auriculares/",
+                "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000064948-1b2cdbc0b81707d0f817924511811491-1024-1024.webp"
+              },
+              {
+                "nombre": "Auriculares",
+                "url": "/audio-auriculares/",
+                "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056695-5a06631053060d23e217901024050439-1024-1024.webp"
+              },
+              {
+                "nombre": "Smartwatches",
+                "url": "/smartwatches-1jb09/",
+                "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056623-7322be0751a7f8955e17901015253577-1024-1024.webp"
+              },
+              {
+                "nombre": "Fitness",
+                "url": "/fitness-y-bienestar-1v0hm/",
+                "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000059933-1564b3879882d329b217909447522683-1024-1024.webp"
+              },
+              {
+                "nombre": "Relax",
+                "url": "/humidificadores-19h94/",
+                "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/0ac01ee3-19dc-4154-8351-c21fd5eb0e6c-cba3b0eb-12b78b996cf5c82b0417934072828698-1024-1024.webp"
+              }
+            ]
+          },
+          "destacados": [
+            {
+              "etiqueta": "Para tu casa",
+              "titulo": "Destacados",
+              "url": "/humidificadores-19h94/",
+              "cantidad": 4
+            },
+            {
+              "etiqueta": "Sonido",
+              "titulo": "Audio y *auriculares*",
+              "url": "/audio-auriculares/",
+              "carrusel": true,
+              "cantidad": 6
+            },
+            {
+              "etiqueta": "Esto es para vos",
+              "titulo": "Más para *tu casa*",
+              "url": "/productos/",
+              "carrusel": true,
+              "cantidad": 8
+            }
+          ],
+          "faqTitulo": "Antes de comprar",
+          "faq": [
+            {
+              "p": "¿Cuánto tarda en llegar?",
+              "r": "Despachamos de lunes a viernes: si comprás antes de las 18 h, sale ese mismo día. Llega en 5 a 6 días hábiles a todo el país."
+            },
+            {
+              "p": "¿Tiene garantía?",
+              "r": "Sí, 30 días desde que lo recibís por falla de fabricación, producto dañado o error en el envío. En esos casos la devolución es gratis."
+            },
+            {
+              "p": "¿Puedo devolverlo si me arrepiento?",
+              "r": "Sí, dentro de los 10 días corridos desde que lo recibís, sin uso y con su embalaje original."
+            },
+            {
+              "p": "¿Cómo puedo pagar?",
+              "r": "Con tarjeta de crédito o débito y con Mercado Pago."
+            }
+          ],
+          "banner": {
+            "etiqueta": "[ Hogar Digital ]",
+            "titulo": "Tu rincón relax.",
+            "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056700-b80630798d70727f1917901024718719-1024-1024.webp",
+            "boton": "Ver humidificadores",
+            "url": "/humidificadores-19h94/"
+          },
+          "comunidad": {
+            "etiqueta": "Comunidad",
+            "cuenta": "@hogardigitaltiendaonline",
+            "url": "https://instagram.com/hogardigitaltiendaonline",
+            "fotos": [
+              {
+                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/parlante-rgb.jpg",
+                "url": "/productos/parlante-rgb-tipo-air-z6-unifox-50foy/"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-smartwatch.jpg",
+                "url": "/smartwatches-1jb09/"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/aro-de-luz.jpg",
+                "url": "/productos/tripode-2-1m-con-aro-de-luz-rgb-de-10/"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/empaquetando.jpg"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-accesorios.jpg",
+                "url": "/tecnologia-y-accesorios-k82dt/"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-parlantes.jpg",
+                "url": "/audio-auriculares/"
+              }
+            ]
+          },
+          "numeros": {
+            "titulo": "Hogar Digital *en números*",
+            "items": [
+              {
+                "valor": 35,
+                "prefijo": "+",
+                "texto": "Años de trayectoria"
+              },
+              {
+                "valor": 30,
+                "texto": "Días de garantía"
+              },
+              {
+                "valor": 12,
+                "texto": "Cuotas con tarjeta"
+              },
+              {
+                "valor": 23,
+                "texto": "Provincias + CABA"
+              }
+            ]
+          }
         },
-        // Vitrinas: productos reales de cada categoría en carrusel
-        vitrinas: [
-          { etiqueta: 'Para tu casa', titulo: 'Humidificadores', url: '/humidificadores-19h94/', oscuro: true, boton: 'Ver todos los humidificadores' },
-          { etiqueta: 'Sonido', titulo: 'Audio y auriculares', url: '/audio-auriculares/', boton: 'Ver todo audio' }
-        ],
-        porQue: {
-          etiqueta: 'Desde los años 80',
-          titulo: 'Por qué comprar en Hogar Digital',
-          items: [
-            { destacado: '30 días', titulo: 'De garantía', texto: 'Por falla de fabricación, producto dañado o error en el envío. La devolución corre por nuestra cuenta.', pie: 'Garantía Hogar Digital' },
-            { destacado: '5 a 6 días', titulo: 'Llega a tu casa', texto: 'Despachamos de lunes a viernes a todo el país.', pie: 'Envío nacional' },
-            { destacado: 'Años 80', titulo: 'Trayectoria', texto: 'Una empresa que empezó en los 80 y se fue adaptando a lo que necesitan sus clientes.', pie: 'Experiencia' },
-            { destacado: 'WhatsApp', titulo: 'Atención personalizada', texto: 'Te ayudamos a elegir y resolvemos tus dudas.', pie: 'Equipo propio' }
+        "rotador": {
+          "etiqueta": "Encontrá lo tuyo",
+          "items": [
+            {
+              "nombre": "Humidificadores",
+              "url": "/humidificadores-19h94/",
+              "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056709-eba39cf6e5e33054c317901025394499-1024-1024.webp",
+              "foto2": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/aa21b036-c4fc-4cef-ba61-c371cc90d542-0530aaf0-4cc2707e7abbf2c1f317934564759826-1024-1024.webp"
+            },
+            {
+              "nombre": "Audio",
+              "url": "/audio-auriculares/",
+              "video": "https://nevux.ar/clientes/hogar-digital/parlante-rgb.mp4",
+              "foto2": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056644-af25d4fda55df67c7817901018261560-1024-1024.webp"
+            },
+            {
+              "nombre": "Smartwatches",
+              "url": "/smartwatches-1jb09/",
+              "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056623-7322be0751a7f8955e17901015253577-1024-1024.webp"
+            },
+            {
+              "nombre": "Fitness",
+              "url": "/fitness-y-bienestar-1v0hm/",
+              "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000059933-1564b3879882d329b217909447522683-1024-1024.webp",
+              "foto2": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056639-27c93a9b66ee9dee8c17901017599283-1024-1024.webp"
+            }
           ]
-        },
-        faqTitulo: 'Lo que siempre nos preguntan',
-        faq: [
-          { p: '¿Cuánto tarda en llegar?', r: 'Despachamos de lunes a viernes: si comprás antes de las 18 h, sale ese mismo día. Llega en 5 a 6 días hábiles a todo el país.' },
-          { p: '¿Tiene garantía?', r: 'Sí, 30 días desde que lo recibís por falla de fabricación, producto dañado o error en el envío. En esos casos la devolución es gratis.' },
-          { p: '¿Puedo devolverlo si me arrepiento?', r: 'Sí, dentro de los 10 días corridos desde que lo recibís, sin uso y con su embalaje original.' },
-          { p: '¿Cómo puedo pagar?', r: 'Con tarjeta de crédito o débito y con Mercado Pago, en hasta 12 cuotas.' }
+        }
+      },
+      "premium": {
+        "tema": "destino"
+      },
+      "cabecera": {
+        "logo": "https://nevux.ar/clientes/hogar-digital/logo-negro.png",
+        "logoClaro": "https://nevux.ar/clientes/hogar-digital/logo-blanco.png",
+        "nombre": "Hogar Digital"
+      },
+      "fichaDestino": {
+        "sello": "Hogar Digital · *30 días* de garantía",
+        "confianza": [
+          {
+            "icono": "cambios",
+            "titulo": "Cambios y devoluciones",
+            "texto": "10 días para arrepentirte"
+          },
+          {
+            "icono": "chat",
+            "titulo": "Atención personalizada",
+            "texto": "Te respondemos por WhatsApp"
+          },
+          {
+            "icono": "garantia",
+            "titulo": "30 días de garantía",
+            "texto": "Por falla, daño o error"
+          }
         ],
-        cierre: { etiqueta: 'Tecnología y hogar', titulo: 'Encontrá lo que buscás', texto: 'Todo nuestro catálogo con envío a todo el país.', boton: 'Ver todos los productos', url: '/productos/' }
-      }
+        "faq": [
+          {
+            "p": "¿Cuánto tarda en llegar?",
+            "r": "Despachamos de lunes a viernes: si comprás antes de las 18 h, sale ese mismo día. Llega en 5 a 6 días hábiles a todo el país."
+          },
+          {
+            "p": "¿Cuánto cuesta el envío?",
+            "r": "Depende de tu código postal: lo calculás en el carrito antes de pagar. Muchos productos tienen envío gratis."
+          },
+          {
+            "p": "¿Tiene garantía?",
+            "r": "Sí, 30 días desde que lo recibís por falla de fabricación, producto dañado o error en el envío. En esos casos la devolución es gratis y nos encargamos de todo."
+          },
+          {
+            "p": "¿Puedo devolverlo si me arrepiento?",
+            "r": "Sí, dentro de los 10 días corridos desde que lo recibís, sin uso y con su embalaje original."
+          },
+          {
+            "p": "¿Cómo puedo pagar?",
+            "r": "Con tarjeta de crédito o débito y con Mercado Pago, en hasta 12 cuotas."
+          },
+          {
+            "p": "¿Tengo una duda, a quién le escribo?",
+            "r": "Escribinos por WhatsApp y te atendemos personalmente."
+          }
+        ]
+      },
+      "packs": []
     }
   },
   valmont: {
