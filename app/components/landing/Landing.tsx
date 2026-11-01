@@ -538,7 +538,7 @@ export default function Landing() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 nvx-grid-bg pointer-events-none" />
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-emerald-500/15 blur-[140px] rounded-full pointer-events-none" />
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 pt-12 pb-20 md:pt-20 md:pb-28">
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 pt-12 pb-8 md:pt-20 md:pb-10">
           <div className="text-center">
             <motion.span
               initial={{ opacity: 0, y: 12 }}
@@ -583,6 +583,28 @@ export default function Landing() {
                 ))}
               </ul>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* 1b. DISEÑOS (justo después de la portada, para enganchar): así puede quedar tu tienda (vitrina 3D con las demos, ver docs/disenos.md) */}
+      <section id="disenos" className="relative pt-6 pb-20 md:pt-10 md:pb-28 overflow-hidden scroll-mt-20 bg-[radial-gradient(110%_70%_at_50%_0%,rgba(16,185,129,0.12)_0%,transparent_60%)]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto mb-10">
+            <Eyebrow>Diseños</Eyebrow>
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-4">
+              Así puede quedar <Grad>tu tienda.</Grad>
+            </h2>
+            <p className="text-neutral-400 text-sm sm:text-base">
+              Elegí el diseño de tu ficha y de tu home. Tocá un celular para verlo al frente: cada uno es una tienda de demostración funcionando.
+            </p>
+          </motion.div>
+          <Vitrina disenos={DISENOS.map(({ id, nombre, plan, demo }) => ({ id, nombre, plan, demo }))} />
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a href="/disenos" className="inline-flex items-center gap-2 rounded-2xl bg-white text-black font-bold px-6 py-3.5 hover:bg-neutral-200 transition-colors">
+              Ver los diseños y los planes <ArrowRight className="w-4 h-4" />
+            </a>
+            <WhatsAppCta origen="disenos" label="Quiero uno para mi tienda" />
           </div>
         </div>
       </section>
@@ -678,28 +700,6 @@ export default function Landing() {
               ))}
             </ul>
           </motion.div>
-        </div>
-      </section>
-
-      {/* 4b. DISEÑOS: así puede quedar tu tienda (vitrina 3D con las demos, ver docs/disenos.md) */}
-      <section id="disenos" className="relative py-20 md:py-28 overflow-hidden scroll-mt-20 bg-[radial-gradient(110%_70%_at_50%_0%,rgba(16,185,129,0.12)_0%,transparent_60%)]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto mb-10">
-            <Eyebrow>Diseños</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-4">
-              Así puede quedar <Grad>tu tienda.</Grad>
-            </h2>
-            <p className="text-neutral-400 text-sm sm:text-base">
-              Elegí el diseño de tu ficha y de tu home. Tocá un celular para verlo al frente: cada uno es una tienda de demostración funcionando.
-            </p>
-          </motion.div>
-          <Vitrina disenos={DISENOS.map(({ id, nombre, plan, demo }) => ({ id, nombre, plan, demo }))} />
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a href="/disenos" className="inline-flex items-center gap-2 rounded-2xl bg-white text-black font-bold px-6 py-3.5 hover:bg-neutral-200 transition-colors">
-              Ver los diseños y los planes <ArrowRight className="w-4 h-4" />
-            </a>
-            <WhatsAppCta origen="disenos" label="Quiero uno para mi tienda" />
-          </div>
         </div>
       </section>
 
