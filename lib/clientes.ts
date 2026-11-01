@@ -270,12 +270,13 @@ export const CLIENTES: Record<string, Cliente> = {
                 "texto": "Años de trayectoria"
               },
               {
-                "valor": 30,
-                "texto": "Días de garantía"
+                "valor": 300,
+                "prefijo": "+",
+                "texto": "Ventas en 2026"
               },
               {
-                "valor": 12,
-                "texto": "Cuotas con tarjeta"
+                "valor": 30,
+                "texto": "Días de garantía"
               },
               {
                 "valor": 23,
