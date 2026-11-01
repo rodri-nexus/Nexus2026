@@ -98,4 +98,16 @@ home: {
 }
 ```
 
-Los productos (fotos, precios, % OFF, precio con transferencia y cuotas) se leen solos de la tienda. **Falta de Destino:** el carrito lateral con barra de envío gratis (depende de la plantilla) y las dos columnas de "Arma tu outfit" en computadora.
+Los productos (fotos, precios, % OFF, precio con transferencia y cuotas) se leen solos de la tienda. **Carrito estilo Destino** (`carrito`, sirve para cualquier plan y plantilla): se suma al carrito lateral de la plantilla (`#modal-cart`, igual en Recife y Brasilia):
+- "Tu pedido sale hoy/mañana" con los datos de `envio`;
+- barra "Te faltan $X para el envío gratis" → "¡Genial! Tenés envío gratis", que se llena con el subtotal real;
+- "Ya lo vivieron" con reseñas reales (de `carrito.resenas`, `home.destino.resenas` o `resenas`).
+
+```js
+carrito: { envioGratis: 120000, acento: '#e3262f', resenasTitulo: 'Ya lo vivieron' },   // o true (usa envioGratisDesde)
+envio: { corte: 14, dias: [1, 2, 3, 4, 5], min: 3, max: 6 }
+```
+
+Probado en la tienda de Marcelo (Brasilia) con un carrito simulado: el navegador de prueba no puede agregar productos de verdad (Tiendanube frena los navegadores automáticos). **Probar con una compra real** la primera vez que se prenda en un cliente.
+
+**Falta de Destino:** las dos columnas de "Arma tu outfit" en computadora.
