@@ -9,6 +9,7 @@ Cada pieza de Nevux se escribe desde cero y usa datos reales de la tienda del cl
 | Tienda | Plantilla | Qué la hace distinta | Documento |
 |---|---|---|---|
 | Wess Indumentaria (`wessindumentaria.com`) | Recife + script de Praxis | Ficha y home a medida hechas por Praxis | [wess.md](wess.md) |
+| Wess · ficha Buzo Polo (video, 01/11) | Recife + Praxis | Precios en escalera, 3 pasos, problema/solución, pestañas "En acción", "Llevalo hoy" | [wess-buzo.md](wess-buzo.md) |
 | Doggies (`fafala.mitiendanube.com`) | Morelia + app Wigy | Ficha muy completa con calculadora de talle, combos y antes/después | [doggies.md](doggies.md) |
 
 El orden de construcción y el estado de cada pieza están en [hoja-de-ruta.md](hoja-de-ruta.md).
