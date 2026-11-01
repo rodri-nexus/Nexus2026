@@ -58,6 +58,7 @@
   - Página de pago: `nevux.ar/suscribirme?c=<cliente>`.
   - Página de gracias: `nevux.ar/gracias`.
   - Mercado Pago: plan Básico `mpago.la/2u5gT97` ($39.900/mes) y plan Premium `mpago.la/2mkcebx` ($69.900/mes).
+- **Home Premium · Destino (01/11):** referencia oficial del Premium (`home.destino`). Pedido de Rodrigo: a los clientes Premium nuevos se les deja la home tal cual Destino, con sus productos. **Valmont se queda con el estilo Wess** (decisión de Rodrigo). Ver `docs/disenos.md`.
 - **Diseños nuevos (01/11):** Ficha Pro clara y oscura (`estiloFicha: 'pro'`), Home Premium (`home.portadaVideo`, `home.rotador`, `tarjetas.alternar`) y la página `nevux.ar/disenos`. Ver `docs/disenos.md` y `docs/efectos.md`.
 - **Motor (`public/nevux.js`)**, con todas las piezas que se configuran por cliente en `lib/clientes.ts`:
   - **Ficha:** packs, precio por transferencia, bloque de precios (`precios`), cuotas reales, entrega estimada, cuenta regresiva, envío gratis, urgencia, avisos de venta, botón fijo, WhatsApp, cinta, talles, antes y después, pasos, comparativa animada, reseñas, preguntas frecuentes, Combiná con, videos, colores, medios de pago (`mediosDePago`), antes vs. después en lista (`problemaSolucion`), ficha oscura con olas (`estiloFicha: 'oscuro'`), ficha estilo Wess (`estiloFicha: 'wess'` con textos en `ficha`), especificaciones, medidor de muñeca (`muneca`), qué incluye (`incluye`) y para regalar (`regalo`).
@@ -98,6 +99,7 @@
 ## Decisiones de Rodrigo (01/11/2026)
 
 - La home **va incluida** en los $39.900 del plan Básico (ya figura en `lib/planes.ts`).
+- **Avisos de compra en vivo** (`ventas`, nombres y ciudades de ejemplo sobre productos reales): Rodrigo decidió **dejarlos prendidos** (01/11) porque generan urgencia y confianza. Ya se le avisó del riesgo legal (publicidad engañosa); no volver a planteárselo. Alternativa con datos reales si cambia de idea: pedidos reales de Tiendanube o stock real.
 - **3 días de gracia** antes de apagar por falta de pago (`lib/cobros.ts`, valor por defecto, y `gracia: 3` en cada cliente).
 - Banner del Cyber de Hogar Digital: el jueves 5/11 Rodrigo vuelve al banner anterior (ya lo tiene anotado).
 

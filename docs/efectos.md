@@ -36,10 +36,24 @@ Pedido de Rodrigo (01/11/2026): de cada referencia se guardan **los efectos**, n
 | E21 | **Videos de Instagram reproduciéndose** | Grilla de videos verticales sin sonido y en bucle |
 | E22 | **Vitrina 3D de celulares** | Tres celulares: el del centro adelante y los de los costados chicos, girados hacia adentro y con fundido. Cada uno baja solo por una tienda (para nuestra página de diseños) |
 
+## Medidos en la tienda Destino (Praxis, Premium; `docs/referencias/destino.md`)
+
+| # | Efecto | Cómo es exactamente |
+|---|---|---|
+| E23 | **Íconos que se dibujan solos** | El trazo del ícono SVG se dibuja en 1,6 s (`stroke-dashoffset`), lineal |
+| E24 | **Tira de categorías que corre** | Prendas recortadas con el nombre en rojo, 54 s por vuelta, sin fin |
+| E25 | **Cinta con la palabra clave en rojo** | 38 s por vuelta |
+| E26 | **Categoría con video de fondo** | Al cambiar de categoría, el video se funde en 450 ms |
+| E27 | **Números que suben** | Título sube y aparece (1 s), línea que se estira (1,4 s, demora 200 ms), cifras que aparecen (900 ms, demora 350 ms) y cuentan hasta el número, `cubic-bezier(.2,.7,.2,1)` |
+| E28 | **Reseñas en pista** | La pista se desliza en 800 ms con `cubic-bezier(.65,0,.35,1)` |
+| E29 | **Banner con zoom lento** | La foto se acerca en 3 s al aparecer |
+| E30 | **Aviso de compra con punto que late** | Entra en 600 ms (`cubic-bezier(.2,.8,.2,1)`), abajo a la izquierda; el punto "●" late cada 1,6 s |
+
 ## Ya los tiene Nevux (01/11/2026)
 
 - **Ficha Pro** (`estiloFicha: 'pro'`): E1, E2/E3, E4, E5, E9, E10 y E13, más las pestañas de "En acción".
 - **Home Premium:** E15 (`home.portadaVideo`, con videos o fotos), E16 (historias), E17 (`home.rotador`) y E18 (`tarjetas.alternar`).
 - **Página de diseños:** E22 (`nevux.ar/disenos`).
+- **Home Destino** (`home.destino`): E23, E24, E25, E27, E28, E29 y E30; E26 con `home.rotador` usando videos.
 - **De antes:** cinta de anuncios (≈E7), vitrina que se balancea, puntos que laten, segundero y V en 3D (Valmont).
 - **Falta:** E8 (avisos de compra, solo con ventas reales), E11 (video con barra de progreso), E14 (selector por unidad), E19 (shop the look), E20 (reseñas de Google) y E21 (Instagram).
