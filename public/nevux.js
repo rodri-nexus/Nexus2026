@@ -727,6 +727,8 @@
     });
     var root = document.querySelector('#single-product, .js-product-detail');
     if (!root || root.getAttribute('data-nevux')) return;
+    // En la home, si el cliente ocultó el producto principal de la plantilla (ocultar), no se arma la ficha ni su barra fija
+    if (window.LS && LS.template === 'home' && !root.getClientRects().length) return;
     var buyBtn = root.querySelector('.js-addtocart.js-prod-submit-form, .js-addtocart, input[type="submit"][name="add"]');
     if (!buyBtn) return;
     root.setAttribute('data-nevux', '1');
