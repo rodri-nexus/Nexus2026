@@ -8,7 +8,7 @@
 - **Publicar:** Rodrigo autorizó publicar en nevux.ar sin preguntarle. El camino es: rama de trabajo → pull request a `main` → merge (merge commit) → Vercel lo publica. Antes de publicar, el build tiene que pasar y la página tiene que estar revisada en el celular. Después, comprobar que esté en vivo con `curl`.
 - **Cambios en una tienda:** se prueban en la tienda real con Playwright (Chromium ya instalado), cargando el motor nuevo solo en el navegador de prueba (`page.route`). Sacar capturas en celular (390 px) y en computadora, y mandárselas.
 - **Panel de Tiendanube:** no puedo entrar. Rodrigo hace los clics (pegar la línea, subir banners, colores, importar productos) con mi guía paso a paso y, si hace falta, me manda capturas.
-- **Reels con narración (pedido de Rodrigo, 31/10, vale para esta y todas las sesiones futuras):** todos los Reels llevan una voz que narra lo que pasa en el video, profesional y no robótica, con acento argentino (Rodrigo pidió rosarino). Se hace con voces neuronales de Microsoft `es-AR-TomasNeural` (masculina) o `es-AR-ElenaNeural` (femenina) usando `edge-tts` (`pip install edge-tts`). En el contenedor hay que confiar en el CA del proxy: en Python, parchear `ssl.create_default_context` para que cargue `/root/.ccr/ca-bundle.crt`. No hay voces con tonada rosarina: son rioplatenses. Rodrigo todavía no eligió entre Tomás y Elena.
+- **Reels con narración (pedido de Rodrigo, vale para todas las sesiones):** todos los Reels llevan la voz de **Tomás** (`es-AR-TomasNeural`, elegida el 01/11; Rodrigo no quiere pagar por clonar su voz) y **música de fondo suave** que baja sola cuando habla. Todo está en `scripts/instagram/audio.py`: voz con `edge-tts` (`pip install edge-tts numpy`; en el contenedor se parchea `ssl.create_default_context` para cargar `/root/.ccr/ca-bundle.crt`) y música generada por el propio script (acordes propios, sin derechos de autor). Reels de @nevux.app: `python3 scripts/instagram/narrar.py <nombre>` (si la voz necesita más tiempo, arma la animación más lenta en la medida justa). Reels de Hogar Digital: `python3 scripts/instagram/hd/reels.py`.
 - **Límites que ya se hablaron:**
   - Nada de datos inventados: ni reseñas, ni números de ventas, ni descuentos que no existan.
   - **Nunca réplicas de marcas** (Rolex, Omega, Patek, G-Shock, etc.).
@@ -34,12 +34,12 @@
 - Regla: todos los Reels con narración en voz argentina (ver "Cómo trabajamos").
 
 **Falta:**
-1. Rodrigo elige voz para los Reels: Tomás (masculina, la que se usa ahora) o Elena (femenina).
+1. ~~Voz de los Reels~~: Tomás + música de fondo (01/11). Ya están hechos así los Reels de esta semana de las dos cuentas.
 2. Miguel paga el Premium **entre el 5 y el 7/11** (cuando cobra; ya lo acordó con Rodrigo). Hasta entonces la tienda sigue apagada. Cuando pague → pasar su email a `cobro` en `lib/clientes.ts` (valmont).
 3. Rodrigo habla con Marcelo el 2/11 para pasarlo del pago viejo a la suscripción nueva. Marcelo se suscribe al Básico mensual (`nevux.ar/suscribirme?c=hogar-digital`) → pasarlo a cobro automático con su email. Rodrigo desactiva el link viejo `mpago.la/1LqFYin` (pago único) cuando lo encuentre.
 4. Perfil de Instagram de Hogar Digital: nueva bio y destacadas (desde la app); dejar de seguir cuentas sin relación, de a 50 por día como máximo.
 5. Sábado 7/11: informe de la semana 1 y semana 2 de @nevux.app (7 al 13/11) y de Hogar Digital (9 al 13/11).
-6. Windsor sigue en plan de prueba: si vence, se cortan las publicaciones de las dos cuentas.
+6. **Windsor:** plan de prueba de 30 días desde el ~30/10 (vence ~29/11). Rodrigo **no va a pagar**: cuando venza, publica él a mano (ver `docs/instagram.md`, "Si vence Windsor"). Hay un aviso programado para el 23/11 en la sesión `session_01PDD9EpeUFqobvhnuTnY9ML`.
 7. Pendientes técnicos y decisiones de abajo.
 
 ## Qué está funcionando
@@ -98,6 +98,6 @@
 
 ## Pendientes técnicos
 
-- `www.nevux.ar` da error de certificado: agregarlo en Vercel → Dominios → redirigir a `nevux.ar`.
-- Windsor está en plan de prueba: si vence, se cortan las publicaciones programadas.
+- ~~`www.nevux.ar`~~: agregado en Vercel el 01/11 con redirección 308 a `nevux.ar` (proyecto `nexus2026-gx7e`, DNS en Vercel).
+- Windsor en plan de prueba hasta ~29/11: después, publicación manual (no se paga).
 - La barra de urgencia "84% vendido" es fija. Rodrigo decidió dejarla.

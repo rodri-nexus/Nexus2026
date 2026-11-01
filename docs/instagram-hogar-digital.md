@@ -34,7 +34,7 @@ Marcelo dio el ok el 01/11. Rodrigo le cobra **$85.000 por mes** por el contenid
 
 ## Cómo se arma y se publica
 
-- **Piezas:** `scripts/instagram/hd/`. `plantilla.html` (negro, plateado y azul #3498db, logo de la tienda), `semana-N.js` (carruseles e historias), `generar.js` (`node scripts/instagram/hd/generar.js semana-1`) y `reels.py` (Reels con narración, voz `es-AR-TomasNeural` hasta que Rodrigo elija; `VOZ=es-AR-ElenaNeural` para cambiarla). Fuentes en `scripts/instagram/hd/fuentes/`. Precios y fotos de `productos.json`, leídos de la tienda.
+- **Piezas:** `scripts/instagram/hd/`. `plantilla.html` (negro, plateado y azul #3498db, logo de la tienda), `semana-N.js` (carruseles e historias), `generar.js` (`node scripts/instagram/hd/generar.js semana-1`) y `reels.py` (Reels con la voz de Tomás, `es-AR-TomasNeural`, y música de fondo suave de `scripts/instagram/audio.py`). Fuentes en `scripts/instagram/hd/fuentes/`. Precios y fotos de `productos.json`, leídos de la tienda.
 - **Salida:** `public/ig/hd/` → `https://nevux.ar/ig/hd/...`. Agenda en `public/ig/hd/agenda.json`.
 - **Horarios (Argentina, lunes a viernes):** historia 1 a las **10:12**, historia 2 a las **14:42**, **post a las 19:48** e historia 3 (aviso del post) a las **21:12**. Las tareas programadas corren en la sesión `session_01PDD9EtCY9JFJzsoyimb9Yn`.
 
@@ -50,6 +50,6 @@ Marcelo dio el ok el 01/11. Rodrigo le cobra **$85.000 por mes** por el contenid
 
 ## Pendiente
 
-- Elegir voz (Tomás o Elena).
+- Si vence Windsor (~29/11): publicación manual, después de la de @nevux.app (ver `docs/instagram.md`).
 - Perfil: nombre, bio y destacadas (lo cambia Rodrigo o Marcelo desde la app).
 - Semana 2 (9 al 13/11) con lo que funcione mejor de la semana 1.

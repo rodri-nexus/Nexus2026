@@ -7,6 +7,8 @@ const { execFileSync } = require("child_process");
 const { chromium } = require("playwright");
 
 const FPS = 30;
+// ESCALA > 1 hace la animación más lenta (la usa narrar.py para que entre la voz)
+const ESCALA = Number(process.env.ESCALA || 1);
 const reels = process.argv.slice(2).length ? process.argv.slice(2) : ["que-hace", "precio", "packs"];
 // Momento del reel que se usa de portada (se ve en el perfil)
 const PORTADA = { "que-hace": 1.6, precio: 2.0, packs: 2.2 };
@@ -22,9 +24,9 @@ const salida = path.join(__dirname, "..", "..", "public", "ig", "reels");
     await p.evaluate(() => document.fonts.ready);
     const dur = await p.evaluate(() => window.DURACION);
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "reel-"));
-    const total = Math.round(dur * FPS);
+    const total = Math.round(dur * ESCALA * FPS);
     for (let f = 0; f < total; f++) {
-      await p.evaluate((t) => window.render(t), f / FPS);
+      await p.evaluate((t) => window.render(t), f / FPS / ESCALA);
       await p.screenshot({ path: path.join(tmp, String(f).padStart(5, "0") + ".jpg"), type: "jpeg", quality: 92 });
     }
     await p.evaluate((t) => window.render(t), PORTADA[reel] || 1.5);
