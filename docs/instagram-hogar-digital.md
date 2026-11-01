@@ -38,6 +38,11 @@ Marcelo dio el ok el 01/11. Rodrigo le cobra **$85.000 por mes** por el contenid
 - **Salida:** `public/ig/hd/` → `https://nevux.ar/ig/hd/...`. Agenda en `public/ig/hd/agenda.json`.
 - **Horarios (Argentina, lunes a viernes):** historia 1 a las **10:12**, historia 2 a las **14:42**, **post a las 19:48** e historia 3 (aviso del post) a las **21:12**. Las tareas programadas corren en la sesión `session_01PDD9EtCY9JFJzsoyimb9Yn`.
 
+## Publicación manual desde el 01/11 (pedido de Rodrigo)
+
+La **semana 1 la programó Rodrigo a mano en Meta Business Suite**: se le pasó día por día, en orden, con las historias, el post y su descripción. **Las 4 tareas automáticas de Hogar Digital quedaron apagadas** (`enabled: false`, no borradas) para que no se publique nada dos veces: historias de 10:12, 14:42 y 21:12, y post de las 19:48. Para las semanas siguientes, pasarle el material de la misma forma, salvo que pida volver a lo automático.
+- Pendiente de confirmar con Marcelo: la historia del martes (1103-2) dice "EL MÁS ELEGIDO" sobre el smartwatch. Si no es el más vendido, cambiar el título.
+
 ## Semana 1 (2 al 6 de noviembre)
 
 | Día | 19:48 | Pieza | Historias (10:12 · 14:42 · 21:12) |
