@@ -72,7 +72,7 @@ En lugar de `email` se puede usar `suscripcion: '<ID de la suscripción>'`. Desp
 
 | Cliente | Archivo | Estado | Pendiente |
 |---|---|---|---|
-| Hogar Digital (Marcelo) | `c/hogar-digital.js` | **Prendido** (cobro manual) | Pasarse a la suscripción del Básico; categorías con fotos y reseñas reales para la home |
+| Hogar Digital (Marcelo) | `c/hogar-digital.js` | **Prendido, plan Premium tal cual Destino** desde el 01/11 (cobro manual) | Si Marcelo da el ok, apagarla (`activo: false`) hasta el 10/11; cuando pague el Premium, cobro automático con su email. Faltan reseñas y locales reales |
 | Valmont & Co. (Miguel) | `c/valmont.js` | **Apagada** hasta que pague el Premium (5 al 7/11) | Al pagar, cambiar `planMp` por su email |
 
 ## Eventos con fecha (Cyber Monday, Hot Sale, Black Friday)
@@ -85,8 +85,8 @@ En `config.evento` de cada cliente: `nombre`, `desde`, `hasta`, `anticipo` (día
 
 | Plan | Precio | Link de Mercado Pago | Clientes |
 |---|---|---|---|
-| Básico · Pack Landing Page Pro | $39.900/mes | `mpago.la/2u5gT97` (plan "Nevux Básico", creado el 31/10) | Hogar Digital |
-| Premium · Nevux Premium | $69.900/mes | `mpago.la/2mkcebx` | Valmont |
+| Básico · Pack Landing Page Pro | $39.900/mes | `mpago.la/2u5gT97` (plan "Nevux Básico", creado el 31/10) | — |
+| Premium · Nevux Premium | $69.900/mes | `mpago.la/2mkcebx` | Valmont, Hogar Digital (desde el 01/11) |
 
 Cada cliente lleva `plan: 'premium'` en `lib/clientes.ts` (sin `plan` = básico). La página `nevux.ar/suscribirme?c=<id>` muestra solo el precio, lo que incluye y el link del plan de ese cliente. Sin cliente: `?plan=premium`.
 El link viejo del básico (`mpago.la/1LqFYin`) era un pago único, no una suscripción: el 31/10 se reemplazó por el plan mensual "Nevux Básico". Rodrigo lo borró el 01/11.

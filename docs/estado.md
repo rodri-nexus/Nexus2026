@@ -41,6 +41,9 @@
 
 ### Lo que falta (en orden)
 
+> **01/11 (noche) · PUBLICADO: Hogar Digital con el Premium tal cual Destino, en azul** (pedido de Rodrigo: "mandale hasta que quede completo al 100% como Destino"). Home y ficha de producto con las medidas reales de Destino (`docs/referencias/destino.md`). Detalle y lo que falta en `docs/hogar-digital-premium.md`.
+> **Lo que sigue:** Rodrigo lo revisa y le avisa a Marcelo. **Si Marcelo da el ok → apagarla (`activo: false` en `lib/clientes.ts`, hogar-digital) hasta el 10/11, que cobra y paga.** Cuando pague el Premium (`nevux.ar/suscribirme?c=hogar-digital`) → `activo: true` y `cobro: { tipo: 'mercadopago', email: '<su email>', gracia: 3 }` (no `planMp`: lo usa Valmont). Faltan de Marcelo: reseñas reales, si tiene local con atención al público, envío gratis desde algún monto y videos verticales limpios para la portada.
+>
 > **INTENTO DEL 01/11 (tarde), REVERTIDO:** se prendió la home Destino en la tienda de Marcelo (PR #87) y Rodrigo dijo que **"no se parece nada a la tienda de Destino"**. Se revirtió (Marcelo vuelve a su home anterior y al plan Básico). Por qué no se parecía, comparando con `docs/referencias/img/destino-*.jpg`:
 > 1. **Cabecera y pie** seguían siendo los de Brasilia (barra azul, buscador ancho, menú azul, pie azul). Destino: cabecera blanca con el logo grande y la lupa roja, cinta debajo y pie negro.
 > 2. **Portada:** foto gigante de producto sobre fondo negro y título en 3 renglones. Destino: video de gente real, título mediano.

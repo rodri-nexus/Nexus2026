@@ -71,3 +71,57 @@
   - locales con mapa;
   - aviso de compra estilo Destino;
   - carrito con barra de envío gratis.
+
+## Medidas exactas de cabecera, pie y estilo general (medido en vivo el 01/11/2026, tarde)
+
+Medido con Playwright después de que Rodrigo dijera que la home Premium de Hogar Digital "no se parece nada a Destino". **Estas medidas mandan sobre lo de arriba.**
+
+**Estilo general**
+- Fondo de la página: `#eaeaea` (gris claro, no blanco). Textos secundarios `#4B4B4B`. Negro `#0B0B0B`.
+- Rojo: **`#BD0003`** (no `#e3262f`).
+- Tipografías (lo que se ve, medido con `getComputedStyle`): títulos en **Unbounded 400**: portada 28 px en el celular y 44 px en la computadora (`line-height` 1,05), títulos de sección 19 y 25 px, títulos de beneficios 13 px. Textos en **Space Grotesk**: etiquetas 11 px con `letter-spacing: 1.54px`, nombres de producto 14 px. El pie usa **Dela Gothic One** en los títulos y Archivo en los textos.
+- Secciones: `padding: 44px 0` en el celular (56 px en la computadora).
+- **Tarjetas** (beneficios y productos): `background: rgba(255,255,255,.72)`, `border-radius: 18px`, sombra `0 0 0 1px rgba(255,255,255,.35) inset, 0 1px 3px rgba(255,255,255,.9)`. Producto con `padding: 4px` y la foto adentro. Beneficios: ícono de 30 px a la izquierda (trazo 1,5 y un detalle en rojo) y texto a la derecha, `padding: 22px 20px`.
+- **Portada:** `height: min(86svh, 720px)` en el celular y `clamp(560px, 92vh, 820px)` en la computadora. Degradé de abajo hacia arriba en el celular (`rgba(0,0,0,.72)` → `.2` → `.1`) y de la izquierda en la computadora. Texto a 16 px de los costados y 34 px de abajo, separado 14 px.
+- **"Arma tu outfit":** panel fijo de pantalla completa (`position: sticky; height: 100svh`) con esquinas de 20 px. Las categorías cambian al bajar y la foto hace zoom de 1,02 a 1 en 3 s.
+- **Cinta:** texto de 10 px, peso 500, `letter-spacing: .16em`. Las palabras en rojo van en negrita; sobre la portada el rojo pasa a `#ff8a8c`. 38 s por vuelta.
+- Portada: esquinas de abajo redondeadas de 20 px (`border-radius: 0 0 20px 20px`).
+
+**Cabecera (fija, flotante)**
+- `position: fixed` en la home, a 8 px de los bordes (`margin: 8px 8px 0`, `top: 8px`), `border-radius: 16px`. Alto: 100 px en el celular (92 px al bajar) y 155 px en la computadora (con el menú abajo).
+- **Sobre la portada** (`html.dsx-sobre`): fondo transparente, borde `1px rgba(255,255,255,.18)`, sin sombra ni desenfoque. Logo en blanco (`filter: brightness(0) invert(1)`), íconos y menú en blanco.
+- **Al bajar:** `background: rgba(255,255,255,.62)`, `backdrop-filter: blur(20px) saturate(1.8)`, borde `1px rgba(255,255,255,.75)`, sombra `0 1px 0 rgba(255,255,255,.55) inset, 0 8px 30px rgba(0,0,0,.06)`. Logo negro. Transición de fondo, borde y sombra: `.35s ease`.
+- Logo a la izquierda (176×40 px en el celular, 198×45 en la computadora), **lupa roja en círculo** de 32 px (`#BD0003`, lupa calada en blanco) y carrito con el globito rojo.
+- La **cinta de anuncios va adentro de la cabecera**, debajo del logo, con una línea arriba.
+- Menú (computadora): Archivo 11 px, peso 500, `letter-spacing: .14em`, mayúsculas. Buscador en pastilla (`border-radius: 999px`, fondo `rgba(255,255,255,.55)`).
+
+**Pie**
+- Fondo `#0B0B0B`. Títulos ("CATEGORÍAS", "CONTACTÁNOS") en Dela Gothic One, blancos y en mayúsculas, como acordeón con "+". Links y textos en mayúsculas, 12 px, `letter-spacing: .08em`, blanco al 78 %.
+- Newsletter negro: título "NEWSLETTER" en Dela Gothic One, campo en pastilla (`rgba(255,255,255,.08)`, borde `rgba(255,255,255,.25)`).
+- Redes centradas y logos de medios de envío.
+- Franja legal con degradé `#0B0B0B → #121212 → #1C1C1C` y texto blanco al 82 %.
+
+## Ficha de producto (medida en vivo el 01/11/2026, `/productos/jean-harvey-baggyfit-1dqzq/`)
+
+Fondo blanco. En el celular, de arriba abajo:
+1. **Migas:** Archivo 11 px, `letter-spacing: 1.54px`, `#4B4B4B`, mayúsculas.
+2. **Título:** Dela Gothic One 22 px, `letter-spacing: -0.44px`, `#0B0B0B`.
+3. **Foto:** tarjeta con esquinas redondeadas y la pastilla "★★★★★ CALIDAD DESTINO" arriba a la izquierda. Miniaturas redondeadas debajo y la elegida con borde negro.
+4. **Precio en escalera** (`px-ep`):
+   - tachado en Dela Gothic 15 px al 38 %, con la pastilla "17% OFF" (Dela Gothic 11 px rojo `#BD0003`, borde `rgba(0,0,0,.2)`, radio 999 px, `padding: 4px 12px`);
+   - etiqueta "PRECIO" en Space Grotesk 10 px, `letter-spacing: 1.8px`, al 45 %, y el precio en Dela Gothic 40 px, `letter-spacing: -1.4px`;
+   - tarjeta **"MEJOR PRECIO"** `#2b2b2b` con radio 16 px y `padding: 13px 16px`: etiqueta blanca al 62 %, monto Dela Gothic 26 px blanco y "Por transferencia · ahorrás $X" en 12,5 px al 72 % (solo con descuento por transferencia);
+   - fila de cuotas sin interés con borde y el monto a la derecha (solo con cuotas sin interés).
+5. **Talles:** pastillas Space Grotesk 12 px 500, radio 999 px y alto 28 px; la elegida en negro `#0B0B0B` con texto blanco.
+6. **Agregar al carrito:** botón negro en pastilla a lo ancho, con la cantidad a la izquierda en la computadora.
+7. **Despacho:** caja verde `#e8f6ec` con borde `#b9e2c6` y radio 12 px, texto `#14532d` 12 px y un rayo en círculo verde: "Tu pedido sale EL LUNES a primera hora".
+8. Reseñas (estrellas, puntaje y tarjetitas) → **solo si hay reales**.
+9. Logos de medios de pago.
+10. **3 tarjetas de confianza** con borde `rgba(11,11,11,.12)`, radio 12 px y `padding: 8px 6px`: ícono de 16 px, título Unbounded 11,5 px y texto 10 px. Son "Cambios y devoluciones / Dentro de 15 días hábiles", "Atención personalizada / Te respondemos por WhatsApp" y "4,9 de puntaje" (este último solo con reseñas).
+11. "¿Dudas con el talle? **Escribinos por WhatsApp**" (Space Grotesk 12 px `#4B4B4B`, link rojo subrayado).
+12. Acordeones "Medios de envío", **Descripción** y "Compartir".
+13. **Preguntas** en acordeón con ícono a la izquierda y "+" a la derecha (borde gris, sin radio grande).
+14. **"PRODUCTOS SIMILARES"** con flechas ‹ ›: carrusel con las tarjetas de la home.
+15. **Barra fija abajo** (tarjeta de vidrio esmerilado, como la cabecera): foto, nombre, precio, precio con transferencia en rojo, selector de talle y botón negro "AGREGAR".
+
+En la computadora va en dos columnas: foto (con miniaturas abajo) a la izquierda y datos a la derecha; preguntas y "Productos similares" van abajo, a lo ancho.
