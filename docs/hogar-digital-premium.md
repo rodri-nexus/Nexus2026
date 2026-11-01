@@ -2,6 +2,8 @@
 
 Probada el 01/11/2026 sobre `hogardigital.com.ar` con Playwright (motor cargado solo en el navegador de prueba). Es la que se ve en la landing (caso real, `public/casos/hogar-digital/`). **No está prendida**: se activa solo si Marcelo se suscribe al Premium.
 
+**Regla de Rodrigo (01/11):** el Premium va **tal cual Destino** (`docs/referencias/destino.md`): mismas secciones, orden, diseños y efectos que prometemos en el plan. Nada inventado y solo datos reales de la tienda.
+
 ## Cómo activarla
 
 1. En `lib/clientes.ts` → `hogar-digital`: `plan: 'premium'` y cobro automático con su email (`cobro: { tipo: 'mercadopago', email: '...', gracia: 3 }`).
