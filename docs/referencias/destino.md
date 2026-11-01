@@ -79,7 +79,12 @@ Medido con Playwright después de que Rodrigo dijera que la home Premium de Hoga
 **Estilo general**
 - Fondo de la página: `#eaeaea` (gris claro, no blanco). Textos secundarios `#4B4B4B`. Negro `#0B0B0B`.
 - Rojo: **`#BD0003`** (no `#e3262f`).
-- Tipografías: títulos en **Dela Gothic One** (peso 400, mayúsculas; títulos de sección 25 px; tarjetas 13 px) y textos en **Archivo** (11 px, `letter-spacing: .14em` en los "Ver todo").
+- Tipografías (lo que se ve, medido con `getComputedStyle`): títulos en **Unbounded 400**: portada 28 px en el celular y 44 px en la computadora (`line-height` 1,05), títulos de sección 19 y 25 px, títulos de beneficios 13 px. Textos en **Space Grotesk**: etiquetas 11 px con `letter-spacing: 1.54px`, nombres de producto 14 px. El pie usa **Dela Gothic One** en los títulos y Archivo en los textos.
+- Secciones: `padding: 44px 0` en el celular (56 px en la computadora).
+- **Tarjetas** (beneficios y productos): `background: rgba(255,255,255,.72)`, `border-radius: 18px`, sombra `0 0 0 1px rgba(255,255,255,.35) inset, 0 1px 3px rgba(255,255,255,.9)`. Producto con `padding: 4px` y la foto adentro. Beneficios: ícono de 30 px a la izquierda (trazo 1,5 y un detalle en rojo) y texto a la derecha, `padding: 22px 20px`.
+- **Portada:** `height: min(86svh, 720px)` en el celular y `clamp(560px, 92vh, 820px)` en la computadora. Degradé de abajo hacia arriba en el celular (`rgba(0,0,0,.72)` → `.2` → `.1`) y de la izquierda en la computadora. Texto a 16 px de los costados y 34 px de abajo, separado 14 px.
+- **"Arma tu outfit":** panel fijo de pantalla completa (`position: sticky; height: 100svh`) con esquinas de 20 px. Las categorías cambian al bajar y la foto hace zoom de 1,02 a 1 en 3 s.
+- **Cinta:** texto de 10 px, peso 500, `letter-spacing: .16em`. Las palabras en rojo van en negrita; sobre la portada el rojo pasa a `#ff8a8c`. 38 s por vuelta.
 - Portada: esquinas de abajo redondeadas de 20 px (`border-radius: 0 0 20px 20px`).
 
 **Cabecera (fija, flotante)**
