@@ -4,6 +4,23 @@ Probada el 01/11/2026 sobre `hogardigital.com.ar` con Playwright (motor cargado 
 
 **01/11 (tarde):** se prendió y se revirtió porque no se parecía a Destino. Ver `docs/estado.md` ("Intento del 01/11, revertido") con las diferencias y el plan.
 
+## Versión 2 (01/11, noche): en prueba, sin publicar en la tienda
+
+Motor nuevo (rama `ccr-aacae2fe-pg8b5d`, todavía **no mergeado**), con medidas de `docs/referencias/destino.md`:
+- **Home Destino con el estilo real:** fondo `#eaeaea`, Unbounded y Space Grotesk, tarjetas blancas translúcidas de 18 px, portada de 28/44 px y rojo `#BD0003` por defecto.
+- **"Arma tu outfit"** como un solo panel, con dos fotos en computadora.
+- **Cabecera** (`premium.tema: 'destino'` + `cabecera: { logo, logoClaro, nombre }`): tarjeta flotante esmerilada, transparente sobre la portada, con lupa en círculo y la cinta adentro.
+- **Pie negro.**
+- En la home Destino no va la cuenta regresiva del evento: el evento pasa a la cinta.
+
+Para Marcelo, sumar a la configuración del commit `b0aa694`:
+- `premium: { tema: 'destino' }`;
+- `cabecera: { logo: 'https://nevux.ar/clientes/hogar-digital/logo-negro.png', logoClaro: 'https://nevux.ar/clientes/hogar-digital/logo-blanco.png', nombre: 'Hogar Digital' }`. Es su logo extraído del mockup plateado y armado en horizontal, en `public/clientes/hogar-digital/`;
+- en `ocultar`, sumar `'[data-store="banner-services"]'`;
+- en la portada, fotos de ambiente: G, llama y volcán (`aa21b036…`, `0ac01ee3…`, `1000056700…`).
+
+Capturas en `.capturas/marcelo/destino-v2-*.jpg`. **Esperando el ok de Rodrigo antes de publicar.** Sigue faltando material real para comunidad, números, reseñas y locales.
+
 **Regla de Rodrigo (01/11):** el Premium va **tal cual Destino** (`docs/referencias/destino.md`): mismas secciones, orden, diseños y efectos que prometemos en el plan. Nada inventado y solo datos reales de la tienda.
 
 ## Cómo activarla
