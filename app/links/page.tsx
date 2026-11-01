@@ -46,9 +46,9 @@ export default function LinksPage() {
           <LinkCard
             href="/#solucion"
             origen="antes-despues"
-            imagen="/links/antes-despues.jpg"
+            imagen="/links/caso-hd.jpg"
             titulo="Caso real: Hogar Digital"
-            texto="Qué cambió en su tienda"
+            texto="Así queda su tienda con el Premium"
           />
           <LinkCard
             href="/disenos"
