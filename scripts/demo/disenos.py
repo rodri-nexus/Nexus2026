@@ -227,8 +227,7 @@ DESTINO_CFG = {
             'locales': {'etiqueta': 'Nevux Demo® / Buenos Aires', 'titulo': '¿Lo querés ver en persona?', 'texto': 'Vení al local a probártelo. Te ayudamos a elegir.',
                         'items': [{'zona': 'Microcentro', 'nombre': 'Local Obelisco', 'direccion': 'Obelisco, Buenos Aires', 'horario': 'Lun a vie 10 a 19 h · Sáb 10 a 14 h'}]},
         },
-        'rotador': {'etiqueta': 'Armá tu look', 'items': [{'nombre': 'Deportivos', 'url': '#', 'foto': IMG + 'noir-2.jpg'}, {'nombre': 'Dorados', 'url': '#', 'foto': IMG + 'royal-2.jpg'},
-                                                          {'nombre': 'Cronógrafos', 'url': '#', 'foto': IMG + 'chrono-2.jpg'}, {'nombre': 'Clásicos', 'url': '#', 'foto': IMG + 'classic-2.jpg'}]},
+        'rotador': {'etiqueta': 'Armá tu look', 'items': [{'nombre': n, 'url': '#', 'foto': IMG + f + '-2.jpg', 'foto2': IMG + f + '-1.jpg'} for n, f in [('Deportivos', 'noir'), ('Dorados', 'royal'), ('Cronógrafos', 'chrono'), ('Clásicos', 'classic')]]},
     },
 }
 dest = f"""<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">

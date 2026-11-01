@@ -94,7 +94,7 @@ home: {
     banner: { etiqueta, titulo, foto, boton, url },
     locales: { etiqueta, titulo, texto, items: [{ zona, nombre, direccion, horario }] }   // mapa de Google con la dirección
   },
-  rotador: { etiqueta: 'Arma tu outfit', items: [{ nombre, url, video | foto }] }       // va en su lugar dentro de Destino
+  rotador: { etiqueta: 'Arma tu outfit', items: [{ nombre, url, video | foto, video2 | foto2 }] } // va en su lugar dentro de Destino; en computadora, dos columnas (a la derecha, video2/foto2)
 }
 ```
 
@@ -110,4 +110,4 @@ envio: { corte: 14, dias: [1, 2, 3, 4, 5], min: 3, max: 6 }
 
 Probado en la tienda de Marcelo (Brasilia) con un carrito simulado: el navegador de prueba no puede agregar productos de verdad (Tiendanube frena los navegadores automáticos). **Probar con una compra real** la primera vez que se prenda en un cliente.
 
-**Falta de Destino:** las dos columnas de "Arma tu outfit" en computadora.
+**"Arma tu outfit" en dos columnas** (computadora, como Destino): se activa solo dentro de la home Destino (o con `rotador.columnas: true`). En celular queda una sola columna.
