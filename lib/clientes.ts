@@ -261,6 +261,18 @@ export const CLIENTES: Record<string, Cliente> = {
               }
             ]
           },
+          "locales": {
+            "etiqueta": "Hogar Digital / Campana",
+            "titulo": "¿Querés *conocer el local*?",
+            "texto": "Vení a ver los productos en persona y te asesoramos. También te atendemos por WhatsApp.",
+            "items": [
+              {
+                "zona": "Campana · Buenos Aires",
+                "nombre": "Hogar Digital",
+                "direccion": "Belgrano 276, Campana (2804), Buenos Aires"
+              }
+            ]
+          },
           "numeros": {
             "titulo": "Hogar Digital *en números*",
             "items": [
@@ -279,8 +291,8 @@ export const CLIENTES: Record<string, Cliente> = {
                 "texto": "Días de garantía"
               },
               {
-                "valor": 23,
-                "texto": "Provincias + CABA"
+                "valor": 1,
+                "texto": "Local en Campana"
               }
             ]
           }
