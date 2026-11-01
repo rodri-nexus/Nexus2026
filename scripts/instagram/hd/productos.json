@@ -1,0 +1,100 @@
+{
+ "smartwatch": {
+  "nombre": "Smartwatch KD99 Ultra",
+  "precio": 27900,
+  "lista": 57900,
+  "url": "https://hogardigital.com.ar/productos/smartwatch-kd99-ultra-similar-al-watch-8-j8lja/",
+  "img": "p/smartwatch.jpg"
+ },
+ "g": {
+  "nombre": "Humidificador G con Altavoz y Luces LED",
+  "precio": 72300,
+  "lista": 81507.8,
+  "url": "https://hogardigital.com.ar/productos/humidificador-g-con-altavoz-y-luces-led/",
+  "img": "p/g.jpg"
+ },
+ "llama": {
+  "nombre": "HUMIDIFICADOR AROMATIZANTE LLAMA SIMULADA CONTROL REMOTO",
+  "precio": 72100,
+  "lista": 91099.8,
+  "url": "https://hogardigital.com.ar/productos/humidificador-aromatizante-llama-simulada-control-remoto/",
+  "img": "p/llama.jpg"
+ },
+ "parlante-rgb": {
+  "nombre": "PARLANTE RGB",
+  "precio": 60000,
+  "lista": 79990,
+  "url": "https://hogardigital.com.ar/productos/parlante-rgb-tipo-air-z6-unifox-50foy/",
+  "img": "p/parlante-rgb.jpg"
+ },
+ "espejo": {
+  "nombre": "Espejo Circular con Luz LED",
+  "precio": 32900,
+  "lista": 62900,
+  "url": "https://hogardigital.com.ar/productos/espejo-con-luz-led-de-forma-circular/",
+  "img": "p/espejo.jpg"
+ },
+ "cargador": {
+  "nombre": "Cargador Rápido 6.4A con 2 USB + USB-C",
+  "precio": 25900,
+  "lista": 55900,
+  "url": "https://hogardigital.com.ar/productos/cargador-6-4a-realidad-2-usb-cable-usb-a-tipo-c-carga-rapida/",
+  "img": "p/cargador.jpg"
+ },
+ "auriculares": {
+  "nombre": "Auriculares Air Max con Pantalla VIP",
+  "precio": 45900,
+  "lista": 75900,
+  "url": "https://hogardigital.com.ar/productos/auriculares-air-max-vip/",
+  "img": "p/auriculares.jpg"
+ },
+ "planchita": {
+  "nombre": "Planchita Alisadora de Pelo",
+  "precio": 40900,
+  "lista": 70900,
+  "url": "https://hogardigital.com.ar/productos/mini-planchita-pelo-compacta-viaje-negro/",
+  "img": "p/planchita.jpg"
+ },
+ "volcan": {
+  "nombre": "Humidificador Erupción Volcán con Control Remoto",
+  "precio": 70900,
+  "lista": 100900,
+  "url": "https://hogardigital.com.ar/productos/humidificador-volcan/",
+  "img": "p/volcan.jpg"
+ },
+ "ovni": {
+  "nombre": "Humidificador OVNI LED con Efecto Niebla",
+  "precio": 73900,
+  "lista": 103900,
+  "url": "https://hogardigital.com.ar/productos/humidificador-ovni-267/",
+  "img": "p/ovni.jpg"
+ },
+ "v8": {
+  "nombre": "Parlante Bluetooth V8",
+  "precio": 45900,
+  "lista": 75900,
+  "url": "https://hogardigital.com.ar/productos/parlante-v8-24ofm/",
+  "img": "p/v8.jpg"
+ },
+ "parlante-12": {
+  "nombre": "Parlante KTS-1201S 12\" con Micrófono",
+  "precio": 224900,
+  "lista": 254900,
+  "url": "https://hogardigital.com.ar/productos/parlante-kts-1201s-c-microfono-12/",
+  "img": "p/parlante-12.jpg"
+ },
+ "masajeador": {
+  "nombre": "Masajeador de Cabeza Eléctrico de 8 Brazos",
+  "precio": 46990,
+  "lista": 69990,
+  "url": "https://hogardigital.com.ar/productos/masajeador-de-cabeza-electrico-de-8-brazos/",
+  "img": "p/masajeador.jpg"
+ },
+ "pilates": {
+  "nombre": "Set de Pilates Completo 11 Piezas",
+  "precio": 66990,
+  "lista": 89990,
+  "url": "https://hogardigital.com.ar/productos/set-de-pilates-completo-11-piezas/",
+  "img": "p/pilates.jpg"
+ }
+}

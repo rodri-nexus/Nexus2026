@@ -1,0 +1,8 @@
+{
+  "_como_funciona": "Hogar Digital (@hogardigitaltiendaonline, Windsor account 17841448464906393). Post de lunes a viernes a las 19:48 (Argentina). URLs relativas a https://nevux.ar/ig/hd/. Historias: historias/MMDD-1 (10:12), -2 (14:42), -3 (21:12, aviso del post).",
+  "2026-11-02": { "tipo": "reel", "nombre": "Humidificador OVNI de noche", "video": "reels/ovni.mp4", "portada": "reels/ovni.jpg", "caption": "reels/ovni.txt" },
+  "2026-11-03": { "tipo": "carrusel", "nombre": "5 regalos de menos de $50.000", "carpeta": "02-regalos", "imagenes": 7, "caption": "02-regalos/caption.txt" },
+  "2026-11-04": { "tipo": "reel", "nombre": "Armá tu rincón relax", "video": "reels/relax.mp4", "portada": "reels/relax.jpg", "caption": "reels/relax.txt" },
+  "2026-11-05": { "tipo": "carrusel", "nombre": "Así es comprar en Hogar Digital", "carpeta": "04-como-comprar", "imagenes": 6, "caption": "04-como-comprar/caption.txt" },
+  "2026-11-06": { "tipo": "reel", "nombre": "Música para el finde", "video": "reels/parlantes.mp4", "portada": "reels/parlantes.jpg", "caption": "reels/parlantes.txt" }
+}

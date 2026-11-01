@@ -28,7 +28,28 @@ Lo que sí funcionó (según la captura del perfil): smartwatch en mano (15,8 mi
 5. **Precios:** solo los reales de la tienda; nunca precios viejos en los videos.
 6. **Público:** Argentina. Hashtags y temas locales; responder todo en la primera hora.
 
+## Servicio
+
+Marcelo dio el ok el 01/11. Rodrigo le cobra **$85.000 por mes** por el contenido (aparte de Nevux). Mismo marketing que @nevux.app, adaptado a su tienda.
+
+## Cómo se arma y se publica
+
+- **Piezas:** `scripts/instagram/hd/`. `plantilla.html` (negro, plateado y azul #3498db, logo de la tienda), `semana-N.js` (carruseles e historias), `generar.js` (`node scripts/instagram/hd/generar.js semana-1`) y `reels.py` (Reels con narración, voz `es-AR-TomasNeural` hasta que Rodrigo elija; `VOZ=es-AR-ElenaNeural` para cambiarla). Fuentes en `scripts/instagram/hd/fuentes/`. Precios y fotos de `productos.json`, leídos de la tienda.
+- **Salida:** `public/ig/hd/` → `https://nevux.ar/ig/hd/...`. Agenda en `public/ig/hd/agenda.json`.
+- **Horarios (Argentina, lunes a viernes):** historia 1 a las **10:12**, historia 2 a las **14:42**, **post a las 19:48** e historia 3 (aviso del post) a las **21:12**. Las tareas programadas corren en la sesión `session_01PDD9EtCY9JFJzsoyimb9Yn`.
+
+## Semana 1 (2 al 6 de noviembre)
+
+| Día | 19:48 | Pieza | Historias (10:12 · 14:42 · 21:12) |
+|---|---|---|---|
+| Lun 2/11 | Reel con voz (23 s) | Humidificador OVNI de noche ($73.900) | ¿OVNI o Volcán? · 40-60 % de humedad · Nuevo reel |
+| Mar 3/11 | Carrusel (7) | 5 regalos de menos de $50.000 | ¿Próximo regalo? · Smartwatch $27.900 · Nuevo post |
+| Mié 4/11 | Reel con voz (24 s) | Armá tu rincón relax (Volcán, Llama, G) | ¿Dónde te relajás? · Llama $72.100 · Nuevo reel |
+| Jue 5/11 | Carrusel (6) | Así es comprar en Hogar Digital | ¿Qué te frena? · 30 días de garantía · Nuevo post |
+| Vie 6/11 | Reel con voz (23 s) | Música para el finde (3 parlantes) | ¿Juntada o relax? · Parlante RGB $60.000 · Nuevo reel |
+
 ## Pendiente
 
-- Ok de Marcelo y precio del servicio de redes (aparte de Nevux).
-- Primera semana de contenido.
+- Elegir voz (Tomás o Elena).
+- Perfil: nombre, bio y destacadas (lo cambia Rodrigo o Marcelo desde la app).
+- Semana 2 (9 al 13/11) con lo que funcione mejor de la semana 1.

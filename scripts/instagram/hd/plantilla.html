@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- Plantilla de las piezas de Instagram de Hogar Digital (@hogardigitaltiendaonline): negro, plateado y azul, como su logo.
+     generar.js le pasa cada pieza en window.PIEZA ({ formato: 'post' | 'historia', tipo, ... }) y le saca la foto. -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@500;600;700&display=block" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --azul: #3498db; --azul2: #7cc4f5; --plata: #d9dde3; --gris: #9aa3ad; --w: 1080px; --h: 1350px; }
+  html, body { width: var(--w); height: var(--h); overflow: hidden; }
+  body.historia { --h: 1920px; }
+  body { font-family: Inter, sans-serif; color: #fff; background: #0a0c10; position: relative; }
+  .luz { position: absolute; width: 1200px; height: 1200px; left: 50%; top: -700px; transform: translateX(-50%); border-radius: 50%;
+    background: radial-gradient(circle, rgba(52,152,219,.32), rgba(52,152,219,0) 62%); }
+  .luz2 { position: absolute; width: 900px; height: 900px; right: -500px; bottom: -500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,196,245,.12), rgba(124,196,245,0) 65%); }
+  .top { position: absolute; left: 70px; right: 70px; top: 60px; display: flex; align-items: center; justify-content: space-between; z-index: 5; }
+  .marca { display: flex; align-items: center; gap: 16px; }
+  .marca img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px rgba(255,255,255,.18); }
+  .marca b { font-family: Montserrat; font-size: 28px; font-weight: 800; letter-spacing: .04em; color: var(--plata); }
+  .pag { font: 700 24px Inter; color: var(--gris); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 8px 18px; }
+  .cuerpo { position: absolute; left: 70px; right: 70px; top: 170px; bottom: 150px; display: flex; flex-direction: column; justify-content: center; z-index: 3; }
+  .eb { font: 800 26px Montserrat; letter-spacing: .2em; text-transform: uppercase; color: var(--azul2); margin-bottom: 26px; }
+  h1 { font: 900 100px/1.0 Montserrat; letter-spacing: -.03em; text-transform: uppercase; }
+  h2 { font: 900 74px/1.04 Montserrat; letter-spacing: -.02em; text-transform: uppercase; }
+  .az { color: var(--azul); }
+  .pl { background: linear-gradient(180deg, #ffffff, #b9c0c9); -webkit-background-clip: text; color: transparent; }
+  p.sub { margin-top: 30px; font-size: 38px; line-height: 1.35; color: var(--gris); font-weight: 500; }
+  p.sub b { color: #fff; }
+  .pie { position: absolute; left: 70px; right: 70px; bottom: 60px; display: flex; justify-content: space-between; align-items: center; font: 700 26px Inter; color: var(--gris); z-index: 5; }
+  .pie .web { color: var(--plata); letter-spacing: .02em; }
+  .desliza { color: var(--azul2); }
+
+  /* Producto: foto grande, nombre, precio real y precio de lista tachado */
+  .prod { position: absolute; left: 70px; right: 70px; top: 160px; z-index: 3; }
+  .prod .foto { width: 100%; height: 700px; border-radius: 36px; overflow: hidden; background: #111; box-shadow: 0 40px 90px -20px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.08); }
+  .prod .foto img { width: 100%; height: 100%; object-fit: cover; }
+  .prod .n { margin-top: 34px; font: 800 30px Montserrat; letter-spacing: .14em; color: var(--azul2); }
+  .prod h3 { margin-top: 10px; font: 900 56px/1.05 Montserrat; text-transform: uppercase; letter-spacing: -.01em; }
+  .prod .pr { margin-top: 18px; display: flex; align-items: baseline; gap: 20px; }
+  .prod .pr b { font: 900 72px Montserrat; }
+  .prod .pr s { font: 600 34px Inter; color: #6b7480; }
+  .prod .pr em { font: 800 28px Inter; font-style: normal; background: var(--azul); color: #fff; padding: 6px 14px; border-radius: 10px; }
+  .prod p { margin-top: 14px; font-size: 32px; color: var(--gris); line-height: 1.35; }
+  body.historia .prod { top: 260px; } body.historia .prod .foto { height: 980px; }
+
+  /* Lista de puntos (confianza) */
+  .items { margin-top: 44px; display: flex; flex-direction: column; gap: 26px; }
+  .items div { display: flex; gap: 24px; align-items: flex-start; font-size: 38px; line-height: 1.3; font-weight: 600; color: #e6e9ee; }
+  .items i { flex: none; width: 54px; height: 54px; border-radius: 50%; background: rgba(52,152,219,.16); border: 2px solid var(--azul); color: var(--azul2);
+    display: grid; place-items: center; font: 900 26px Montserrat; font-style: normal; margin-top: -2px; }
+  .items small { display: block; font-size: 30px; color: var(--gris); font-weight: 500; margin-top: 6px; }
+
+  /* Bloque grande: número o dato */
+  .grande { font: 900 200px/0.95 Montserrat; letter-spacing: -.04em; }
+  .boton { margin-top: 46px; display: inline-flex; align-self: flex-start; gap: 16px; background: var(--azul); color: #fff; font: 800 34px Montserrat; letter-spacing: .04em;
+    padding: 24px 40px; border-radius: 999px; text-transform: uppercase; box-shadow: 0 20px 50px -10px rgba(52,152,219,.6); }
+  .resp { margin-top: 46px; align-self: flex-start; border: 2px dashed rgba(255,255,255,.35); border-radius: 26px; padding: 22px 32px; font: 700 34px Inter; color: #fff; }
+  .opciones { margin-top: 46px; display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .opciones div { border-radius: 30px; overflow: hidden; background: #111; box-shadow: 0 0 0 2px rgba(255,255,255,.1); }
+  .opciones img { width: 100%; height: 520px; object-fit: cover; display: block; }
+  .opciones b { display: block; padding: 22px; font: 900 44px Montserrat; text-align: center; }
+  .opciones b span { color: var(--azul); }
+  body.historia .cuerpo { top: 220px; bottom: 220px; }
+</style>
+</head>
+<body>
+<div class="luz"></div><div class="luz2"></div>
+<div class="top"><div class="marca"><img src="../../../public/ig/hd/logo.jpg" alt=""><b>HOGAR DIGITAL</b></div><div class="pag" id="pag"></div></div>
+<div id="c"></div>
+<div class="pie"><span class="web">hogardigital.com.ar</span><span class="desliza" id="desliza"></span></div>
+<script>
+  const P = window.PIEZA || { tipo: 'portada', titulo: 'Prueba' };
+  if (P.formato === 'historia') document.body.classList.add('historia');
+  document.getElementById('pag').textContent = P.pag || '';
+  if (!P.pag) document.getElementById('pag').style.display = 'none';
+  document.getElementById('desliza').textContent = P.desliza || '';
+  const img = (s) => '../../../public/ig/hd/' + s;
+  const plata = (n) => '$' + Math.round(n).toLocaleString('es-AR');
+  let h = '';
+  if (P.tipo === 'portada') {
+    h = `<div class="cuerpo">${P.eb ? `<div class="eb">${P.eb}</div>` : ''}<h1>${P.titulo}</h1>${P.sub ? `<p class="sub">${P.sub}</p>` : ''}${P.boton ? `<div class="boton">${P.boton}</div>` : ''}${P.resp ? `<div class="resp">${P.resp}</div>` : ''}</div>`;
+  } else if (P.tipo === 'producto') {
+    const off = P.lista && P.lista > P.precio ? Math.round((1 - P.precio / P.lista) * 100) : 0;
+    h = `<div class="prod"><div class="foto"><img src="${img(P.img)}"></div>${P.n ? `<div class="n">${P.n}</div>` : ''}<h3>${P.nombre}</h3>
+      <div class="pr"><b>${plata(P.precio)}</b>${off ? `<s>${plata(P.lista)}</s><em>${off}% OFF</em>` : ''}</div>${P.texto ? `<p>${P.texto}</p>` : ''}</div>`;
+  } else if (P.tipo === 'lista') {
+    h = `<div class="cuerpo">${P.eb ? `<div class="eb">${P.eb}</div>` : ''}<h2>${P.titulo}</h2><div class="items">${P.items.map((x, i) =>
+      `<div><i>${x.icono || i + 1}</i><span>${x.t}${x.d ? `<small>${x.d}</small>` : ''}</span></div>`).join('')}</div></div>`;
+  } else if (P.tipo === 'dato') {
+    h = `<div class="cuerpo">${P.eb ? `<div class="eb">${P.eb}</div>` : ''}<div class="grande ${P.az ? 'az' : 'pl'}">${P.grande}</div><h2 style="margin-top:20px">${P.titulo}</h2>${P.sub ? `<p class="sub">${P.sub}</p>` : ''}</div>`;
+  } else if (P.tipo === 'opciones') {
+    h = `<div class="cuerpo">${P.eb ? `<div class="eb">${P.eb}</div>` : ''}<h2>${P.titulo}</h2><div class="opciones">${P.opciones.map((o) =>
+      `<div><img src="${img(o.img)}"><b><span>${o.letra}</span> · ${o.nombre}</b></div>`).join('')}</div>${P.resp ? `<div class="resp">${P.resp}</div>` : ''}</div>`;
+  }
+  document.getElementById('c').innerHTML = h;
+</script>
+</body>
+</html>
