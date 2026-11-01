@@ -178,12 +178,12 @@ const INCLUYE = [
 
 // Caso real: la tienda de Hogar Digital con el Premium, en partes (capturas sobre su tienda real)
 const CASO_HD = [
-  { foto: "/casos/hogar-digital/portada.jpg", titulo: "Portada que se mueve sola", texto: "Con sus productos, cambiando sola" },
-  { foto: "/casos/hogar-digital/historias.jpg", titulo: "Beneficios tipo historias", texto: "Envíos, garantía y WhatsApp" },
-  { foto: "/casos/hogar-digital/categorias.jpg", titulo: "Categorías que rotan", texto: "Humidificadores, audio, smartwatches" },
-  { foto: "/casos/hogar-digital/precios.jpg", titulo: "Precios en escalera", texto: "El ahorro grande y claro" },
-  { foto: "/casos/hogar-digital/presentacion.jpg", titulo: "Ficha que presenta el producto", texto: "Lo que tiene y por qué comprarlo" },
-  { foto: "/casos/hogar-digital/comparativa.jpg", titulo: "Comparativa que se llena", texto: "Por qué comprarle a él" },
+  { foto: "/casos/hogar-digital/portada.jpg", titulo: "Portada de marca grande", texto: "Sus productos, a pantalla completa" },
+  { foto: "/casos/hogar-digital/beneficios.jpg", titulo: "Beneficios y categorías", texto: "Íconos que se dibujan y tira que corre" },
+  { foto: "/casos/hogar-digital/destacados.jpg", titulo: "Destacados", texto: "Con el % OFF y el precio real" },
+  { foto: "/casos/hogar-digital/categorias.jpg", titulo: "Encontrá lo tuyo", texto: "Categorías que rotan solas" },
+  { foto: "/casos/hogar-digital/audio.jpg", titulo: "Carruseles por categoría", texto: "Audio, preguntas y más" },
+  { foto: "/casos/hogar-digital/banner.jpg", titulo: "Banner con zoom", texto: "Para empujar la categoría que más vende" },
 ];
 
 // Preguntas frecuentes armadas como objeciones: precio, tiempo, confianza y necesidad
@@ -590,7 +590,7 @@ export default function Landing() {
               Su tienda de Tiendanube, sus productos y sus precios. Misma plantilla, sin apps. Mirá cómo queda, parte por parte.
             </p>
           </motion.div>
-          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-4 [scrollbar-width:none] lg:grid lg:grid-cols-3 lg:overflow-visible lg:mx-0 lg:px-0">
+          <div className="flex items-start gap-4 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-4 [scrollbar-width:none] lg:grid lg:grid-cols-3 lg:items-start lg:overflow-visible lg:mx-0 lg:px-0">
             {CASO_HD.map((c, i) => (
               <motion.figure
                 key={c.foto}
@@ -599,8 +599,8 @@ export default function Landing() {
                 className="snap-center shrink-0 w-[72%] sm:w-[46%] lg:w-auto"
               >
                 <div className="rounded-[28px] bg-[#16181d] p-2 ring-1 ring-white/10 shadow-[0_30px_60px_-30px_rgba(0,0,0,.9)]">
-                  <div className="rounded-[22px] overflow-hidden bg-white aspect-[9/14]">
-                    <img src={c.foto} alt={c.titulo} loading="lazy" className="w-full h-full object-cover object-top" />
+                  <div className="rounded-[22px] overflow-hidden bg-white">
+                    <img src={c.foto} alt={c.titulo} loading="lazy" className="block w-full h-auto" />
                   </div>
                 </div>
                 <figcaption className="mt-3 text-center">
