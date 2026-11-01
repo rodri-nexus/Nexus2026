@@ -89,7 +89,7 @@ En `config.evento` de cada cliente: `nombre`, `desde`, `hasta`, `anticipo` (día
 | Premium · Nevux Premium | $69.900/mes | `mpago.la/2mkcebx` | Valmont |
 
 Cada cliente lleva `plan: 'premium'` en `lib/clientes.ts` (sin `plan` = básico). La página `nevux.ar/suscribirme?c=<id>` muestra solo el precio, lo que incluye y el link del plan de ese cliente. Sin cliente: `?plan=premium`.
-El link viejo del básico (`mpago.la/1LqFYin`) era un pago único, no una suscripción: el 31/10 se reemplazó por el plan mensual "Nevux Básico" y Rodrigo lo da de baja.
+El link viejo del básico (`mpago.la/1LqFYin`) era un pago único, no una suscripción: el 31/10 se reemplazó por el plan mensual "Nevux Básico". Rodrigo lo borró el 01/11.
 
 `cobro.planMp` (ID del plan de Mercado Pago) sirve para un cliente que todavía no se suscribió: se prende solo cuando aparece la primera suscripción cobrada de ese plan.
 
