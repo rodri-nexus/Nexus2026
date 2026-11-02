@@ -130,5 +130,5 @@ def mezclar(video, voz, salida, extra=0.0):
     )
     vf = ["-vf", f"tpad=stop_mode=clone:stop_duration={extra}"] if extra > 0 else []
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", video, "-i", voz, "-i", mus, "-filter_complex", filtro,
-                    "-map", "0:v", "-map", "[a]", *vf, *(["-c:v", "libx264", "-preset", "slow", "-crf", "20", "-pix_fmt", "yuv420p"] if extra > 0 else ["-c:v", "copy"]),
-                    "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", "-t", f"{total}", salida], check=True)
+                    "-map", "0:v", "-map", "[a]", *vf, *(["-c:v", "libx264", "-preset", "slow", "-crf", "14", "-tune", "animation", "-pix_fmt", "yuv420p"] if extra > 0 else ["-c:v", "copy"]),
+                    "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-t", f"{total}", salida], check=True)

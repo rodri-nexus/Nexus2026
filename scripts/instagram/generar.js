@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const { chromium } = require("playwright");
+const { execFileSync } = require("child_process");
 
 const semana = process.argv[2] || "semana-1";
 const posts = require(`./${semana}.js`);
@@ -22,8 +23,12 @@ async function sacar(b, placa, archivo, alto) {
   await p.addInitScript((x) => (window.PLACA = x), placa);
   await p.goto(plantilla, { waitUntil: "networkidle" });
   await p.evaluate(() => document.fonts.ready);
-  await p.screenshot({ path: archivo, type: "jpeg", quality: 90 });
+  // Máxima calidad para subir a mano en Business Suite: captura PNG sin pérdida y JPG al 97 % con color completo (4:4:4)
+  const png = archivo.replace(/\.jpg$/, ".png");
+  await p.screenshot({ path: png, type: "png" });
   await p.close();
+  execFileSync("python3", ["-c", "import sys;from PIL import Image;Image.open(sys.argv[1]).convert('RGB').save(sys.argv[2],quality=97,subsampling=0,optimize=True)", png, archivo]);
+  fs.rmSync(png);
 }
 
 (async () => {

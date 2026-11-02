@@ -41,6 +41,8 @@
 
 ### Lo que falta (en orden)
 
+> **02/11 · INSTAGRAM, TODO A MANO:** Rodrigo pidió que no se programe más nada desde acá, ni @nevux.app ni Hogar Digital. Las 8 tareas de publicación quedaron apagadas. Se crea el contenido y se le pasa día por día, en máxima calidad, con la portada integrada en los Reels (ver `docs/instagram.md`).
+>
 > **01/11 (noche) · INSTAGRAM DE HOGAR DIGITAL A MANO:** Rodrigo programa los posts en Business Suite. Las tareas automáticas de Hogar Digital están apagadas; ver `docs/instagram-hogar-digital.md`. La sesión `session_01PDD9EtCY9JFJzsoyimb9Yn`, donde corren las tareas de @nevux.app, **se traba esperando permiso para Windsor** y tiene el contexto casi lleno: el 01/11 se publicaron desde otra sesión el carrusel "La cuenta que nadie hace" y la historia de las 20:17, y sus pedidos pendientes **no hay que aprobarlos** porque duplicarían. Conviene mover esas tareas a una sesión nueva.
 >
 > **01/11 (noche) · TIENDA DE MARCELO APAGADA (`activo: false`)** a pedido de Rodrigo, hasta que pague el Premium el **10/11**. Link de pago: `nevux.ar/suscribirme?c=hogar-digital` ($69.900/mes, `mpago.la/2mkcebx`). Cuando pague: `activo: true` y `cobro: { tipo: 'mercadopago', email: '<su email>', gracia: 3 }`. La configuración Premium queda guardada tal cual.
