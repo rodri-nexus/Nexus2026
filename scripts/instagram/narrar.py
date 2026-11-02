@@ -19,6 +19,13 @@ GUIONES = {
         (9.6, "Perder duele más que ganar. Mostrá el ahorro grande."),
         (12.6, "Comentá ficha, y te digo qué cambiar."),
     ]),
+    "envio": (15, [
+        (0.1, "¿Cuándo llega? Esa duda frena tus ventas."),
+        (2.8, "Dos fichas, mismo producto, mismo envío."),
+        (6.6, "Vende más la B. Porque dice cuándo llega."),
+        (9.6, "La duda también es un costo. Sacala con una fecha concreta."),
+        (12.6, "Comentá ficha, y te digo qué cambiar."),
+    ]),
     "packs": (16, [
         (0.1, "La misma visita puede valer el doble."),
         (3.0, "Caso real: llevá uno, dos o tres."),

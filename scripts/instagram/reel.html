@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- Reels animados de Nevux (1080x1920). generar-reels.js llama a window.render(t) cuadro por cuadro y arma el mp4.
-     El reel se elige con window.REEL = "que-hace" | "precio" | "packs". -->
+     El reel se elige con window.REEL = "que-hace" | "precio" | "envio" | "packs". -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=block" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -107,6 +107,23 @@ const REELS = {
       [`<div class="t2">Vende más <span class="verde">la B.</span></div>`, 6.6, 9.4, "pop", "top:320px", "centro"],
       [`<div class="t2">Perder duele más<br>que <span class="verde">ganar</span>.</div>`, 9.6, 14.9, "up", "top:560px", "centro"],
       [`<div class="t3">Mostrá cuánto ahorra en pesos, grande y al lado del precio. Un “10% OFF” en letra chiquita no lo ve nadie.</div>`, 10.4, 14.9, "fade", "top:900px", "centro"],
+      [`<span class="boton">Comentá <span class="palabra">FICHA</span></span>`, 11.8, 15, "pop", "top:1320px", "centro"],
+    ],
+    tel() {},
+    vars(t) { return { "--x1": ease((t - 6.6) / 0.4), "--x2": ease((t - 6.8) / 0.4) }; },
+  },
+
+  envio: {
+    dur: 15,
+    els: [
+      [`<div class="t1">¿Cuándo <span class="verde">llega</span>?</div>`, 0.1, 2.6, "pop", "top:640px", "centro"],
+      [`<div class="t3">Dos fichas. Mismo producto, mismo envío.</div>`, 2.8, 6.4, "fade", "top:320px", "centro"],
+      [`<div class="n">Remera Oversize</div><div class="p">$45.000</div><div class="chiq">Envío a todo el país</div><span class="sello mal" style="opacity:var(--x1)">✕</span>`, 3.1, 9.4, "left", "top:560px", "card"],
+      [`<div class="n">Remera Oversize</div><div class="p">$45.000</div><div class="ahorro">📦 Pedí hoy y te llega entre el martes y el jueves</div><span class="sello bien" style="opacity:var(--x2)">✓</span>`, 3.7, 9.4, "left", "top:1060px", "card"],
+      [`<div class="t2">¿Cuál vende más?</div>`, 4.6, 6.4, "up", "top:1620px", "centro"],
+      [`<div class="t2">Vende más <span class="verde">la B.</span></div>`, 6.6, 9.4, "pop", "top:320px", "centro"],
+      [`<div class="t2">La duda también<br>es un <span class="verde">costo</span>.</div>`, 9.6, 14.9, "up", "top:560px", "centro"],
+      [`<div class="t3">Una fecha concreta saca la duda antes de que aparezca. “Envío a todo el país” no le dice cuándo lo va a tener.</div>`, 10.4, 14.9, "fade", "top:900px", "centro"],
       [`<span class="boton">Comentá <span class="palabra">FICHA</span></span>`, 11.8, 15, "pop", "top:1320px", "centro"],
     ],
     tel() {},
