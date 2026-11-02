@@ -1,6 +1,6 @@
 // Contenido con la tienda real de un cliente (pedido de Rodrigo, 02/11): nada de simulaciones.
 // Capturas de hogardigital.com.ar en celular (390 px, x3) con su configuración Premium de lib/clientes.ts,
-// sin la Semana Cyber (termina el 4/11) y sin los avisos de compra con nombres de ejemplo. Están en capturas/hd/.
+// sin la Semana Cyber (termina el 4/11) y con los avisos de compra del Premium (pedido de Rodrigo). Están en capturas/hd/.
 // Uso: node scripts/instagram/generar.js real-1
 const HASHTAGS = "#tiendanube #emprendedoresargentinos #tiendaonline #ecommerceargentina #ventasonline #emprender";
 const C = "capturas/hd/";
