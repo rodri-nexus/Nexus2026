@@ -23,12 +23,18 @@
 
 ### Dónde quedamos (lo más urgente)
 
-1. **Instagram de @nevux.app, semana del lunes 2 al domingo 8/11: Rodrigo lo está programando a mano en Meta Business Suite, día por día.** Ya se le pasó el **lunes 2/11** (historias `1102-1/2/3` + Reel `reels/precio.mp4` + descripción de `reels/precio.txt`). **Sigue el martes 3/11.** Forma de trabajo (pedido de Rodrigo): mandarle con SendUserFile, en orden, primero las 3 historias del día con su horario y el sticker que conviene (encuesta, link, etc.), después el post (las imágenes del carrusel en orden, o el Reel) y la descripción en un bloque para copiar. Esperar su "listo" antes de pasar al día siguiente.
+1. **Actualización 02/11 (noche): la semana del 2 al 8/11 de @nevux.app ya se le pasó entera a Rodrigo**, que la programó en Business Suite. Cambios a pedido suyo ("lo viejo no lo usemos más"):
+   - **Miércoles 4/11:** el antes y después viejo se reemplazó por el carrusel **`07-premium/`**, "Dos tiendas, dos estilos Premium". Son capturas reales de hoy de Hogar Digital (Destino) y Valmont (Wess); de Valmont solo partes **sin productos**, porque su catálogo tiene réplicas, y sin etiquetar a @valmont.relojes. Generador: `generar-casos.js`, con `casos.html`, `premium-casos.js` y las capturas en `scripts/instagram/casos/`.
+   - **Jueves 5/11:** el Reel de packs dejó de ser "caso real de Hogar Digital" (era el diseño viejo) y pasó a ser un ejemplo genérico, sin "MÁS ELEGIDO".
+   - **Sigue:** armar la **semana 2 (9 al 15/11)** de @nevux.app y de Hogar Digital (9 al 13/11), con el informe de la semana 1 si hay métricas. Pasarla igual: día por día, en máxima calidad.
+
+   Lo que sigue es el detalle original:
+   Instagram de @nevux.app, semana del lunes 2 al domingo 8/11: Rodrigo lo está programando a mano en Meta Business Suite, día por día. Ya se le pasó el **lunes 2/11** (historias `1102-1/2/3` + Reel `reels/precio.mp4` + descripción de `reels/precio.txt`). **Sigue el martes 3/11.** Forma de trabajo (pedido de Rodrigo): mandarle con SendUserFile, en orden, primero las 3 historias del día con su horario y el sticker que conviene (encuesta, link, etc.), después el post (las imágenes del carrusel en orden, o el Reel) y la descripción en un bloque para copiar. Esperar su "listo" antes de pasar al día siguiente.
 
    | Día | Historias (9:47 · 13:17 · 20:17) | Post 19:30 | Descripción |
    |---|---|---|---|
    | Mar 3/11 | `historias/1103-1..3` | Carrusel `04-que-hace-nevux/1..7.jpg` | `04-que-hace-nevux/caption.txt` |
-   | Mié 4/11 | `1104-1..3` | Carrusel `02-antes-despues/1..5.jpg` | `02-antes-despues/caption.txt` |
+   | Mié 4/11 | `1104-1..3` | Carrusel `07-premium/1..7.jpg` | `07-premium/caption.txt` |
    | Jue 5/11 | `1105-1..3` | Reel `reels/packs.mp4` | `reels/packs.txt` |
    | Vie 6/11 | `1106-1..3` | Carrusel `05-como-trabajamos/1..7.jpg` | `05-como-trabajamos/caption.txt` |
    | Sáb 7/11 | `1107-1..3` | Reel `reels/envio.mp4` | `reels/envio.txt` |
