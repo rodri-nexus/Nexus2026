@@ -13,7 +13,7 @@ const ESCALA = Number(process.env.ESCALA || 1);
 const PRE = Number(process.env.PRE_PORTADA ?? 2);
 const reels = process.argv.slice(2).length ? process.argv.slice(2) : ["que-hace", "precio", "packs"];
 // Momento del reel que se usa de portada (se ve en el perfil)
-const PORTADA = { "que-hace": 1.6, precio: 2.0, packs: 2.2 };
+const PORTADA = { "que-hace": 1.6, precio: 2.0, envio: 2.0, packs: 2.2 };
 const salida = path.join(__dirname, "..", "..", "public", "ig", "reels");
 
 (async () => {
