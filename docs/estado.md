@@ -17,7 +17,49 @@
   - De otras tiendas se replica la idea y el diseño, no el código.
 - **Permisos:** `.claude/settings.json` (lo creó Rodrigo) permite usar Windsor (publicar en Instagram y leer métricas) sin pedir confirmación.
 
-## Para retomar en un chat nuevo (actualizado 01/11/2026, mediodía)
+## Para retomar en un chat nuevo (actualizado 02/11/2026) ← LEER ESTO PRIMERO
+
+**Sesión anterior:** `session_01PDD9Es5e9V3nkNbyxc3gnr` (rama `ccr-aacae2fe-pg8b5d`, todo mergeado a `main` hasta el PR #97). Leer también `docs/hogar-digital-premium.md`, `docs/referencias/destino.md`, `docs/instagram.md`, `docs/instagram-hogar-digital.md`, `docs/clientes.md` y `docs/valmont.md`.
+
+### Dónde quedamos (lo más urgente)
+
+1. **Instagram de @nevux.app, semana del lunes 2 al domingo 8/11: Rodrigo lo está programando a mano en Meta Business Suite, día por día.** Ya se le pasó el **lunes 2/11** (historias `1102-1/2/3` + Reel `reels/precio.mp4` + descripción de `reels/precio.txt`). **Sigue el martes 3/11.** Forma de trabajo (pedido de Rodrigo): mandarle con SendUserFile, en orden, primero las 3 historias del día con su horario y el sticker que conviene (encuesta, link, etc.), después el post (las imágenes del carrusel en orden, o el Reel) y la descripción en un bloque para copiar. Esperar su "listo" antes de pasar al día siguiente.
+
+   | Día | Historias (9:47 · 13:17 · 20:17) | Post 19:30 | Descripción |
+   |---|---|---|---|
+   | Mar 3/11 | `historias/1103-1..3` | Carrusel `04-que-hace-nevux/1..7.jpg` | `04-que-hace-nevux/caption.txt` |
+   | Mié 4/11 | `1104-1..3` | Carrusel `02-antes-despues/1..5.jpg` | `02-antes-despues/caption.txt` |
+   | Jue 5/11 | `1105-1..3` | Reel `reels/packs.mp4` | `reels/packs.txt` |
+   | Vie 6/11 | `1106-1..3` | Carrusel `05-como-trabajamos/1..7.jpg` | `05-como-trabajamos/caption.txt` |
+   | Sáb 7/11 | `1107-1..3` | Reel `reels/envio.mp4` | `reels/envio.txt` |
+   | Dom 8/11 | `1108-1..3` | Carrusel `06-checklist/1..7.jpg` | `06-checklist/caption.txt` |
+
+   Todo está en `public/ig/`, en máxima calidad (JPG al 97 % 4:4:4; Reels con CRF 14 y la **portada integrada como primer cuadro**, así Rodrigo no carga miniatura). Los Reels se suben como Reel con "Compartir también en el feed".
+2. **No se programa ni se publica nada desde Claude** (pedido de Rodrigo, 02/11). Las 8 tareas de publicación (4 de @nevux.app y 4 de Hogar Digital) están **apagadas** (`enabled: false`, no borradas). Queda prendida la tarea del **sábado 7/11, 12:00** (informe de la semana 1 y armado de la semana 2) en la sesión `session_01PDD9EtCY9JFJzsoyimb9Yn`. **Esa sesión se traba esperando permiso para Windsor y tiene el contexto casi lleno:** conviene hacer el informe y la semana 2 desde el chat nuevo y apagar esa tarea. Ahí quedaron pedidos de Windsor pendientes del 01/11: **no aprobarlos**, porque duplicarían posts que ya salieron.
+3. **Hogar Digital (Marcelo): tienda APAGADA** (`activo: false`) hasta que pague el **Premium el 10/11**. Link de pago: `nevux.ar/suscribirme?c=hogar-digital` ($69.900/mes, `mpago.la/2mkcebx`). Cuando pague: `activo: true` y `cobro: { tipo: 'mercadopago', email: '<su email>', gracia: 3 }` (no `planMp`: lo usa Valmont). La configuración Premium tal cual Destino ya está en `lib/clientes.ts`, en azul: home, ficha (`estiloFicha: 'destino'`), cabecera y pie (`premium.tema: 'destino'`), comunidad con cuadros de sus Reels, local en Belgrano 276 (Campana, lunes a sábado de 8 a 21 h) y números (+35 años, +300 ventas en 2026, +800 calificaciones en Mercado Libre, 1 local).
+4. **Instagram de Hogar Digital, semana 2 al 6/11:** ya se le pasó entera a Rodrigo y la programó. Para el 9 al 13/11, armar la semana 2 y pasársela igual.
+
+### Reglas que se hablaron en esta sesión (no reabrir)
+
+- **Reseñas:** Rodrigo pidió inventar reseñas, cifras y fotos de clientes, y se le dijo que no. Después mandó 2 tandas de "testimonios de WhatsApp" con señales de ser armados (las mismas 8 ciudades en el mismo orden con nombres distintos, una hora "18:99", la misma reseña en horarios distintos). **No se publicaron y no se publican.** La sección de reseñas está lista en el motor: se prende solo con reseñas verificables (captura del panel de Tiendanube, Mercado Libre citado como tal, Google).
+- **All Time (alltimerelojes.com):** vende "Superclones AAA" de Rolex, Omega, etc. y no es Tiendanube. Se le dijo a Rodrigo que no se trabaja con réplicas (es su regla).
+- Para Hogar Digital: nada de "el más elegido" sin confirmarlo. La historia `1103-2` lo decía y había que confirmarlo con Marcelo.
+
+### Otros pendientes
+
+- **Valmont (Miguel):** paga el Premium entre el 5 y el 7/11 → cambiar `planMp` por su email y sumarla como segundo caso real en la landing y en `nevux.ar/links`.
+- **Jueves 5/11:** Rodrigo vuelve a poner el banner anterior de Hogar Digital, en lugar del de Cyber.
+- **Windsor:** la prueba vence ~29/11; hay un aviso el 23/11 (en `session_01PDD9EpeUFqobvhnuTnY9ML`). Igual ya no se usa para publicar.
+- **Motor (`public/nevux.js`), opciones nuevas del 01/11:**
+  - `premium: { tema: 'destino' }` + `cabecera: { logo, logoClaro, nombre }`: cabecera flotante y pie negro;
+  - `estiloFicha: 'destino'` + `fichaDestino: { sello, confianza, faq }`;
+  - `home.destino.comunidad`: historias 9:16;
+  - `home.destino.locales` con un solo local: mapa a la izquierda en computadora;
+  - "Encontrá lo tuyo" queda fijo al bajar.
+
+  Ver `docs/disenos.md`.
+
+## Para retomar en un chat nuevo (versión del 01/11/2026, mediodía; histórico)
 
 **Leer primero:** este archivo, `docs/disenos.md` (catálogo de diseños y configuración de cada uno), `docs/efectos.md` (efectos medidos), `docs/referencias/destino.md` (referencia oficial del Premium), `docs/valmont.md`, `docs/clientes.md`, `docs/instagram.md` y `docs/instagram-hogar-digital.md`.
 
