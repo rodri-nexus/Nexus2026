@@ -56,6 +56,12 @@ Fichas de producto que venden · Sin apps
 
 **Regla de todo el contenido:** cada publicación resuelve **un** problema concreto y termina con **una** acción ("Comentá FICHA", "Escribí ANÁLISIS", "Link en el perfil"). Nunca datos inventados: lo mismo que en la landing.
 
+## Desde el 02/11: Rodrigo publica a mano en Business Suite (pedido de Rodrigo)
+
+**No se programa ni se publica más nada desde Claude.** Las tareas automáticas de @nevux.app y de Hogar Digital quedaron apagadas (`enabled: false`). Se crea el contenido y se le pasa a Rodrigo **día por día, en orden**: primero las historias del día (con el horario y el sticker que conviene agregar), después el post (las imágenes del carrusel en orden, o el Reel) y la descripción lista para copiar.
+- **Calidad máxima:** carruseles e historias se capturan en PNG y se exportan a JPG al 97 % con color completo (`generar.js`). Los Reels salen de cuadros PNG, con H.264 CRF 14 `tune animation` y audio AAC a 192 kbps (`generar-reels.js` y `audio.py`).
+- **Portada integrada en los Reels:** el primer cuadro del video es la portada (`PRE_PORTADA`, 2 cuadros por defecto), así Business Suite la toma sola como miniatura. `narrar.py` corre la voz lo mismo.
+
 ## Frecuencia y horarios (todo programado, hora de Argentina)
 
 | Hora | Qué | Archivo |
