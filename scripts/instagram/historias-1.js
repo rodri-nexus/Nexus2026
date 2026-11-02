@@ -77,10 +77,10 @@ module.exports = {
     },
     {
       archivo: "1104-2", tipo: "portada", eyebrow: "Hoy 19:30",
-      titulo: 'El antes y después de una <span class="verde">ficha real</span>',
-      sub: "Misma tienda, mismo producto, mismo precio. Activá las notificaciones para no perdértelo. 🔔",
+      titulo: 'Dos tiendas, <span class="verde">dos estilos Premium</span>',
+      sub: "Tecnología y relojería: así quedaron con Nevux. Activá las notificaciones para no perdértelo. 🔔",
     },
-    nuevo("1104-3", "Nuevo post", 'Mismo producto. <span class="verde">Otra ficha.</span>', "Deslizá y mirá qué cambió (y por qué funciona)."),
+    nuevo("1104-3", "Nuevo post", 'Dos tiendas. <span class="verde">Dos estilos.</span>', "Mirá cómo quedaron Hogar Digital y Valmont con el plan Premium."),
 
     // Jue 5/11 · reel: packs
     {

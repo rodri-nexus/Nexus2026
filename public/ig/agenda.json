@@ -37,10 +37,10 @@
   },
   "2026-11-04": {
     "tipo": "carrusel",
-    "nombre": "Mismo producto, otra ficha",
-    "carpeta": "02-antes-despues",
-    "imagenes": 5,
-    "caption": "02-antes-despues/caption.txt"
+    "nombre": "Dos tiendas, dos estilos Premium",
+    "carpeta": "07-premium",
+    "imagenes": 7,
+    "caption": "07-premium/caption.txt"
   },
   "2026-11-05": {
     "tipo": "reel",
