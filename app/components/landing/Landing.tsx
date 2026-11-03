@@ -31,7 +31,7 @@ import {
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import Vitrina from "@/app/disenos/Vitrina";
 import { DISENOS } from "@/lib/disenos";
-import Notebook from "@/app/disenos/Notebook";
+import NotebookVideo from "./NotebookVideo";
 import { PLANES } from "@/lib/planes";
 
 // Landing de Nevux. Cada sección sigue el orden del curso de ventas:
@@ -473,8 +473,9 @@ export default function Landing() {
       {/* 1c. PREMIUM (después de los diseños): la home estilo Destino funcionando en una notebook (docs/referencias/destino.md) */}
       <section id="premium" className="relative py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5 overflow-hidden scroll-mt-20">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-amber-400/10 blur-[140px] rounded-full pointer-events-none" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-[1fr_1.35fr] gap-12 items-center">
-          <motion.div {...fadeUp} className="text-center lg:text-left">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 grid gap-12 items-center">
+          <motion.div {...fadeUp} className="text-center lg:text-left lg:grid lg:grid-cols-2 lg:gap-12 lg:items-end">
+            <div>
             <span className="inline-block bg-amber-300 text-black text-[11px] font-extrabold uppercase tracking-[.18em] px-3 py-1 rounded-full">Plan Premium</span>
             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-5 mb-5">
               Tu tienda como <span className="text-amber-300">las marcas grandes.</span>
@@ -482,6 +483,8 @@ export default function Landing() {
             <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-7 max-w-lg mx-auto lg:mx-0">
               La home que usan las marcas de ropa que más venden en Tiendanube, armada con tus productos. Sin apps y sin cambiar de plantilla.
             </p>
+            </div>
+            <div>
             <ul className="space-y-3 text-sm text-neutral-300 max-w-md mx-auto lg:mx-0 text-left">
               {[
                 "Portada en video con tus productos flotando",
@@ -499,18 +502,30 @@ export default function Landing() {
               ))}
             </ul>
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-              <a href="/demo/disenos/home-destino.html" target="_blank" rel="noopener" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-300 hover:bg-amber-200 text-black font-extrabold px-6 py-3.5 transition-colors">
-                Ver la demo en grande <ArrowRight className="w-4 h-4" />
+              <a href="/suscribirme?plan=premium" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-300 hover:bg-amber-200 text-black font-extrabold px-6 py-3.5 transition-colors">
+                Quiero el Premium <ArrowRight className="w-4 h-4" />
               </a>
               <a href="#precio" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 hover:border-white/30 text-white font-bold px-6 py-3.5 transition-colors">
                 {ars(PLANES.premium.precio)}/mes
               </a>
             </div>
+            </div>
           </motion.div>
-          <motion.div {...fadeUp}>
-            <Notebook src="/demo/disenos/home-destino.html" titulo="Home Premium estilo Destino" />
-            <p className="text-center text-xs text-neutral-500 mt-4">Demo con una marca de ejemplo. En tu tienda van tus productos, tus fotos y tus datos reales.</p>
+          <motion.div {...fadeUp} className="grid md:grid-cols-2 gap-10 md:gap-8">
+            {[
+              { src: "/casos/premium/hogar-digital.mp4", poster: "/casos/premium/hogar-digital.jpg", url: "hogardigital.com.ar", nombre: "Hogar Digital", rubro: "Tecnología y hogar · estilo Destino" },
+              { src: "/casos/premium/valmont.mp4", poster: "/casos/premium/valmont.jpg", url: "valmontrelojes.mitiendanube.com", nombre: "Valmont & Co.", rubro: "Relojería · estilo a medida" },
+            ].map((t) => (
+              <div key={t.nombre}>
+                <NotebookVideo src={t.src} poster={t.poster} url={t.url} titulo={`Tienda ${t.nombre} con el plan Premium`} />
+                <p className="text-center mt-5">
+                  <span className="block text-white font-extrabold">{t.nombre}</span>
+                  <span className="block text-xs text-neutral-500 mt-1">{t.rubro}</span>
+                </p>
+              </div>
+            ))}
           </motion.div>
+          <p className="text-center text-xs text-neutral-500 -mt-4">Tiendas reales con el plan Premium, grabadas tal como se ven hoy. En la tuya van tus productos, tus fotos y tus datos.</p>
         </div>
       </section>
 
@@ -870,8 +885,8 @@ export default function Landing() {
             <a href="/suscribirme?plan=premium" className="w-full inline-flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white font-extrabold px-6 py-4 rounded-2xl transition-colors">
               Quiero el Premium <ArrowRight className="w-4 h-4" />
             </a>
-            <a href="/demo/disenos/home-destino.html" target="_blank" rel="noopener" className="mt-3 w-full inline-flex items-center justify-center gap-2 border border-black/20 hover:border-black/40 font-bold px-6 py-3.5 rounded-2xl text-sm transition-colors">
-              Ver la demo <ArrowRight className="w-4 h-4" />
+            <a href="#premium" className="mt-3 w-full inline-flex items-center justify-center gap-2 border border-black/20 hover:border-black/40 font-bold px-6 py-3.5 rounded-2xl text-sm transition-colors">
+              Ver tiendas reales <ArrowRight className="w-4 h-4" />
             </a>
           </motion.div>
           </div>
