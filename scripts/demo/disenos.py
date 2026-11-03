@@ -62,6 +62,24 @@ FICHAS = {
             'whatsapp': '5490000000000',
         },
     },
+    # Ficha estilo Destino (plan Premium): la que se ve al tocar un producto en la home Destino de la demo
+    'ficha-destino': {
+        'titulo': 'Reloj Noir Sport', 'fotos': ['noir-1.jpg', 'noir-2.jpg', 'royal-1.jpg'], 'precio': 56250, 'stock': 5,
+        'cfg': {
+            'color': '#111111', 'transferencia': 15, 'estiloFicha': 'destino', 'packs': [], 'ventas': False, 'whatsapp': '5490000000000',
+            'premium': {'tema': 'destino'}, 'mediosDePago': ['Visa', 'Mastercard', 'Débito', 'Mercado Pago'],
+            'carrito': {'envioGratis': 120000}, 'envio': {'corte': 14, 'dias': [1, 2, 3, 4, 5], 'min': 3, 'max': 6},
+            'cinta': [], 'cabecera': {'cinta': ['Envío gratis + *2 relojes*', '3 y 6 cuotas *sin interés*', '-15% off *transferencia*', 'Cambios *fáciles*']},
+            'fichaDestino': {
+                'sello': 'Nevux Demo · *Garantía* 6 meses',
+                'confianza': [{'icono': 'cambios', 'titulo': 'Cambios fáciles', 'texto': '30 días para cambiarlo'},
+                              {'icono': 'chat', 'titulo': 'Atención personalizada', 'texto': 'Te respondemos por WhatsApp'},
+                              {'icono': 'garantia', 'titulo': 'Garantía', 'texto': '6 meses por escrito'}],
+                'faq': [{'p': '¿Tiene garantía?', 'r': 'Sí, 6 meses por fallas de fabricación.'}, {'p': '¿Cuánto tarda el envío?', 'r': 'Entre 3 y 6 días hábiles a todo el país.'},
+                        {'p': '¿Puedo cambiarlo?', 'r': 'Sí, tenés 30 días para cambiarlo.'}, {'p': '¿Cómo puedo pagar?', 'r': 'Con tarjeta, Mercado Pago o transferencia con 15% OFF.'}],
+            },
+        },
+    },
     'ficha-clara': {
         'titulo': 'Reloj Classic Silver', 'fotos': ['classic-1.jpg', 'classic-2.jpg', 'chrono-1.jpg'], 'precio': 8750, 'stock': 15,
         'cfg': {
@@ -192,13 +210,13 @@ CATALOGO = [('Noir Sport', 'noir', 56250, 69900), ('Royal Gold', 'royal', 61900,
             ('Heritage', 'heritage', 52900, 64900), ('Noir Sport Dorado', 'royal', 61900, 0), ('Chrono Edición Azul', 'chrono', 58900, 0), ('Classic Cuero', 'classic', 49900, 59900)]
 def var_cat(p, l):
     v = variante(p, 0, 5); v['compare_at_price_number'] = l or None; return v
-cat = ''.join(f"""<div class="js-item-product" data-variants="{html.escape(json.dumps([var_cat(p, l)]))}"><a href="ficha-oscura.html" title="{html.escape(n)}"><img src="{IMG}{f}-1.jpg" alt=""><img src="{IMG}{f}-2.jpg" alt=""></a>
+cat = ''.join(f"""<div class="js-item-product" data-variants="{html.escape(json.dumps([var_cat(p, l)]))}"><a href="ficha-destino.html" title="{html.escape(n)}"><img src="{IMG}{f}-1.jpg" alt=""><img src="{IMG}{f}-2.jpg" alt=""></a>
 <div class="js-item-name">{html.escape(n)}</div><span class="js-price-display">{pesos(p)}</span></div>""" for n, f, p, l in CATALOGO)
 open(os.path.join(SALIDA, 'catalogo.html'), 'w').write(f'<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Catálogo demo</title></head><body>{cat}</body></html>')
 
 CAT_URL = '/demo/disenos/catalogo.html'
 DESTINO_CFG = {
-    'color': '#111111', 'transferencia': 15, 'whatsapp': '5490000000000',
+    'color': '#111111', 'transferencia': 15, 'whatsapp': '5490000000000', 'premium': {'tema': 'destino'},
     'tarjetas': {'transferencia': 15, 'cuotas': 6},
     'ventas': {'estilo': 'destino', 'marca': 'Nevux Demo', 'cada': 9},
     'carrito': {'envioGratis': 120000}, 'envio': {'corte': 14, 'dias': [1, 2, 3, 4, 5], 'min': 3, 'max': 6},
