@@ -27,7 +27,17 @@ select{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font:15p
 footer{background:#111;color:#999;text-align:center;padding:36px 16px;font-size:12px}
 """
 
+# Estilo Wess (el de Valmont, la tienda de Miguel) con marca y fotos de ejemplo: config en wess-demo.json
+WESS = json.load(open(os.path.join(os.path.dirname(__file__), 'wess-demo.json')))
+WESS_FICHA = {k: v for k, v in WESS.items() if k != 'home'}
+WESS_FICHA.update({'transferencia': 15, 'mediosDePago': ['Visa', 'Mastercard', 'Débito', 'Mercado Pago']})
+# Cabecera negra con la inicial 3D girando, como en Valmont (el motor la arma dentro de .js-logo-container)
+WESS_HEAD = ('<style>.nvx-hd .js-logo-container>b{display:none}header.nvx-hd>span{color:#f4efe6}</style>'
+             '<header class="js-head-main"><span>☰</span><div class="js-logo-container"><b>NEVUX DEMO</b></div><span>🛒</span></header>')
+
 FICHAS = {
+    # Ficha estilo Wess (plan Premium, como la de Valmont): la que se ve al tocar un reloj en home-wess
+    'ficha-wess': {'titulo': 'Reloj Royal Gold', 'fotos': ['royal-1.jpg', 'royal-2.jpg', 'hero-royal.png'], 'precio': 61900, 'stock': 3, 'cfg': WESS_FICHA, 'header': WESS_HEAD},
     'ficha-oscura': {
         'titulo': 'Reloj Noir Sport', 'fotos': ['noir-1.jpg', 'noir-2.jpg', 'royal-1.jpg'], 'precio': 56250, 'stock': 1,
         'cfg': {
@@ -147,7 +157,7 @@ for nombre, F in FICHAS.items():
 window.NEVUX_CFG={json.dumps(F['cfg'], ensure_ascii=False)};
 if(NEVUX_CFG.cuentaRegresiva){{var f=new Date();f.setHours(23,59,59,0);NEVUX_CFG.cuentaRegresiva.hasta=f.toISOString();}}</script></head><body>
 <div class="demo">DEMO de Nevux · Marca, fotos y precios ilustrativos</div>
-<header><span>☰</span><b>NEVUX DEMO</b><span>🛒</span></header>
+{F.get('header', '<header><span>☰</span><b>NEVUX DEMO</b><span>🛒</span></header>')}
 <div class="wrap"><div id="single-product" class="js-product-detail"><div class="gal">{fotos}<div class="thumbs">{thumbs}</div></div>
 <div><div class="migas">Inicio · Productos · {html.escape(F['titulo'])}</div><h1 class="js-product-name">{html.escape(F['titulo'])}</h1>
 <div class="js-price-container"><span id="price_display" class="js-price-display">{pesos(F['precio'])}</span></div>
@@ -262,3 +272,21 @@ dest = f"""<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name
 <script src="/nevux.js"></script></body></html>"""
 open(os.path.join(SALIDA, 'home-destino.html'), 'w').write(dest)
 print('ok home-destino')
+
+# ----- Home Premium estilo Wess (la de Valmont) con marca y fotos de ejemplo -----
+# El motor Wess busca enlaces con "/productos/" (como en Tiendanube): va en el ancla para que lleve a la ficha de la demo
+cat_w = cat.replace('href="ficha-destino.html"', 'href="/demo/disenos/ficha-wess.html#/productos/royal-gold/"')
+open(os.path.join(SALIDA, 'catalogo-wess.html'), 'w').write(f'<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Catálogo demo</title></head><body>{cat_w}</body></html>')
+wess = f"""<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home Premium estilo Wess · Demo de Nevux</title><meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>{CSS}</style><script>window.LS={json.dumps({'template': 'home'})};window.NEVUX_CFG={json.dumps(WESS, ensure_ascii=False)};</script></head><body>
+<div class="demo">DEMO de Nevux Premium · Marca, fotos y precios ilustrativos</div>
+{WESS_HEAD}
+<div data-store="home-slider"></div>
+<div class="wrap" style="height:20px"></div>
+<footer class="js-footer">Nevux Demo · Tienda de demostración</footer>
+{CARRITO_HTML}
+<script src="/nevux.js"></script></body></html>"""
+open(os.path.join(SALIDA, 'home-wess.html'), 'w').write(wess)
+print('ok home-wess')
