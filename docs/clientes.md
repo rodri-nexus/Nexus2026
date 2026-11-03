@@ -48,7 +48,7 @@ El token da acceso a tu cuenta de Mercado Pago: va solo en Vercel, nunca en el c
 ### Cobro automático con plan propio (recomendado desde el 03/11)
 
 En el cliente: `cobro: { tipo: 'mercadopago', planPropio: true, gracia: 3 }` y `activo: true`.
-- El cliente paga en **`nevux.ar/suscribirme?c=<id>`**. La primera vez que abre ese link se crea en Mercado Pago **su propio plan** ("Nevux Premium · Hogar Digital (hogar-digital)", con el precio de su plan en `lib/planes.ts`) y el botón lleva a ese plan.
+- **Link para mandarle al cliente: `nevux.ar/pagar/<id>`** (igual a `nevux.ar/suscribirme?c=<id>`). La página carga sin consultar Mercado Pago. El botón pasa por `/pagar/<id>/ir`, que busca o crea **su propio plan** ("Nevux Premium · Hogar Digital", con el precio de `lib/planes.ts`) y redirige al checkout. Ahí Mercado Pago ofrece "Ingresar con mi cuenta" (en el celular abre la app) o "Tarjeta de crédito o débito" sin cuenta. El primer mes se cobra al suscribirse.
 - Su tienda **se prende sola** apenas Mercado Pago cobra ese plan (en hasta 5 minutos) y **se apaga sola** si deja de pagar (con 3 días de gracia). No hace falta cargar email ni ID.
 - Si cambia el precio del plan, se crea otro plan propio con el precio nuevo; la búsqueda mira todos los planes del cliente.
 - Si Mercado Pago no responde cuando el cliente abre su link, la página muestra "Escribinos y te pasamos el link de pago" (WhatsApp).
