@@ -317,22 +317,22 @@
     {
      "nombre": "Digitales",
      "url": "#",
-     "foto": "https://nevux.ar/clientes/valmont/cat-digitales.svg"
+     "foto": "/demo/disenos/img/cat-digitales.svg"
     },
     {
      "nombre": "Deportivos",
      "url": "#",
-     "foto": "https://nevux.ar/clientes/valmont/cat-deportivos.svg"
+     "foto": "/demo/disenos/img/cat-deportivos.svg"
     },
     {
      "nombre": "Analógicos",
      "url": "#",
-     "foto": "https://nevux.ar/clientes/valmont/cat-analogicos.svg"
+     "foto": "/demo/disenos/img/cat-analogicos.svg"
     },
     {
      "nombre": "Smartwatches",
      "url": "#",
-     "foto": "https://nevux.ar/clientes/valmont/cat-smartwatches.svg"
+     "foto": "/demo/disenos/img/cat-smartwatches.svg"
     }
    ]
   },
@@ -341,7 +341,7 @@
    "titulo": "Buscá el reloj que no pase desapercibido.",
    "url": "/demo/disenos/ficha-wess.html",
    "boton": "Ver el Royal Gold",
-   "foto": "/demo/valmont/img/hero-royal.png",
+   "foto": "/demo/disenos/img/hero-royal.png",
    "items": [
     {
      "titulo": "Esfera con detalle",
@@ -373,7 +373,7 @@
    "etiqueta": "Tu reloj en 20 segundos",
    "titulo": "Probate el reloj",
    "destacado": "sin salir de casa",
-   "foto": "/demo/valmont/img/hero-royal.png",
+   "foto": "/demo/disenos/img/hero-royal.png",
    "url": "/demo/disenos/catalogo-wess.html",
    "boton": "Ver relojes"
   },

@@ -5,7 +5,7 @@
 import json, html, os
 
 SALIDA = os.path.join(os.path.dirname(__file__), '..', '..', 'public', 'demo', 'disenos')
-IMG = '/demo/valmont/img/'
+IMG = '/demo/disenos/img/'  # relojes dibujados con la marca NEVUX, nunca Valmont (scripts/demo/relojes/relojes.js)
 
 CSS = """
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:#fff;color:#141414}
