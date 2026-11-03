@@ -513,8 +513,8 @@ export default function Landing() {
           </motion.div>
           <motion.div {...fadeUp} className="grid md:grid-cols-2 gap-10 md:gap-8">
             {[
-              { src: "/casos/premium/hogar-digital.mp4", poster: "/casos/premium/hogar-digital.jpg", url: "hogardigital.com.ar", nombre: "Hogar Digital", rubro: "Tecnología y hogar · estilo Destino" },
-              { src: "/casos/premium/valmont.mp4", poster: "/casos/premium/valmont.jpg", url: "valmontrelojes.mitiendanube.com", nombre: "Valmont & Co.", rubro: "Relojería · estilo a medida" },
+              { src: "/casos/premium/hogar-digital.mp4", poster: "/casos/premium/hogar-digital.jpg", url: "hogardigital.com.ar", nombre: "Hogar Digital", rubro: "Tienda real · tecnología y hogar" },
+              { src: "/casos/premium/demo.mp4", poster: "/casos/premium/demo.jpg", url: "tutienda.com.ar", nombre: "Tienda demo", rubro: "Relojería de ejemplo · estilo Destino" },
             ].map((t) => (
               <div key={t.nombre}>
                 <NotebookVideo src={t.src} poster={t.poster} url={t.url} titulo={`Tienda ${t.nombre} con el plan Premium`} />
@@ -525,7 +525,7 @@ export default function Landing() {
               </div>
             ))}
           </motion.div>
-          <p className="text-center text-xs text-neutral-500 -mt-4">Tiendas reales con el plan Premium, grabadas tal como se ven hoy. En la tuya van tus productos, tus fotos y tus datos.</p>
+          <p className="text-center text-xs text-neutral-500 -mt-4">Hogar Digital es una tienda real con el plan Premium, grabada tal como se ve hoy. La demo usa marca, fotos y datos de ejemplo. En tu tienda van tus productos, tus fotos y tus datos reales.</p>
         </div>
       </section>
 
@@ -886,7 +886,7 @@ export default function Landing() {
               Quiero el Premium <ArrowRight className="w-4 h-4" />
             </a>
             <a href="#premium" className="mt-3 w-full inline-flex items-center justify-center gap-2 border border-black/20 hover:border-black/40 font-bold px-6 py-3.5 rounded-2xl text-sm transition-colors">
-              Ver tiendas reales <ArrowRight className="w-4 h-4" />
+              Verlo funcionando <ArrowRight className="w-4 h-4" />
             </a>
           </motion.div>
           </div>
