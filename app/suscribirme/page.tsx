@@ -4,7 +4,6 @@ import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import { CLIENTES } from "@/lib/clientes";
 import BotonPago from "./BotonPago";
 import { planDe, precioTexto } from "@/lib/planes";
-import { linkPlanPropio } from "@/lib/planesMp";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +20,7 @@ export function generateMetadata({ searchParams }: { searchParams: { c?: string;
   const plan = planDe(searchParams.plan, c ? CLIENTES[c].plan : undefined);
   const descripcion = `${plan.nombre} · ${precioTexto(plan.precio)} por mes con cobro automático por Mercado Pago. Cancelás cuando quieras. Garantía de 7 días.`;
   const extra = c ? `?c=${c}` : searchParams.plan ? `?plan=${searchParams.plan}` : "";
-  const url = `/suscribirme${extra}`;
+  const url = c ? `/pagar/${c}` : `/suscribirme${extra}`;
   const imagen = `/og?v=suscripcion${c ? `&c=${c}` : searchParams.plan ? `&plan=${searchParams.plan}` : ""}`;
   return {
     title: `${titulo} · Nevux`,
@@ -46,18 +45,13 @@ const PASOS = [
   { icon: Rocket, t: "Tu tienda vende más", d: "Pegás una línea en tu Tiendanube (te guiamos) y queda funcionando." },
 ];
 
-export default async function SuscribirmePage({ searchParams }: { searchParams: { c?: string; plan?: string } }) {
+export default function SuscribirmePage({ searchParams }: { searchParams: { c?: string; plan?: string } }) {
   const cliente = searchParams.c ? CLIENTES[searchParams.c] : undefined;
   const plan = planDe(searchParams.plan, cliente?.plan);
-  // Cliente con plan propio: su link de Mercado Pago (se crea la primera vez). Si Mercado Pago falla, se ofrece WhatsApp.
-  let link: string | null = plan.link;
-  if (cliente && searchParams.c && cliente.cobro.tipo === "mercadopago" && cliente.cobro.planPropio) {
-    try {
-      link = await linkPlanPropio(searchParams.c, cliente);
-    } catch {
-      link = null;
-    }
-  }
+  // Cliente con plan propio: el botón pasa por /pagar/<id>/ir, que busca o crea su plan en Mercado Pago y redirige.
+  // Así la página carga sin esperar a Mercado Pago (WhatsApp arma bien la vista previa).
+  const link =
+    cliente && searchParams.c && cliente.cobro.tipo === "mercadopago" && cliente.cobro.planPropio ? `/pagar/${searchParams.c}/ir` : plan.link;
   const tienda = cliente?.nombre.replace(/\s*\(.*\)\s*$/, "");
   const whatsapp = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
     `Hola! Tengo una consulta sobre la suscripción a Nevux${tienda ? ` para ${tienda}` : ""}.`

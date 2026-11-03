@@ -49,7 +49,7 @@ export async function estadoCobro(c: Cliente, ahora = Date.now(), id?: string): 
   try {
     if (c.cobro.planPropio && id && !c.cobro.suscripcion && !c.cobro.email) {
       // Plan propio: la suscripción más reciente de cualquiera de los planes de este cliente
-      const planes = await planesDelCliente(id);
+      const planes = await planesDelCliente(id, c);
       if (!planes.length) return { prendida: false, motivo: "Todavía no se suscribió (no abrió su link de pago)" };
       const subs = (await Promise.all(planes.map((p) => buscarSuscripcion(undefined, undefined, p.id)))).filter(Boolean) as Preapproval[];
       subs.sort((a, b) => (b.date_created || "").localeCompare(a.date_created || ""));

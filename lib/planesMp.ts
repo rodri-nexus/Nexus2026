@@ -19,17 +19,20 @@ async function mp<T>(ruta: string, init?: RequestInit): Promise<T> {
   return r.json() as Promise<T>;
 }
 
-// Marca que identifica al cliente en el nombre del plan
+// Nombre del plan que ve el cliente en Mercado Pago ("Nevux Premium · Hogar Digital"). Identifica al cliente.
+// Los primeros planes (03/11) llevaban además "(id)" al final: también se reconocen.
 const marca = (id: string) => `(${id})`;
 const tiendaDe = (c: Cliente) => c.nombre.replace(/\s*\(.*\)\s*$/, "");
+const nombrePlan = (c: Cliente) => `${planDe(undefined, c.plan).nombre} · ${tiendaDe(c)}`;
 
 // Todos los planes propios de un cliente (puede haber más de uno si cambió el precio)
-export async function planesDelCliente(id: string): Promise<PlanMp[]> {
+export async function planesDelCliente(id: string, c?: Cliente): Promise<PlanMp[]> {
+  const nombre = c ? nombrePlan(c) : null;
   const res: PlanMp[] = [];
   for (let offset = 0; offset < 1000; offset += 100) {
     const r = await mp<{ results?: PlanMp[]; paging?: { total?: number } }>(`/preapproval_plan/search?limit=100&offset=${offset}`);
     const lista = r.results || [];
-    res.push(...lista.filter((p) => (p.reason || "").endsWith(marca(id))));
+    res.push(...lista.filter((p) => (p.reason || "").endsWith(marca(id)) || (nombre !== null && (p.reason || "").trim() === nombre)));
     if (lista.length < 100) break;
   }
   return res;
@@ -38,13 +41,13 @@ export async function planesDelCliente(id: string): Promise<PlanMp[]> {
 // Link de pago del plan propio del cliente: usa el que ya existe con el precio actual o lo crea
 export async function linkPlanPropio(id: string, c: Cliente): Promise<string> {
   const plan = planDe(undefined, c.plan);
-  const existentes = await planesDelCliente(id);
-  const vigente = existentes.find((p) => p.status === "active" && p.auto_recurring?.transaction_amount === plan.precio && p.init_point);
+  const existentes = await planesDelCliente(id, c);
+  const vigente = existentes.find((p) => p.status === "active" && p.reason?.trim() === nombrePlan(c) && p.auto_recurring?.transaction_amount === plan.precio && p.init_point);
   if (vigente?.init_point) return vigente.init_point;
   const nuevo = await mp<PlanMp>("/preapproval_plan", {
     method: "POST",
     body: JSON.stringify({
-      reason: `${plan.nombre} · ${tiendaDe(c)} ${marca(id)}`,
+      reason: nombrePlan(c),
       auto_recurring: { frequency: 1, frequency_type: "months", transaction_amount: plan.precio, currency_id: "ARS" },
       back_url: "https://nevux.ar/gracias",
     }),
