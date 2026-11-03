@@ -514,7 +514,7 @@ export default function Landing() {
           <motion.div {...fadeUp} className="grid md:grid-cols-2 gap-10 md:gap-8">
             {[
               { src: "/casos/premium/hogar-digital.mp4", poster: "/casos/premium/hogar-digital.jpg", url: "hogardigital.com.ar", nombre: "Hogar Digital", rubro: "Tienda real · tecnología y hogar" },
-              { src: "/casos/premium/demo.mp4", poster: "/casos/premium/demo.jpg", url: "tutienda.com.ar", nombre: "Tienda demo", rubro: "Relojería de ejemplo · estilo Destino" },
+              { src: "/casos/premium/demo.mp4", poster: "/casos/premium/demo.jpg", url: "tutienda.com.ar", nombre: "Tienda demo", rubro: "Relojería de ejemplo · negro y dorado" },
             ].map((t) => (
               <div key={t.nombre}>
                 <NotebookVideo src={t.src} poster={t.poster} url={t.url} titulo={`Tienda ${t.nombre} con el plan Premium`} />

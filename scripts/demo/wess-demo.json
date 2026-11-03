@@ -1,0 +1,444 @@
+{
+ "color": "#c9a961",
+ "marca": {
+  "oscuro": "#0c0b0a"
+ },
+ "premium": {
+  "titulos": "Oswald",
+  "texto": "Inter",
+  "animar": true,
+  "tema": "wess"
+ },
+ "whatsapp": "5490000000000",
+ "cabecera": {
+  "inicial": "N",
+  "nombre": "NEVUX DEMO"
+ },
+ "pie": {
+  "logo": "/demo/wess/logo.svg",
+  "titulo": "Nevux Demo",
+  "texto": "Relojería premium",
+  "instagram": "#",
+  "newsletter": "Registrate y recibí nuestras novedades."
+ },
+ "estiloFicha": "wess",
+ "envio": {
+  "corte": 14,
+  "dias": [
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "min": 3,
+  "max": 6,
+  "zona": "a todo el país"
+ },
+ "ficha": {
+  "pill": "Premium",
+  "regaloLinea": "Llega en su caja, con papeles y accesorios. Listo para regalar.",
+  "calidad": "Calidad Nevux Demo",
+  "whatsappTexto": "¿Dudas con el tamaño?",
+  "confianza": [
+   {
+    "icono": "envio",
+    "titulo": "Envío a todo el país",
+    "texto": "Con seguimiento desde que sale"
+   },
+   {
+    "icono": "caja",
+    "titulo": "Caja, papeles y accesorios",
+    "texto": "Cada reloj llega completo"
+   },
+   {
+    "icono": "garantia",
+    "titulo": "Compra protegida",
+    "texto": "Te acompañamos antes y después de comprar"
+   }
+  ],
+  "detallesEtiqueta": "Nevux Demo",
+  "detallesTitulo": "Miralo de cerca",
+  "detalles": [
+   {
+    "etiqueta": "Detalle",
+    "titulo": "Tal cual llega",
+    "texto": "Fotos reales del reloj"
+   },
+   {
+    "etiqueta": "Terminación",
+    "titulo": "Cada detalle",
+    "texto": "Caja, esfera y malla"
+   },
+   {
+    "etiqueta": "Presencia",
+    "titulo": "Se nota",
+    "texto": "De día y de noche"
+   },
+   {
+    "etiqueta": "Presentación",
+    "titulo": "Completo",
+    "texto": "Con su caja y sus papeles"
+   }
+  ],
+  "historia": {
+   "etiqueta": "Nevux Demo · Relojería",
+   "titulo": "El reloj que",
+   "destacado": "va con todo",
+   "texto": "Una pieza para usar todos los días y que se note en cada detalle. Te la mandamos lista para estrenar.",
+   "puntos": [
+    "Llega con su caja, papeles y accesorios",
+    "Te ayudamos a elegir el tamaño ideal",
+    "Envío con seguimiento a todo el país",
+    "Listo para regalar, sin envolver nada"
+   ],
+   "boton": "Lo quiero"
+  },
+  "cerca": {
+   "etiqueta": "De cerca",
+   "titulo": "Hecho para usarlo todos los días",
+   "items": [
+    {
+     "titulo": "Esfera",
+     "texto": "Índices y agujas nítidos."
+    },
+    {
+     "titulo": "Caja",
+     "texto": "Terminación pareja en cada borde."
+    },
+    {
+     "titulo": "Malla",
+     "texto": "Ajuste firme y cómodo."
+    },
+    {
+     "titulo": "Presentación",
+     "texto": "Con su caja y sus papeles."
+    }
+   ]
+  },
+  "regalo": {
+   "etiqueta": "Para regalar",
+   "titulo": "Viene listo para regalar",
+   "card": "Caja y papeles",
+   "texto": "Llega en su caja con papeles y accesorios. Si es para vos, lo estrenás; si es para alguien más, no tenés que envolver nada."
+  },
+  "calce": {
+   "etiqueta": "Calce",
+   "titulo": "Elegí tu tamaño sin dudar",
+   "url": "/#medidor",
+   "boton": "Medí tu muñeca"
+  },
+  "tranquilo": {
+   "etiqueta": "Comprá tranquilo",
+   "titulo": "Nevux Demo",
+   "items": [
+    {
+     "titulo": "Caja y papeles",
+     "texto": "Cada reloj llega completo."
+    },
+    {
+     "titulo": "Envío protegido",
+     "texto": "Con seguimiento a todo el país."
+    },
+    {
+     "titulo": "Atención personal",
+     "texto": "Te asesoramos por WhatsApp."
+    },
+    {
+     "titulo": "Listo para regalar",
+     "texto": "No tenés que envolver nada."
+    },
+    {
+     "titulo": "Te ayudamos a elegir",
+     "texto": "Tamaño, estilo y uso."
+    },
+    {
+     "titulo": "Pago seguro",
+     "texto": "Con los medios de pago de la tienda."
+    }
+   ]
+  },
+  "faqTitulo": "Lo que nos preguntan",
+  "cta": {
+   "etiqueta": "Nevux Demo",
+   "titulo": "Elegí el tuyo",
+   "boton": "Comprar ahora"
+  },
+  "similaresTitulo": "Productos similares",
+  "similaresPill": "Premium"
+ },
+ "precios": true,
+ "tarjetas": {
+  "estilo": "wess"
+ },
+ "packs": [],
+ "ventas": false,
+ "anuncios": [
+  "⌚ Relojería premium · Caja y papeles",
+  "🚚 Envíos a todo el país",
+  "🎁 Listos para regalar"
+ ],
+ "cinta": [
+  "Premium",
+  "Caja y papeles",
+  "Envíos a todo el país",
+  "Listos para regalar"
+ ],
+ "incluye": {
+  "titulo": "Qué incluye tu reloj",
+  "items": [
+   {
+    "icono": "⌚",
+    "titulo": "Reloj premium",
+    "texto": "Nuevo, en su caja."
+   },
+   {
+    "icono": "📜",
+    "titulo": "Garantía oficial",
+    "texto": "De la marca."
+   },
+   {
+    "icono": "🧾",
+    "titulo": "Factura",
+    "texto": "A tu nombre."
+   },
+   {
+    "icono": "🚚",
+    "titulo": "Envío protegido",
+    "texto": "Con seguimiento."
+   }
+  ]
+ },
+ "regalo": {
+  "titulo": "¿Es para regalar?",
+  "texto": "Avisanos por WhatsApp y lo preparamos para regalo."
+ },
+ "problemaSolucion": {
+  "etiqueta": "El problema que todos conocen",
+  "titulo": "Antes vs. con Nevux Demo",
+  "antesTitulo": "Comprando en cualquier lado",
+  "antes": [
+   "No sabés qué te llega",
+   "Sin factura ni garantía",
+   "Si falla, nadie responde",
+   "Te llega sin caja ni papeles"
+  ],
+  "despuesTitulo": "Con Nevux Demo",
+  "despues": [
+   "Relojes premium seleccionados",
+   "Factura y garantía oficial",
+   "Atención personalizada",
+   "Llega en su caja con papeles"
+  ]
+ },
+ "comparativa": {
+  "titulo": "Nevux Demo vs. comprar en cualquier lado",
+  "marca": "Nevux Demo",
+  "otro": "Otros",
+  "filas": [
+   "Relojes premium seleccionados",
+   "Garantía oficial de la marca",
+   "Factura a tu nombre",
+   "Caja y papeles",
+   "Atención personalizada"
+  ]
+ },
+ "faq": [
+  {
+   "p": "¿Cómo llega el reloj?",
+   "r": "En su caja, con papeles y accesorios. Listo para usar o para regalar."
+  },
+  {
+   "p": "¿Tienen garantía?",
+   "r": "Sí, la garantía oficial de cada marca. Te ayudamos con cualquier gestión."
+  },
+  {
+   "p": "¿Cuánto tarda el envío?",
+   "r": "Enviamos a todo el país. Te pasamos el seguimiento apenas sale."
+  },
+  {
+   "p": "¿Viene en su caja?",
+   "r": "Sí, cada reloj llega en su caja con sus papeles."
+  },
+  {
+   "p": "¿Cómo elijo el tamaño?",
+   "r": "En cada reloj te dejamos el diámetro de la caja y un medidor para ver cómo te queda en la muñeca."
+  }
+ ],
+ "home": {
+  "portada": {
+   "marca": "Nevux Demo",
+   "franja": "Hora oficial",
+   "logo": "/demo/wess/logo.svg",
+   "etiqueta": "Relojería premium",
+   "titulo": "Tu marca",
+   "titulo2": "Relojería",
+   "texto": "Así se ve tu tienda con el plan Premium. Marca, fotos y precios de ejemplo.",
+   "boton": "Tocá acá y mirá los relojes",
+   "url": "/demo/disenos/catalogo-wess.html",
+   "reemplazarBanner": true
+  },
+  "beneficios": [
+   {
+    "icono": "original",
+    "titulo": "Relojes premium",
+    "texto": "Piezas seleccionadas, con caja y papeles."
+   },
+   {
+    "icono": "garantia",
+    "titulo": "Garantía oficial",
+    "texto": "La garantía de la marca, y te ayudamos con cualquier gestión."
+   },
+   {
+    "icono": "envio",
+    "titulo": "Envío a todo el país",
+    "texto": "Con seguimiento desde que sale hasta tu casa."
+   }
+  ],
+  "vitrinas": [
+   {
+    "estilo": "wess",
+    "logo": "/demo/wess/logo.svg",
+    "etiqueta": "Selección Nevux Demo",
+    "titulo": "Más vendidos",
+    "pill": "Premium",
+    "url": "/demo/disenos/catalogo-wess.html",
+    "boton": "Ver todos los relojes"
+   }
+  ],
+  "grilla": {
+   "titulo": "Relojes destacados",
+   "url": "/demo/disenos/catalogo-wess.html",
+   "cantidad": 6,
+   "pill": "Premium",
+   "quedan": 3,
+   "boton": "Ver todos los relojes",
+   "categorias": [
+    {
+     "nombre": "Digitales",
+     "url": "#",
+     "foto": "https://nevux.ar/clientes/valmont/cat-digitales.svg"
+    },
+    {
+     "nombre": "Deportivos",
+     "url": "#",
+     "foto": "https://nevux.ar/clientes/valmont/cat-deportivos.svg"
+    },
+    {
+     "nombre": "Analógicos",
+     "url": "#",
+     "foto": "https://nevux.ar/clientes/valmont/cat-analogicos.svg"
+    },
+    {
+     "nombre": "Smartwatches",
+     "url": "#",
+     "foto": "https://nevux.ar/clientes/valmont/cat-smartwatches.svg"
+    }
+   ]
+  },
+  "puntos": {
+   "estilo": "wess",
+   "titulo": "Buscá el reloj que no pase desapercibido.",
+   "url": "/demo/disenos/ficha-wess.html",
+   "boton": "Ver el Royal Gold",
+   "foto": "/demo/valmont/img/hero-royal.png",
+   "items": [
+    {
+     "titulo": "Esfera con detalle",
+     "texto": "Índices y agujas bien terminados.",
+     "x": 50,
+     "y": 42
+    },
+    {
+     "titulo": "Corona",
+     "texto": "Firme, con giro preciso.",
+     "x": 76,
+     "y": 49
+    },
+    {
+     "titulo": "Caja dorada",
+     "texto": "Terminación pareja en cada borde.",
+     "x": 27,
+     "y": 62
+    },
+    {
+     "titulo": "Malla de acero",
+     "texto": "Eslabones macizos y cierre firme.",
+     "x": 50,
+     "y": 88
+    }
+   ]
+  },
+  "medidor": {
+   "etiqueta": "Tu reloj en 20 segundos",
+   "titulo": "Probate el reloj",
+   "destacado": "sin salir de casa",
+   "foto": "/demo/valmont/img/hero-royal.png",
+   "url": "/demo/disenos/catalogo-wess.html",
+   "boton": "Ver relojes"
+  },
+  "colgado": {
+   "etiqueta": "Nevux Demo · Selección",
+   "titulo": "Colgado por",
+   "titulo2": "poco tiempo.",
+   "url": "/demo/disenos/catalogo-wess.html",
+   "boton": "Ver relojes"
+  },
+  "porQue": {
+   "etiqueta": "Nevux Demo",
+   "titulo": "Por qué Nevux Demo",
+   "items": [
+    {
+     "destacado": "Premium",
+     "titulo": "Selección cuidada",
+     "texto": "Cada reloj está elegido pieza por pieza.",
+     "pie": "Selección Nevux Demo"
+    },
+    {
+     "destacado": "Factura",
+     "titulo": "A tu nombre",
+     "texto": "Con la garantía oficial de la marca.",
+     "pie": "Compra segura"
+    },
+    {
+     "destacado": "Atención",
+     "titulo": "Personalizada",
+     "texto": "Te ayudamos a elegir el reloj y el tamaño.",
+     "pie": "Relojería"
+    },
+    {
+     "destacado": "Envío",
+     "titulo": "A todo el país",
+     "texto": "Con seguimiento desde que sale hasta tu casa.",
+     "pie": "Envío protegido"
+    }
+   ]
+  },
+  "faqTitulo": "Lo que siempre nos preguntan",
+  "faqLink": {
+   "texto": "Medí tu muñeca en 20 segundos",
+   "url": "#medidor"
+  },
+  "faq": [
+   {
+    "p": "¿Cómo llega el reloj?",
+    "r": "En su caja, con papeles y accesorios."
+   },
+   {
+    "p": "¿Tienen garantía?",
+    "r": "Sí, la garantía oficial de cada marca."
+   },
+   {
+    "p": "¿Hacen envíos?",
+    "r": "Sí, a todo el país, con seguimiento."
+   }
+  ],
+  "cierre": {
+   "etiqueta": "Nevux Demo",
+   "titulo": "Esto fue una selección",
+   "texto": "Todos los relojes, con caja, papeles y envío a todo el país.",
+   "boton": "Ver el catálogo completo",
+   "url": "/demo/disenos/catalogo-wess.html"
+  }
+ }
+}
