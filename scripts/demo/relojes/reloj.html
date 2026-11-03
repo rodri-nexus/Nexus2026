@@ -36,8 +36,8 @@ ${strapTop}${strapBot}
 ${bezel}
 <circle cx="512" cy="512" r="${M.bisel?218:232}" fill="url(#dg)"/>
 ${mins}${idx}${subs}
-<path d="M498 ${M.cron?650:580} L512 ${M.cron?676:606} L526 ${M.cron?650:580}" fill="none" stroke="${M.ind}" stroke-width="4"/>
-<text x="512" y="${M.cron?706:640}" text-anchor="middle" font-family="Cinzel" font-size="22" letter-spacing="5" fill="${M.ind}">VALMONT</text>
+${(window.MARCA||'VALMONT')==='VALMONT'?`<path d="M498 ${M.cron?650:580} L512 ${M.cron?676:606} L526 ${M.cron?650:580}" fill="none" stroke="${M.ind}" stroke-width="4"/>`:`<path d="M512 ${M.cron?650:580} L522 ${M.cron?663:593} L512 ${M.cron?676:606} L502 ${M.cron?663:593} Z" fill="none" stroke="${M.ind}" stroke-width="3"/>`}
+<text x="512" y="${M.cron?706:640}" text-anchor="middle" font-family="Cinzel" font-size="22" letter-spacing="5" fill="${M.ind}">${window.MARCA||'VALMONT'}</text>
 ${M.fecha?`<rect x="626" y="496" width="40" height="32" rx="3" fill="#fff" stroke="${M.ind}" stroke-width="2"/><text x="646" y="520" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700" fill="#111">17</text>`:''}
 <line x1="512" y1="512" x2="${512-96}" y2="${512-84}" stroke="${M.manos}" stroke-width="13" stroke-linecap="round"/>
 <line x1="512" y1="512" x2="${512+120}" y2="${512-150}" stroke="${M.manos}" stroke-width="8" stroke-linecap="round"/>

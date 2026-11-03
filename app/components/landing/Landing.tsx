@@ -32,6 +32,7 @@ import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import Vitrina from "@/app/disenos/Vitrina";
 import { DISENOS } from "@/lib/disenos";
 import NotebookVideo from "./NotebookVideo";
+import { Tilt } from "./fx";
 import { PLANES } from "@/lib/planes";
 
 // Landing de Nevux. Cada sección sigue el orden del curso de ventas:
@@ -65,7 +66,7 @@ function WhatsAppCta({ origen, label = "Quiero mi análisis gratis", className =
       target="_blank"
       rel="noopener noreferrer"
       onClick={() => trackWhatsApp(origen)}
-      className={`group inline-flex items-center justify-center gap-2.5 bg-emerald-400 hover:bg-emerald-300 text-black font-extrabold px-4 min-[360px]:px-7 py-4 rounded-2xl text-[15px] sm:text-base whitespace-nowrap transition-all shadow-[0_12px_40px_-10px_rgba(52,211,153,0.7)] hover:-translate-y-0.5 active:translate-y-0 ${className}`}
+      className={`nvx-shine nvx-press group inline-flex items-center justify-center gap-2.5 bg-emerald-400 hover:bg-emerald-300 text-black font-extrabold px-4 min-[360px]:px-7 py-4 rounded-2xl text-[15px] sm:text-base whitespace-nowrap shadow-[0_12px_40px_-10px_rgba(52,211,153,0.7)] hover:shadow-[0_18px_50px_-10px_rgba(52,211,153,0.85)] ${className}`}
     >
       <MessageCircle className="w-5 h-5 shrink-0 max-[359px]:hidden" />
       <span>{label}</span>
@@ -80,6 +81,67 @@ const fadeUp = {
   viewport: { once: true, margin: "-60px" },
   transition: { duration: 0.6, ease: [0.2, 0.7, 0.2, 1] },
 };
+
+// Entrada de la portada: cada pieza aparece en cascada al cargar
+const HERO = { oculto: {}, visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } } };
+const HERO_ITEM = {
+  oculto: { opacity: 0, y: 18, filter: "blur(8px)" },
+  visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+};
+
+// Portada: notebook con la home Premium (demo) y celular con la ficha Pro (demo), en 3D.
+// Se inclinan al bajar y siguen al dedo o al mouse. Las etiquetas flotantes son piezas reales del producto.
+function HeroDevices() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1.1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="relative mx-auto mt-10 md:mt-16 w-full max-w-[960px]"
+    >
+      <div aria-hidden className="absolute left-1/2 top-[18%] -translate-x-1/2 w-[85%] h-[70%] bg-emerald-400/20 blur-[90px] rounded-full" />
+      <Tilt max={9} scroll={20} glare={false} className="relative">
+        <div className="relative pr-[13%] sm:pr-[15%]" style={{ transformStyle: "preserve-3d" }}>
+          <div style={{ transform: "translateZ(0px)" }}>
+            <NotebookVideo src="/casos/premium/demo.mp4" poster="/casos/premium/demo.jpg" url="tutienda.com.ar" titulo="Home del plan Premium en una tienda de demostración" />
+          </div>
+          {/* Celular adelante, con la ficha Pro bajando sola */}
+          <div
+            className="absolute right-0 bottom-[-6%] w-[31%] sm:w-[26%] max-w-[230px] rounded-[1.6rem] sm:rounded-[2.2rem] bg-[#0c0d10] p-[5px] sm:p-[7px] ring-1 ring-white/15 shadow-[0_40px_80px_-20px_rgba(0,0,0,.95),0_0_0_1px_rgba(255,255,255,.04)_inset]"
+            style={{ transform: "translateZ(70px)" }}
+          >
+            <div className="relative overflow-hidden rounded-[1.3rem] sm:rounded-[1.8rem] bg-white" style={{ aspectRatio: "390 / 844" }}>
+              <img src="/landing/hero-ficha.jpg" alt="Ficha Pro de demostración en un celular" className="nvx-ficha absolute inset-0 h-full w-full object-cover" />
+              <div className="absolute left-1/2 top-[6px] -translate-x-1/2 h-[10px] sm:h-[16px] w-[34%] rounded-full bg-black" />
+              <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-transparent" />
+            </div>
+          </div>
+          {/* Etiquetas flotantes: piezas que trae la ficha */}
+          <div className="nvx-float absolute left-[-2%] sm:left-[-3%] top-[-6%] sm:top-[14%]" style={{ transform: "translateZ(90px)" }}>
+            <div className="rounded-2xl border border-white/15 bg-[#14161b] px-3 py-2 sm:px-4 sm:py-3 shadow-[0_20px_40px_-15px_rgba(0,0,0,.9)]">
+              <div className="text-[10px] sm:text-[11px] text-neutral-400">Elegí tu pack</div>
+              <div className="text-[12px] sm:text-sm font-extrabold">Llevá 2 · <span className="text-emerald-300">15% OFF</span></div>
+            </div>
+          </div>
+          <div className="nvx-float [animation-delay:-2s] absolute left-[3%] sm:left-[-4%] bottom-[-12%] sm:bottom-[-6%]" style={{ transform: "translateZ(110px)" }}>
+            <div className="rounded-2xl border border-white/15 bg-[#14161b] px-3 py-2 sm:px-4 sm:py-3 w-[150px] sm:w-[210px] shadow-[0_20px_40px_-15px_rgba(0,0,0,.9)]">
+              <div className="text-[10px] sm:text-[11px] text-neutral-300">Te faltan <b className="text-white">$8.000</b> para el envío gratis</div>
+              <div className="mt-1.5 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                <div className="nvx-barra h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-300" />
+              </div>
+            </div>
+          </div>
+          <div className="nvx-float [animation-delay:-4s] hidden sm:block absolute right-[24%] top-[4%]" style={{ transform: "translateZ(100px)" }}>
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-400 text-black text-sm font-extrabold px-4 py-2 shadow-[0_16px_40px_-12px_rgba(52,211,153,.9)]">
+              <Check className="w-4 h-4" /> Agregado
+            </div>
+          </div>
+        </div>
+      </Tilt>
+      <p className="relative mt-16 sm:mt-16 text-center text-[11px] text-neutral-500">Tienda de demostración: marca, fotos y precios de ejemplo. En la tuya van tus productos y tus datos reales.</p>
+    </motion.div>
+  );
+}
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return <span className="text-xs font-bold text-emerald-300 uppercase tracking-[0.18em]">{children}</span>;
@@ -151,7 +213,7 @@ const STEPS = [
 const FACTS = [
   { icon: Store, t: "Probado en tiendas reales", d: "Con las plantillas Brasilia, Recife y Morelia de Tiendanube." },
   { icon: Check, t: "Solo datos reales", d: "Precios, cuotas y transferencia se leen de tu tienda. Si no ofrecés algo, no se muestra." },
-  { icon: Feather, t: "Liviano", d: "Un solo archivo de unos 20 KB que carga cuando tu página ya está lista." },
+  { icon: Feather, t: "No frena tu tienda", d: "Es un solo archivo que se carga en paralelo, sin frenar la carga de tu página y sin apps." },
   { icon: MessageCircle, t: "Atención de persona a persona", d: "Hablás siempre con quien configura tu tienda, por WhatsApp." },
 ];
 
@@ -162,7 +224,6 @@ const TESTIMONIOS: { nombre: string; tienda: string; texto: string; foto?: strin
     tienda: "Hogar Digital",
     texto: "Nevux es muy importante para la gestión de mi tienda: incorporó widgets, analizó la tienda, me corrigió errores e intercambiamos ideas. Muy recomendable.",
     foto: "/landing/hogar-digital.jpg",
-    link: "https://hogardigital.com.ar",
   },
 ];
 
@@ -210,7 +271,7 @@ const FAQS = [
   },
   {
     q: "¿Hace más lenta mi tienda?",
-    a: "No. Es un solo archivo liviano (unos 20 KB comprimido) que se carga cuando la página ya está lista, sin apps pesadas.",
+    a: "La línea se carga en paralelo (async), así que no frena la carga de tu página. Es un solo archivo, sin apps.",
   },
   {
     q: "¿Los precios y descuentos son reales?",
@@ -356,30 +417,27 @@ export default function Landing() {
         @keyframes nvx-hero-scroll { 0%, 6% { transform: translateY(0); } 94%, 100% { transform: translateY(calc(-100% + 560px)); } }
         .nvx-hero-scroll { animation: nvx-hero-scroll 26s ease-in-out infinite alternate; }
         .nvx-grid-bg { background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 44px 44px; mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%); }
-        @media (prefers-reduced-motion: reduce) { .nvx-hero-scroll { animation: none; } }
+        @keyframes nvx-grad { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        @keyframes nvx-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+        .nvx-float { animation: nvx-float 6s ease-in-out infinite; }
+        @keyframes nvx-ficha { 0%, 30% { object-position: 50% 0%; } 85%, 100% { object-position: 50% 100%; } }
+        .nvx-ficha { animation: nvx-ficha 14s ease-in-out infinite alternate; }
+        @keyframes nvx-barra { 0%, 15% { width: 22%; } 70%, 100% { width: 84%; } }
+        .nvx-barra { width: 84%; animation: nvx-barra 5s cubic-bezier(.4,0,.2,1) infinite alternate; }
+        @media (prefers-reduced-motion: reduce) { .nvx-hero-scroll, .nvx-float, .nvx-ficha, .nvx-barra { animation: none; } }
       `}</style>
 
-      {/* Franja superior: reciprocidad */}
-      <a
-        href={WHATSAPP_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={() => trackWhatsApp("franja")}
-        className="block bg-emerald-400 text-black text-center text-xs sm:text-sm font-bold py-2 px-4 hover:bg-emerald-300 transition-colors"
-      >
-        Análisis gratis de tu tienda por WhatsApp · Te decimos qué frena tus ventas →
-      </a>
-
-      {/* HEADER */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#07080a]/80 border-b border-white/5">
+      {/* HEADER: el aviso de análisis gratis vive en el botón (antes era una franja aparte) */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#07080a]/75 border-b border-white/[0.06]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
-          <a href="#" aria-label="Nevux">
+          <a href="#" aria-label="Nevux, ir arriba">
             <NevuxLogo size="medium" textColor="#ffffff" />
           </a>
           <nav className="hidden md:flex items-center gap-7 text-sm text-neutral-400">
+            <a href="#premium" className="hover:text-white transition-colors">Casos</a>
+            <a href="#disenos" className="hover:text-white transition-colors">Diseños</a>
             <a href="#cuenta" className="hover:text-white transition-colors">Hacé la cuenta</a>
-            <a href="#solucion" className="hover:text-white transition-colors">Qué hace</a>
-            <a href="#precio" className="hover:text-white transition-colors">Precio</a>
+            <a href="#precio" className="hover:text-white transition-colors">Planes</a>
             <a href="#preguntas" className="hover:text-white transition-colors">Preguntas</a>
           </nav>
           <a
@@ -387,64 +445,71 @@ export default function Landing() {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackWhatsApp("header")}
-            className="inline-flex items-center gap-2 border border-emerald-400/40 bg-emerald-400/10 text-emerald-300 hover:bg-emerald-400/20 font-bold px-4 py-2 rounded-xl text-xs sm:text-sm transition-colors"
+            className="nvx-press nvx-shine inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-black font-extrabold px-3.5 py-2 rounded-xl text-[13px] sm:text-sm shadow-[0_8px_24px_-10px_rgba(52,211,153,.8)]"
           >
             <MessageCircle className="w-4 h-4" />
-            Escribinos
+            Análisis gratis
           </a>
         </div>
       </header>
 
-      {/* 1. HERO: gancho de los primeros 3 segundos */}
-      <section className="relative overflow-hidden">
+      {/* 1. HERO: qué es (línea de arriba), el gancho (titular) y el "wow" (notebook y celular en 3D) */}
+      <section className="relative overflow-hidden nvx-grain">
         <div className="absolute inset-0 nvx-grid-bg pointer-events-none" />
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-emerald-500/15 blur-[140px] rounded-full pointer-events-none" />
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 pt-12 pb-8 md:pt-20 md:pb-10">
-          <div className="text-center">
+        <div className="absolute -top-48 left-1/2 -translate-x-1/2 w-[1000px] h-[640px] bg-emerald-500/[0.16] blur-[150px] rounded-full pointer-events-none" />
+        <div className="absolute top-[55%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-teal-400/[0.07] blur-[160px] rounded-full pointer-events-none" />
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-16 md:pt-20 md:pb-24">
+          <motion.div variants={HERO} initial="oculto" animate="visible" className="text-center max-w-4xl mx-auto">
             <motion.span
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-emerald-300 text-xs font-semibold mb-7"
+              variants={HERO_ITEM}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-emerald-200 text-[11.5px] sm:text-xs font-semibold whitespace-nowrap mb-5 md:mb-7"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Para tiendas en Tiendanube
+              <span className="relative flex w-1.5 h-1.5">
+                <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-60 motion-reduce:hidden" />
+                <span className="relative w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              </span>
+              Diseño que vende, para Tiendanube
             </motion.span>
             <motion.h1
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-[2.7rem] leading-[1.02] sm:text-6xl lg:text-[3.6rem] xl:text-[4.1rem] font-extrabold tracking-[-0.035em] mb-6"
+              variants={HERO_ITEM}
+              className="text-[2.55rem] leading-[0.98] min-[400px]:text-[2.8rem] sm:text-6xl lg:text-[4.4rem] font-extrabold tracking-[-0.045em] mb-5 md:mb-6"
             >
               No te faltan visitas.
               <br />
-              <Grad>Te faltan ventas.</Grad>
+              <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-300 bg-[length:200%_100%] bg-clip-text text-transparent animate-[nvx-grad_6s_ease-in-out_infinite] motion-reduce:animate-none">
+                Te faltan ventas.
+              </span>
             </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-base sm:text-lg text-neutral-400 max-w-2xl mx-auto mb-9 leading-relaxed"
-            >
-              Transformamos las fichas de producto de tu Tiendanube para que <b className="text-white font-semibold">más visitas terminen en compra</b>:
-              precio claro, packs, entrega estimada y un botón de compra siempre a mano. Sin cambiar de plantilla y sin apps.
+            <motion.p variants={HERO_ITEM} className="text-[15px] sm:text-lg text-neutral-400 max-w-2xl mx-auto mb-7 sm:mb-8 leading-relaxed">
+              Rediseñamos la <b className="text-white font-semibold">ficha de producto y la home</b> de tu Tiendanube con tus precios, tus cuotas y tu marca, para que
+              más visitas terminen en compra. Se instala pegando una línea: sin apps y sin cambiar de plantilla.
             </motion.p>
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <div className="flex flex-col sm:flex-row items-center gap-4 justify-center">
-                <WhatsAppCta origen="hero" className="w-full sm:w-auto" />
-                <a href="#solucion" className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-300 hover:text-white transition-colors">
-                  Ver el caso real <ArrowDown className="w-4 h-4" />
-                </a>
-              </div>
-              <ul className="mt-8 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-neutral-400">
-                {["Lo probamos en tu ficha antes de activarlo", "Garantía de 7 días", "Cancelás cuando quieras"].map((t) => (
-                  <li key={t} className="inline-flex items-center gap-1.5">
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    {t}
-                  </li>
-                ))}
-              </ul>
+            <motion.div variants={HERO_ITEM} className="flex flex-col sm:flex-row items-center gap-3 justify-center">
+              <WhatsAppCta origen="hero" className="w-full sm:w-auto" />
+              <a
+                href="/suscribirme?plan=premium"
+                className="nvx-press w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-300/40 bg-amber-300/[0.06] hover:bg-amber-300/[0.12] hover:border-amber-300/70 text-amber-200 font-bold px-6 py-4 text-[15px]"
+              >
+                Quiero el Premium <ArrowRight className="w-4 h-4" />
+              </a>
             </motion.div>
-          </div>
+            <motion.p variants={HERO_ITEM} className="mt-3 text-xs text-neutral-500">
+              El análisis es gratis y sin compromiso. Te responde Rodrigo, creador de Nevux.
+            </motion.p>
+            <motion.ul variants={HERO_ITEM} className="mt-5 sm:mt-6 flex flex-wrap justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-neutral-300">
+              {[
+                { i: ShieldCheck, t: "Garantía de 7 días" },
+                { i: Check, t: "Probado en tu tienda antes" },
+                { i: Check, t: "Cancelás cuando quieras" },
+              ].map(({ i: I, t }) => (
+                <li key={t} className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 sm:px-3 py-1 sm:py-1.5">
+                  <I className="w-3.5 h-3.5 text-emerald-400" />
+                  {t}
+                </li>
+              ))}
+            </motion.ul>
+          </motion.div>
+          <HeroDevices />
         </div>
       </section>
 
@@ -481,7 +546,7 @@ export default function Landing() {
               Tu tienda como <span className="text-amber-300">las marcas grandes.</span>
             </h2>
             <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-7 max-w-lg mx-auto lg:mx-0">
-              La home que usan las marcas de ropa que más venden en Tiendanube, armada con tus productos. Sin apps y sin cambiar de plantilla.
+              Una home de marca grande, con video, categorías que rotan y efectos, armada con tus productos. Sin apps y sin cambiar de plantilla.
             </p>
             </div>
             <div>
@@ -513,7 +578,7 @@ export default function Landing() {
           </motion.div>
           <motion.div {...fadeUp} className="grid md:grid-cols-2 gap-10 md:gap-8">
             {[
-              { src: "/casos/premium/hogar-digital.mp4", poster: "/casos/premium/hogar-digital.jpg", url: "hogardigital.com.ar", nombre: "Hogar Digital", rubro: "Tienda real · tecnología y hogar" },
+              { src: "/casos/premium/hogar-digital.mp4", poster: "/casos/premium/hogar-digital.jpg", url: "hogardigital.com.ar", nombre: "Hogar Digital", rubro: "Tienda real · tecnología y hogar · se activa el 10/11" },
               { src: "/casos/premium/demo.mp4", poster: "/casos/premium/demo.jpg", url: "tutienda.com.ar", nombre: "Tienda demo", rubro: "Relojería de ejemplo · negro y dorado" },
             ].map((t) => (
               <div key={t.nombre}>
@@ -525,7 +590,7 @@ export default function Landing() {
               </div>
             ))}
           </motion.div>
-          <p className="text-center text-xs text-neutral-500 -mt-4">Hogar Digital es una tienda real con el plan Premium, grabada tal como se ve hoy. La demo usa marca, fotos y datos de ejemplo. En tu tienda van tus productos, tus fotos y tus datos reales.</p>
+          <p className="text-center text-xs text-neutral-500 -mt-4">Diseño armado sobre la tienda real de Hogar Digital, con sus productos y sus precios; se activa el 10/11. La demo usa marca, fotos y datos de ejemplo. En tu tienda van tus productos, tus fotos y tus datos reales.</p>
         </div>
       </section>
 
@@ -625,7 +690,7 @@ export default function Landing() {
               </motion.figure>
             ))}
           </div>
-          <p className="text-center text-xs text-neutral-500 mt-6">Vista previa armada sobre la tienda real de Hogar Digital, con sus productos y sus datos.</p>
+          <p className="text-center text-xs text-neutral-500 mt-6">Diseño armado sobre la tienda real de Hogar Digital, con sus productos y sus datos. Se activa el 10/11.</p>
         </div>
       </section>
 
@@ -826,7 +891,7 @@ export default function Landing() {
           >
             <div className="text-center">
               <span className="inline-block bg-emerald-400/10 border border-emerald-400/30 text-emerald-300 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">
-                Precio de lanzamiento
+                Básico
               </span>
               <h3 className="text-xl sm:text-2xl font-extrabold mb-1">Pack Landing Page Pro</h3>
               <p className="text-neutral-500 text-sm mb-6">Para tiendas en Tiendanube</p>
@@ -930,7 +995,7 @@ export default function Landing() {
             Cada día que tu ficha sigue igual, las visitas que pagaste se van sin comprar. Mandanos el link de tu tienda y te decimos qué cambiar. Gratis.
           </p>
           <WhatsAppCta origen="cierre" className="w-full sm:w-auto" />
-          <p className="text-xs text-neutral-500 mt-4">Te responde una persona, no un bot.</p>
+          <p className="text-xs text-neutral-500 mt-4">Te responde Rodrigo, creador de Nevux. Una persona, no un bot.</p>
         </motion.div>
       </section>
 
@@ -959,22 +1024,27 @@ export default function Landing() {
         </div>
       </footer>
 
-      {/* BARRA FIJA MOBILE */}
+      {/* BARRA FIJA MOBILE: análisis gratis (principal) y Premium */}
       <div
-        className={`sm:hidden fixed bottom-0 left-0 right-0 z-50 p-3 bg-[#07080a]/95 backdrop-blur-lg border-t border-white/10 transition-transform duration-300 ${
+        className={`sm:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] bg-[#07080a]/90 backdrop-blur-xl border-t border-white/10 transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)] ${
           showBar ? "translate-y-0" : "translate-y-full"
         }`}
       >
-        <a
-          href={WHATSAPP_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => trackWhatsApp("barra-mobile")}
-          className="flex items-center justify-center gap-2 bg-emerald-400 text-black font-extrabold text-sm py-3.5 rounded-xl shadow-[0_8px_30px_-6px_rgba(52,211,153,0.6)]"
-        >
-          <MessageCircle className="w-4 h-4" />
-          Quiero mi análisis gratis
-        </a>
+        <div className="flex gap-2">
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackWhatsApp("barra-mobile")}
+            className="nvx-shine nvx-press flex-1 flex items-center justify-center gap-2 bg-emerald-400 text-black font-extrabold text-sm py-3.5 rounded-xl shadow-[0_8px_30px_-6px_rgba(52,211,153,0.6)]"
+          >
+            <MessageCircle className="w-4 h-4" />
+            Quiero mi análisis gratis
+          </a>
+          <a href="/suscribirme?plan=premium" className="nvx-press flex items-center justify-center rounded-xl border border-amber-300/40 text-amber-200 font-bold text-sm px-4">
+            Premium
+          </a>
+        </div>
       </div>
     </div>
   );
