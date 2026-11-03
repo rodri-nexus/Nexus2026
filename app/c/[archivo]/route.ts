@@ -19,7 +19,7 @@ export async function GET(_req: Request, { params }: { params: { archivo: string
     return new Response("/* Nevux: tienda no encontrada */\n", { status: 404, headers: cabeceras });
   }
 
-  const estado = await estadoCobro(cliente);
+  const estado = await estadoCobro(cliente, Date.now(), id);
   if (!estado.prendida) {
     return new Response(`/* Nevux · ${cliente.nombre}: apagado (${estado.motivo}) */\n`, { headers: cabeceras });
   }

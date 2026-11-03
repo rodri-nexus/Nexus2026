@@ -4,6 +4,9 @@ import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import { CLIENTES } from "@/lib/clientes";
 import BotonPago from "./BotonPago";
 import { planDe, precioTexto } from "@/lib/planes";
+import { linkPlanPropio } from "@/lib/planesMp";
+
+export const dynamic = "force-dynamic";
 
 // Página de suscripción: lo que se le manda al cliente en lugar del link pelado de Mercado Pago.
 // Con ?c=<cliente> se personaliza con el nombre de su tienda y su plan (ver lib/clientes.ts y lib/planes.ts). ?plan=premium sin cliente.
@@ -43,9 +46,18 @@ const PASOS = [
   { icon: Rocket, t: "Tu tienda vende más", d: "Pegás una línea en tu Tiendanube (te guiamos) y queda funcionando." },
 ];
 
-export default function SuscribirmePage({ searchParams }: { searchParams: { c?: string; plan?: string } }) {
+export default async function SuscribirmePage({ searchParams }: { searchParams: { c?: string; plan?: string } }) {
   const cliente = searchParams.c ? CLIENTES[searchParams.c] : undefined;
   const plan = planDe(searchParams.plan, cliente?.plan);
+  // Cliente con plan propio: su link de Mercado Pago (se crea la primera vez). Si Mercado Pago falla, se ofrece WhatsApp.
+  let link: string | null = plan.link;
+  if (cliente && searchParams.c && cliente.cobro.tipo === "mercadopago" && cliente.cobro.planPropio) {
+    try {
+      link = await linkPlanPropio(searchParams.c, cliente);
+    } catch {
+      link = null;
+    }
+  }
   const tienda = cliente?.nombre.replace(/\s*\(.*\)\s*$/, "");
   const whatsapp = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
     `Hola! Tengo una consulta sobre la suscripción a Nevux${tienda ? ` para ${tienda}` : ""}.`
@@ -98,7 +110,16 @@ export default function SuscribirmePage({ searchParams }: { searchParams: { c?: 
             ))}
           </ul>
 
-          <BotonPago url={plan.link} tienda={tienda} plan={plan.nombre} precio={plan.precio} />
+          {link ? (
+            <BotonPago url={link} tienda={tienda} plan={plan.nombre} precio={plan.precio} />
+          ) : (
+            <a
+              href={whatsapp}
+              className="w-full inline-flex items-center justify-center gap-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base px-7 py-4 rounded-2xl transition-all active:scale-95"
+            >
+              Escribinos y te pasamos el link de pago
+            </a>
+          )}
           <p className="text-[11px] text-neutral-500 text-center mt-3">
             Vas a ir a Mercado Pago para cargar tu tarjeta de forma segura. Nevux nunca ve los datos de tu tarjeta.
           </p>

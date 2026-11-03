@@ -11,6 +11,9 @@ export type Cobro =
       // ID del plan de Mercado Pago (preapproval_plan_id): sirve cuando el cliente todavía no se suscribió y no sabemos su email.
       // Toma la suscripción más reciente de ese plan, así que solo vale mientras el plan tenga un único cliente.
       planMp?: string;
+      // Plan propio de Mercado Pago para este cliente (recomendado): se crea solo en nevux.ar/suscribirme?c=<id>
+      // y la tienda se prende sola cuando paga. No hace falta email ni planMp. Ver lib/planesMp.ts.
+      planPropio?: boolean;
       // Días de tolerancia después del vencimiento antes de apagar la tienda
       gracia?: number;
     };
@@ -29,10 +32,9 @@ export const CLIENTES: Record<string, Cliente> = {
   "hogar-digital": {
     nombre: "Hogar Digital (Marcelo)",
     // Interruptor manual: false = apagada siempre, aunque esté al día con el pago
-    activo: false, // Apagada el 01/11 hasta que pague el Premium el 10/11 (Marcelo cobra ese día). Al pagar: activo: true y cobro automático con su email.
-    // Cobro: 'manual' = solo cuenta el interruptor. 'mercadopago' = se prende y apaga sola según su suscripción
-    // (para pasarlo a automático: { tipo: 'mercadopago', email: 'mail-con-el-que-pagó@...', gracia: 3 }). No usar planMp: lo usa Valmont.
-    cobro: { tipo: 'manual' },
+    activo: true, // Se prende sola cuando paga el Premium (plan propio en Mercado Pago). Hasta entonces, apagada.
+    // Cobro automático con plan propio: paga en nevux.ar/suscribirme?c=hogar-digital y la tienda se prende sola (y se apaga si deja de pagar)
+    cobro: { tipo: 'mercadopago', planPropio: true, gracia: 3 },
     // Dominios donde puede funcionar esta línea (sin www)
     dominios: ['hogardigital.com.ar'],
     // Plan Premium tal cual Destino (01/11/2026, pedido de Rodrigo), en azul. Ver docs/hogar-digital-premium.md y docs/referencias/destino.md.
@@ -388,9 +390,8 @@ export const CLIENTES: Record<string, Cliente> = {
   valmont: {
     nombre: "Valmont & Co. (cliente de relojes)",
     activo: true,
-    // Miguel dio el ok el 31/10: queda apagada hasta que se suscriba al plan Premium y se prende sola cuando cobra.
-    // Cuando pague, cambiar planMp por su email (o el ID de la suscripción), sobre todo si otro cliente se suma al Premium.
-    cobro: { tipo: 'mercadopago', planMp: '86ce0bba2cc849f3b04e9208748581af', gracia: 3 },
+    // Miguel dio el ok el 31/10: apagada hasta que pague. Plan propio: paga en nevux.ar/suscribirme?c=valmont y se prende sola.
+    cobro: { tipo: 'mercadopago', planPropio: true, gracia: 3 },
     dominios: ['valmontrelojes.mitiendanube.com'],
     plan: 'premium',
     // Relojería premium multimarca con estilo Wess en negro y dorado. Rodrigo pidió no usar la palabra "original": va "premium".
