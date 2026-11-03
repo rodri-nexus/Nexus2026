@@ -1,27 +1,24 @@
 # Landing (nevux.ar)
 
-El código está en `app/components/landing/Landing.tsx`. El orden de las secciones sigue el curso de marketing (clases 1 a 5).
+El código está en `app/components/landing/`: `Landing.tsx` (página y secciones 7 en adelante), `secciones.tsx` (caso real, problema, diseños y qué hace), `cta.tsx` (botones, links de WhatsApp y de pago, textos compartidos) y `fx.tsx` (movimiento: `Reveal`, `Tilt`, `LazyVideo`). Los efectos de botones (`nvx-shine`, `nvx-press`) están en `app/globals.css`.
 
-**Regla:** todo dato es real o es una cuenta que hace el visitante con sus números. Nada de precios tachados ni testimonios inventados.
+**Regla:** todo dato es real o es una cuenta que hace el visitante con sus números. Nada de precios tachados ni testimonios inventados. Nunca productos ni marca de Valmont: los relojes de las demos dicen "NEVUX" (`scripts/demo/relojes/relojes.js public/demo/disenos/img NEVUX`).
 
-| # | Sección | Concepto del curso |
+**Rediseño en curso (03/11/2026), en 3 tandas.** Orden actual:
+
+| # | Sección | Para qué |
 |---|---|---|
-| — | Franja "Análisis gratis" | Reciprocidad |
-| 1 | Hero: "No te faltan visitas. Te faltan ventas." | Gancho contraintuitivo de los primeros 3 segundos; propuesta de valor |
-| 2 | El problema + las tres preguntas | Etapa 1 (reconocimiento del problema); motivador de dolor; preguntas SPIN de situación y problema |
-| 3 | Hacé la cuenta (calculadora) | Pregunta de implicación; anclaje honesto ("se paga con N ventas") |
-| 4 | Mismo producto, otra ficha (antes/después real) | Sistema 2: la parte lógica después de la emocional |
-| 5 | Las 22 piezas, agrupadas por lo que resuelven | Motivadores: confianza, decisión, ganancia e identidad |
-| 6 | Demo interactiva | Reduce la incertidumbre (costo de riesgo) |
-| 7 | Comparativa con apps sueltas y rediseño | Etapas 2 y 3 (búsqueda y evaluación): ser diferente |
-| 8 | Cómo trabajamos | El vendedor como facilitador: baja el costo de esfuerzo |
-| 9 | Por qué confiar (+ testimonios) | Prueba social al final |
-| 10 | Precio, garantía y dos botones | Cierre de alternativa: análisis gratis o suscribirse |
-| 11 | Preguntas frecuentes como objeciones | Objeciones de precio, tiempo, confianza y necesidad: validar y responder |
-| 12 | "¿Y si el mes que viene…?" | Cierre "¿Y si…?" + consecuencia |
+| 1 | Cabecera + portada: "No te faltan visitas. Te faltan ventas.", notebook y celular en 3D | Qué es en 5 segundos, el "wow" y los dos botones (análisis gratis y Premium) |
+| 3 | Caso real `#premium`: Hogar Digital (video, testimonio de Marcelo, 6 capturas) + tienda demo | Prueba real arriba, en un solo lugar |
+| 4 | El problema `#problema` | Reconocer el dolor y las tres preguntas |
+| 5 | Diseños `#disenos` (celulares 3D) | Ver cómo puede quedar, Básico contra Premium |
+| 6 | Qué hace `#que-hace` (22 piezas con ejemplos animados) | El mecanismo, con datos reales |
+| 7 en adelante | La cuenta, comparativa, cómo trabajamos, confianza, planes, preguntas y cierre | Todavía con el diseño anterior (tandas 2 y 3) |
+
+Movimiento: todo se apaga con `prefers-reduced-motion` y los videos se descargan recién cuando aparecen en pantalla.
 
 ## Cómo cambiar cosas
 
-- **Testimonios:** cargarlos en `TESTIMONIOS` (nombre, tienda, texto), solo con permiso del cliente. Con la lista vacía, no se muestran.
-- **Precio:** `PRECIO`. Se usa en la calculadora, en la tarjeta de precio y en la respuesta "Es caro".
-- **WhatsApp:** `WHATSAPP_URL`. Cada clic se registra como `Contact` en Meta y `generate_lead` en GA4, con el origen del botón (`franja`, `header`, `hero`, `precio`, `cierre`, `footer`, `barra-mobile`).
+- **Testimonio:** el de Marcelo está en `MARCELO` (`secciones.tsx`), con su permiso. Nuevos testimonios, solo reales y con permiso.
+- **Precios:** salen de `lib/planes.ts` (`PRECIO` = Básico). No escribirlos a mano.
+- **WhatsApp:** `WHATSAPP_URL` en `cta.tsx`. Cada clic se registra como `Contact` en Meta y `generate_lead` en GA4, con el origen del botón (`header`, `hero`, `caso`, `disenos`, `precio`, `cierre`, `footer`, `barra-mobile`).

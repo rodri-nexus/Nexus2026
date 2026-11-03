@@ -64,7 +64,7 @@ export function Tilt({
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "center center"] });
   const sScroll = useSpring(scrollYProgress, { stiffness: 90, damping: 24 });
   const scrollRX = useTransform(sScroll, [0, 1], [scroll, 0]);
-  const scrollScale = useTransform(sScroll, [0, 1], [0.92, 1]);
+  const scrollScale = useTransform(sScroll, [0, 1], scroll ? [0.92, 1] : [1, 1]);
 
   const rotateX = useTransform<number, number>([scrollRX, sy] as MotionValue<number>[], ([a, b]) => a - b * max);
   const rotateY = useTransform(sx, (v) => v * max);

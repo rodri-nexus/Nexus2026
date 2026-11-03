@@ -5,75 +5,28 @@ import { motion } from "framer-motion";
 import {
   MessageCircle,
   ArrowRight,
-  ArrowDown,
   Check,
   X,
   ShieldCheck,
   ChevronDown,
-  Eye,
-  ShoppingCart,
-  Ban,
-  Megaphone,
   Calculator,
-  HeartHandshake,
-  Timer,
-  Layers,
-  Sparkles,
   Wrench,
   Zap,
   Feather,
   Store,
-  ShoppingBag,
-  Shirt,
-  Plus,
-  Quote,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
-import Vitrina from "@/app/disenos/Vitrina";
-import { DISENOS } from "@/lib/disenos";
 import NotebookVideo from "./NotebookVideo";
 import { Tilt } from "./fx";
+import { CasoReal, Disenos, PIECE_COUNT, Problema, QueHace } from "./secciones";
+import { Eyebrow, Grad, SUSCRIPCION_URL, WHATSAPP_URL, WhatsAppCta, ars, num, trackWhatsApp } from "./cta";
 import { PLANES } from "@/lib/planes";
 
 // Landing de Nevux. Cada sección sigue el orden del curso de ventas:
 // gancho → dolor → implicación (calculadora) → solución → evaluación → oferta → objeciones → cierre.
 // Regla: todo dato es real o es una cuenta que hace el visitante con sus números.
 
-const PRECIO = 39900;
-const SUSCRIPCION_URL = "/suscribirme";
-const WHATSAPP_URL =
-  "https://wa.me/5493434163999?text=" + encodeURIComponent("Hola! Quiero el análisis gratis de mi tienda de Tiendanube: ");
-
-type TrackWindow = Window & {
-  fbq?: (...args: unknown[]) => void;
-  gtag?: (...args: unknown[]) => void;
-};
-
-// Registra el clic a WhatsApp como lead en Meta Pixel y GA4
-function trackWhatsApp(origen: string) {
-  const w = window as TrackWindow;
-  w.fbq?.("track", "Contact", { content_name: origen });
-  w.gtag?.("event", "generate_lead", { method: "whatsapp", origen });
-}
-
-const ars = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
-const num = (n: number) => Math.round(n).toLocaleString("es-AR");
-
-function WhatsAppCta({ origen, label = "Quiero mi análisis gratis", className = "" }: { origen: string; label?: string; className?: string }) {
-  return (
-    <a
-      href={WHATSAPP_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={() => trackWhatsApp(origen)}
-      className={`nvx-shine nvx-press group inline-flex items-center justify-center gap-2.5 bg-emerald-400 hover:bg-emerald-300 text-black font-extrabold px-4 min-[360px]:px-7 py-4 rounded-2xl text-[15px] sm:text-base whitespace-nowrap shadow-[0_12px_40px_-10px_rgba(52,211,153,0.7)] hover:shadow-[0_18px_50px_-10px_rgba(52,211,153,0.85)] ${className}`}
-    >
-      <MessageCircle className="w-5 h-5 shrink-0 max-[359px]:hidden" />
-      <span>{label}</span>
-      <ArrowRight className="w-4 h-4 shrink-0 transition-transform group-hover:translate-x-0.5 max-[359px]:hidden" />
-    </a>
-  );
-}
+const PRECIO = PLANES.basico.precio;
 
 const fadeUp = {
   initial: { opacity: 0, y: 24 },
@@ -143,58 +96,7 @@ function HeroDevices() {
   );
 }
 
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <span className="text-xs font-bold text-emerald-300 uppercase tracking-[0.18em]">{children}</span>;
-}
-
-function Grad({ children }: { children: React.ReactNode }) {
-  return <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">{children}</span>;
-}
-
 /* ---------- Contenido ---------- */
-
-const PAINS = [
-  { icon: Eye, title: "Entran, miran y se van.", text: "La ficha no les da un motivo para comprar ahora. Se van “a pensarlo” y no vuelven." },
-  { icon: ShoppingCart, title: "Compran de a una unidad.", text: "Nadie les propone llevar dos o sumar el complemento. El ticket promedio no se mueve." },
-  { icon: Ban, title: "No terminan de confiar.", text: "No ven cuándo les llega, cuánto ahorran por transferencia ni que otros ya compraron." },
-  { icon: Megaphone, title: "Los anuncios no rinden.", text: "El anuncio trae la visita. Lo que pasa después del clic depende de tu ficha." },
-];
-
-const SPIN = [
-  "¿Cuántas personas entraron a tu tienda este mes?",
-  "¿Cuántas de ellas compraron?",
-  "¿Qué vio el resto antes de irse?",
-];
-
-// Las 22 piezas, agrupadas por lo que le pasa a la persona que está decidiendo
-const GROUPS = [
-  {
-    icon: HeartHandshake,
-    title: "Que confíen",
-    why: "Nadie compra si tiene dudas. Respondemos las dudas antes de que aparezcan.",
-    pieces: ["Entrega estimada", "Envío gratis con progreso", "Insignias con cuotas reales", "Reseñas de tus clientes", "Preguntas frecuentes", "Ayuda por WhatsApp", "Avisos de ventas"],
-  },
-  {
-    icon: Timer,
-    title: "Que se decidan hoy",
-    why: "Un motivo real para no dejarlo para mañana, y el botón siempre a mano.",
-    pieces: ["Cuenta regresiva de despacho", "Barra de stock", "Botón de compra fijo", "Mejor precio por transferencia"],
-  },
-  {
-    icon: Layers,
-    title: "Que lleven más",
-    why: "La misma visita, un ticket más alto. Sin salir de la ficha.",
-    pieces: ["Packs Llevá 2 y Llevá 3", "Precio por transferencia en cada pack", "Combiná con"],
-  },
-  {
-    icon: Sparkles,
-    title: "Que se enamoren de tu marca",
-    why: "Contenido que muestra el producto en uso y elimina el miedo al talle.",
-    pieces: ["Calculadora de talle", "Galería de colores", "Antes / después", "Videos verticales", "Pasos de uso", "Comparativa", "Cinta de beneficios", "Tus colores y tu tipografía"],
-  },
-];
-
-const PIECE_COUNT = GROUPS.reduce((n, g) => n + g.pieces.length, 0);
 
 const COMPARE = [
   { row: "Quién lo configura", nevux: "Nosotros, con tus datos", apps: "Vos, una por una", tema: "Un diseñador o vos" },
@@ -217,16 +119,6 @@ const FACTS = [
   { icon: MessageCircle, t: "Atención de persona a persona", d: "Hablás siempre con quien configura tu tienda, por WhatsApp." },
 ];
 
-// Testimonios reales con permiso del cliente. Mientras esté vacío, la sección no aparece.
-const TESTIMONIOS: { nombre: string; tienda: string; texto: string; foto?: string; link?: string }[] = [
-  {
-    nombre: "Marcelo",
-    tienda: "Hogar Digital",
-    texto: "Nevux es muy importante para la gestión de mi tienda: incorporó widgets, analizó la tienda, me corrigió errores e intercambiamos ideas. Muy recomendable.",
-    foto: "/landing/hogar-digital.jpg",
-  },
-];
-
 const INCLUYE = [
   "Análisis de tu tienda antes de empezar",
   "Ficha Pro clara u oscura, con tus colores y efectos",
@@ -235,16 +127,6 @@ const INCLUYE = [
   "Ajustes cada vez que cambies precios o promos",
   "Soporte por WhatsApp de persona a persona",
   "Sin permanencia: cancelás cuando quieras",
-];
-
-// Caso real: la tienda de Hogar Digital con el Premium, en partes (capturas sobre su tienda real)
-const CASO_HD = [
-  { foto: "/casos/hogar-digital/portada.jpg", titulo: "Portada de marca grande", texto: "Sus productos, a pantalla completa" },
-  { foto: "/casos/hogar-digital/beneficios.jpg", titulo: "Beneficios y categorías", texto: "Íconos que se dibujan y tira que corre" },
-  { foto: "/casos/hogar-digital/destacados.jpg", titulo: "Destacados", texto: "Con el % OFF y el precio real" },
-  { foto: "/casos/hogar-digital/categorias.jpg", titulo: "Encontrá lo tuyo", texto: "Categorías que rotan solas" },
-  { foto: "/casos/hogar-digital/audio.jpg", titulo: "Carruseles por categoría", texto: "Audio, preguntas y más" },
-  { foto: "/casos/hogar-digital/banner.jpg", titulo: "Banner con zoom", texto: "Para empujar la categoría que más vende" },
 ];
 
 // Preguntas frecuentes armadas como objeciones: precio, tiempo, confianza y necesidad
@@ -513,132 +395,11 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* 1b. DISEÑOS (justo después de la portada, para enganchar): así puede quedar tu tienda (vitrina 3D con las demos, ver docs/disenos.md) */}
-      <section id="disenos" className="relative pt-6 pb-20 md:pt-10 md:pb-28 overflow-hidden scroll-mt-20 bg-[radial-gradient(110%_70%_at_50%_0%,rgba(16,185,129,0.12)_0%,transparent_60%)]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto mb-10">
-            <Eyebrow>Diseños</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-4">
-              Así puede quedar <Grad>tu tienda.</Grad>
-            </h2>
-            <p className="text-neutral-400 text-sm sm:text-base">
-              Elegí el diseño de tu ficha y de tu home. Tocá un celular para verlo al frente: cada uno es una tienda de demostración funcionando.
-            </p>
-          </motion.div>
-          <Vitrina disenos={DISENOS.map(({ id, nombre, plan, demo }) => ({ id, nombre, plan, demo }))} />
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a href="/disenos" className="inline-flex items-center gap-2 rounded-2xl bg-white text-black font-bold px-6 py-3.5 hover:bg-neutral-200 transition-colors">
-              Ver los diseños y los planes <ArrowRight className="w-4 h-4" />
-            </a>
-            <WhatsAppCta origen="disenos" label="Quiero uno para mi tienda" />
-          </div>
-        </div>
-      </section>
-
-      {/* 1c. PREMIUM (después de los diseños): la home estilo Destino funcionando en una notebook (docs/referencias/destino.md) */}
-      <section id="premium" className="relative py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5 overflow-hidden scroll-mt-20">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-amber-400/10 blur-[140px] rounded-full pointer-events-none" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 grid gap-12 items-center">
-          <motion.div {...fadeUp} className="text-center lg:text-left lg:grid lg:grid-cols-2 lg:gap-12 lg:items-end">
-            <div>
-            <span className="inline-block bg-amber-300 text-black text-[11px] font-extrabold uppercase tracking-[.18em] px-3 py-1 rounded-full">Plan Premium</span>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-5 mb-5">
-              Tu tienda como <span className="text-amber-300">las marcas grandes.</span>
-            </h2>
-            <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-7 max-w-lg mx-auto lg:mx-0">
-              Una home de marca grande, con video, categorías que rotan y efectos, armada con tus productos. Sin apps y sin cambiar de plantilla.
-            </p>
-            </div>
-            <div>
-            <ul className="space-y-3 text-sm text-neutral-300 max-w-md mx-auto lg:mx-0 text-left">
-              {[
-                "Portada en video con tus productos flotando",
-                "Categorías que rotan con video y tira de categorías que corre",
-                "Comunidad, números que suben y reseñas",
-                "Locales con mapa y carrito con barra de envío gratis",
-                "Todo con efectos: lo que hace que el cliente diga “wow”",
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-3">
-                  <span className="mt-0.5 w-5 h-5 rounded-md bg-amber-300/15 border border-amber-300/30 grid place-items-center shrink-0">
-                    <Check className="w-3.5 h-3.5 text-amber-300" />
-                  </span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-              <a href="/suscribirme?plan=premium" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-300 hover:bg-amber-200 text-black font-extrabold px-6 py-3.5 transition-colors">
-                Quiero el Premium <ArrowRight className="w-4 h-4" />
-              </a>
-              <a href="#precio" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 hover:border-white/30 text-white font-bold px-6 py-3.5 transition-colors">
-                {ars(PLANES.premium.precio)}/mes
-              </a>
-            </div>
-            </div>
-          </motion.div>
-          <motion.div {...fadeUp} className="grid md:grid-cols-2 gap-10 md:gap-8">
-            {[
-              { src: "/casos/premium/hogar-digital.mp4", poster: "/casos/premium/hogar-digital.jpg", url: "hogardigital.com.ar", nombre: "Hogar Digital", rubro: "Tienda real · tecnología y hogar · se activa el 10/11" },
-              { src: "/casos/premium/demo.mp4", poster: "/casos/premium/demo.jpg", url: "tutienda.com.ar", nombre: "Tienda demo", rubro: "Relojería de ejemplo · negro y dorado" },
-            ].map((t) => (
-              <div key={t.nombre}>
-                <NotebookVideo src={t.src} poster={t.poster} url={t.url} titulo={`Tienda ${t.nombre} con el plan Premium`} />
-                <p className="text-center mt-5">
-                  <span className="block text-white font-extrabold">{t.nombre}</span>
-                  <span className="block text-xs text-neutral-500 mt-1">{t.rubro}</span>
-                </p>
-              </div>
-            ))}
-          </motion.div>
-          <p className="text-center text-xs text-neutral-500 -mt-4">Diseño armado sobre la tienda real de Hogar Digital, con sus productos y sus precios; se activa el 10/11. La demo usa marca, fotos y datos de ejemplo. En tu tienda van tus productos, tus fotos y tus datos reales.</p>
-        </div>
-      </section>
-
-      {/* 2. DOLOR: reconocimiento del problema */}
-      <section className="py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto mb-14">
-            <Eyebrow>El problema</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-4">
-              Pagás para que entren.
-              <br />
-              <span className="text-neutral-500">Y se van sin comprar.</span>
-            </h2>
-            <p className="text-neutral-400 text-sm sm:text-base">Casi nunca es el producto. Es lo que la persona ve en el momento en que decide.</p>
-          </motion.div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {PAINS.map((p, i) => (
-              <motion.div
-                key={p.title}
-                {...fadeUp}
-                transition={{ ...fadeUp.transition, delay: i * 0.08 }}
-                className="group bg-[#101114] border border-white/[0.07] rounded-2xl p-6 hover:border-emerald-400/40 transition-colors"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 grid place-items-center shrink-0 group-hover:bg-emerald-400/10 group-hover:border-emerald-400/30 transition-colors">
-                    <p.icon className="w-5 h-5 text-emerald-300" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold mb-1">{p.title}</h3>
-                    <p className="text-neutral-400 text-sm leading-relaxed">{p.text}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          <motion.div {...fadeUp} className="mt-12 max-w-2xl mx-auto text-center">
-            <p className="text-sm font-bold text-neutral-300 mb-4">Hacete estas tres preguntas:</p>
-            <ol className="space-y-2">
-              {SPIN.map((q, i) => (
-                <li key={q} className="text-lg sm:text-xl font-semibold text-white">
-                  <span className="text-emerald-300 tabular-nums mr-2">{i + 1}.</span>
-                  {q}
-                </li>
-              ))}
-            </ol>
-          </motion.div>
-        </div>
-      </section>
+      {/* 3 a 6: caso real, el problema, diseños y qué hace (secciones.tsx) */}
+      <CasoReal />
+      <Problema />
+      <Disenos />
+      <QueHace />
 
       {/* 3. IMPLICACIÓN: la cuenta con sus números */}
       <section id="cuenta" className="py-20 md:py-28 scroll-mt-20">
@@ -653,83 +414,6 @@ export default function Landing() {
           <motion.div {...fadeUp}>
             <Calculadora ticket={ticket} setTicket={setTicket} />
           </motion.div>
-        </div>
-      </section>
-
-      {/* 4. SOLUCIÓN: caso real · Hogar Digital con el Premium, en partes (capturas de su tienda real, public/casos/hogar-digital/) */}
-      <section id="solucion" className="relative py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5 scroll-mt-20 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto mb-10">
-            <Eyebrow>Caso real · Hogar Digital</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-5">
-              Así queda su tienda
-              <br />
-              <Grad>con el Premium.</Grad>
-            </h2>
-            <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
-              Su tienda de Tiendanube, sus productos y sus precios. Misma plantilla, sin apps. Mirá cómo queda, parte por parte.
-            </p>
-          </motion.div>
-          <div className="flex items-start gap-4 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-4 [scrollbar-width:none] lg:grid lg:grid-cols-3 lg:items-start lg:overflow-visible lg:mx-0 lg:px-0">
-            {CASO_HD.map((c, i) => (
-              <motion.figure
-                key={c.foto}
-                {...fadeUp}
-                transition={{ ...fadeUp.transition, delay: (i % 3) * 0.08 }}
-                className="snap-center shrink-0 w-[72%] sm:w-[46%] lg:w-auto"
-              >
-                <div className="rounded-[28px] bg-[#16181d] p-2 ring-1 ring-white/10 shadow-[0_30px_60px_-30px_rgba(0,0,0,.9)]">
-                  <div className="rounded-[22px] overflow-hidden bg-white">
-                    <img src={c.foto} alt={c.titulo} loading="lazy" className="block w-full h-auto" />
-                  </div>
-                </div>
-                <figcaption className="mt-3 text-center">
-                  <b className="block text-sm font-bold text-white">{c.titulo}</b>
-                  <span className="block text-xs text-neutral-400 mt-0.5">{c.texto}</span>
-                </figcaption>
-              </motion.figure>
-            ))}
-          </div>
-          <p className="text-center text-xs text-neutral-500 mt-6">Diseño armado sobre la tienda real de Hogar Digital, con sus productos y sus datos. Se activa el 10/11.</p>
-        </div>
-      </section>
-
-      {/* 5. MECANISMO: las piezas agrupadas por lo que resuelven */}
-      <section className="py-20 md:py-28">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto mb-14">
-            <Eyebrow>Cómo lo hace</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-4">
-              {PIECE_COUNT} piezas. <Grad>Cada una con un trabajo.</Grad>
-            </h2>
-            <p className="text-neutral-400 text-sm sm:text-base">Usan los datos reales de tu tienda. Si no ofrecés algo, esa pieza no aparece. Nunca inventamos números.</p>
-          </motion.div>
-          <div className="grid md:grid-cols-2 gap-4">
-            {GROUPS.map((g, i) => (
-              <motion.div
-                key={g.title}
-                {...fadeUp}
-                transition={{ ...fadeUp.transition, delay: i * 0.08 }}
-                className="bg-gradient-to-b from-white/[0.05] to-white/[0.01] border border-white/[0.07] rounded-3xl p-6 sm:p-7"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-400/10 border border-emerald-400/25 grid place-items-center shrink-0">
-                    <g.icon className="w-5 h-5 text-emerald-300" />
-                  </div>
-                  <h3 className="text-xl font-bold">{g.title}</h3>
-                  <span className="ml-auto text-xs font-bold text-neutral-500 tabular-nums">{g.pieces.length}</span>
-                </div>
-                <p className="text-sm text-neutral-400 mb-5">{g.why}</p>
-                <div className="flex flex-wrap gap-2">
-                  {g.pieces.map((p) => (
-                    <span key={p} className="text-xs font-semibold text-neutral-200 bg-white/[0.05] border border-white/10 rounded-full px-3 py-1.5">
-                      {p}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -833,37 +517,6 @@ export default function Landing() {
             <Eyebrow>Por qué confiar</Eyebrow>
             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4">Hecho para tiendas de verdad</h2>
           </motion.div>
-          {TESTIMONIOS.length > 0 && (
-            <div className={`gap-4 mb-4 ${TESTIMONIOS.length === 1 ? "max-w-3xl mx-auto" : "grid md:grid-cols-2"}`}>
-              {TESTIMONIOS.map((t) => (
-                <motion.figure
-                  key={t.nombre}
-                  {...fadeUp}
-                  className="relative bg-gradient-to-b from-emerald-400/[0.08] to-transparent border border-emerald-400/25 rounded-3xl p-7 sm:p-10"
-                >
-                  <Quote className="w-9 h-9 text-emerald-300/70 mb-5" />
-                  <blockquote className="text-lg sm:text-2xl font-semibold text-white leading-snug mb-7">“{t.texto}”</blockquote>
-                  <figcaption className="flex items-center gap-4">
-                    {t.foto && <img src={t.foto} alt={t.tienda} className="w-14 h-14 rounded-full object-cover border border-white/15" />}
-                    <div className="text-sm">
-                      <b className="text-base">{t.nombre}</b>
-                      <div className="text-neutral-400">
-                        Dueño de{" "}
-                        {t.link ? (
-                          <a href={t.link} target="_blank" rel="noopener noreferrer" className="text-emerald-300 hover:underline">
-                            {t.tienda}
-                          </a>
-                        ) : (
-                          t.tienda
-                        )}{" "}
-                        · cliente de Nevux
-                      </div>
-                    </div>
-                  </figcaption>
-                </motion.figure>
-              ))}
-            </div>
-          )}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {FACTS.map((f, i) => (
               <motion.div key={f.t} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.06 }} className="bg-[#101114] border border-white/[0.07] rounded-2xl p-6">
