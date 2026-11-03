@@ -89,6 +89,8 @@
 
 ### Lo que falta (en orden)
 
+> **03/11 · LANDING, PLAN PREMIUM:** la demo genérica de la notebook se reemplazó por **dos videos reales**, en `public/casos/premium/`: Hogar Digital completa, bajando sola, y Valmont con portada, "Por qué Valmont", preguntas y cierre. En el de Valmont **no se ve ningún producto** (tiene réplicas) y la sección "Colgado por poco tiempo" se ocultó durante la grabación. Componente: `app/components/landing/NotebookVideo.tsx`. Para regrabar: Playwright con CDP screencast a 1440×900 y la configuración inyectada; el guion de cada video está en la sesión del 03/11. El botón pasó a ser "Quiero el Premium" (`/suscribirme?plan=premium`).
+>
 > **03/11 · COBRO AUTOMÁTICO PARA TODOS (pedido de Rodrigo):** Hogar Digital y Valmont tienen `planPropio` (ver `docs/clientes.md`). Cada uno paga en su link (`nevux.ar/suscribirme?c=hogar-digital` y `?c=valmont`), se crea su propio plan en Mercado Pago y **la tienda se prende sola al pagar**: ya no hay que pasar emails ni prender a mano. Los clientes nuevos se dan de alta igual. Hasta que paguen, quedan apagadas.
 >
 > **02/11 · INSTAGRAM, TODO A MANO:** Rodrigo pidió que no se programe más nada desde acá, ni @nevux.app ni Hogar Digital. Las 8 tareas de publicación quedaron apagadas. Se crea el contenido y se le pasa día por día, en máxima calidad, con la portada integrada en los Reels (ver `docs/instagram.md`).
