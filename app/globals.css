@@ -71,6 +71,22 @@ body {
 .nvx-lv-caso { contain-intrinsic-size: auto 2200px; }
 .nvx-lv-larga { contain-intrinsic-size: auto 2600px; }
 
+/* ---------- Marca ---------- */
+
+/* Cabecera: línea degradada en lugar de borde plano (más fino, más caro) */
+.nvx-headerline::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.16) 22%, rgba(110,231,183,.30) 50%, rgba(255,255,255,.16) 78%, transparent 100%);
+}
+
+/* Scrollbar oscura y fina (Firefox) */
+html { scrollbar-width: thin; scrollbar-color: #2a2d33 transparent; }
+/* Scrollbar oscura y fina (Chrome y Safari) */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a2d33; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3e46; }
+
 /* Teclado: foco visible y discreto (con el mouse no se ve) */
 :focus-visible { outline: 2px solid #6ee7b7; outline-offset: 3px; }
 

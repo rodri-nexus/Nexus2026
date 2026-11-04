@@ -14,11 +14,11 @@ import { WHATSAPP_URL, WhatsAppCta, trackWhatsApp } from "./cta";
 // la cuenta → cómo funciona → alternativas → planes → quién lo hace → objeciones → cierre.
 // Regla: todo dato es real o es una cuenta que hace el visitante con sus números.
 
-// Entrada de la portada: cada pieza aparece en cascada al cargar
-const HERO = { oculto: {}, visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } } };
+// Entrada de la portada: cada pieza aparece en cascada al cargar. Timing más largo: se siente más caro.
+const HERO = { oculto: {}, visible: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } } };
 const HERO_ITEM = {
   oculto: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.85, ease: [0.16, 1, 0.3, 1] } },
 };
 
 // Portada: notebook con la home Premium (demo) y celular con la ficha Pro (demo), en 3D.
@@ -28,7 +28,7 @@ function HeroDevices() {
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1.1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 1.2, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className="relative mx-auto mt-10 md:mt-16 w-full max-w-[960px]"
     >
       <Glow className="left-1/2 top-[5%] -translate-x-1/2 w-[120%] h-[100%]" color="rgba(52,211,153,0.20)" />
@@ -93,7 +93,7 @@ export default function Landing() {
     <MotionConfig reducedMotion="user">
     <div className="min-h-screen bg-[#07080a] text-white selection:bg-emerald-400 selection:text-black pb-24 sm:pb-0 overflow-x-hidden">
       {/* HEADER: el aviso de análisis gratis vive en el botón (antes era una franja aparte) */}
-      <header className="sticky top-0 z-50 bg-[#07080a]/95 md:bg-[#07080a]/75 md:backdrop-blur-xl border-b border-white/[0.06]">
+      <header className="nvx-headerline sticky top-0 z-50 bg-[#07080a]/95 md:bg-[#07080a]/75 md:backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
           <a href="#" aria-label="Nevux, ir arriba">
             <NevuxLogo size="medium" textColor="#ffffff" />
@@ -137,7 +137,7 @@ export default function Landing() {
             </motion.span>
             <motion.h1
               variants={HERO_ITEM}
-              className="text-[2.55rem] leading-[0.98] min-[400px]:text-[2.8rem] sm:text-6xl lg:text-[4.4rem] font-extrabold tracking-[-0.045em] mb-5 md:mb-6"
+              className="text-[2.55rem] leading-[0.98] min-[400px]:text-[2.8rem] sm:text-6xl lg:text-[4.6rem] xl:text-[5rem] font-extrabold tracking-[-0.05em] mb-5 md:mb-6"
             >
               No te faltan visitas.
               <br />
@@ -153,7 +153,7 @@ export default function Landing() {
               <WhatsAppCta origen="hero" className="w-full sm:w-auto" />
               <a
                 href="/suscribirme?plan=premium"
-                className="nvx-press w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-300/40 bg-amber-300/[0.06] hover:bg-amber-300/[0.12] hover:border-amber-300/70 text-amber-200 font-bold px-6 py-4 text-[15px]"
+                className="nvx-press w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-300/40 bg-amber-300/[0.06] hover:bg-amber-300/[0.12] hover:border-amber-300/70 text-amber-200 font-bold px-6 py-4 text-[15px] shadow-[inset_0_1px_0_0_rgba(253,230,138,0.14)]"
               >
                 Quiero el Premium <ArrowRight className="w-4 h-4" />
               </a>
