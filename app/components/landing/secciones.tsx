@@ -9,7 +9,7 @@ import NotebookVideo from "./NotebookVideo";
 import Vitrina from "@/app/disenos/Vitrina";
 import { DISENOS } from "@/lib/disenos";
 import { PLANES } from "@/lib/planes";
-import { Reveal, Tilt } from "./fx";
+import { Glow, Reveal, Tilt } from "./fx";
 import { Duda, Eyebrow, Grad, PREMIUM_URL, WhatsAppCta, ars } from "./cta";
 
 /* ---------- 3. Caso real: Hogar Digital ---------- */
@@ -66,7 +66,7 @@ function CapturasHD() {
       {/* Celular */}
       <div ref={pista} className="lg:hidden flex items-start gap-4 overflow-x-auto snap-x snap-mandatory -mx-4 px-[14%] pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {CASO_HD.map((c, i) => (
-          <figure key={c.foto} data-i={i} className={`snap-center shrink-0 w-[72%] sm:w-[44%] transition-all duration-500 ${activa === i ? "opacity-100 scale-100" : "opacity-50 scale-[.94]"}`}>
+          <figure key={c.foto} data-i={i} className={`snap-center shrink-0 w-[72%] sm:w-[44%] transition-[transform,opacity] duration-500 ${activa === i ? "opacity-100 scale-100" : "opacity-50 scale-[.94]"}`}>
             <Celu foto={c.foto} titulo={c.titulo} />
             <figcaption className="mt-3 text-center">
               <b className="block text-sm font-bold">{c.titulo}</b>
@@ -101,8 +101,8 @@ function CapturasHD() {
 export function CasoReal() {
   return (
     <section id="premium" className="relative py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5 overflow-hidden scroll-mt-20 nvx-grain">
-      <div aria-hidden className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[520px] bg-sky-400/[0.08] blur-[150px] rounded-full pointer-events-none" />
-      <div aria-hidden className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[420px] bg-amber-400/[0.07] blur-[150px] rounded-full pointer-events-none" />
+      <Glow className="-top-60 left-1/2 -translate-x-1/2 w-[1200px] h-[760px]" color="rgba(56,189,248,0.09)" />
+      <Glow className="-bottom-40 left-1/2 -translate-x-1/2 w-[1200px] h-[640px]" color="rgba(251,191,36,0.07)" />
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
         <Reveal className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
           <Eyebrow>Caso real · Hogar Digital</Eyebrow>
@@ -205,7 +205,7 @@ const SPIN = ["¿Cuántas personas entraron a tu tienda este mes?", "¿Cuántas 
 export function Problema() {
   return (
     <section id="problema" className="relative py-20 md:py-28 overflow-hidden scroll-mt-20">
-      <div aria-hidden className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[420px] bg-rose-500/[0.05] blur-[150px] rounded-full pointer-events-none" />
+      <Glow className="top-1/4 left-1/2 -translate-x-1/2 w-[1100px] h-[640px]" color="rgba(244,63,94,0.06)" />
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
         <Reveal className="text-center max-w-2xl mx-auto mb-12 md:mb-14">
           <Eyebrow>El problema</Eyebrow>

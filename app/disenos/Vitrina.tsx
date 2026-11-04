@@ -3,16 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 
 // Vitrina 3D de celulares (docs/efectos.md, E22): el diseño elegido va al centro y los otros dos, girados, a los costados.
-// Cada celular es la demo real (public/demo/disenos/) y baja sola; al llegar al final vuelve arriba.
+// Cada celular es la demo real (public/demo/disenos/). El del centro baja solo y, al llegar al final, vuelve arriba.
+// Fluidez: solo se mueve el del centro y solo mientras la vitrina se ve en pantalla; los costados se oscurecen con una capa, no con filter.
 
 export type Diseno = { id: string; nombre: string; plan: string; demo: string };
 
 const ANCHO = 390;
 const ALTO = 844;
 
-function Celular({ d, pos, onClick, base }: { d: Diseno; pos: "centro" | "izq" | "der"; onClick: () => void; base: number }) {
+function Celular({ d, pos, onClick, base, visible }: { d: Diseno; pos: "centro" | "izq" | "der"; onClick: () => void; base: number; visible: boolean }) {
   const ref = useRef<HTMLIFrameElement>(null);
   useEffect(() => {
+    if (pos !== "centro" || !visible) return;
     let raf = 0;
     let pausa = 0;
     let ultimo = 0;
@@ -31,12 +33,12 @@ function Celular({ d, pos, onClick, base }: { d: Diseno; pos: "centro" | "izq" |
         setTimeout(() => win.scrollTo(0, 0), 1200);
         return;
       }
-      win.scrollTo(0, win.scrollY + dt * (pos === "centro" ? 0.07 : 0.05));
+      win.scrollTo(0, win.scrollY + dt * 0.07);
     };
     const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!quieto) raf = requestAnimationFrame(paso);
     return () => cancelAnimationFrame(raf);
-  }, [pos]);
+  }, [pos, visible]);
 
   const centro = pos === "centro";
   const escala = centro ? base : base * 0.76;
@@ -48,14 +50,13 @@ function Celular({ d, pos, onClick, base }: { d: Diseno; pos: "centro" | "izq" |
       type="button"
       onClick={onClick}
       aria-label={centro ? d.nombre : `Ver ${d.nombre}`}
-      className="absolute left-1/2 top-0 transition-all duration-700 ease-[cubic-bezier(.2,.8,.2,1)]"
+      className="absolute left-1/2 top-0 transition-[transform,opacity] duration-700 ease-[cubic-bezier(.2,.8,.2,1)]"
       style={{
         width: ANCHO * escala + 20,
         height: ALTO * escala + 20,
         transform: `translateX(calc(-50% + ${mover})) ${giro} translateZ(${centro ? 0 : -120}px)`,
         zIndex: centro ? 3 : 1,
-        opacity: centro ? 1 : 0.55,
-        filter: centro ? "none" : "brightness(.6)",
+        opacity: centro ? 1 : 0.7,
         cursor: centro ? "default" : "pointer",
       }}
     >
@@ -69,6 +70,7 @@ function Celular({ d, pos, onClick, base }: { d: Diseno; pos: "centro" | "izq" |
             className="absolute left-0 top-0 border-0 origin-top-left pointer-events-none"
             style={{ width: ANCHO, height: ALTO, transform: `scale(${escala})` }}
           />
+          <div aria-hidden className={`absolute inset-0 bg-black transition-opacity duration-700 pointer-events-none ${centro ? "opacity-0" : "opacity-50"}`} />
         </div>
       </div>
     </button>
@@ -77,6 +79,16 @@ function Celular({ d, pos, onClick, base }: { d: Diseno; pos: "centro" | "izq" |
 
 export default function Vitrina({ disenos }: { disenos: Diseno[] }) {
   const [i, setI] = useState(0);
+  // Solo se anima mientras la vitrina está en pantalla
+  const caja = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = caja.current;
+    if (!el || !("IntersectionObserver" in window)) return setVisible(true);
+    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { rootMargin: "100px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   // Tamaño del celular del centro según el ancho de la pantalla (en el celular, más chico para que se vean los costados)
   const [base, setBase] = useState(0.66);
   useEffect(() => {
@@ -91,11 +103,11 @@ export default function Vitrina({ disenos }: { disenos: Diseno[] }) {
   const d = disenos[i];
   return (
     <div>
-      <div className="relative mx-auto max-w-[760px] [perspective:1400px]" style={{ height: ALTO * base + 30 }}>
+      <div ref={caja} className="relative mx-auto max-w-[760px] [perspective:1400px]" style={{ height: ALTO * base + 30 }}>
         {disenos.map((x, j) => {
           const pos = j === i ? "centro" : j === izq ? "izq" : j === der ? "der" : null;
           if (!pos) return null;
-          return <Celular key={x.id} d={x} pos={pos} base={base} onClick={() => setI(j)} />;
+          return <Celular key={x.id} d={x} pos={pos} base={base} visible={visible} onClick={() => setI(j)} />;
         })}
       </div>
       <div className="mt-4 text-center">

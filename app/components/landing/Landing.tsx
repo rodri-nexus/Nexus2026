@@ -1,45 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import {
-  MessageCircle,
-  ArrowRight,
-  Check,
-  X,
-  ShieldCheck,
-  ChevronDown,
-  Calculator,
-  Wrench,
-  Zap,
-  Feather,
-  Store,
-} from "lucide-react";
+import { MotionConfig, motion } from "framer-motion";
+import { MessageCircle, ArrowRight, Check, ShieldCheck } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import NotebookVideo from "./NotebookVideo";
-import { Tilt } from "./fx";
-import { CasoReal, Disenos, PIECE_COUNT, Problema, QueHace } from "./secciones";
-import { Eyebrow, Grad, SUSCRIPCION_URL, WHATSAPP_URL, WhatsAppCta, ars, num, trackWhatsApp } from "./cta";
-import { PLANES } from "@/lib/planes";
+import { Glow, Tilt } from "./fx";
+import { CasoReal, Disenos, Problema, QueHace } from "./secciones";
+import { Cierre, ComoFunciona, Comparativa, LaCuenta, Pie, Planes, Preguntas, QuienLoHace } from "./oferta";
+import { WHATSAPP_URL, WhatsAppCta, trackWhatsApp } from "./cta";
 
-// Landing de Nevux. Cada sección sigue el orden del curso de ventas:
-// gancho → dolor → implicación (calculadora) → solución → evaluación → oferta → objeciones → cierre.
+// Landing de Nevux (orden y archivos en docs/landing.md): portada → prueba real → dolor → diseños → qué hace →
+// la cuenta → cómo funciona → alternativas → planes → quién lo hace → objeciones → cierre.
 // Regla: todo dato es real o es una cuenta que hace el visitante con sus números.
-
-const PRECIO = PLANES.basico.precio;
-
-const fadeUp = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" },
-  transition: { duration: 0.6, ease: [0.2, 0.7, 0.2, 1] },
-};
 
 // Entrada de la portada: cada pieza aparece en cascada al cargar
 const HERO = { oculto: {}, visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } } };
 const HERO_ITEM = {
-  oculto: { opacity: 0, y: 18, filter: "blur(8px)" },
-  visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+  oculto: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
 };
 
 // Portada: notebook con la home Premium (demo) y celular con la ficha Pro (demo), en 3D.
@@ -52,7 +31,7 @@ function HeroDevices() {
       transition={{ duration: 1.1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className="relative mx-auto mt-10 md:mt-16 w-full max-w-[960px]"
     >
-      <div aria-hidden className="absolute left-1/2 top-[18%] -translate-x-1/2 w-[85%] h-[70%] bg-emerald-400/20 blur-[90px] rounded-full" />
+      <Glow className="left-1/2 top-[5%] -translate-x-1/2 w-[120%] h-[100%]" color="rgba(52,211,153,0.20)" />
       <Tilt max={9} scroll={20} glare={false} className="relative">
         <div className="relative pr-[13%] sm:pr-[15%]" style={{ transformStyle: "preserve-3d" }}>
           <div style={{ transform: "translateZ(0px)" }}>
@@ -64,7 +43,7 @@ function HeroDevices() {
             style={{ transform: "translateZ(70px)" }}
           >
             <div className="relative overflow-hidden rounded-[1.3rem] sm:rounded-[1.8rem] bg-white" style={{ aspectRatio: "390 / 844" }}>
-              <img src="/landing/hero-ficha.jpg" alt="Ficha Pro de demostración en un celular" className="nvx-ficha absolute inset-0 h-full w-full object-cover" />
+              <img src="/landing/hero-ficha.jpg" alt="Ficha Pro de demostración en un celular" width={520} height={1760} className="nvx-ficha absolute left-0 top-0 w-full h-auto will-change-transform" />
               <div className="absolute left-1/2 top-[6px] -translate-x-1/2 h-[10px] sm:h-[16px] w-[34%] rounded-full bg-black" />
               <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-transparent" />
             </div>
@@ -96,190 +75,9 @@ function HeroDevices() {
   );
 }
 
-/* ---------- Contenido ---------- */
-
-const COMPARE = [
-  { row: "Quién lo configura", nevux: "Nosotros, con tus datos", apps: "Vos, una por una", tema: "Un diseñador o vos" },
-  { row: "Qué instalás", nevux: "Una sola línea", apps: "Una app por función", tema: "La tienda entera de nuevo" },
-  { row: "Tocás tu plantilla", nevux: false, apps: false, tema: true },
-  { row: "Probado en tu ficha antes de activarlo", nevux: true, apps: false, tema: false },
-  { row: "Cambios de precios y promos", nevux: "Los hacemos nosotros", apps: "Los hacés vos", tema: "Los hacés vos" },
-];
-
-const STEPS = [
-  { icon: MessageCircle, t: "Análisis gratis", d: "Nos mandás el link de tu tienda por WhatsApp y te decimos qué está frenando la compra en tus fichas. Sin costo y sin compromiso." },
-  { icon: Wrench, t: "Lo armamos con tus datos", d: "Configuramos Nevux con tus precios, tus envíos y tu marca, y lo probamos sobre un producto tuyo." },
-  { icon: Zap, t: "Pegás una línea y listo", d: "En el editor de diseño de tu Tiendanube, con nuestra guía. Desde ahí, cualquier cambio lo hacemos nosotros." },
-];
-
-const FACTS = [
-  { icon: Store, t: "Probado en tiendas reales", d: "Con las plantillas Brasilia, Recife y Morelia de Tiendanube." },
-  { icon: Check, t: "Solo datos reales", d: "Precios, cuotas y transferencia se leen de tu tienda. Si no ofrecés algo, no se muestra." },
-  { icon: Feather, t: "No frena tu tienda", d: "Es un solo archivo que se carga en paralelo, sin frenar la carga de tu página y sin apps." },
-  { icon: MessageCircle, t: "Atención de persona a persona", d: "Hablás siempre con quien configura tu tienda, por WhatsApp." },
-];
-
-const INCLUYE = [
-  "Análisis de tu tienda antes de empezar",
-  "Ficha Pro clara u oscura, con tus colores y efectos",
-  `Las ${PIECE_COUNT} piezas, configuradas con tus datos`,
-  "Secciones de confianza para la home de tu tienda",
-  "Ajustes cada vez que cambies precios o promos",
-  "Soporte por WhatsApp de persona a persona",
-  "Sin permanencia: cancelás cuando quieras",
-];
-
-// Preguntas frecuentes armadas como objeciones: precio, tiempo, confianza y necesidad
-const FAQS = [
-  {
-    q: "“Es caro para mi tienda.”",
-    a: "Tiene sentido mirarlo así. Pensalo en ventas: con un ticket promedio de $35.000, Nevux se paga con 2 ventas al mes (hacé la cuenta con tus números en la calculadora). Y si en 7 días no te convence, te devolvemos el 100%.",
-  },
-  {
-    q: "“No tengo tiempo para instalar nada.”",
-    a: "Por eso lo hacemos nosotros. Vos pegás una sola línea en el editor de diseño de Tiendanube, con nuestra guía por WhatsApp. Desde ahí, los cambios de precios, envíos o promociones corren por nuestra cuenta.",
-  },
-  {
-    q: "“¿Y si en mi tienda no funciona?”",
-    a: "Es la duda más común. Por eso lo probamos sobre una ficha real de tu tienda antes de activarlo, y tenés 7 días de garantía: si no te convence cómo quedaron tus fichas, te devolvemos todo.",
-  },
-  {
-    q: "“Mi tienda ya vende bien.”",
-    a: "Buenísimo: tenés tráfico y un producto que funciona, que es lo más difícil. Nevux trabaja sobre eso: que más visitas terminen en compra y que cada compra lleve más, con packs y Combiná con.",
-  },
-  {
-    q: "¿Tengo que cambiar de plantilla o saber programar?",
-    a: "No. Nevux se suma a la plantilla que ya tenés. Te damos una sola línea, ya configurada para tu tienda, y la pegás en el editor de diseño.",
-  },
-  {
-    q: "¿Hace más lenta mi tienda?",
-    a: "La línea se carga en paralelo (async), así que no frena la carga de tu página. Es un solo archivo, sin apps.",
-  },
-  {
-    q: "¿Los precios y descuentos son reales?",
-    a: "Sí. El precio por transferencia y las cuotas sin interés se leen de tu tienda. Los descuentos de los packs se cargan también como promoción en tu Tiendanube, para que el carrito cobre exactamente lo que se muestra.",
-  },
-  {
-    q: "¿Cómo se paga? ¿Puedo cancelar?",
-    a: "Es una suscripción mensual de $39.900 por Mercado Pago. Cancelás cuando quieras, sin permanencia mínima, y tenés 7 días de garantía.",
-  },
-];
-
-/* ---------- Piezas visuales ---------- */
-
-// Campo numérico con separador de miles
-function NumberField({ label, prefix, value, onChange, hint }: { label: string; prefix?: string; value: number; onChange: (n: number) => void; hint?: string }) {
-  return (
-    <label className="block">
-      <span className="text-xs font-bold text-neutral-300">{label}</span>
-      <div className="mt-1.5 flex items-center bg-[#07080a] border border-white/10 focus-within:border-emerald-400/60 rounded-xl px-4 transition-colors">
-        {prefix && <span className="text-neutral-500 font-bold mr-1">{prefix}</span>}
-        <input
-          type="text"
-          inputMode="numeric"
-          value={value ? num(value) : ""}
-          onChange={(e) => onChange(Math.min(Number(e.target.value.replace(/\D/g, "")) || 0, 999999999))}
-          className="w-full bg-transparent py-3 text-lg font-bold tabular-nums outline-none"
-        />
-      </div>
-      {hint && <span className="block text-[11px] text-neutral-500 mt-1.5">{hint}</span>}
-    </label>
-  );
-}
-
-const MEJORAS = [0.25, 0.5, 1];
-const pct = (n: number) => n.toLocaleString("es-AR", { maximumFractionDigits: 2 });
-
-function Calculadora({ ticket, setTicket }: { ticket: number; setTicket: (n: number) => void }) {
-  const [visitas, setVisitas] = useState(3000);
-  const [conv, setConv] = useState(1);
-  const [mejora, setMejora] = useState(0.5);
-
-  const ventasHoy = (visitas * conv) / 100;
-  const ventasExtra = (visitas * mejora) / 100;
-  const extra = ventasExtra * ticket;
-  const seaPagaCon = ticket > 0 ? Math.ceil(PRECIO / ticket) : 0;
-
-  return (
-    <div className="grid lg:grid-cols-[1fr_1.1fr] gap-4">
-      <div className="bg-[#101114] border border-white/[0.07] rounded-3xl p-5 sm:p-7 space-y-5">
-        <NumberField label="Visitas por mes" value={visitas} onChange={setVisitas} hint="Lo ves en Tiendanube → Estadísticas." />
-        <NumberField label="Ticket promedio" prefix="$" value={ticket} onChange={setTicket} />
-        <div>
-          <span className="text-xs font-bold text-neutral-300">De cada 100 visitas, ¿cuántas compran hoy?</span>
-          <div className="mt-2 flex items-center gap-4">
-            <input
-              type="range"
-              min={0.2}
-              max={5}
-              step={0.1}
-              value={conv}
-              onChange={(e) => setConv(Number(e.target.value))}
-              className="flex-1 accent-emerald-400"
-              aria-label="Conversión actual"
-            />
-            <span className="w-16 text-right text-lg font-bold tabular-nums">{pct(conv)}%</span>
-          </div>
-          <span className="block text-[11px] text-neutral-500 mt-1.5">Si no lo sabés, dejá 1%: es un valor habitual en tiendas online.</span>
-        </div>
-        <div>
-          <span className="text-xs font-bold text-neutral-300">Si mejorara…</span>
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {MEJORAS.map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMejora(m)}
-                className={`py-2.5 rounded-xl text-sm font-bold border transition-colors ${
-                  mejora === m ? "bg-emerald-400 border-emerald-400 text-black" : "bg-white/[0.03] border-white/10 text-neutral-300 hover:border-white/25"
-                }`}
-              >
-                +{pct(m)} punto{m === 1 ? "" : "s"}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="relative bg-gradient-to-b from-emerald-500/[0.12] to-emerald-500/[0.03] border border-emerald-400/30 rounded-3xl p-5 sm:p-7 flex flex-col">
-        <div className="text-sm text-neutral-400">
-          Hoy: <b className="text-white tabular-nums">{num(ventasHoy)} ventas</b> por mes · <span className="tabular-nums">{ars(ventasHoy * ticket)}</span>
-        </div>
-        <div className="mt-6 text-sm text-neutral-300">
-          Si de cada 100 visitas compraran {pct(mejora)} más, serían <b className="text-white tabular-nums">{num(ventasExtra)} ventas más</b> por mes:
-        </div>
-        <div className="mt-2 text-[2.6rem] sm:text-6xl font-black tracking-tight tabular-nums text-emerald-300 leading-none break-all">
-          +{ars(extra)}
-        </div>
-        <div className="text-sm text-neutral-400 mt-2">por mes, con las mismas visitas.</div>
-        <div className="mt-6 pt-5 border-t border-white/10 flex items-start gap-3">
-          <Calculator className="w-5 h-5 text-emerald-300 shrink-0 mt-0.5" />
-          <p className="text-sm text-neutral-300">
-            Nevux cuesta {ars(PRECIO)} por mes. Con tu ticket, <b className="text-white">se paga con {seaPagaCon} venta{seaPagaCon === 1 ? "" : "s"}</b>.
-          </p>
-        </div>
-        <p className="mt-auto pt-6 text-[11px] text-neutral-500 leading-relaxed">
-          Es una cuenta con tus números, no una promesa: el resultado depende de tu producto, tu precio y tu tráfico.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function Cell({ v, strong }: { v: string | boolean; strong?: boolean }) {
-  if (typeof v === "boolean")
-    return v ? (
-      <Check className={`w-5 h-5 sm:mx-auto shrink-0 ${strong ? "text-emerald-300" : "text-neutral-400"}`} />
-    ) : (
-      <X className="w-5 h-5 sm:mx-auto shrink-0 text-neutral-600" />
-    );
-  return <span className={`text-right sm:text-center ${strong ? "text-white font-bold" : "text-neutral-400"}`}>{v}</span>;
-}
-
 /* ---------- Página ---------- */
 
 export default function Landing() {
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showBar, setShowBar] = useState(false);
   const [ticket, setTicket] = useState(35000);
 
@@ -291,26 +89,23 @@ export default function Landing() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const seaPagaCon = ticket > 0 ? Math.ceil(PRECIO / ticket) : 0;
-
   return (
+    <MotionConfig reducedMotion="user">
     <div className="min-h-screen bg-[#07080a] text-white selection:bg-emerald-400 selection:text-black pb-24 sm:pb-0 overflow-x-hidden">
       <style>{`
-        @keyframes nvx-hero-scroll { 0%, 6% { transform: translateY(0); } 94%, 100% { transform: translateY(calc(-100% + 560px)); } }
-        .nvx-hero-scroll { animation: nvx-hero-scroll 26s ease-in-out infinite alternate; }
         .nvx-grid-bg { background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 44px 44px; mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%); }
         @keyframes nvx-grad { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
         @keyframes nvx-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
         .nvx-float { animation: nvx-float 6s ease-in-out infinite; }
-        @keyframes nvx-ficha { 0%, 30% { object-position: 50% 0%; } 85%, 100% { object-position: 50% 100%; } }
+        @keyframes nvx-ficha { 0%, 30% { transform: translateY(0); } 85%, 100% { transform: translateY(-36%); } }
         .nvx-ficha { animation: nvx-ficha 14s ease-in-out infinite alternate; }
-        @keyframes nvx-barra { 0%, 15% { width: 22%; } 70%, 100% { width: 84%; } }
-        .nvx-barra { width: 84%; animation: nvx-barra 5s cubic-bezier(.4,0,.2,1) infinite alternate; }
-        @media (prefers-reduced-motion: reduce) { .nvx-hero-scroll, .nvx-float, .nvx-ficha, .nvx-barra { animation: none; } }
+        @keyframes nvx-barra { 0%, 15% { transform: scaleX(.26); } 70%, 100% { transform: scaleX(1); } }
+        .nvx-barra { width: 84%; transform-origin: left; animation: nvx-barra 5s cubic-bezier(.4,0,.2,1) infinite alternate; }
+        @media (prefers-reduced-motion: reduce) { .nvx-float, .nvx-ficha, .nvx-barra { animation: none; } }
       `}</style>
 
       {/* HEADER: el aviso de análisis gratis vive en el botón (antes era una franja aparte) */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#07080a]/75 border-b border-white/[0.06]">
+      <header className="sticky top-0 z-50 bg-[#07080a]/95 md:bg-[#07080a]/75 md:backdrop-blur-xl border-b border-white/[0.06]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
           <a href="#" aria-label="Nevux, ir arriba">
             <NevuxLogo size="medium" textColor="#ffffff" />
@@ -338,8 +133,8 @@ export default function Landing() {
       {/* 1. HERO: qué es (línea de arriba), el gancho (titular) y el "wow" (notebook y celular en 3D) */}
       <section className="relative overflow-hidden nvx-grain">
         <div className="absolute inset-0 nvx-grid-bg pointer-events-none" />
-        <div className="absolute -top-48 left-1/2 -translate-x-1/2 w-[1000px] h-[640px] bg-emerald-500/[0.16] blur-[150px] rounded-full pointer-events-none" />
-        <div className="absolute top-[55%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-teal-400/[0.07] blur-[160px] rounded-full pointer-events-none" />
+        <Glow className="-top-72 left-1/2 -translate-x-1/2 w-[1400px] h-[960px]" color="rgba(16,185,129,0.17)" />
+        <Glow className="top-[45%] left-1/2 -translate-x-1/2 w-[1300px] h-[800px]" color="rgba(45,212,191,0.07)" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-16 md:pt-20 md:pb-24">
           <motion.div variants={HERO} initial="oculto" animate="visible" className="text-center max-w-4xl mx-auto">
             <motion.span
@@ -401,285 +196,19 @@ export default function Landing() {
       <Disenos />
       <QueHace />
 
-      {/* 3. IMPLICACIÓN: la cuenta con sus números */}
-      <section id="cuenta" className="py-20 md:py-28 scroll-mt-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto mb-12">
-            <Eyebrow>Hacé la cuenta</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-4">
-              Cuánto te deja <Grad>una ficha que convence</Grad>
-            </h2>
-            <p className="text-neutral-400 text-sm sm:text-base">Poné tus números. Un pequeño cambio en cuántas visitas compran mueve mucho la facturación.</p>
-          </motion.div>
-          <motion.div {...fadeUp}>
-            <Calculadora ticket={ticket} setTicket={setTicket} />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 7. EVALUACIÓN DE ALTERNATIVAS */}
-      <section className="py-20 md:py-28">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto mb-12">
-            <Eyebrow>Las alternativas</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-4">Comparalo sin vueltas</h2>
-            <p className="text-neutral-400 text-sm sm:text-base">Hay otras formas de mejorar tus fichas. Esta es la diferencia.</p>
-          </motion.div>
-          {/* En el celular, una tarjeta por fila para que se vean las tres opciones */}
-          <div className="sm:hidden space-y-3">
-            {COMPARE.map((r) => (
-              <motion.div key={r.row} {...fadeUp} className="bg-[#101114] border border-white/[0.07] rounded-2xl p-5">
-                <div className="text-sm font-bold mb-3">{r.row}</div>
-                <div className="flex items-center justify-between gap-3 bg-emerald-400/[0.08] border border-emerald-400/30 rounded-xl px-3 py-2.5 mb-2 text-sm">
-                  <span className="font-extrabold text-emerald-300">Nevux</span>
-                  <Cell v={r.nevux} strong />
-                </div>
-                {[
-                  ["Apps sueltas", r.apps],
-                  ["Rediseñar la tienda", r.tema],
-                ].map(([k, v]) => (
-                  <div key={k as string} className="flex items-center justify-between gap-3 px-3 py-1.5 text-sm">
-                    <span className="text-neutral-500">{k as string}</span>
-                    <Cell v={v as string | boolean} />
-                  </div>
-                ))}
-              </motion.div>
-            ))}
-          </div>
-          <motion.div {...fadeUp} className="hidden sm:block">
-            <table className="w-full text-sm border-separate border-spacing-0">
-              <thead>
-                <tr>
-                  <th className="text-left font-semibold text-neutral-500 p-4 w-[30%]"></th>
-                  <th className="p-4 bg-emerald-400/[0.08] border-x border-t border-emerald-400/30 rounded-t-2xl">
-                    <span className="inline-flex items-center gap-2 font-extrabold text-white">
-                      <NevuxLogo size="small" showText={false} /> Nevux
-                    </span>
-                  </th>
-                  <th className="p-4 font-bold text-neutral-300">Apps sueltas</th>
-                  <th className="p-4 font-bold text-neutral-300">Rediseñar la tienda</th>
-                </tr>
-              </thead>
-              <tbody>
-                {COMPARE.map((r, i) => (
-                  <tr key={r.row}>
-                    <td className="p-4 border-t border-white/5 text-neutral-300 font-semibold">{r.row}</td>
-                    <td
-                      className={`p-4 text-center bg-emerald-400/[0.08] border-x border-emerald-400/30 border-t border-t-white/5 ${
-                        i === COMPARE.length - 1 ? "border-b rounded-b-2xl" : ""
-                      }`}
-                    >
-                      <Cell v={r.nevux} strong />
-                    </td>
-                    <td className="p-4 text-center border-t border-white/5">
-                      <Cell v={r.apps} />
-                    </td>
-                    <td className="p-4 text-center border-t border-white/5">
-                      <Cell v={r.tema} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 8. CÓMO TRABAJAMOS */}
-      <section className="py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto mb-14">
-            <Eyebrow>Cómo trabajamos</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4 mb-4">Vos no tocás nada</h2>
-            <p className="text-neutral-400 text-sm sm:text-base">Tres pasos. Sin programar y sin cambiar tu plantilla.</p>
-          </motion.div>
-          <div className="grid md:grid-cols-3 gap-4">
-            {STEPS.map((s, i) => (
-              <motion.div key={s.t} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.1 }} className="bg-[#101114] border border-white/[0.07] rounded-2xl p-7">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-11 h-11 rounded-xl bg-emerald-400/10 border border-emerald-400/25 grid place-items-center">
-                    <s.icon className="w-5 h-5 text-emerald-300" />
-                  </div>
-                  <span className="text-3xl font-black text-white/10 tabular-nums">0{i + 1}</span>
-                </div>
-                <h3 className="text-lg font-bold mb-2">{s.t}</h3>
-                <p className="text-neutral-400 text-sm leading-relaxed">{s.d}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 9. PRUEBA SOCIAL Y CONFIANZA */}
-      <section className="py-20 md:py-28">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <motion.div {...fadeUp} className="text-center max-w-2xl mx-auto mb-12">
-            <Eyebrow>Por qué confiar</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4">Hecho para tiendas de verdad</h2>
-          </motion.div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {FACTS.map((f, i) => (
-              <motion.div key={f.t} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.06 }} className="bg-[#101114] border border-white/[0.07] rounded-2xl p-6">
-                <f.icon className="w-5 h-5 text-emerald-300 mb-4" />
-                <h3 className="font-bold mb-1">{f.t}</h3>
-                <p className="text-sm text-neutral-400 leading-relaxed">{f.d}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 10. OFERTA: garantía y cierre de alternativa */}
-      <section id="precio" className="relative py-20 md:py-28 border-t border-white/5 overflow-hidden scroll-mt-20">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-emerald-500/10 blur-[140px] rounded-full pointer-events-none" />
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
-          <motion.div {...fadeUp} className="text-center mb-10">
-            <Eyebrow>Precio</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4">Dos planes. Todo incluido.</h2>
-          </motion.div>
-          <div className="grid md:grid-cols-2 gap-5 items-stretch max-w-[860px] mx-auto">
-          <motion.div
-            {...fadeUp}
-            className="relative min-w-0 w-full max-w-[420px] mx-auto bg-[#0f1013] border border-emerald-400/40 rounded-3xl p-5 sm:p-7 shadow-[0_0_80px_-20px_rgba(16,185,129,0.35)]"
-          >
-            <div className="text-center">
-              <span className="inline-block bg-emerald-400/10 border border-emerald-400/30 text-emerald-300 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">
-                Básico
-              </span>
-              <h3 className="text-xl sm:text-2xl font-extrabold mb-1">Pack Landing Page Pro</h3>
-              <p className="text-neutral-500 text-sm mb-6">Para tiendas en Tiendanube</p>
-              <div className="flex items-end justify-center gap-2 mb-2">
-                <span className="text-[clamp(2.2rem,10vw,3rem)] leading-none font-black tracking-tight tabular-nums">{ars(PRECIO)}</span>
-                <span className="text-neutral-400 text-sm font-semibold mb-1.5">/mes</span>
-              </div>
-              <p className="text-[13px] text-emerald-300 font-semibold mb-6">
-                Con un ticket de {ars(ticket)}, se paga con {seaPagaCon} venta{seaPagaCon === 1 ? "" : "s"} al mes.
-              </p>
-            </div>
-            <ul className="space-y-2.5 text-left text-[13.5px] text-neutral-300 mb-7">
-              {INCLUYE.map((t) => (
-                <li key={t} className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  {t}
-                </li>
-              ))}
-            </ul>
-            <WhatsAppCta origen="precio" label="Empezar con el análisis gratis" className="w-full !whitespace-normal !px-4 text-center" />
-            <a
-              href={SUSCRIPCION_URL}
-              className="mt-3 w-full inline-flex items-center justify-center gap-2 border border-white/15 hover:border-white/30 text-white font-bold px-6 py-3.5 rounded-2xl text-sm transition-colors"
-            >
-              Ya lo decidí: suscribirme <ArrowRight className="w-4 h-4" />
-            </a>
-            <div className="mt-8 pt-6 border-t border-white/5 flex items-start gap-3">
-              <ShieldCheck className="w-7 h-7 text-emerald-400 shrink-0" />
-              <p className="text-sm text-neutral-400 leading-relaxed">
-                <b className="text-white">Garantía de 7 días.</b> Si en los primeros 7 días no te convence cómo quedaron tus fichas, te devolvemos el 100% de lo
-                que pagaste. Sin preguntas raras.
-              </p>
-            </div>
-          </motion.div>
-          <motion.div
-            {...fadeUp}
-            className="relative min-w-0 w-full max-w-[420px] mx-auto bg-gradient-to-b from-amber-200 to-amber-400 text-black rounded-3xl p-5 sm:p-7 shadow-[0_0_80px_-20px_rgba(251,191,36,0.45)]"
-          >
-            <div className="text-center">
-              <span className="inline-block bg-black text-amber-300 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">Premium</span>
-              <h3 className="text-xl sm:text-2xl font-extrabold mb-1">{PLANES.premium.nombre}</h3>
-              <p className="text-black/60 text-sm mb-6">Tu tienda como las marcas grandes</p>
-              <div className="flex items-end justify-center gap-2 mb-6">
-                <span className="text-[clamp(2.2rem,10vw,3rem)] leading-none font-black tracking-tight tabular-nums">{ars(PLANES.premium.precio)}</span>
-                <span className="text-black/60 text-sm font-semibold mb-1.5">/mes</span>
-              </div>
-            </div>
-            <ul className="space-y-2.5 text-left text-[13.5px] mb-7">
-              {PLANES.premium.incluye.map((t) => (
-                <li key={t} className="flex items-start gap-3">
-                  <Check className="w-4 h-4 shrink-0 mt-0.5" />
-                  {t}
-                </li>
-              ))}
-            </ul>
-            <a href="/suscribirme?plan=premium" className="w-full inline-flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white font-extrabold px-6 py-4 rounded-2xl transition-colors">
-              Quiero el Premium <ArrowRight className="w-4 h-4" />
-            </a>
-            <a href="#premium" className="mt-3 w-full inline-flex items-center justify-center gap-2 border border-black/20 hover:border-black/40 font-bold px-6 py-3.5 rounded-2xl text-sm transition-colors">
-              Verlo funcionando <ArrowRight className="w-4 h-4" />
-            </a>
-          </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* 11. OBJECIONES */}
-      <section id="preguntas" className="py-20 md:py-28 bg-[#0b0c0f] border-y border-white/5 scroll-mt-20">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <motion.div {...fadeUp} className="text-center mb-12">
-            <Eyebrow>Preguntas frecuentes</Eyebrow>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mt-4">Lo que te puede estar frenando</h2>
-          </motion.div>
-          <div className="space-y-3">
-            {FAQS.map((f, i) => (
-              <div key={f.q} className="bg-[#101114] border border-white/[0.07] rounded-2xl overflow-hidden">
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  aria-expanded={openFaq === i}
-                  className="w-full p-5 text-left font-bold flex justify-between items-center gap-4 text-sm sm:text-base hover:bg-white/[0.03] transition-colors"
-                >
-                  <span>{f.q}</span>
-                  <ChevronDown className={`w-5 h-5 text-emerald-400 shrink-0 transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
-                </button>
-                {openFaq === i && <div className="px-5 pb-5 text-neutral-400 text-sm leading-relaxed">{f.a}</div>}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 12. CIERRE: ¿y si…? + consecuencia */}
-      <section className="relative py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 nvx-grid-bg rotate-180 pointer-events-none" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-500/15 blur-[140px] rounded-full pointer-events-none" />
-        <motion.div {...fadeUp} className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl sm:text-6xl font-extrabold tracking-tight mb-6">
-            ¿Y si el mes que viene vendieras más <Grad>con las mismas visitas?</Grad>
-          </h2>
-          <p className="text-neutral-400 text-sm sm:text-lg mb-10 max-w-xl mx-auto">
-            Cada día que tu ficha sigue igual, las visitas que pagaste se van sin comprar. Mandanos el link de tu tienda y te decimos qué cambiar. Gratis.
-          </p>
-          <WhatsAppCta origen="cierre" className="w-full sm:w-auto" />
-          <p className="text-xs text-neutral-500 mt-4">Te responde Rodrigo, creador de Nevux. Una persona, no un bot.</p>
-        </motion.div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="py-10 border-t border-white/5 text-neutral-500 text-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <NevuxLogo size="small" textColor="#ffffff" />
-          <div className="text-center">
-            <div>© 2026 Nevux · Fichas de producto que venden, para Tiendanube</div>
-            <div className="mt-2 flex items-center justify-center gap-3">
-              <a href="/arrepentimiento" className="underline hover:text-white">Botón de arrepentimiento</a>
-              <span>·</span>
-              <a href="/arrepentimiento?tipo=baja" className="underline hover:text-white">Botón de baja</a>
-            </div>
-          </div>
-          <a
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackWhatsApp("footer")}
-            className="inline-flex items-center gap-2 text-emerald-400 font-bold hover:underline"
-          >
-            <MessageCircle className="w-4 h-4" />
-            WhatsApp
-          </a>
-        </div>
-      </footer>
+      {/* 7 a 13: la cuenta, cómo funciona, comparativa, planes, quién lo hace, preguntas y cierre (oferta.tsx) */}
+      <LaCuenta ticket={ticket} setTicket={setTicket} />
+      <ComoFunciona />
+      <Comparativa />
+      <Planes ticket={ticket} />
+      <QuienLoHace />
+      <Preguntas />
+      <Cierre />
+      <Pie />
 
       {/* BARRA FIJA MOBILE: análisis gratis (principal) y Premium */}
       <div
-        className={`sm:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] bg-[#07080a]/90 backdrop-blur-xl border-t border-white/10 transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)] ${
+        className={`sm:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] bg-[#07080a]/95 border-t border-white/10 will-change-transform transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)] ${
           showBar ? "translate-y-0" : "translate-y-full"
         }`}
       >
@@ -700,5 +229,6 @@ export default function Landing() {
         </div>
       </div>
     </div>
+    </MotionConfig>
   );
 }
