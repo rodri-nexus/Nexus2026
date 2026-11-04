@@ -49,8 +49,54 @@ body {
 @keyframes nvx-pantalla { 0%, 8% { transform: translateY(0); } 92%, 100% { transform: translateY(calc(-100% + var(--alto, 100%))); } }
 .nvx-pantalla { animation: nvx-pantalla 18s ease-in-out infinite alternate; }
 
+/* ---------- Estilos de la portada (04/11: movidos del <style> inline a este CSS cacheable) ---------- */
+
+/* Grilla de fondo de la portada, desvanecida hacia los bordes */
+.nvx-grid-bg {
+  background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+}
+
+/* Titular con degradé en movimiento */
+@keyframes nvx-grad { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+/* Etiquetas flotantes del 3D de la portada */
+@keyframes nvx-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+.nvx-float { animation: nvx-float 6s ease-in-out infinite; }
+
+/* La ficha del celular de la portada baja sola */
+@keyframes nvx-ficha { 0%, 30% { transform: translateY(0); } 85%, 100% { transform: translateY(-36%); } }
+.nvx-ficha { animation: nvx-ficha 14s ease-in-out infinite alternate; }
+
+/* Barra de envío gratis de la etiqueta flotante */
+@keyframes nvx-barra { 0%, 15% { transform: scaleX(.26); } 70%, 100% { transform: scaleX(1); } }
+.nvx-barra { width: 84%; transform-origin: left; animation: nvx-barra 5s cubic-bezier(.4,0,.2,1) infinite alternate; }
+
+/* ---------- Fluidez (04/11): el navegador no maqueta ni pinta las secciones que no se ven.
+   contain-intrinsic-size le da un alto estimado para que el scrollbar no salte al bajar. */
+.nvx-seccion {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
+/* ---------- Nivel de marca (04/11) ---------- */
+
+/* Cabecera: borde degradado en vez de línea plana */
+.nvx-header-border { border-bottom: 1px solid transparent; border-image: linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent) 1; }
+
+/* Anillo de foco esmeralda al navegar con teclado */
+:focus-visible { outline: 2px solid #6ee7b7; outline-offset: 3px; border-radius: 4px; }
+
+/* Scrollbar oscura y fina (detalle de marca) */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #26292e; border-radius: 8px; border: 2px solid #0a0a0a; }
+::-webkit-scrollbar-thumb:hover { background: #34383e; }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .nvx-shine::after, .nvx-ring::before, .nvx-pantalla { animation: none !important; }
+  .nvx-shine::after, .nvx-ring::before, .nvx-pantalla, .nvx-float, .nvx-ficha, .nvx-barra { animation: none !important; }
   .nvx-press:active { transform: none; }
 }
