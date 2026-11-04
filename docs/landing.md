@@ -17,7 +17,7 @@ El código está en `app/components/landing/`: `Landing.tsx` (cabecera, portada,
 | 8 | Cómo funciona `#como-funciona` (3 pasos con línea que se dibuja + 4 dudas de instalación) | Quitar el miedo a instalar |
 | 9 | Comparativa con las alternativas | Por qué Nevux y no apps sueltas o rediseñar |
 | 10 | Planes `#precio` (2 tarjetas, "¿Cuál me conviene?", cómo se paga, tabla Básico contra Premium, sello de garantía) | Elegir plan |
-| 11 | Quién lo hace `#quien` (Rodrigo, sin foto por ahora: `FOTO_RODRIGO` en `oferta.tsx`) | Saber que hay una persona |
+| 11 | Quién lo hace `#quien` (Rodrigo, con una "R" en lugar de foto: no quiere mostrar su cara) | Saber que hay una persona |
 | 12 | Preguntas `#preguntas`, agrupadas en Instalación, Planes y pago, Resultados y Garantía | Objeciones |
 | 13 | Cierre con los dos botones y pie de página ordenado | Acción |
 
@@ -37,8 +37,8 @@ Movimiento: todo se apaga con `prefers-reduced-motion` (`MotionConfig` en `Landi
 - **Precios:** salen de `lib/planes.ts` (`PRECIO` = Básico). No escribirlos a mano.
 - **WhatsApp:** `WHATSAPP_URL` en `cta.tsx`. Cada clic se registra como `Contact` en Meta y `generate_lead` en GA4, con el origen del botón (`header`, `hero`, `caso`, `disenos`, `como-funciona`, `precio`, `preguntas`, `cierre`, `footer`, `barra-mobile`).
 
-## Para confirmar con Rodrigo
+## Decisiones de Rodrigo (03/11)
 
-- "¿Necesitan mi contraseña?" → "No. La línea la pegás vos desde tu panel, con nuestra guía." (está en cómo funciona y en preguntas).
-- Foto para "Quién lo hace": cuando la mande, `public/landing/rodrigo.jpg` y `FOTO_RODRIGO` en `oferta.tsx`.
-- Sin plazo ni días de devolución ni factura: no se prometen hasta que Rodrigo los confirme.
+- **Contraseña:** no se piden datos ni contraseña, solo el link de la tienda para ver cómo está. La línea la pega el cliente desde su panel, con nuestra guía.
+- **Foto:** no va foto de Rodrigo en ningún lado (prefiere cuidar su identidad). Queda la "R".
+- Sin plazo, días de devolución ni factura: no se prometen hasta que Rodrigo los confirme.
