@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { MotionConfig, motion } from "framer-motion";
 import { MessageCircle, ArrowRight, Check, ShieldCheck } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
@@ -21,6 +21,13 @@ const HERO_ITEM = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.85, ease: [0.16, 1, 0.3, 1] } },
 };
 
+// Garantías del hero (memoizado para evitar re-renders)
+const GARANTIAS = [
+  { i: ShieldCheck, t: "Garantía de 7 días" },
+  { i: Check, t: "Probado en tu tienda antes" },
+  { i: Check, t: "Cancelás cuando quieras" },
+] as const;
+
 // Portada: notebook con la home Premium (demo) y celular con la ficha Pro (demo), en 3D.
 // Se inclinan al bajar y siguen al dedo o al mouse. Las etiquetas flotantes son piezas reales del producto.
 function HeroDevices() {
@@ -35,7 +42,12 @@ function HeroDevices() {
       <Tilt max={9} scroll={20} glare={false} className="relative">
         <div className="relative pr-[13%] sm:pr-[15%]" style={{ transformStyle: "preserve-3d" }}>
           <div style={{ transform: "translateZ(0px)" }}>
-            <NotebookVideo src="/casos/premium/demo.mp4" poster="/casos/premium/demo.jpg" url="tutienda.com.ar" titulo="Home del plan Premium en una tienda de demostración" />
+            <NotebookVideo 
+              src="/casos/premium/demo.mp4" 
+              poster="/casos/premium/demo.jpg" 
+              url="tutienda.com.ar" 
+              titulo="Home del plan Premium en una tienda de demostración" 
+            />
           </div>
           {/* Celular adelante, con la ficha Pro bajando sola */}
           <div
@@ -43,7 +55,15 @@ function HeroDevices() {
             style={{ transform: "translateZ(70px)" }}
           >
             <div className="relative overflow-hidden rounded-[1.3rem] sm:rounded-[1.8rem] bg-white" style={{ aspectRatio: "390 / 844" }}>
-              <img src="/landing/hero-ficha.jpg" alt="Ficha Pro de demostración en un celular" width={520} height={1760} className="nvx-ficha absolute left-0 top-0 w-full h-auto will-change-transform" />
+              <img 
+                src="/landing/hero-ficha.jpg" 
+                alt="Ficha Pro de demostración en un celular" 
+                width={520} 
+                height={1760} 
+                loading="eager"
+                decoding="async"
+                className="nvx-ficha absolute left-0 top-0 w-full h-auto will-change-transform" 
+              />
               <div className="absolute left-1/2 top-[6px] -translate-x-1/2 h-[10px] sm:h-[16px] w-[34%] rounded-full bg-black" />
               <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-transparent" />
             </div>
@@ -70,7 +90,9 @@ function HeroDevices() {
           </div>
         </div>
       </Tilt>
-      <p className="relative mt-16 sm:mt-16 text-center text-[11px] text-neutral-500">Tienda de demostración: marca, fotos y precios de ejemplo. En la tuya van tus productos y tus datos reales.</p>
+      <p className="relative mt-16 sm:mt-16 text-center text-[11px] text-neutral-500">
+        Tienda de demostración: marca, fotos y precios de ejemplo. En la tuya van tus productos y tus datos reales.
+      </p>
     </motion.div>
   );
 }
@@ -82,12 +104,25 @@ export default function Landing() {
   const [ticket, setTicket] = useState(35000);
 
   // La barra fija aparece recién cuando el botón del hero ya quedó atrás
+  // Optimizado con useCallback para evitar re-crear la función
+  const onScroll = useCallback(() => {
+    const shouldShow = window.scrollY > 700;
+    setShowBar(prev => prev !== shouldShow ? shouldShow : prev);
+  }, []);
+
   useEffect(() => {
-    const onScroll = () => setShowBar(window.scrollY > 700);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [onScroll]);
+
+  // Memoizar clase de la barra para evitar recalcular
+  const barraClasses = useMemo(() => 
+    `sm:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] bg-[#07080a]/95 border-t border-white/10 will-change-transform transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)] ${
+      showBar ? "translate-y-0" : "translate-y-full"
+    }`,
+    [showBar]
+  );
 
   return (
     <MotionConfig reducedMotion="user">
@@ -99,18 +134,18 @@ export default function Landing() {
             <NevuxLogo size="medium" textColor="#ffffff" />
           </a>
           <nav className="hidden md:flex items-center gap-7 text-sm text-neutral-400">
-            <a href="#premium" className="hover:text-white transition-colors">Casos</a>
-            <a href="#disenos" className="hover:text-white transition-colors">Diseños</a>
-            <a href="#cuenta" className="hover:text-white transition-colors">Hacé la cuenta</a>
-            <a href="#precio" className="hover:text-white transition-colors">Planes</a>
-            <a href="#preguntas" className="hover:text-white transition-colors">Preguntas</a>
+            <a href="#premium" className="hover:text-white transition-colors duration-200">Casos</a>
+            <a href="#disenos" className="hover:text-white transition-colors duration-200">Diseños</a>
+            <a href="#cuenta" className="hover:text-white transition-colors duration-200">Hacé la cuenta</a>
+            <a href="#precio" className="hover:text-white transition-colors duration-200">Planes</a>
+            <a href="#preguntas" className="hover:text-white transition-colors duration-200">Preguntas</a>
           </nav>
           <a
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackWhatsApp("header")}
-            className="nvx-press nvx-shine inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-black font-extrabold px-3.5 py-2 rounded-xl text-[13px] sm:text-sm shadow-[0_8px_24px_-10px_rgba(52,211,153,.8)]"
+            className="nvx-press nvx-shine inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-black font-extrabold px-3.5 py-2 rounded-xl text-[13px] sm:text-sm shadow-[0_8px_24px_-10px_rgba(52,211,153,.8)] transition-colors duration-200"
           >
             <MessageCircle className="w-4 h-4" />
             Análisis gratis
@@ -153,7 +188,7 @@ export default function Landing() {
               <WhatsAppCta origen="hero" className="w-full sm:w-auto" />
               <a
                 href="/suscribirme?plan=premium"
-                className="nvx-press w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-300/40 bg-amber-300/[0.06] hover:bg-amber-300/[0.12] hover:border-amber-300/70 text-amber-200 font-bold px-6 py-4 text-[15px] shadow-[inset_0_1px_0_0_rgba(253,230,138,0.14)]"
+                className="nvx-press w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-300/40 bg-amber-300/[0.06] hover:bg-amber-300/[0.12] hover:border-amber-300/70 text-amber-200 font-bold px-6 py-4 text-[15px] shadow-[inset_0_1px_0_0_rgba(253,230,138,0.14)] transition-all duration-200"
               >
                 Quiero el Premium <ArrowRight className="w-4 h-4" />
               </a>
@@ -162,11 +197,7 @@ export default function Landing() {
               El análisis es gratis y sin compromiso. Te responde Rodrigo, creador de Nevux.
             </motion.p>
             <motion.ul variants={HERO_ITEM} className="mt-5 sm:mt-6 flex flex-wrap justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-neutral-300">
-              {[
-                { i: ShieldCheck, t: "Garantía de 7 días" },
-                { i: Check, t: "Probado en tu tienda antes" },
-                { i: Check, t: "Cancelás cuando quieras" },
-              ].map(({ i: I, t }) => (
+              {GARANTIAS.map(({ i: I, t }) => (
                 <li key={t} className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 sm:px-3 py-1 sm:py-1.5">
                   <I className="w-3.5 h-3.5 text-emerald-400" />
                   {t}
@@ -196,11 +227,7 @@ export default function Landing() {
       <div className="nvx-lv nvx-lv-corta"><Pie /></div>
 
       {/* BARRA FIJA MOBILE: análisis gratis (principal) y Premium */}
-      <div
-        className={`sm:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] bg-[#07080a]/95 border-t border-white/10 will-change-transform transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)] ${
-          showBar ? "translate-y-0" : "translate-y-full"
-        }`}
-      >
+      <div className={barraClasses}>
         <div className="flex gap-2">
           <a
             href={WHATSAPP_URL}
@@ -212,7 +239,10 @@ export default function Landing() {
             <MessageCircle className="w-4 h-4" />
             Quiero mi análisis gratis
           </a>
-          <a href="/suscribirme?plan=premium" className="nvx-press flex items-center justify-center rounded-xl border border-amber-300/40 text-amber-200 font-bold text-sm px-4">
+          <a 
+            href="/suscribirme?plan=premium" 
+            className="nvx-press flex items-center justify-center rounded-xl border border-amber-300/40 text-amber-200 font-bold text-sm px-4 transition-colors duration-200 hover:bg-amber-300/[0.08]"
+          >
             Premium
           </a>
         </div>
