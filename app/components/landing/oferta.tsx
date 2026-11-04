@@ -175,7 +175,7 @@ const DUDAS_INSTALACION = [
   { q: "¿Dónde se pega la línea?", a: "En el editor de diseño de tu Tiendanube. Te la mandamos ya configurada y te guiamos por WhatsApp." },
   { q: "¿Cuánto tarda?", a: "Lo coordinamos en el análisis, según lo que necesite tu tienda." },
   { q: "¿Rompe algo? ¿Cómo lo saco?", a: "No toca tu plantilla ni tus productos. Si borrás la línea, tu tienda vuelve a estar como antes." },
-  { q: "¿Necesitan mi contraseña?", a: "No. La línea la pegás vos desde tu panel, con nuestra guía." },
+  { q: "¿Necesitan mi contraseña?", a: "No. Solo necesitamos el link de tu tienda para ver cómo está. La línea la pegás vos desde tu panel, con nuestra guía." },
 ];
 
 export function ComoFunciona() {
@@ -522,7 +522,7 @@ export function Planes({ ticket }: { ticket: number }) {
 
 /* ---------- 11. Quién lo hace ---------- */
 
-// Sin foto por ahora (pedido de Rodrigo): cuando la mande, ponerla en public/landing/rodrigo.jpg y cambiar FOTO_RODRIGO.
+// Sin foto, a propósito: Rodrigo prefiere cuidar su identidad (03/11). No pedirla ni poner otra foto en su lugar.
 const FOTO_RODRIGO: string | null = null;
 
 const HECHOS = [
@@ -601,7 +601,7 @@ const GRUPOS_FAQ: { t: string; items: { q: string; a: React.ReactNode }[] }[] = 
       { q: "¿Cuánto tarda en estar funcionando?", a: "Lo coordinamos en el análisis, según lo que necesite tu tienda." },
       { q: "¿Hace más lenta mi tienda?", a: "La línea se carga en paralelo (async), así que no frena la carga de tu página. Es un solo archivo, sin apps." },
       { q: "¿Rompe algo? ¿Cómo lo saco?", a: "No toca tu plantilla ni tus productos. Si borrás la línea, tu tienda vuelve a estar como antes." },
-      { q: "¿Necesitan mi contraseña?", a: "No. La línea la pegás vos desde tu panel, con nuestra guía." },
+      { q: "¿Necesitan mi contraseña?", a: "No. Solo necesitamos el link de tu tienda para ver cómo está. La línea la pegás vos desde tu panel, con nuestra guía." },
     ],
   },
   {
