@@ -95,7 +95,7 @@ FICHAS = {
         'cfg': {
             'color': '#9b2c43', 'transferencia': 20, 'estiloFicha': 'pro', 'ventas': False,
             'carrito': {'envioGratis': 20000, 'acento': '#9b2c43'}, 'envio': {'corte': 14, 'dias': [1, 2, 3, 4, 5], 'min': 3, 'max': 6},
-            'packs': [{'cantidad': 1, 'titulo': 'Llevá 1', 'descuento': 0}, {'cantidad': 2, 'titulo': 'Llevá 2', 'descuento': 10, 'etiqueta': 'MÁS ELEGIDO'},
+            'packs': [{'cantidad': 1, 'titulo': 'Llevá 1', 'descuento': 0}, {'cantidad': 2, 'titulo': 'Llevá 2', 'descuento': 10, 'etiqueta': 'Recomendado'},
                       {'cantidad': 3, 'titulo': 'Llevá 3', 'descuento': 15, 'etiqueta': 'MEJOR PRECIO'}],
             'cuentaRegresiva': {'hasta': '2099-01-01T00:00:00-03:00', 'texto': '🕐 El descuento por cantidad termina en'},
             'pro': {
