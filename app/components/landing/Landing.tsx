@@ -14,12 +14,11 @@ import { WHATSAPP_URL, WhatsAppCta, trackWhatsApp } from "./cta";
 // la cuenta → cómo funciona → alternativas → planes → quién lo hace → objeciones → cierre.
 // Regla: todo dato es real o es una cuenta que hace el visitante con sus números.
 
-// Entrada de la portada: cada pieza aparece en cascada al cargar.
-// 04/11: stagger más espaciado y ease más largo, para que la entrada se sienta de marca grande (no apurada).
-const HERO = { oculto: {}, visible: { transition: { staggerChildren: 0.11, delayChildren: 0.08 } } };
+// Entrada de la portada: cada pieza aparece en cascada al cargar
+const HERO = { oculto: {}, visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } } };
 const HERO_ITEM = {
-  oculto: { opacity: 0, y: 22 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] } },
+  oculto: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
 };
 
 // Portada: notebook con la home Premium (demo) y celular con la ficha Pro (demo), en 3D.
@@ -29,8 +28,8 @@ function HeroDevices() {
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1.3, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="relative mx-auto mt-12 md:mt-20 w-full max-w-[960px]"
+      transition={{ duration: 1.1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="relative mx-auto mt-10 md:mt-16 w-full max-w-[960px]"
     >
       <Glow className="left-1/2 top-[5%] -translate-x-1/2 w-[120%] h-[100%]" color="rgba(52,211,153,0.20)" />
       <Tilt max={9} scroll={20} glare={false} className="relative">
@@ -93,10 +92,8 @@ export default function Landing() {
   return (
     <MotionConfig reducedMotion="user">
     <div className="min-h-screen bg-[#07080a] text-white selection:bg-emerald-400 selection:text-black pb-24 sm:pb-0 overflow-x-hidden">
-
-      {/* HEADER: el aviso de análisis gratis vive en botón (antes era una franja aparte).
-          04/11: borde degradado en vez de línea plana, glass más fino. */}
-      <header className="sticky top-0 z-50 bg-[#07080a]/95 md:bg-[#07080a]/70 md:backdrop-blur-md nvx-header-border">
+      {/* HEADER: el aviso de análisis gratis vive en el botón (antes era una franja aparte) */}
+      <header className="sticky top-0 z-50 bg-[#07080a]/95 md:bg-[#07080a]/75 md:backdrop-blur-xl border-b border-white/[0.06]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
           <a href="#" aria-label="Nevux, ir arriba">
             <NevuxLogo size="medium" textColor="#ffffff" />
@@ -126,11 +123,11 @@ export default function Landing() {
         <div className="absolute inset-0 nvx-grid-bg pointer-events-none" />
         <Glow className="-top-72 left-1/2 -translate-x-1/2 w-[1400px] h-[960px]" color="rgba(16,185,129,0.17)" />
         <Glow className="top-[45%] left-1/2 -translate-x-1/2 w-[1300px] h-[800px]" color="rgba(45,212,191,0.07)" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-20 md:pt-24 md:pb-28">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-16 md:pt-20 md:pb-24">
           <motion.div variants={HERO} initial="oculto" animate="visible" className="text-center max-w-4xl mx-auto">
             <motion.span
               variants={HERO_ITEM}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-emerald-200 text-[11.5px] sm:text-xs font-semibold whitespace-nowrap mb-6 md:mb-8"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-emerald-200 text-[11.5px] sm:text-xs font-semibold whitespace-nowrap mb-5 md:mb-7"
             >
               <span className="relative flex w-1.5 h-1.5">
                 <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-60 motion-reduce:hidden" />
@@ -140,7 +137,7 @@ export default function Landing() {
             </motion.span>
             <motion.h1
               variants={HERO_ITEM}
-              className="text-[2.7rem] leading-[0.97] min-[400px]:text-[3rem] sm:text-6xl lg:text-[4.75rem] font-extrabold tracking-[-0.05em] mb-6 md:mb-7"
+              className="text-[2.55rem] leading-[0.98] min-[400px]:text-[2.8rem] sm:text-6xl lg:text-[4.4rem] font-extrabold tracking-[-0.045em] mb-5 md:mb-6"
             >
               No te faltan visitas.
               <br />
@@ -148,7 +145,7 @@ export default function Landing() {
                 Te faltan ventas.
               </span>
             </motion.h1>
-            <motion.p variants={HERO_ITEM} className="text-[15px] sm:text-lg text-neutral-400 max-w-2xl mx-auto mb-8 sm:mb-9 leading-relaxed">
+            <motion.p variants={HERO_ITEM} className="text-[15px] sm:text-lg text-neutral-400 max-w-2xl mx-auto mb-7 sm:mb-8 leading-relaxed">
               Rediseñamos la <b className="text-white font-semibold">ficha de producto y la home</b> de tu Tiendanube con tus precios, tus cuotas y tu marca, para que
               más visitas terminen en compra. Se instala pegando una línea: sin apps y sin cambiar de plantilla.
             </motion.p>
@@ -164,7 +161,7 @@ export default function Landing() {
             <motion.p variants={HERO_ITEM} className="mt-3 text-xs text-neutral-500">
               El análisis es gratis y sin compromiso. Te responde Rodrigo, creador de Nevux.
             </motion.p>
-            <motion.ul variants={HERO_ITEM} className="mt-6 sm:mt-7 flex flex-wrap justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-neutral-300">
+            <motion.ul variants={HERO_ITEM} className="mt-5 sm:mt-6 flex flex-wrap justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-neutral-300">
               {[
                 { i: ShieldCheck, t: "Garantía de 7 días" },
                 { i: Check, t: "Probado en tu tienda antes" },
@@ -182,21 +179,21 @@ export default function Landing() {
       </section>
 
       {/* 3 a 6: caso real, el problema, diseños y qué hace (secciones.tsx).
-          nvx-seccion: el navegador no maqueta ni pinta lo que no se ve (content-visibility). */}
-      <div className="nvx-seccion"><CasoReal /></div>
-      <div className="nvx-seccion"><Problema /></div>
-      <div className="nvx-seccion"><Disenos /></div>
-      <div className="nvx-seccion"><QueHace /></div>
+          nvx-lv: el navegador no pinta estas secciones hasta que se acercan (content-visibility en globals.css). */}
+      <div className="nvx-lv nvx-lv-caso"><CasoReal /></div>
+      <div className="nvx-lv nvx-lv-corta"><Problema /></div>
+      <div className="nvx-lv nvx-lv-media"><Disenos /></div>
+      <div className="nvx-lv nvx-lv-larga"><QueHace /></div>
 
       {/* 7 a 13: la cuenta, cómo funciona, comparativa, planes, quién lo hace, preguntas y cierre (oferta.tsx) */}
-      <div className="nvx-seccion"><LaCuenta ticket={ticket} setTicket={setTicket} /></div>
-      <div className="nvx-seccion"><ComoFunciona /></div>
-      <div className="nvx-seccion"><Comparativa /></div>
-      <div className="nvx-seccion"><Planes ticket={ticket} /></div>
-      <div className="nvx-seccion"><QuienLoHace /></div>
-      <div className="nvx-seccion"><Preguntas /></div>
-      <div className="nvx-seccion"><Cierre /></div>
-      <div className="nvx-seccion"><Pie /></div>
+      <div className="nvx-lv nvx-lv-media"><LaCuenta ticket={ticket} setTicket={setTicket} /></div>
+      <div className="nvx-lv nvx-lv-media"><ComoFunciona /></div>
+      <div className="nvx-lv nvx-lv-corta"><Comparativa /></div>
+      <div className="nvx-lv nvx-lv-larga"><Planes ticket={ticket} /></div>
+      <div className="nvx-lv nvx-lv-corta"><QuienLoHace /></div>
+      <div className="nvx-lv nvx-lv-larga"><Preguntas /></div>
+      <div className="nvx-lv nvx-lv-corta"><Cierre /></div>
+      <div className="nvx-lv nvx-lv-corta"><Pie /></div>
 
       {/* BARRA FIJA MOBILE: análisis gratis (principal) y Premium */}
       <div

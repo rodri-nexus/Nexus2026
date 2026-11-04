@@ -59,9 +59,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
-
-        {/* Conexión adelantada a los dominios de GA y Meta Pixel (04/11): el handshake
-            empieza antes, sin bloquear el render de la página. */}
+        {/* El handshake con Google Analytics y Facebook Pixel arranca antes, sin bloquear el render */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://connect.facebook.net" />
 

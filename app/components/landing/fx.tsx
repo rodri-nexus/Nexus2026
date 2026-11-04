@@ -176,7 +176,6 @@ export function LazyVideo({ src, srcMovil, poster, label, className = "" }: { sr
           if (!quieto) el.play().catch(() => {});
         } else el.pause();
       },
-      // 150px de anticipación (04/11): se pide más cerca de aparecerse y no compite con la carga inicial.
       { rootMargin: "150px 0px", threshold: 0.01 }
     );
     io.observe(el);
