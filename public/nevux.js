@@ -3486,6 +3486,37 @@
     var monto = CG.envioGratis || NEVUX.envioGratisDesde || 0, A = CG.acento || (NEVUX.home && NEVUX.home.destino && NEVUX.home.destino.acento) || '#e3262f';
     var RS = (CG.resenas || (NEVUX.home && NEVUX.home.destino && NEVUX.home.destino.resenas && NEVUX.home.destino.resenas.items) || NEVUX.resenas || []).filter(function (r) { return r && r.texto; });
     hCss('nvx-cg-css',
+      (CG.estilo === 'hogar' ?
+        '#modal-cart.nvx-cart-hogar{background:#fff;color:#111}' +
+        '#modal-cart.nvx-cart-hogar .modal-header{min-height:72px;padding:20px 28px;border-bottom:1px solid #f0f0f0;background:#fff}' +
+        '#modal-cart.nvx-cart-hogar .modal-title{font:500 25px/1.1 Inter,' + FONT + ';letter-spacing:-.02em;color:#111}' +
+        '#modal-cart.nvx-cart-hogar .modal-close{width:34px;height:34px;padding:5px;color:#111}' +
+        '#modal-cart.nvx-cart-hogar .modal-body{padding:0 30px 28px;background:#fff}' +
+        '#modal-cart.nvx-cart-hogar .js-ajax-cart-list{padding:0 0 18px}' +
+        '#modal-cart.nvx-cart-hogar .js-ajax-cart-list>*{padding:18px 0;border-bottom:1px solid #f1f1f1}' +
+        '#modal-cart.nvx-cart-hogar .js-ajax-cart-list img{width:146px;height:146px;object-fit:cover;border-radius:0}' +
+        '#modal-cart.nvx-cart-hogar .js-ajax-cart-list a{color:#111}' +
+        '#modal-cart.nvx-cart-hogar .js-ajax-cart-list .js-quantity{border:1px solid #d5d5d5;border-radius:999px;overflow:hidden}' +
+        '#modal-cart.nvx-cart-hogar .js-ajax-cart-list .js-quantity-down,#modal-cart.nvx-cart-hogar .js-ajax-cart-list .js-quantity-up{width:42px;height:42px;border:0;background:#fff;color:#111;font-size:22px}' +
+        '#modal-cart.nvx-cart-hogar .js-ajax-cart-list .js-quantity-input{width:42px;height:42px;border:0;background:#fff;color:#111;text-align:center;font-size:18px}' +
+        '#modal-cart.nvx-cart-hogar .js-fulfillment-info{padding:26px 0 12px!important}' +
+        '#modal-cart.nvx-cart-hogar .shipping-calculator-head{min-height:82px}' +
+        '#modal-cart.nvx-cart-hogar .form-label{font:500 19px/1.2 Inter,' + FONT + ';color:#111;margin-bottom:14px}' +
+        '#modal-cart.nvx-cart-hogar .shipping-calculator-form{position:static!important}' +
+        '#modal-cart.nvx-cart-hogar .form-control-container{display:grid;grid-template-columns:1fr auto;border:1px solid #cfcfcf;border-radius:8px;overflow:hidden}' +
+        '#modal-cart.nvx-cart-hogar .form-control-container .form-control{height:54px;border:0!important;padding:0 20px;font-size:17px}' +
+        '#modal-cart.nvx-cart-hogar .form-control-container .btn-inline{height:54px;padding:0 22px;border:0;border-left:1px solid #cfcfcf;background:#fff;color:#111;font-size:16px}' +
+        '#modal-cart.nvx-cart-hogar .js-shipping-calculator-form>a{display:block;margin-top:12px;color:#111;text-decoration:underline;font-size:15px}' +
+        '#modal-cart.nvx-cart-hogar .cart-row{margin:0}' +
+        '#modal-cart.nvx-cart-hogar [data-store="coupon-input"]{padding:18px 0!important;margin:0!important}' +
+        '#modal-cart.nvx-cart-hogar [data-store="coupon-input"] .js-accordion-private-toggle{color:#111;text-decoration:none;font-size:17px}' +
+        '#modal-cart.nvx-cart-hogar .cart-totals-container{display:block!important;padding:22px 0 0;border-top:0}' +
+        '#modal-cart.nvx-cart-hogar .cart-subtotals-container>div{font-size:17px;line-height:1.5}' +
+        '#modal-cart.nvx-cart-hogar .cart-subtotals-container .cart-subtotal{font-size:22px}' +
+        '#modal-cart.nvx-cart-hogar .cart-total{font-size:22px;margin-top:12px}' +
+        '#modal-cart.nvx-cart-hogar .js-ajax-cart-submit{height:58px;border-radius:10px;background:#3498db!important;color:#fff!important;font-size:20px;font-weight:600;border:0}' +
+        '#modal-cart.nvx-cart-hogar .js-visible-on-cart-filled.cart-totals-container:after{content:"";display:block;height:1px;background:#eee;margin:24px 0 0}' +
+        '@media(max-width:767px){#modal-cart.nvx-cart-hogar{width:100%;max-width:none}.modal-open #modal-cart.nvx-cart-hogar .modal-body{padding-left:30px;padding-right:30px}#modal-cart.nvx-cart-hogar .js-ajax-cart-list img{width:145px;height:145px}}' : '') +
       '.nvx-cg-d{display:flex;align-items:center;gap:8px;margin:0 0 12px;background:#f4f4f4;border-radius:10px;padding:10px 12px;font:500 12.5px/1.3 Inter,' + FONT + ';color:#333}.nvx-cg-d svg{flex:none;width:17px;height:17px;color:#777}.nvx-cg-d b{color:#15803d;font-weight:700}' +
       '.nvx-cg{margin:12px 0 4px;font-family:Inter,' + FONT + ';color:#111}' +
       '.nvx-cg-e{display:flex;align-items:center;justify-content:space-between;gap:10px;font:700 13px/1.3 Inter,' + FONT + '}.nvx-cg-e span b{color:' + A + '}.nvx-cg-e.ok span{color:' + A + '}.nvx-cg-e svg{flex:none;width:20px;height:20px;color:' + A + '}' +
@@ -3535,6 +3566,7 @@
       var modal = document.querySelector('#modal-cart, .js-modal-cart');
       if (!modal || modal.getAttribute('data-nvx-cg')) return !!modal;
       modal.setAttribute('data-nvx-cg', '1');
+      if (CG.estilo === 'hogar') modal.classList.add('nvx-cart-hogar');
       armar(modal);
       var t;
       if ('MutationObserver' in window) new MutationObserver(function (ms) {

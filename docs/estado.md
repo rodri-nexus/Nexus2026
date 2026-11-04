@@ -34,6 +34,7 @@
 ### Lo que falta (en orden)
 
 0. **Rediseño de la landing: terminado y publicado (03/11, tandas 1 a 3; verificado el 04/11).** Orden, archivos y reglas de fluidez en `docs/landing.md`. Sin foto de Rodrigo (no quiere mostrarse) y sin pedir contraseña (solo el link de la tienda). En la ficha demo, el pack **Llevá 2** ahora dice **“Recomendado”**. Falta: las miniaturas `public/links/premium.jpg` y `disenos.jpg`, que todavía muestran "VALMONT" (fuera de la landing, pendiente).
+0. **Carrito de Hogar Digital:** se agregó un modo visual específico para Marcelo, inspirado en la referencia compartida: encabezado limpio, aviso de despacho, producto, selector de cantidad, cálculo de envío, cupón, totales y CTA. Conserva los datos y acciones nativas de Tiendanube; queda pendiente probar agregando un producto real después de publicar.
 1. **Pagos:** Valmont (Miguel) paga entre el **5 y el 7/11** y Hogar Digital (Marcelo) el **10/11**, cada uno en su `nevux.ar/pagar/<id>`. Hay que **verificar que la tienda se prenda sola** con el primer pago real (`nevux.ar/panel`).
 2. **Instagram, semana 2:** @nevux.app del 9 al 15/11 y Hogar Digital del 9 al 13/11, con el informe de la semana 1 si hay métricas. Se le pasa a Rodrigo **día por día, en orden, en máxima calidad, con la portada integrada en los Reels**. Él lo sube a mano.
 3. **Apagar la tarea del sábado 7/11, 12:00** en la sesión trabada `session_01PDD9EtCY9JFJzsoyimb9Yn` (informe y semana 2: se hace desde el chat nuevo). **No aprobar** sus pedidos pendientes de Windsor, porque duplicarían posts.

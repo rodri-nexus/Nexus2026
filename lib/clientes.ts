@@ -92,7 +92,10 @@ export const CLIENTES: Record<string, Cliente> = {
         "estilo": "destino",
         "marca": "Hogar Digital"
       },
-      "carrito": true,
+      "carrito": {
+        "estilo": "hogar",
+        "acento": "#3498db"
+      },
       "home": {
         "destino": {
           "acento": "#3498db",
