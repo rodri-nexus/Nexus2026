@@ -31,13 +31,9 @@ export type Cliente = {
 export const CLIENTES: Record<string, Cliente> = {
   "hogar-digital": {
     nombre: "Hogar Digital (Marcelo)",
-    // Interruptor manual: false = apagada siempre, aunque esté al día con el pago
     activo: true,
-    // Cobro automático con plan propio: paga en nevux.ar/suscribirme?c=hogar-digital y la tienda se prende sola (y se apaga si deja de pagar)
     cobro: { tipo: 'mercadopago', planPropio: true, gracia: 3 },
-    // Dominios donde puede funcionar esta línea (sin www)
     dominios: ['hogardigital.com.ar'],
-    // Plan Premium: sección comunidad con links directos a reels de Instagram (04/11/2026)
     plan: 'premium',
     config: {
       "color": "#3498db",
@@ -58,13 +54,7 @@ export const CLIENTES: Record<string, Cliente> = {
       "estiloFicha": "destino",
       "envio": {
         "corte": 18,
-        "dias": [
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
+        "dias": [1, 2, 3, 4, 5],
         "min": 5,
         "max": 6,
         "zona": ""
@@ -114,9 +104,9 @@ export const CLIENTES: Record<string, Cliente> = {
           ],
           "portada": {
             "fotos": [
-              "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/67263e3e-c4fc-4cef-ba61-c371cc90d542-0530aaf0-cd39-4906-81e0-ed2829b6b77c-1024-1024.webp",
-              "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/a372b7c6-19dc-4154-8351-c21fd5eb0e6c-cba3b0eb-bfc7-477a-be6b-7ddaf28a8ff1-1024-1024.webp",
-              "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/6705b24e1a3e1-1024-1024.webp"
+              "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/aa21b036-c4fc-4cef-ba61-c371cc90d542-0530aaf0-4cc2707e7abbf2c1f317934564759826-1024-1024.webp",
+              "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/0ac01ee3-19dc-4154-8351-c21fd5eb0e6c-cba3b0eb-12b78b996cf5c82b0417934072828698-1024-1024.webp",
+              "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056700-b80630798d70727f1917901024718719-1024-1024.webp"
             ],
             "etiqueta": "Hogar Digital · Desde los años 80",
             "titulo": "Lo que tu casa necesita.",
@@ -154,32 +144,32 @@ export const CLIENTES: Record<string, Cliente> = {
               {
                 "nombre": "Humidificadores",
                 "url": "/humidificadores-19h94/",
-                "foto": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/67263e3e-c4fc-4cef-ba61-c371cc90d542-0530aaf0-cd39-4906-81e0-ed2829b6b77c-1024-1024.webp"
+                "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056709-eba39cf6e5e33054c317901025394499-1024-1024.webp"
               },
               {
                 "nombre": "Audio",
                 "url": "/audio-auriculares/",
-                "foto": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/6705b1a1eba74-1024-1024.webp"
+                "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000064948-1b2cdbc0b81707d0f817924511811491-1024-1024.webp"
               },
               {
                 "nombre": "Auriculares",
                 "url": "/audio-auriculares/",
-                "foto": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/6705b24e1a3e1-1024-1024.webp"
+                "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056695-5a06631053060d23e217901024050439-1024-1024.webp"
               },
               {
                 "nombre": "Smartwatches",
                 "url": "/smartwatches-1jb09/",
-                "foto": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/66f79e48ada511-1024-1024.webp"
+                "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056623-7322be0751a7f8955e17901015253577-1024-1024.webp"
               },
               {
                 "nombre": "Fitness",
                 "url": "/fitness-y-bienestar-1v0hm/",
-                "foto": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/66f79e5ceac391-1024-1024.webp"
+                "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000059933-1564b3879882d329b217909447522683-1024-1024.webp"
               },
               {
                 "nombre": "Relax",
                 "url": "/humidificadores-19h94/",
-                "foto": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/a372b7c6-19dc-4154-8351-c21fd5eb0e6c-cba3b0eb-bfc7-477a-be6b-7ddaf28a8ff1-1024-1024.webp"
+                "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/0ac01ee3-19dc-4154-8351-c21fd5eb0e6c-cba3b0eb-12b78b996cf5c82b0417934072828698-1024-1024.webp"
               }
             ]
           },
@@ -227,7 +217,7 @@ export const CLIENTES: Record<string, Cliente> = {
           "banner": {
             "etiqueta": "[ Hogar Digital ]",
             "titulo": "Tu rincón relax.",
-            "foto": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/67263e3e-c4fc-4cef-ba61-c371cc90d542-0530aaf0-cd39-4906-81e0-ed2829b6b77c-1024-1024.webp",
+            "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056700-b80630798d70727f1917901024718719-1024-1024.webp",
             "boton": "Ver humidificadores",
             "url": "/humidificadores-19h94/"
           },
@@ -298,25 +288,25 @@ export const CLIENTES: Record<string, Cliente> = {
             {
               "nombre": "Humidificadores",
               "url": "/humidificadores-19h94/",
-              "foto": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/67263e3e-c4fc-4cef-ba61-c371cc90d542-0530aaf0-cd39-4906-81e0-ed2829b6b77c-1024-1024.webp",
-              "foto2": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/67263e3e-c4fc-4cef-ba61-c371cc90d542-0530aaf0-cd39-4906-81e0-ed2829b6b77c-1024-1024.webp"
+              "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056709-eba39cf6e5e33054c317901025394499-1024-1024.webp",
+              "foto2": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/aa21b036-c4fc-4cef-ba61-c371cc90d542-0530aaf0-4cc2707e7abbf2c1f317934564759826-1024-1024.webp"
             },
             {
               "nombre": "Audio",
               "url": "/audio-auriculares/",
               "video": "https://nevux.ar/clientes/hogar-digital/parlante-rgb.mp4",
-              "foto2": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/6705b1a1eba74-1024-1024.webp"
+              "foto2": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056644-af25d4fda55df67c7817901018261560-1024-1024.webp"
             },
             {
               "nombre": "Smartwatches",
               "url": "/smartwatches-1jb09/",
-              "foto": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/66f79e48ada511-1024-1024.webp"
+              "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056623-7322be0751a7f8955e17901015253577-1024-1024.webp"
             },
             {
               "nombre": "Fitness",
               "url": "/fitness-y-bienestar-1v0hm/",
-              "foto": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/66f79e5ceac391-1024-1024.webp",
-              "foto2": "https://dcdn-us.mitiendanube.com/stores/001/623/489/products/66f79e6da89821-1024-1024.webp"
+              "foto": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000059933-1564b3879882d329b217909447522683-1024-1024.webp",
+              "foto2": "https://dcdn-us.mitiendanube.com/stores/007/275/409/products/1000056639-27c93a9b66ee9dee8c17901017599283-1024-1024.webp"
             }
           ]
         }
@@ -327,7 +317,54 @@ export const CLIENTES: Record<string, Cliente> = {
       "cabecera": {
         "logo": "https://nevux.ar/clientes/hogar-digital/logo-negro.png",
         "logoBlanco": "https://nevux.ar/clientes/hogar-digital/logo-blanco.png"
-      }
+      },
+      "fichaDestino": {
+        "sello": "Hogar Digital · *30 días* de garantía",
+        "confianza": [
+          {
+            "icono": "cambios",
+            "titulo": "Cambios y devoluciones",
+            "texto": "10 días para arrepentirte"
+          },
+          {
+            "icono": "chat",
+            "titulo": "Atención personalizada",
+            "texto": "Te respondemos por WhatsApp"
+          },
+          {
+            "icono": "garantia",
+            "titulo": "30 días de garantía",
+            "texto": "Por falla, daño o error"
+          }
+        ],
+        "faq": [
+          {
+            "p": "¿Cuánto tarda en llegar?",
+            "r": "Despachamos de lunes a viernes: si comprás antes de las 18 h, sale ese mismo día. Llega en 5 a 6 días hábiles a todo el país."
+          },
+          {
+            "p": "¿Cuánto cuesta el envío?",
+            "r": "Depende de tu código postal: lo calculás en el carrito antes de pagar. Muchos productos tienen envío gratis."
+          },
+          {
+            "p": "¿Tiene garantía?",
+            "r": "Sí, 30 días desde que lo recibís por falla de fabricación, producto dañado o error en el envío. En esos casos la devolución es gratis y nos encargamos de todo."
+          },
+          {
+            "p": "¿Puedo devolverlo si me arrepiento?",
+            "r": "Sí, dentro de los 10 días corridos desde que lo recibís, sin uso y con su embalaje original."
+          },
+          {
+            "p": "¿Cómo puedo pagar?",
+            "r": "Con tarjeta de crédito o débito y con Mercado Pago, en hasta 12 cuotas."
+          },
+          {
+            "p": "¿Tengo una duda, a quién le escribo?",
+            "r": "Escribinos por WhatsApp y te atendemos personalmente."
+          }
+        ]
+      },
+      "packs": []
     }
   },
   "valmont": {
