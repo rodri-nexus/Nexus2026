@@ -60,6 +60,11 @@ export default function RootLayout({
     <html lang="es">
       <head>
 
+        {/* Conexión adelantada a los dominios de GA y Meta Pixel (04/11): el handshake
+            empieza antes, sin bloquear el render de la página. */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://connect.facebook.net" />
+
         {/* Google Analytics */}
         <script
           async
@@ -100,4 +105,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-  }
+}
