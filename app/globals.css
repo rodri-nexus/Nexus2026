@@ -45,51 +45,53 @@ body {
 }
 @keyframes nvx-spin { to { --nvx-ang: 360deg; } }
 
-/* La ficha del celular baja sola (vitrina de diseños) */
+/* La ficha del celular baja sola */
 @keyframes nvx-pantalla { 0%, 8% { transform: translateY(0); } 92%, 100% { transform: translateY(calc(-100% + var(--alto, 100%))); } }
 .nvx-pantalla { animation: nvx-pantalla 18s ease-in-out infinite alternate; }
 
-/* ---------- Portada (04/11): antes iba inline en Landing.tsx; ahora vive acá y el navegador la cachea aparte del HTML ---------- */
-
-/* Grilla de fondo de la portada, que se desvanece hacia abajo */
+/* ---------- Portada: grilla y animaciones (antes iban inline en Landing.tsx; ahora quedan en el CSS cacheable) ---------- */
 .nvx-grid-bg {
   background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
   background-size: 44px 44px;
   mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
 }
-
-/* El degradé del titular se mueve despacio */
 @keyframes nvx-grad { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-
-/* Etiquetas flotantes del notebook y el celular de la portada */
 @keyframes nvx-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
 .nvx-float { animation: nvx-float 6s ease-in-out infinite; }
-
-/* La ficha del celular de la portada baja sola */
 @keyframes nvx-ficha { 0%, 30% { transform: translateY(0); } 85%, 100% { transform: translateY(-36%); } }
 .nvx-ficha { animation: nvx-ficha 14s ease-in-out infinite alternate; }
-
-/* Barra de envío gratis que se completa sola */
 @keyframes nvx-barra { 0%, 15% { transform: scaleX(.26); } 70%, 100% { transform: scaleX(1); } }
 .nvx-barra { width: 84%; transform-origin: left; animation: nvx-barra 5s cubic-bezier(.4,0,.2,1) infinite alternate; }
 
-/* ---------- Secciones fuera de pantalla (04/11) ----------
-   El navegador no maqueta ni pinta una sección hasta que se acerca: la primera
-   pintada es solo la portada. El "auto" hace que, una vez pintada, recuerde el
-   alto real (menos salto de scrollbar). Verificar las anclas (#premium, #precio)
-   en el celular después de publicar. */
-.nvx-seccion { content-visibility: auto; contain-intrinsic-size: auto 900px; }
+/* ---------- Rendimiento: las secciones de abajo se pintan recién cuando se acercan (clases nvx-lv en Landing.tsx) ---------- */
+.nvx-lv { content-visibility: auto; }
+.nvx-lv-corta { contain-intrinsic-size: auto 900px; }
+.nvx-lv-media { contain-intrinsic-size: auto 1600px; }
+.nvx-lv-caso { contain-intrinsic-size: auto 2200px; }
+.nvx-lv-larga { contain-intrinsic-size: auto 2600px; }
 
-/* ---------- Borde del header (04/11): degradado en vez de línea plana ---------- */
-.nvx-header-border {
-  border-bottom: 1px solid transparent;
-  border-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.16) 30%, rgba(110,231,183,0.28) 50%, rgba(255,255,255,0.16) 70%, transparent) 1;
+/* ---------- Marca ---------- */
+
+/* Cabecera: línea degradada en lugar de borde plano (más fino, más caro) */
+.nvx-headerline::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.16) 22%, rgba(110,231,183,.30) 50%, rgba(255,255,255,.16) 78%, transparent 100%);
 }
+
+/* Scrollbar oscura y fina (Firefox) */
+html { scrollbar-width: thin; scrollbar-color: #2a2d33 transparent; }
+/* Scrollbar oscura y fina (Chrome y Safari) */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a2d33; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3e46; }
+
+/* Teclado: foco visible y discreto (con el mouse no se ve) */
+:focus-visible { outline: 2px solid #6ee7b7; outline-offset: 3px; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .nvx-shine::after, .nvx-ring::before, .nvx-pantalla { animation: none !important; }
-  .nvx-float, .nvx-ficha, .nvx-barra { animation: none !important; }
+  .nvx-shine::after, .nvx-ring::before, .nvx-pantalla, .nvx-float, .nvx-ficha, .nvx-barra { animation: none !important; }
   .nvx-press:active { transform: none; }
 }
