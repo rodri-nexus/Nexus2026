@@ -32,14 +32,12 @@ export const CLIENTES: Record<string, Cliente> = {
   "hogar-digital": {
     nombre: "Hogar Digital (Marcelo)",
     // Interruptor manual: false = apagada siempre, aunque esté al día con el pago
-    activo: true, // Se prende sola cuando paga el Premium (plan propio en Mercado Pago). Hasta entonces, apagada.
+    activo: true,
     // Cobro automático con plan propio: paga en nevux.ar/suscribirme?c=hogar-digital y la tienda se prende sola (y se apaga si deja de pagar)
     cobro: { tipo: 'mercadopago', planPropio: true, gracia: 3 },
     // Dominios donde puede funcionar esta línea (sin www)
     dominios: ['hogardigital.com.ar'],
-    // Plan Premium tal cual Destino (01/11/2026, pedido de Rodrigo), en azul. Ver docs/hogar-digital-premium.md y docs/referencias/destino.md.
-    // Solo datos reales: comunidad con cuadros de sus Reels, números verificables (desde los 80, garantía, cuotas, envíos al país).
-    // Sin reseñas ni locales hasta que Marcelo los pase. Si da el ok, se apaga (activo: false) hasta que pague el 10/11.
+    // Plan Premium: sección comunidad con links directos a reels de Instagram (04/11/2026)
     plan: 'premium',
     config: {
       "color": "#3498db",
