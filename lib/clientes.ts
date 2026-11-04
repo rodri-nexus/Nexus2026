@@ -31,13 +31,9 @@ export type Cliente = {
 export const CLIENTES: Record<string, Cliente> = {
   "hogar-digital": {
     nombre: "Hogar Digital (Marcelo)",
-    // Interruptor manual: false = apagada siempre, aunque esté al día con el pago
     activo: true,
-    // Cobro automático con plan propio: paga en nevux.ar/suscribirme?c=hogar-digital y la tienda se prende sola (y se apaga si deja de pagar)
     cobro: { tipo: 'mercadopago', planPropio: true, gracia: 3 },
-    // Dominios donde puede funcionar esta línea (sin www)
     dominios: ['hogardigital.com.ar'],
-    // Plan Premium: sección comunidad con links directos a reels de Instagram (04/11/2026)
     plan: 'premium',
     config: {
       "color": "#3498db",
@@ -58,13 +54,7 @@ export const CLIENTES: Record<string, Cliente> = {
       "estiloFicha": "destino",
       "envio": {
         "corte": 18,
-        "dias": [
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
+        "dias": [1, 2, 3, 4, 5],
         "min": 5,
         "max": 6,
         "zona": ""
