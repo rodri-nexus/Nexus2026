@@ -2,7 +2,12 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+const inter = Inter({ 
+  subsets: ["latin"], 
+  display: "swap",
+  preload: true,
+  fallback: ['system-ui', '-apple-system', 'sans-serif'],
+});
 
 // Lo que muestran WhatsApp, Instagram, Facebook y Google al compartir o buscar nevux.ar.
 // La imagen es un archivo fijo (public/compartir.jpg, ver scripts/compartir/): WhatsApp descarta las imágenes que tardan en generarse.
@@ -42,6 +47,22 @@ export const metadata: Metadata = {
     images: [IMAGEN],
   },
   twitter: { card: "summary_large_image", title: TITULO, description: DESCRIPCION, images: [IMAGEN.url] },
+  // SEO adicional
+  keywords: ["tiendanube", "diseño", "conversión", "ventas", "ecommerce", "argentina", "ficha de producto"],
+  authors: [{ name: "Rodrigo, Nevux" }],
+  creator: "Nevux",
+  publisher: "Nevux",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export const viewport: Viewport = {
@@ -59,6 +80,18 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
+        {/* Preconnect y DNS prefetch para recursos críticos */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://connect.facebook.net" />
+        <link rel="dns-prefetch" href="https://connect.facebook.net" />
+        
+        {/* Preload recursos críticos del hero */}
+        <link rel="preload" href="/landing/hero-ficha.jpg" as="image" type="image/jpeg" />
+        <link rel="preload" href="/casos/premium/demo.jpg" as="image" type="image/jpeg" />
+        
+        {/* Prefetch para videos (solo el poster al inicio) */}
+        <link rel="prefetch" href="/casos/premium/demo.mp4" as="video" type="video/mp4" />
 
         {/* Google Analytics */}
         <script
@@ -71,7 +104,10 @@ export default function RootLayout({
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-HTK0Y1WNRZ');
+          gtag('config', 'G-HTK0Y1WNRZ', {
+            page_path: window.location.pathname,
+            send_page_view: true
+          });
         `,
           }}
         />
@@ -100,4 +136,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-  }
+}

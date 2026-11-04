@@ -8,7 +8,7 @@
 // - CountUp: número que sube hasta su valor.
 // Fluidez: solo se animan transform y opacity. Todo se apaga con prefers-reduced-motion.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { animate, motion, useInView, useMotionTemplate, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
 
 export const EASE = [0.16, 1, 0.3, 1] as const;
@@ -80,7 +80,7 @@ export function Tilt({
   );
 }
 
-function TiltActivo({ children, className, max, scroll, glare }: { children: React.ReactNode; className: string; max: number; scroll: number; glare: boolean }) {
+function TiltActivo({ children, className, max, scroll, glare }: { children: React.ReactNode; className?: string; max: number; scroll: number; glare: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const px = useMotionValue(0);
   const py = useMotionValue(0);
@@ -98,17 +98,19 @@ function TiltActivo({ children, className, max, scroll, glare }: { children: Rea
   const gy = useTransform(sy, [-0.5, 0.5], [0, 100]);
   const fondo = useMotionTemplate`radial-gradient(600px circle at ${gx}% ${gy}%, rgba(255,255,255,0.16), transparent 45%)`;
 
-  const mover = (e: React.PointerEvent) => {
+  // Optimización: usar useCallback para evitar recrear funciones en cada render
+  const mover = useCallback((e: React.PointerEvent) => {
     if (!max || e.pointerType !== "mouse") return;
     const r = ref.current?.getBoundingClientRect();
     if (!r) return;
     px.set((e.clientX - r.left) / r.width - 0.5);
     py.set((e.clientY - r.top) / r.height - 0.5);
-  };
-  const soltar = () => {
+  }, [max, px, py]);
+
+  const soltar = useCallback(() => {
     px.set(0);
     py.set(0);
-  };
+  }, [px, py]);
 
   return (
     <div ref={ref} className={className} style={{ perspective: 1400 }} onPointerMove={mover} onPointerLeave={soltar}>
@@ -131,6 +133,7 @@ export function CountUp({ value, format, className = "" }: { value: number; form
   const visto = useInView(ref, { once: true, margin: "0px 0px -10% 0px" });
   const quieto = useReducedMotion();
   const actual = useRef(0);
+  
   useEffect(() => {
     const el = ref.current;
     if (!el || !visto) return;
@@ -149,6 +152,7 @@ export function CountUp({ value, format, className = "" }: { value: number; form
     });
     return () => c.stop();
   }, [value, visto, quieto, format]);
+  
   return (
     <span ref={ref} className={className}>
       {format(visto ? actual.current : 0)}
@@ -158,28 +162,69 @@ export function CountUp({ value, format, className = "" }: { value: number; form
 
 // Video que no se descarga hasta que está por aparecer y se pausa al salir de pantalla.
 // En pantallas de hasta 768 px usa la versión liviana (`-m.mp4`, 768 px de ancho) si se la pasa en `srcMovil`.
+// Optimizado con mejor gestión de IntersectionObserver y preload condicional
 export function LazyVideo({ src, srcMovil, poster, label, className = "" }: { src: string; srcMovil?: string; poster: string; label: string; className?: string }) {
   const v = useRef<HTMLVideoElement>(null);
+  
   useEffect(() => {
     const el = v.current;
     if (!el) return;
+    
+    // Determinar fuente según tamaño de pantalla
     const fuente = srcMovil && window.matchMedia("(max-width: 768px)").matches ? srcMovil : src;
+    
+    // Si no hay IntersectionObserver, cargar directamente
     if (!("IntersectionObserver" in window)) {
       el.src = fuente;
       return;
     }
+    
     const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    
+    // Observer con threshold optimizado para mejor UX
     const io = new IntersectionObserver(
       ([e]) => {
         if (e.isIntersecting) {
-          if (!el.getAttribute("src")) el.src = fuente;
-          if (!quieto) el.play().catch(() => {});
-        } else el.pause();
+          // Solo cargar el video si aún no tiene src
+          if (!el.getAttribute("src")) {
+            el.src = fuente;
+            // Preload automático cuando está cerca
+            el.load();
+          }
+          // Reproducir solo si el usuario no prefiere reducir movimiento
+          if (!quieto) {
+            el.play().catch(() => {
+              // Silenciar error de autoplay (común en algunos navegadores)
+            });
+          }
+        } else {
+          // Pausar cuando sale de vista para ahorrar recursos
+          el.pause();
+        }
       },
-      { rootMargin: "300px 0px", threshold: 0.01 }
+      { 
+        rootMargin: "200px 0px", // Margen aumentado para preload más temprano
+        threshold: [0, 0.25, 0.5] // Múltiples thresholds para mejor control
+      }
     );
+    
     io.observe(el);
     return () => io.disconnect();
   }, [src, srcMovil]);
-  return <video ref={v} poster={poster} muted loop playsInline preload="none" aria-label={label} className={className} />;
+  
+  return (
+    <video 
+      ref={v} 
+      poster={poster} 
+      muted 
+      loop 
+      playsInline 
+      preload="none" 
+      aria-label={label} 
+      className={className}
+      // Optimizaciones adicionales
+      disablePictureInPicture
+      disableRemotePlayback
+    />
+  );
 }

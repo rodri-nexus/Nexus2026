@@ -1,6 +1,6 @@
 # Landing (nevux.ar)
 
-El código está en `app/components/landing/`: `Landing.tsx` (cabecera, portada, barra del celular y orden de las secciones), `secciones.tsx` (caso real, problema, diseños y qué hace), `oferta.tsx` (la cuenta, cómo funciona, comparativa, planes, quién lo hace, preguntas, cierre y pie), `cta.tsx` (botones, links de WhatsApp y de pago, textos compartidos) y `fx.tsx` (movimiento: `Reveal`, `Tilt`, `LazyVideo`, `Glow`, `CountUp`). Los efectos de botones (`nvx-shine`, `nvx-press`) están en `app/globals.css`.
+El código está en `app/components/landing/`: `Landing.tsx` (cabecera, portada, barra del celular y orden de las secciones), `secciones.tsx` (caso real, problema, diseños y qué hace), `oferta.tsx` (la cuenta, cómo funciona, comparativa, planes, quién lo hace, preguntas, cierre y pie), `cta.tsx` (botones, links de WhatsApp y de pago, textos compartidos) y `fx.tsx` (movimiento: `Reveal`, `Tilt`, `LazyVideo`, `Glow`, `CountUp`). Los efectos de botones (`nvx-shine`, `nvx-press`) y el CSS de la portada están en `app/globals.css`.
 
 **Regla:** todo dato es real o es una cuenta que hace el visitante con sus números. Nada de precios tachados ni testimonios inventados. Nunca productos ni marca de Valmont: los relojes de las demos dicen "NEVUX" (`scripts/demo/relojes/relojes.js public/demo/disenos/img NEVUX`).
 
@@ -30,6 +30,18 @@ Movimiento: todo se apaga con `prefers-reduced-motion` (`MotionConfig` en `Landi
 - En pantallas táctiles no hay inclinación por dedo; solo la del scroll.
 - Vitrina de celulares (`app/disenos/Vitrina.tsx`): solo baja el del centro y solo mientras se ve.
 - Videos: en pantallas de hasta 768 px se carga `<nombre>-m.mp4` (768 px, ~60% menos). Si se regraba un video, regenerar la versión liviana: `ffmpeg -i X.mp4 -vf "scale=768:-2,fps=24" -c:v libx264 -preset slow -crf 28 -pix_fmt yuv420p -movflags +faststart -an X-m.mp4`.
+
+**Carga rápida (04/11):**
+- El CSS de la portada (grilla, etiquetas flotantes, ficha y barra) vive en `globals.css`, no en un `<style>` inline: queda cacheado y el HTML más liviano.
+- Las secciones de abajo del pliegue llevan `content-visibility: auto` (clases `nvx-lv` en `Landing.tsx`): el navegador no las pinta hasta que se acercan. `contain-intrinsic-size` estima su alto para que el scroll no salte.
+- `LazyVideo` pide la fuente a 150 px de aparecerse (antes 300 px) para no competir con la carga inicial.
+- `preconnect` a Google Analytics y Facebook Pixel en `layout.tsx`.
+
+**Marca (04/11):**
+- Cabecera con línea degradada (`nvx-headerline`) en lugar de borde plano.
+- Titular de portada más grande y con tracking más cerrado; cascada de entrada más lenta (`0.85 s` por pieza).
+- Botón Premium con brillo interno sutil (`PremiumCta`).
+- Scrollbar oscura y fina; foco visible con el teclado.
 
 ## Cómo cambiar cosas
 

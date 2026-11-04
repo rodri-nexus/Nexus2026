@@ -45,7 +45,7 @@ export function PremiumCta({ label = "Quiero el Premium", className = "" }: { la
   return (
     <a
       href={PREMIUM_URL}
-      className={`nvx-press group inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-300/40 bg-amber-300/[0.06] hover:bg-amber-300/[0.12] hover:border-amber-300/70 text-amber-200 font-bold px-6 py-4 text-[15px] ${className}`}
+      className={`nvx-press group inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-300/40 bg-amber-300/[0.06] hover:bg-amber-300/[0.12] hover:border-amber-300/70 text-amber-200 font-bold px-6 py-4 text-[15px] shadow-[inset_0_1px_0_0_rgba(253,230,138,0.14)] ${className}`}
     >
       {label} <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
     </a>
