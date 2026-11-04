@@ -80,7 +80,7 @@ export function Tilt({
   );
 }
 
-function TiltActivo({ children, className, max, scroll, glare }: { children: React.ReactNode; className: string; max: number; scroll: number; glare: boolean }) {
+function TiltActivo({ children, className, max, scroll, glare }: { children: React.ReactNode; className?: string; max: number; scroll: number; glare: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const px = useMotionValue(0);
   const py = useMotionValue(0);
@@ -176,7 +176,8 @@ export function LazyVideo({ src, srcMovil, poster, label, className = "" }: { sr
           if (!quieto) el.play().catch(() => {});
         } else el.pause();
       },
-      { rootMargin: "300px 0px", threshold: 0.01 }
+      // 150px de anticipación (04/11): se pide más cerca de aparecerse y no compite con la carga inicial.
+      { rootMargin: "150px 0px", threshold: 0.01 }
     );
     io.observe(el);
     return () => io.disconnect();
