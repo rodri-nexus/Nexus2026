@@ -24,13 +24,31 @@ export async function GET(_req: Request, { params }: { params: { archivo: string
     return new Response(`/* Nevux · ${cliente.nombre}: apagado (${estado.motivo}) */\n`, { headers: cabeceras });
   }
 
+  // Anti-flash: pre-oculta el contenido de Tiendanube hasta que Nevux esté listo.
+  // Evita que el cliente vea la versión vieja durante milisegundos antes de la transformación.
   const js = `/* Nevux · ${cliente.nombre} */
 (function () {
   var dominios = ${JSON.stringify(cliente.dominios)};
   var host = location.hostname.replace(/^www\\./, '');
   var permitido = dominios.some(function (d) { return host === d || host.slice(-(d.length + 1)) === '.' + d; });
   if (!permitido) return;
+  
+  /* Anti-flash: oculta el contenido original hasta que Nevux esté listo */
+  var style = document.createElement('style');
+  style.id = 'nvx-preload';
+  style.textContent = 'body{visibility:hidden !important;}body.nvx-ready{visibility:visible !important;}';
+  document.head.appendChild(style);
+  
+  /* Timeout de seguridad: si Nevux no carga en 3s, mostrar la tienda original */
+  var timeout = setTimeout(function() {
+    document.body.classList.add('nvx-ready');
+    var preloadStyle = document.getElementById('nvx-preload');
+    if (preloadStyle) preloadStyle.remove();
+  }, 3000);
+  
   window.NEVUX_CFG = ${JSON.stringify(cliente.config)};
+  window.NEVUX_PRELOAD_TIMEOUT = timeout;
+  
   var s = document.createElement('script');
   s.src = 'https://nevux.ar/nevux.js';
   s.async = true;
