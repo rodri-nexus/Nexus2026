@@ -324,6 +324,8 @@ export const CLIENTES: Record<string, Cliente> = {
       },
       "fichaDestino": {
         "sello": "Hogar Digital · *30 días* de garantía",
+        "estilo": "hogar",
+        "chip": "+800 calificaciones en Mercado Libre · +35 años",
         "confianza": [
           {
             "icono": "cambios",
