@@ -227,6 +227,9 @@ export const CLIENTES: Record<string, Cliente> = {
             "url": "/humidificadores-19h94/"
           },
           "comunidad": {
+            "estilo": "movimiento",
+            "titulo": "en movimiento",
+            "boton": "Ver en Instagram",
             "etiqueta": "Detrás de escena",
             "cuenta": "Así trabajamos día a día",
             "url": "https://instagram.com/hogardigitaltiendaonline",
