@@ -3308,9 +3308,10 @@
         // Cuotas: las que muestra la tienda (sin inventar si son con o sin interés)
         var mc = ((root.querySelector('.js-product-payments-container, [data-store="product-installments"]') || {}).textContent || root.textContent || '').replace(/\s+/g, ' ').match(/(\d+) cuotas( sin inter[eé]s)? de \$ ?([\d.]+(?:,\d+)?)/i);
         if (FD.chip) h += '<div><span class="nvx-hg-chip"><i>★</i>' + hEsc(FD.chip) + '</span></div>';
-        if (lista) h += '<div class="nvx-hg-top"><s>' + d.money(lista) + '</s></div>';
+        if (lista) h += '<div class="nvx-hg-top"><s>' + d.money(lista) + '</s>' + (d.transf > 0 ? '<span class="nvx-fd-off">' + off + '% OFF</span>' : '') + '</div>';
         h += '<div class="nvx-hg-n">' + d.money(pr) + '</div>';
-        if (lista) h += '<div class="nvx-hg-dk"><div><small>Precio de lista ' + d.money(lista) + '</small><b>Ahorrás ' + d.money(lista - pr) + '</b></div><div class="r"><em>' + off + '% OFF</em></div></div>';
+        if (d.transf > 0) { var tp = pr * (1 - d.transf / 100); h += '<div class="nvx-hg-dk"><div><small>Pagando con transferencia</small><b>' + d.money(tp) + '</b></div><div class="r"><em>' + d.transf + '% OFF</em><span>Ahorrás ' + d.money(pr - tp) + '</span></div></div>'; }
+        else if (lista) h += '<div class="nvx-hg-dk"><div><small>Precio de lista ' + d.money(lista) + '</small><b>Ahorrás ' + d.money(lista - pr) + '</b></div><div class="r"><em>' + off + '% OFF</em></div></div>';
         if (mc) h += '<div class="nvx-hg-cu"><span>' + mc[1] + ' cuotas' + (mc[2] ? ' sin interés' : '') + ' de</span><b>' + d.money(hNum(mc[3])) + '</b></div>';
         ep.innerHTML = h; return;
       }
@@ -3607,7 +3608,10 @@
         '.nvx-hg-pg .tp strong{font:400 22px/1 ' + HDG + ';letter-spacing:-.6px;white-space:nowrap}' +
         '.nvx-hg-pg .bt{display:flex;justify-content:space-between;align-items:center;margin:0 16px;padding:13px 0 15px;border-top:1px solid rgba(13,27,42,.14);font:700 12.5px/1 ' + HSG + ';letter-spacing:.2em;text-transform:uppercase}' +
         '.nvx-hg-pg .on{background:#fff;color:#0d1b2a!important}.nvx-hg-pg .on *{color:#0d1b2a}' +
-        '.nvx-hg-pg .wa{background:' + A + ';color:#fff!important}.nvx-hg-pg .wa *{color:#fff}.nvx-hg-pg .wa .bt{border-color:rgba(255,255,255,.3)}' +
+        '.nvx-hg-pg .tr{background:' + A + ';color:#fff!important}.nvx-hg-pg .tr *{color:#fff!important}.nvx-hg-pg .tr .bt{border-color:rgba(255,255,255,.3)}.nvx-hg-pg .tr i{font-style:normal;background:#0d1b2a;border-radius:6px;padding:3px 7px;font:700 13px/1 ' + HSG + ';margin-left:6px;vertical-align:3px}' +
+        '.nvx-hg-pg .pp{text-align:right}.nvx-hg-pg .pp s{display:block;font:500 13px/1 ' + HSG + ';opacity:.75;margin-bottom:6px}' +
+        '.nvx-hg-pg .wa{background:transparent;border:1.5px solid rgba(255,255,255,.35)!important;color:#fff!important}.nvx-hg-pg .wa *{color:#fff!important}' +
+        '.nvx-hg-pg .wa .bt{border-color:rgba(255,255,255,.25)}' +
         '.nvx-hg-pg .lg{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:4px}.nvx-hg-pg .lg span{background:#fff;color:#0d1b2a!important;border-radius:6px;padding:6px 9px;font:700 10.5px/1 ' + HSG + ';letter-spacing:.04em}' +
         'body.nvx-cart-hogar-open .nvx-bar{display:none!important}' +
         '@media(max-width:767px){#modal-cart.nvx-cart-hogar{width:100%!important;max-width:none!important}}': '') +
@@ -3667,6 +3671,7 @@
     };
     // Carrito de Hogar Digital: título con cantidad, compra tranquila (datos de la ficha) y opciones de pago en tarjetas
     var armarHogar = function (modal, lista, vacio) {
+      var TRF = NEVUX.transferencia || 0;
       var tit = modal.querySelector('.modal-title, .js-modal-title, h2, h3');
       var cant = [].reduce.call(modal.querySelectorAll('.js-cart-quantity-input'), function (n, i) { return n + (parseInt(i.value, 10) || 0); }, 0);
       if (tit) {
@@ -3691,18 +3696,21 @@
         var MP = NEVUX.mediosDePago || [];
         tot.insertAdjacentHTML('afterend', '<div class="nvx-hg-pg"><small>Iniciá el pago con:</small>' +
           '<a class="on" href="#" data-nvx-hg="comprar"><div class="tp"><div><b>Pago online</b><span>' + hEsc(MP.length ? MP.join(', ').replace(/, ([^,]*)$/, ' o $1') : 'Tarjeta o Mercado Pago') + '</span></div><strong class="nvx-hg-tt"></strong></div><div class="bt">Iniciar compra <span>→</span></div></a>' +
+          (TRF > 0 ? '<a class="tr" href="#" data-nvx-hg="comprar"><div class="tp"><div><b>Transferencia <i>-' + TRF + '%</i></b><span class="nvx-hg-ah"></span></div><div class="pp"><s class="nvx-hg-tt"></s><strong class="nvx-hg-tf"></strong></div></div><div class="bt">Iniciar compra <span>→</span></div></a>' : '') +
           (NEVUX.whatsapp ? '<a class="wa" target="_blank" rel="noopener" href="https://wa.me/' + hEsc(NEVUX.whatsapp) + '?text=' + encodeURIComponent('Hola! Quiero consultar otro medio de pago para ' + nombre + ' ' + location.href) + '"><div class="tp"><div><b>Otro medio de pago</b><span>Consultanos por WhatsApp</span></div></div><div class="bt">Consultar <span>→</span></div></a>' : '') +
           (MP.length ? '<div class="lg">' + MP.map(function (m) { return '<span>' + hEsc(m) + '</span>'; }).join('') + '</div>' : '') + '</div>');
         pg = modal.querySelector('.nvx-hg-pg');
-        pg.querySelector('[data-nvx-hg="comprar"]').addEventListener('click', function (e) {
+        [].forEach.call(pg.querySelectorAll('[data-nvx-hg="comprar"]'), function (bt) { bt.addEventListener('click', function (e) {
           e.preventDefault();
           var b = modal.querySelector('.js-ajax-cart-submit input[type=submit], .js-ajax-cart-submit button, [name="go_to_checkout"]');
           if (b) b.click(); else location.href = '/comprar/';
-        });
+        }); });
       }
       if (pg) {
-        var te = modal.querySelector('.js-cart-total'), tt = pg.querySelector('.nvx-hg-tt');
-        if (te && tt && tt.textContent !== hMoney(hNum(te.textContent))) tt.textContent = hMoney(hNum(te.textContent));
+        var te = modal.querySelector('.js-cart-total'), vt = te ? hNum(te.textContent) : 0;
+        [].forEach.call(pg.querySelectorAll('.nvx-hg-tt'), function (x) { if (x.textContent !== hMoney(vt)) x.textContent = hMoney(vt); });
+        var tf = pg.querySelector('.nvx-hg-tf'), ah = pg.querySelector('.nvx-hg-ah');
+        if (tf && tf.textContent !== hMoney(vt * (1 - TRF / 100))) { tf.textContent = hMoney(vt * (1 - TRF / 100)); ah.textContent = 'Ahorrás ' + hMoney(vt * TRF / 100) + ' · elegila al pagar'; }
         pg.style.display = vacio ? 'none' : '';
       }
       // Despacho: cuenta regresiva hasta el corte, con los datos reales de envío
