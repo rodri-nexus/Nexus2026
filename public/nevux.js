@@ -2942,7 +2942,24 @@
     if (DE[0]) html += grilla(DE[0], 0);
     // Comunidad
     var CO = D.comunidad;
-    if (CO && CO.fotos && CO.fotos.length) {
+    if (CO && CO.fotos && CO.fotos.length && CO.estilo === 'movimiento') {
+      // "En movimiento": bloque oscuro con el logo, título grande, link a Instagram y videos 9:16 que pasan solos (todo abre Instagram)
+      if (!document.querySelector('#nvx-mv-f')) { var lkm = document.createElement('link'); lkm.id = 'nvx-mv-f'; lkm.rel = 'stylesheet'; lkm.href = 'https://fonts.googleapis.com/css2?family=Archivo:ital,wght@1,800&display=swap'; document.head.appendChild(lkm); }
+      hCss('nvx-mv-css',
+        '.nvd-mv{background:#0b0d12;color:#fff;padding:56px 0 64px;margin:0}.nvd-mv .in{max-width:1200px;margin:0 auto;padding:0 28px}' +
+        '.nvd-mv .lg{display:block;height:44px;width:auto;margin:0 0 14px}.nvd-mv h2{margin:0 0 18px;font:italic 800 clamp(44px,12vw,84px)/.95 Archivo,sans-serif;letter-spacing:-.04em;color:#fff}' +
+        '.nvd-mv .ig{display:inline-block;color:#fff!important;text-decoration:none!important;font:600 15px/1 "Space Grotesk",sans-serif;letter-spacing:.2em;text-transform:uppercase;padding-bottom:7px;border-bottom:2px solid #fff}' +
+        '.nvd-mv .rw{display:grid;grid-auto-flow:column;grid-auto-columns:min(72vw,300px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:34px 14vw 4px;scroll-padding:0 14vw}.nvd-mv .rw::-webkit-scrollbar{display:none}' +
+        '.nvd-mv .rw a{position:relative;display:block;aspect-ratio:9/16;border-radius:22px;overflow:hidden;scroll-snap-align:center;background:#1a1d24;transform:scale(.94);transition:transform .5s cubic-bezier(.2,.8,.2,1)}.nvd-mv .rw a.on{transform:none}' +
+        '.nvd-mv .rw img{width:100%;height:100%;object-fit:cover;display:block}.nvd-mv .rw a:after{content:"";position:absolute;inset:auto 0 0;height:30%;background:linear-gradient(transparent,rgba(0,0,0,.55))}' +
+        '.nvd-mv .rw svg{position:absolute;z-index:1;left:14px;bottom:14px;width:26px;height:26px;color:#fff}' +
+        '@media(min-width:900px){.nvd-mv .rw{grid-auto-columns:300px;padding:34px 28px 4px;scroll-padding:0 28px;max-width:1200px;margin:0 auto}.nvd-mv .rw a{transform:none}}');
+      var IGI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>';
+      var LGB = CO.logo || (NEVUX.cabecera && NEVUX.cabecera.logoBlanco);
+      html += '<section class="nvd-mv"><div class="in">' + (LGB ? '<img class="lg" src="' + hEsc(LGB) + '" alt="">' : '') + '<h2>' + hEsc(CO.titulo || 'en movimiento') + '</h2>' +
+        '<a class="ig" href="' + hEsc(CO.url || '#') + '" target="_blank" rel="noopener">' + hEsc(CO.boton || 'Ver en Instagram') + '</a></div><div class="rw">' +
+        CO.fotos.map(function (f) { return '<a href="' + hEsc(f.url || CO.url || '#') + '" target="_blank" rel="noopener"><img src="' + hEsc(f.foto) + '" alt="" loading="lazy">' + IGI + '</a>'; }).join('') + '</div></section>';
+    } else if (CO && CO.fotos && CO.fotos.length) {
       // Como Destino: historias 9:16 en una fila que corre sola (54 s por vuelta), con la barrita de progreso arriba y bordes que se esfuman
       var st = CO.fotos.map(function (f) {
         return '<a class="nvd-st" href="' + hEsc(f.url || CO.url || '#') + '"' + (/^https?:/.test(f.url || CO.url || '') && !f.url ? ' target="_blank" rel="noopener"' : '') + '><img src="' + hEsc(f.foto) + '" alt="" loading="lazy"><span class="p"><i></i></span></a>';
@@ -2996,6 +3013,16 @@
     var slp = document.querySelector('[data-store="home-slider"]');
     if (slp && D.reemplazarBanner !== false) slp.style.display = 'none';
     var box = document.querySelector('.nvd');
+    // "En movimiento": marca la tarjeta del centro y avanza sola cada 3,5 s (se frena si la tocan)
+    var mvr = box.querySelector('.nvd-mv .rw');
+    if (mvr) {
+      var mva = [].slice.call(mvr.children), mvq = false;
+      var mvm = function () { var c = mvr.scrollLeft + mvr.clientWidth / 2, best = 0, bd = 1e9; mva.forEach(function (a, i) { var d = Math.abs(a.offsetLeft + a.offsetWidth / 2 - c); if (d < bd) { bd = d; best = i; } }); mva.forEach(function (a, i) { a.classList.toggle('on', i === best); }); return best; };
+      mvr.addEventListener('scroll', function () { clearTimeout(mvr._t); mvr._t = setTimeout(mvm, 80); }, { passive: true });
+      mvr.addEventListener('touchstart', function () { mvq = true; }, { passive: true });
+      if (innerWidth < 900) mvr.scrollLeft = mva.length > 2 ? mva[1].offsetLeft - (mvr.clientWidth - mva[1].offsetWidth) / 2 : 0; mvm();
+      if (!quieto && mva.length > 1) setInterval(function () { if (mvq || !mvr.offsetParent) return; var i = (mvm() + 1) % mva.length; mvr.scrollTo({ left: mva[i].offsetLeft - (mvr.clientWidth - mva[i].offsetWidth) / 2, behavior: 'smooth' }); }, 3500);
+    }
     // Portada: cortes de clip
     var cl = [].slice.call(box.querySelectorAll('.nvd-hero .m>*')), ci = 0;
     if (cl.length > 1 && !quieto) setInterval(function () {
