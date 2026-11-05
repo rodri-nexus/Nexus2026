@@ -3235,9 +3235,11 @@
       F + '.js-product-promo-container{margin:0 0 14px!important}' + F + '.js-product-promo-container .label{border-radius:999px!important;font:600 11px ' + SG + '!important;letter-spacing:.1em;text-transform:uppercase}' +
       // Despacho, medios de pago, confianza y WhatsApp
       '.nvx-fd-env{display:flex;align-items:center;gap:10px;background:#e8f6ec;border:1px solid #b9e2c6;border-radius:12px;padding:8px 10px;margin:14px 0 12px;font:400 12px/1.35 ' + SG + ';color:#14532d}.nvx-fd-env i{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#1E8E3E;color:#fff}.nvx-fd-env i svg{width:13px;height:13px;fill:#fff}.nvx-fd-env b{font-weight:700}' +
+      '.nvx-fd-sale{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:12px 14px;border-radius:12px;background:' + R + ';color:#fff}.nvx-fd-sale b{display:block;font:700 11px/1.2 ' + SG + ';letter-spacing:.12em;text-transform:uppercase}.nvx-fd-sale small{display:block;margin-top:3px;font:400 11px/1.3 ' + SG + ';opacity:.85}.nvx-fd-sale strong{font:600 18px/1 ' + DG + ';white-space:nowrap;letter-spacing:.02em}' +
       F + '.nvx-pay{margin:0 0 12px!important}' +
       '.nvx-fd-tr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 10px}.nvx-fd-tr>div{border:1px solid rgba(11,11,11,.12);border-radius:12px;padding:10px 6px;text-align:center;display:flex;flex-direction:column;gap:3px;align-items:center}' +
       '.nvx-fd-tr svg{width:16px;height:16px;color:' + R + ';margin:0 auto 2px}.nvx-fd-tr b{font:400 11.5px/1.15 Unbounded,' + DG + ';color:#111}.nvx-fd-tr span{font:400 10px/1.25 ' + SG + ';color:#4B4B4B}' +
+      '.nvx-fd-pay{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin:0 0 12px}.nvx-fd-pay>div{display:flex;align-items:center;gap:7px;border:1px solid rgba(11,11,11,.12);border-radius:10px;padding:9px 10px;font:500 11px/1.2 ' + SG + ';color:#333}.nvx-fd-pay svg{flex:none;width:16px;height:16px;color:' + R + '}.nvx-fd-wa.nvx-fd-transfer{margin:0 0 14px;padding:11px 12px;border:1px solid rgba(52,152,219,.25);border-radius:10px;background:#eef7fd;text-align:left;color:#17324d!important}.nvx-fd-wa.nvx-fd-transfer b{color:#1671a8}' +
       '.nvx-fd-wa{display:block;text-align:center;margin:6px 0 14px;font:400 12px ' + SG + ';letter-spacing:.24px;color:#4B4B4B!important;text-decoration:none!important}.nvx-fd-wa b{color:' + R + ';font-weight:600;text-decoration:underline;text-underline-offset:2px}' +
       // Descripción y preguntas
       F + '[data-store^="product-description"]>.font-weight-bold{font:600 14px ' + SG + '!important;letter-spacing:.06em;text-transform:uppercase}' + F + '.user-content{font:400 13px/1.6 ' + SG + ';color:#333}' +
@@ -3291,10 +3293,28 @@
         txt = 'Tu pedido sale <b>' + (n === 1 ? 'MAÑANA' : 'EL ' + ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'][dd.getDay()]) + '</b> a primera hora'; }
       abajo += '<div class="nvx-fd-env"><i><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></i><span>' + txt + '</span></div>';
     }
+    if (E && E.corte) abajo += '<div class="nvx-fd-sale"><div><b>Próximo despacho</b><small>Comprá antes de las ' + hEsc(String(E.corte)) + ' h</small></div><strong class="nvx-fd-sale-clock">--:--:--</strong></div>';
     var CF = FD.confianza || [];
     if (CF.length) abajo += '<div class="nvx-fd-tr">' + CF.slice(0, 3).map(function (c) { return '<div>' + dsIcono(c.icono) + '<b>' + hEsc(c.titulo) + '</b>' + (c.texto ? '<span>' + hEsc(c.texto) + '</span>' : '') + '</div>'; }).join('') + '</div>';
+    var MP = NEVUX.mediosDePago || [];
+    if (MP.length) abajo += '<div class="nvx-fd-pay">' + MP.slice(0, 4).map(function (m) { return '<div>' + dsIcono(/mercado/i.test(m) ? 'tarjeta' : 'cuotas') + '<span>' + hEsc(m) + '</span></div>'; }).join('') + '</div>';
     if (NEVUX.whatsapp) abajo += '<a class="nvx-fd-wa" target="_blank" rel="noopener" href="https://wa.me/' + hEsc(NEVUX.whatsapp) + '?text=' + encodeURIComponent('Hola! Tengo una consulta sobre ' + (d.titleEl ? d.titleEl.textContent.trim() : 'un producto') + ' ' + location.href) + '">' + hEsc(FD.whatsappTexto || '¿Dudas con este producto?') + ' <b>Escribinos por WhatsApp</b></a>';
+    if (NEVUX.whatsapp) abajo += '<a class="nvx-fd-wa nvx-fd-transfer" target="_blank" rel="noopener" href="https://wa.me/' + hEsc(NEVUX.whatsapp) + '?text=' + encodeURIComponent('Hola! Quiero consultar opciones de pago para ' + (d.titleEl ? d.titleEl.textContent.trim() : 'un producto') + ' ' + location.href) + '">¿Preferís otro medio de pago? <b>Consultanos por WhatsApp</b></a>';
     form.insertAdjacentHTML('afterend', '<div class="nvx-fd-abajo">' + abajo + '</div>');
+    var clock = root.querySelector('.nvx-fd-sale-clock');
+    if (clock && E && E.corte) {
+      var tick = function () {
+        var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' })), target = new Date(now);
+        target.setHours(E.corte, 0, 0, 0);
+        if (now >= target || !E.dias || E.dias.indexOf(now.getDay()) < 0) {
+          do { target.setDate(target.getDate() + 1); } while (E.dias && E.dias.indexOf(target.getDay()) < 0);
+          target.setHours(E.corte, 0, 0, 0);
+        }
+        var left = Math.max(0, target.getTime() - now.getTime()), hh = Math.floor(left / 3600000), mm = Math.floor(left % 3600000 / 60000), ss = Math.floor(left % 60000 / 1000);
+        clock.textContent = [hh, mm, ss].map(function (n) { return String(n).padStart(2, '0'); }).join(':');
+      };
+      tick(); setInterval(tick, 1000);
+    }
     var pay = root.querySelector('.nvx-pay'), env = root.querySelector('.nvx-fd-env');
     if (pay && env) env.insertAdjacentElement('afterend', pay);
     // La promo de la tienda ("Llevá más, pagá menos") va debajo del precio: en Destino el título va primero
@@ -3540,8 +3560,10 @@
         '#modal-cart.nvx-cart-hogar .cart-row{margin-top:0}' +
         'body.nvx-cart-hogar-open .nvx-bar{transform:none!important;z-index:100001}' +
         '@media(max-width:767px){#modal-cart.nvx-cart-hogar{width:100%;max-width:none}.modal-open #modal-cart.nvx-cart-hogar .modal-body{padding-left:30px;padding-right:30px}#modal-cart.nvx-cart-hogar .js-ajax-cart-list .cart-item{grid-template-columns:145px minmax(0,1fr);gap:30px}#modal-cart.nvx-cart-hogar .cart-item-image-container img{height:265px}}' : '') +
+      '#modal-cart.nvx-cart-hogar .nvx-cg-d{background:#eef7fd;border:1px solid rgba(52,152,219,.18);color:#17324d}#modal-cart.nvx-cart-hogar .nvx-cg-d svg{color:' + A + '}#modal-cart.nvx-cart-hogar .nvx-cg-d b{color:#1671a8}' +
       '.nvx-cg-d{display:flex;align-items:center;gap:8px;margin:0 0 12px;background:#f4f4f4;border-radius:10px;padding:10px 12px;font:500 12.5px/1.3 Inter,' + FONT + ';color:#333}.nvx-cg-d svg{flex:none;width:17px;height:17px;color:#777}.nvx-cg-d b{color:#15803d;font-weight:700}' +
       '.nvx-cg{margin:12px 0 4px;font-family:Inter,' + FONT + ';color:#111}' +
+      '.nvx-cg-info{display:flex;align-items:flex-start;gap:9px;margin:0 0 12px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fafafa;font:500 12px/1.35 Inter,' + FONT + ';color:#333}.nvx-cg-info svg{flex:none;width:17px;height:17px;color:' + A + '}.nvx-cg-info b{display:block;color:#111;font-size:12.5px}.nvx-cg-info span{display:block;color:#666;font-weight:400;margin-top:2px}' +
       '.nvx-cg-e{display:flex;align-items:center;justify-content:space-between;gap:10px;font:700 13px/1.3 Inter,' + FONT + '}.nvx-cg-e span b{color:' + A + '}.nvx-cg-e.ok span{color:' + A + '}.nvx-cg-e svg{flex:none;width:20px;height:20px;color:' + A + '}' +
       '.nvx-cg-b{position:relative;height:4px;background:#ececec;border-radius:4px;margin:8px 22px 14px 0}.nvx-cg-b i{position:absolute;left:0;top:0;bottom:0;width:0;background:' + A + ';border-radius:4px;transition:width .7s cubic-bezier(.2,.8,.2,1)}' +
       '.nvx-cg-b em{position:absolute;right:-22px;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:4px;background:#fff;border:1.5px solid #ccc;font-style:normal;display:grid;place-items:center;color:#fff;font-size:11px;transition:background-color .3s,border-color .3s}' +
@@ -3549,7 +3571,8 @@
       '.nvx-cg-r>small{display:block;font:700 9.5px/1 Inter,' + FONT + ';letter-spacing:.2em;text-transform:uppercase;color:#888;margin:4px 0 8px}' +
       '.nvx-cg-rr{display:grid;grid-auto-flow:column;grid-auto-columns:78%;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}.nvx-cg-rr::-webkit-scrollbar{display:none}' +
       '.nvx-cg-rr>div{scroll-snap-align:start;border:1px solid #eee;border-radius:12px;padding:10px 12px;background:#fff}.nvx-cg-rr .u{display:flex;align-items:center;gap:8px}.nvx-cg-rr .u i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#111;color:#fff;font:800 11px Inter,sans-serif;font-style:normal}' +
-      '.nvx-cg-rr .u b{font:700 12px Inter,sans-serif}.nvx-cg-rr .u small{display:block;font-size:10px;color:#888}.nvx-cg-rr .s{color:#f5a623;font-size:11px;letter-spacing:.08em;margin:6px 0 4px}.nvx-cg-rr p{margin:0;font-size:12px;line-height:1.4;color:#444}');
+      '.nvx-cg-rr .u b{font:700 12px Inter,sans-serif}.nvx-cg-rr .u small{display:block;font-size:10px;color:#888}.nvx-cg-rr .s{color:#f5a623;font-size:11px;letter-spacing:.08em;margin:6px 0 4px}.nvx-cg-rr p{margin:0;font-size:12px;line-height:1.4;color:#444}' +
+      '.nvx-cg-pay{display:grid;gap:7px;margin:14px 0 2px}.nvx-cg-pay a{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:9px;padding:10px 12px;text-decoration:none!important;font:700 11px/1 Inter,' + FONT + ';letter-spacing:.08em;text-transform:uppercase}.nvx-cg-pay .online{background:' + A + ';color:#fff!important}.nvx-cg-pay .transfer{border:1px solid rgba(52,152,219,.35);background:#eef7fd;color:#1671a8!important}');
     var CAMION = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 5h13v11h-13zM14.5 9h4l3 3.5V16h-7"/><circle cx="5.5" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/></svg>';
     // Cuándo sale el pedido, con los datos reales de envío (NEVUX.envio: corte y días de despacho)
     var despacho = function () {
@@ -3569,12 +3592,17 @@
       var dsp = modal.querySelector('.nvx-cg-d'), box = modal.querySelector('.nvx-cg');
       if (!dsp && CG.despacho !== false) { var t = despacho(); if (t) { lista.insertAdjacentHTML('beforebegin', '<div class="nvx-cg-d">' + CAMION + '<span>' + t + '</span></div>'); dsp = modal.querySelector('.nvx-cg-d'); } }
       if (!box) {
-        lista.insertAdjacentHTML('afterend', '<div class="nvx-cg">' + (monto ? '<div class="nvx-cg-e"><span></span>' + CAMION + '</div><div class="nvx-cg-b"><i></i><em>✓</em></div>' : '') +
+        var infoEnvio = !monto ? '<div class="nvx-cg-info">' + CAMION + '<div><b>Calculá el costo de envío</b><span>Ingresá tu código postal y te mostramos las opciones disponibles para tu zona.</span></div></div>' : '';
+        lista.insertAdjacentHTML('afterend', '<div class="nvx-cg">' + infoEnvio + (monto ? '<div class="nvx-cg-e"><span></span>' + CAMION + '</div><div class="nvx-cg-b"><i></i><em>✓</em></div>' : '') +
           (RS.length ? '<div class="nvx-cg-r"><small>' + hEsc(CG.resenasTitulo || 'Ya lo vivieron') + '</small><div class="nvx-cg-rr">' + RS.slice(0, 8).map(function (r) {
             var n = Math.max(1, Math.min(5, r.estrellas || 5));
             return '<div><div class="u"><i>' + hEsc((r.nombre || '?').charAt(0)) + '</i><div><b>' + hEsc(r.nombre) + '</b><small>' + hEsc(r.verificada ? 'Compra verificada' : (r.producto || '')) + '</small></div></div><div class="s">' + '★★★★★'.slice(0, n) + '</div><p>' + hEsc(r.texto) + '</p></div>';
           }).join('') + '</div></div>' : '') + '</div>');
         box = modal.querySelector('.nvx-cg');
+      }
+      if (!box.querySelector('.nvx-cg-pay') && NEVUX.whatsapp) {
+        var nombre = (lista.querySelector('a') || {}).textContent || 'mi pedido';
+        box.insertAdjacentHTML('beforeend', '<div class="nvx-cg-pay"><a class="online" href="/comprar/">Iniciar compra online</a><a class="transfer" target="_blank" rel="noopener" href="https://wa.me/' + hEsc(NEVUX.whatsapp) + '?text=' + encodeURIComponent('Hola! Quiero consultar opciones de pago para ' + nombre.trim() + ' ' + location.href) + '">Consultar otro medio de pago</a></div>');
       }
       box.style.display = vacio ? 'none' : ''; if (dsp) dsp.style.display = vacio ? 'none' : '';
       if (monto && !vacio) {
