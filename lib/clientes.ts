@@ -60,6 +60,7 @@ export const CLIENTES: Record<string, Cliente> = {
         "zona": ""
       },
       "envioGratisDesde": 0,
+      "transferencia": 10,
       "whatsapp": "5493489520436",
       "evento": {
         "nombre": "La Semana Cyber",
