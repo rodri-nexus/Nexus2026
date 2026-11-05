@@ -2884,7 +2884,27 @@
         '.nvd .nvr .nvr-c{z-index:2}.nvd .nvr .nvr-c:after{background:linear-gradient(90deg,rgba(0,0,0,.42),rgba(0,0,0,.08) 50%,rgba(0,0,0,0))}' +
         '.nvd .nvr .nvr-eb{left:24px;top:30px}.nvd .nvr .nvr-n{right:24px;top:50%;transform:translateY(-50%)}' +
         '.nvd .nvr .nvr-l{left:24px;right:auto;top:50%;bottom:auto;transform:translateY(-50%);width:min(420px,80vw)}.nvd .nvr .nvr-l li{font-size:24px!important;text-align:right;padding:11px 0}' +
-        '.nvd .nvr .nvr-bt{left:24px;bottom:auto;top:calc(50% + 175px);width:min(420px,80vw);text-align:right;border:0}}');
+        '.nvd .nvr .nvr-bt{left:24px;bottom:auto;top:calc(50% + 175px);width:min(420px,80vw);text-align:right;border:0}}' +
+      (D.modo === 'editorial' ?
+        '.nvd{font-family:Arial,Helvetica,sans-serif!important;background:#fff!important;color:#171717!important}' +
+        '.nvd-s{padding:24px 0 8px!important}' +
+        '.nvd-in{max-width:1200px!important;padding:0 5%!important}' +
+        '.nvd-cinta{background:#171717!important;color:#fff!important;border:0!important;padding:10px 16px!important;font-size:11px!important;letter-spacing:.04em!important}' +
+        '.nvd-cinta span:before{color:#fff!important}' +
+        '.nvd-ben{gap:1px!important;padding:24px 0 0!important;background:#e7e7e7;border:1px solid #e7e7e7}' +
+        '.nvd-ben>div{border:0!important;border-radius:0!important;background:#f5f5f3!important;padding:20px!important;color:#171717!important}' +
+        '.nvd-ben b{font-family:Arial,Helvetica,sans-serif!important;font-size:14px!important;letter-spacing:0!important}' +
+        '.nvd-ben small{font-family:Arial,Helvetica,sans-serif!important;letter-spacing:0!important;color:#777!important}' +
+        '.nvd-tira{padding:20px 0 4px!important}' +
+        '.nvd-tira a{background:#f5f5f3!important;border-radius:0!important;color:#171717!important}' +
+        '.nvd-c .f{border-radius:0!important;background:#f5f5f3!important}' +
+        '.nvd-c .n{font-family:Arial,Helvetica,sans-serif!important;font-weight:500!important;text-transform:none!important;letter-spacing:0!important}' +
+        '.nvd-c .a a{border-radius:0!important;background:#171717!important;letter-spacing:0!important;text-transform:none!important}' +
+        '.nvd-c .a a+a{background:#fff!important;border-radius:0!important}' +
+        '.nvd-h h2{font-family:Arial,Helvetica,sans-serif!important;font-weight:700!important;text-transform:none!important;letter-spacing:0!important}' +
+        '.nvd-h a{font-family:Arial,Helvetica,sans-serif!important;letter-spacing:0!important;text-transform:none!important}' +
+        '.nvd-loc,.nvd-num{border-radius:0!important}' +
+        '@media(max-width:767px){.nvd-in{padding:0 16px!important}.nvd-ben{margin:0!important}.nvd-tira{margin:0 -16px!important;padding-left:16px!important;padding-right:16px!important}}' : ''));
     document.documentElement.classList.add('nvx-ds-html'); document.body.classList.add('nvx-ds-body');
     var hd = function (eb, h, link) {
       return (eb ? '<div class="nvd-eb">' + hEsc(eb) + '</div>' : '') + '<div class="nvd-h"><h2>' + dsRojo(h || '') + '</h2>' + (link && link.url ? '<a href="' + hEsc(link.url) + '">' + hEsc(link.texto || 'Ver todo') + '</a>' : '') + '</div>';
