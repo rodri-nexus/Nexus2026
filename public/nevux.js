@@ -2720,6 +2720,8 @@
   // → números → reseñas → destacados 2 → preguntas → banner → locales → destacados 3. Cada sección aparece solo si se carga.
   // Todo con datos reales del cliente: productos y precios se leen de su tienda; números, reseñas y fotos de clientes, solo reales.
   var DS_IC = {
+    reloj: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    local: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
     transferencia: '<path d="M3 7h15l-3-3M21 17H6l3 3"/>',
     cuotas: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/>',
     envio: '<path d="M1.5 5h13v11h-13zM14.5 9h4l3 3.5V16h-7"/><circle cx="5.5" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/>',
@@ -3271,6 +3273,15 @@
       'body.nvx-fd .nvx-bar{left:8px!important;right:8px!important;bottom:8px!important;width:auto!important;border-radius:16px!important;background:rgba(255,255,255,.72)!important;backdrop-filter:blur(20px) saturate(1.8);-webkit-backdrop-filter:blur(20px) saturate(1.8);border:1px solid rgba(255,255,255,.75)!important;box-shadow:0 8px 30px rgba(0,0,0,.12)!important;padding:8px 8px 8px 10px!important}' +
       'body.nvx-fd .nvx-bar img{border-radius:10px!important}body.nvx-fd .nvx-bar-t{font:500 12px/1.2 ' + SG + '!important;text-transform:uppercase;color:#111!important}body.nvx-fd .nvx-bar-p{font:400 15px/1.2 ' + DG + '!important;color:#111!important}' +
       'body.nvx-fd .nvx-bar button{background:#0B0B0B!important;color:#fff!important;border-radius:999px!important;font:600 12px/1 ' + SG + '!important;letter-spacing:.14em!important;padding:0 20px!important;min-height:44px}' +
+      // Modo Hogar Digital: precio en tarjetas y recuadro de beneficios (referencia: ficha de tienda de ropa, pasada a la marca)
+      '.nvx-hg-chip{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(11,11,11,.14);border-radius:999px;padding:7px 14px;font:500 13px/1.2 ' + SG + ';color:#111}.nvx-hg-chip i{font-style:normal;color:' + R + ';letter-spacing:1px}' +
+      '.nvx-hg-n{font:400 44px/1 ' + DG + ';letter-spacing:-1.6px;color:#0B0B0B}.nvx-hg-top{display:flex;align-items:center;gap:10px;margin-bottom:-4px}.nvx-hg-top s{font:400 15px/1 ' + DG + ';color:rgba(11,11,11,.38)}' +
+      '.nvx-hg-dk{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#0d1b2a;border-radius:18px;padding:16px 18px;color:#fff}.nvx-hg-dk small{display:block;font:400 13px/1.2 ' + SG + ';color:rgba(255,255,255,.7);margin-bottom:6px}' +
+      '.nvx-hg-dk b{font:400 22px/1.1 ' + DG + ';letter-spacing:-.6px;white-space:nowrap}.nvx-hg-dk em{display:inline-block;white-space:nowrap;font:700 13px/1 ' + SG + ';font-style:normal;background:' + R + ';color:#fff;border-radius:8px;padding:6px 9px}.nvx-hg-dk .r{text-align:right}.nvx-hg-dk .r span{display:block;font:400 12.5px/1.2 ' + SG + ';color:rgba(255,255,255,.7);margin-top:8px}' +
+      '.nvx-hg-cu{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#eef1f4;border-radius:16px;padding:14px 18px;font:400 14px/1.2 ' + SG + ';color:#333}.nvx-hg-cu b{font:400 20px/1 ' + DG + ';color:#0B0B0B;letter-spacing:-.4px}' +
+      '.nvx-hg-bx{border:1.5px solid #0d1b2a;margin:14px 0 12px}.nvx-hg-bx>div{display:flex;align-items:center;gap:14px;padding:14px}.nvx-hg-bx>div+div{border-top:1px solid rgba(13,27,42,.14)}' +
+      '.nvx-hg-bx i{flex:none;display:grid;place-items:center;width:46px;height:46px;background:#0d1b2a;color:#fff}.nvx-hg-bx svg{width:22px;height:22px}' +
+      '.nvx-hg-bx b{display:block;font:700 15px/1.25 ' + SG + ';color:#0d1b2a}.nvx-hg-bx span{display:block;font:400 13.5px/1.35 ' + SG + ';color:#5b6777;margin-top:2px}.nvx-hg-bx span b{display:inline;font-size:13.5px;font-variant-numeric:tabular-nums}' +
       // Computadora: dos columnas
       '@media(min-width:768px){' + F + '.js-product-name{font-size:28px!important}.nvx-fd-n{font-size:44px}' + F + '.product-images-slider{border-radius:20px}}');
     // Celular: migas y título arriba de la foto, como Destino
@@ -3293,6 +3304,16 @@
       var lista = cmpEl && cmpEl.offsetParent !== null || (cmpEl && getComputedStyle(cmpEl).display !== 'none') ? hNum(cmpEl.textContent) : 0;
       if (lista <= pr) lista = 0;
       var off = lista ? Math.round((1 - pr / lista) * 100) : 0, h = '';
+      if (FD.estilo === 'hogar') {
+        // Cuotas: las que muestra la tienda (sin inventar si son con o sin interés)
+        var mc = ((root.querySelector('.js-product-payments-container, [data-store="product-installments"]') || {}).textContent || root.textContent || '').replace(/\s+/g, ' ').match(/(\d+) cuotas( sin inter[eé]s)? de \$ ?([\d.]+(?:,\d+)?)/i);
+        if (FD.chip) h += '<div><span class="nvx-hg-chip"><i>★</i>' + hEsc(FD.chip) + '</span></div>';
+        if (lista) h += '<div class="nvx-hg-top"><s>' + d.money(lista) + '</s></div>';
+        h += '<div class="nvx-hg-n">' + d.money(pr) + '</div>';
+        if (lista) h += '<div class="nvx-hg-dk"><div><small>Precio de lista ' + d.money(lista) + '</small><b>Ahorrás ' + d.money(lista - pr) + '</b></div><div class="r"><em>' + off + '% OFF</em></div></div>';
+        if (mc) h += '<div class="nvx-hg-cu"><span>' + mc[1] + ' cuotas' + (mc[2] ? ' sin interés' : '') + ' de</span><b>' + d.money(hNum(mc[3])) + '</b></div>';
+        ep.innerHTML = h; return;
+      }
       if (lista) h += '<div class="nvx-fd-top"><s>' + d.money(lista) + '</s><span class="nvx-fd-off">' + off + '% OFF</span></div>';
       h += '<div><span class="nvx-fd-et">Precio</span><div class="nvx-fd-n">' + d.money(pr) + '</div></div>';
       if (d.transf > 0) { var ct = pr * (1 - d.transf / 100); h += '<div class="nvx-fd-mp"><div><span class="nvx-fd-et">Mejor precio</span><div class="nvx-fd-n">' + d.money(ct) + '</div><small>Por transferencia · ahorrás ' + d.money(pr - ct) + '</small></div></div>'; }
@@ -3300,6 +3321,7 @@
       ep.innerHTML = h;
     };
     armar();
+    if (FD.estilo === 'hogar') setTimeout(armar, 1500);
     var pe = root.querySelector('#price_display, .js-price-display');
     if (pe && 'MutationObserver' in window) new MutationObserver(armar).observe(pe, { childList: true, characterData: true, subtree: true });
     // Debajo del formulario: despacho, medios de pago, confianza y WhatsApp
@@ -3311,13 +3333,19 @@
       if (E.dias.indexOf(ar.getDay()) > -1 && ar.getHours() < E.corte) txt = 'Tu pedido sale <b>HOY</b> si comprás antes de las ' + E.corte + ' h';
       else { var dd = new Date(ar), n = 0; do { dd.setDate(dd.getDate() + 1); n++; } while (E.dias.indexOf(dd.getDay()) < 0 && n < 8);
         txt = 'Tu pedido sale <b>' + (n === 1 ? 'MAÑANA' : 'EL ' + ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'][dd.getDay()]) + '</b> a primera hora'; }
-      abajo += '<div class="nvx-fd-env"><i><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></i><span>' + txt + '</span></div>';
+      if (FD.estilo !== 'hogar') abajo += '<div class="nvx-fd-env"><i><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></i><span>' + txt + '</span></div>';
+      else {
+        var LC = ((NEVUX.home && NEVUX.home.destino && NEVUX.home.destino.locales && NEVUX.home.destino.locales.items) || [])[0];
+        abajo += '<div class="nvx-hg-bx"><div><i>' + dsIcono('reloj') + '</i><div><b>' + txt.replace(/<\/?b>/g, '').replace(/^Tu pedido sale/, 'Sale').replace(/HOY/, 'hoy') + '</b>' + (E.corte ? '<span>Faltan <b class="nvx-fd-sale-clock">--:--:--</b> para el próximo despacho</span>' : '') + '</div></div>' +
+          (E.min ? '<div><i>' + dsIcono('envio') + '</i><div><b>Envío a todo el país</b><span>Llega en ' + E.min + (E.max && E.max !== E.min ? ' a ' + E.max : '') + ' días hábiles</span></div></div>' : '') +
+          (LC ? '<div><i>' + dsIcono('local') + '</i><div><b>Local en ' + hEsc((LC.zona || '').split('·')[0].trim() || LC.nombre) + '</b><span>' + hEsc((LC.direccion || '').split(',')[0]) + (LC.horario ? ' · ' + hEsc(LC.horario) : '') + '</span></div></div>' : '') + '</div>';
+      }
     }
-    if (E && E.corte) abajo += '<div class="nvx-fd-sale"><div><b>Próximo despacho</b><small>Comprá antes de las ' + hEsc(String(E.corte)) + ' h</small></div><strong class="nvx-fd-sale-clock">--:--:--</strong></div>';
+    if (E && E.corte && FD.estilo !== 'hogar') abajo += '<div class="nvx-fd-sale"><div><b>Próximo despacho</b><small>Comprá antes de las ' + hEsc(String(E.corte)) + ' h</small></div><strong class="nvx-fd-sale-clock">--:--:--</strong></div>';
     var CF = FD.confianza || [];
     if (CF.length) abajo += '<div class="nvx-fd-tr">' + CF.slice(0, 3).map(function (c) { return '<div>' + dsIcono(c.icono) + '<b>' + hEsc(c.titulo) + '</b>' + (c.texto ? '<span>' + hEsc(c.texto) + '</span>' : '') + '</div>'; }).join('') + '</div>';
     var MP = NEVUX.mediosDePago || [];
-    if (MP.length) abajo += '<div class="nvx-fd-pay">' + MP.slice(0, 4).map(function (m) { return '<div>' + dsIcono(/mercado/i.test(m) ? 'tarjeta' : 'cuotas') + '<span>' + hEsc(m) + '</span></div>'; }).join('') + '</div>';
+    if (MP.length && FD.estilo !== 'hogar') abajo += '<div class="nvx-fd-pay">' + MP.slice(0, 4).map(function (m) { return '<div>' + dsIcono(/mercado/i.test(m) ? 'tarjeta' : 'cuotas') + '<span>' + hEsc(m) + '</span></div>'; }).join('') + '</div>';
     if (NEVUX.whatsapp) abajo += '<a class="nvx-fd-wa" target="_blank" rel="noopener" href="https://wa.me/' + hEsc(NEVUX.whatsapp) + '?text=' + encodeURIComponent('Hola! Tengo una consulta sobre ' + (d.titleEl ? d.titleEl.textContent.trim() : 'un producto') + ' ' + location.href) + '">' + hEsc(FD.whatsappTexto || '¿Dudas con este producto?') + ' <b>Escribinos por WhatsApp</b></a>';
     if (NEVUX.whatsapp) abajo += '<a class="nvx-fd-wa nvx-fd-transfer" target="_blank" rel="noopener" href="https://wa.me/' + hEsc(NEVUX.whatsapp) + '?text=' + encodeURIComponent('Hola! Quiero consultar opciones de pago para ' + (d.titleEl ? d.titleEl.textContent.trim() : 'un producto') + ' ' + location.href) + '">¿Preferís otro medio de pago? <b>Consultanos por WhatsApp</b></a>';
     form.insertAdjacentHTML('afterend', '<div class="nvx-fd-abajo">' + abajo + '</div>');
@@ -3525,61 +3553,64 @@
     CG = CG === true ? {} : CG;
     var monto = CG.envioGratis || NEVUX.envioGratisDesde || 0, A = CG.acento || (NEVUX.home && NEVUX.home.destino && NEVUX.home.destino.acento) || '#e3262f';
     var RS = (CG.resenas || (NEVUX.home && NEVUX.home.destino && NEVUX.home.destino.resenas && NEVUX.home.destino.resenas.items) || NEVUX.resenas || []).filter(function (r) { return r && r.texto; });
+    var M = '#modal-cart.nvx-cart-hogar ', HSG = "'Space Grotesk','Helvetica Neue',Arial,sans-serif", HDG = "'Dela Gothic One','Archivo Black',Impact,sans-serif";
+    if (CG.estilo === 'hogar' && !document.querySelector('#nvx-fd-f')) {
+      var lkc = document.createElement('link'); lkc.id = 'nvx-fd-f'; lkc.rel = 'stylesheet';
+      lkc.href = 'https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Space+Grotesk:wght@400;500;600;700&family=Unbounded:wght@400&family=Archivo:wght@400;600&display=swap';
+      document.head.appendChild(lkc);
+    }
     hCss('nvx-cg-css',
       (CG.estilo === 'hogar' ?
-        '#modal-cart.nvx-cart-hogar{background:#fff;color:#111}' +
-        '#modal-cart.nvx-cart-hogar .modal-header{min-height:72px;padding:20px 28px;border-bottom:1px solid #f0f0f0;background:#fff}' +
-        '#modal-cart.nvx-cart-hogar .modal-title{font:500 25px/1.1 Inter,' + FONT + ';letter-spacing:-.02em;color:#111}' +
-        '#modal-cart.nvx-cart-hogar .modal-close{width:34px;height:34px;padding:5px;color:#111}' +
-        '#modal-cart.nvx-cart-hogar .modal-body{padding:0 30px 28px;background:#fff}' +
-        '#modal-cart.nvx-cart-hogar .js-ajax-cart-list{padding:0 0 18px}' +
-        '#modal-cart.nvx-cart-hogar .js-ajax-cart-list>*{padding:0!important;margin:0!important}' +
-        '#modal-cart.nvx-cart-hogar .js-ajax-cart-list .cart-item{position:relative;display:grid;grid-template-columns:145px minmax(0,1fr);gap:30px;padding:34px 0 36px!important;border-top:1px solid #eee;border-bottom:1px solid #eee}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-image-container{width:145px;min-width:145px;align-self:start}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-image-container img{display:block;width:145px;height:265px;object-fit:cover;border-radius:0}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-info-container{min-width:0;display:block}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-product-info{position:relative;display:block;min-height:145px}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-name-container{padding-right:72px;margin:0!important}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-name{display:block;color:#111;font:400 22px/1.28 Inter,' + FONT + ';letter-spacing:-.02em}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-delete{position:absolute;top:0;right:0}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-delete-button{padding:0;color:#111;font-size:18px;text-decoration:underline}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-label{margin-top:18px!important;color:#4aa0c5!important;font-size:20px!important}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-label svg{width:25px;height:25px}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-totals-container{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:18px;margin-top:28px}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-quantity{min-width:160px}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-quantity .js-quantity{width:160px;height:56px;border:1px solid #d5d5d5;border-radius:999px;overflow:hidden}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-quantity .js-quantity>div{display:grid;grid-template-columns:1fr 1fr 1fr;height:100%}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-quantity .js-cart-quantity-btn{display:grid;place-items:center;width:auto;height:56px;border:0;background:#fff;color:#111;font-size:25px}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-quantity [data-component="quantity.value"]{height:56px;border-left:1px solid #d5d5d5;border-right:1px solid #d5d5d5}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-quantity .js-cart-quantity-input{width:100%;height:56px;border:0;background:#fff;color:#111;text-align:center;font-size:22px}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-subtotal{align-self:end;white-space:nowrap;font-size:24px;color:#111}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-subtotal .text-accent{color:#4aa0c5!important;font-size:18px}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-subtotal .price-compare{font-size:17px;text-decoration:line-through;color:#888}' +
-        '#modal-cart.nvx-cart-hogar .cart-item-subtotal .js-cart-item-subtotal{font-size:24px}' +
-        '#modal-cart.nvx-cart-hogar .js-fulfillment-info{margin:56px -30px 0!important;padding:74px 30px 12px!important;border-top:56px solid #f7f7f7}' +
-        '#modal-cart.nvx-cart-hogar .shipping-calculator-head{min-height:82px}' +
-        '#modal-cart.nvx-cart-hogar .form-label{font:500 24px/1.2 Inter,' + FONT + ';color:#111;margin-bottom:20px}' +
-        '#modal-cart.nvx-cart-hogar .shipping-calculator-form{position:static!important}' +
-        '#modal-cart.nvx-cart-hogar .form-control-container{display:grid;grid-template-columns:1fr auto;border:1px solid #cfcfcf;border-radius:8px;overflow:hidden}' +
-        '#modal-cart.nvx-cart-hogar .form-control-container .form-control{height:54px;border:0!important;padding:0 20px;font-size:17px}' +
-        '#modal-cart.nvx-cart-hogar .form-control-container .btn-inline{height:54px;padding:0 22px;border:0;border-left:1px solid #cfcfcf;background:#fff;color:#111;font-size:16px}' +
-        '#modal-cart.nvx-cart-hogar .js-shipping-calculator-form>a{display:block;margin-top:12px;color:#111;text-decoration:underline;font-size:15px}' +
-        '#modal-cart.nvx-cart-hogar .cart-row{margin:0}' +
-        '#modal-cart.nvx-cart-hogar [data-store="coupon-input"]{padding:18px 0!important;margin:0!important}' +
-        '#modal-cart.nvx-cart-hogar [data-store="coupon-input"] .js-accordion-private-toggle{color:#111;text-decoration:none;font-size:17px}' +
-        '#modal-cart.nvx-cart-hogar .cart-totals-container{display:block!important;padding:22px 0 0;border-top:0}' +
-        '#modal-cart.nvx-cart-hogar .cart-subtotals-container>div{font-size:17px;line-height:1.5}' +
-        '#modal-cart.nvx-cart-hogar .cart-subtotals-container .cart-subtotal{font-size:22px}' +
-        '#modal-cart.nvx-cart-hogar .cart-total{font-size:22px;margin-top:12px}' +
-        '#modal-cart.nvx-cart-hogar .js-ajax-cart-submit{height:58px;border-radius:10px;background:#3498db!important;color:#fff!important;font-size:20px;font-weight:600;border:0}' +
-        '#modal-cart.nvx-cart-hogar .js-visible-on-cart-filled.cart-totals-container:after{content:"";display:block;height:1px;background:#eee;margin:24px 0 0}' +
-        '#modal-cart.nvx-cart-hogar .js-coupon-body{margin-top:16px!important}' +
-        '#modal-cart.nvx-cart-hogar .js-coupon-form .input-append{display:grid;grid-template-columns:1fr auto;border:1px solid #cfcfcf;border-radius:8px;overflow:hidden}' +
-        '#modal-cart.nvx-cart-hogar .js-coupon-form input{height:54px;border:0!important;padding:0 20px;font-size:17px}' +
-        '#modal-cart.nvx-cart-hogar .js-coupon-form button{height:54px;padding:0 22px;border:0;border-left:1px solid #cfcfcf;background:#fff;color:#111;font-size:16px}' +
-        '#modal-cart.nvx-cart-hogar .cart-row{margin-top:0}' +
-        'body.nvx-cart-hogar-open .nvx-bar{transform:none!important;z-index:100001}' +
-        '@media(max-width:767px){#modal-cart.nvx-cart-hogar{width:100%;max-width:none}.modal-open #modal-cart.nvx-cart-hogar .modal-body{padding-left:30px;padding-right:30px}#modal-cart.nvx-cart-hogar .js-ajax-cart-list .cart-item{grid-template-columns:145px minmax(0,1fr);gap:30px}#modal-cart.nvx-cart-hogar .cart-item-image-container img{height:265px}}' : '') +
+        // Carrito de Hogar Digital: panel azul noche con tarjetas blancas (referencia: carrito en tarjetas de una tienda de ropa, pasado a la marca)
+        M + '{background:#0d1b2a!important;color:#fff;font-family:' + HSG + '}' +
+        M + '.modal-header{background:#0d1b2a!important;border-bottom:1px solid rgba(255,255,255,.1)!important;padding:18px 20px!important}' +
+        M + '.modal-title{font:400 24px/1 ' + HDG + '!important;letter-spacing:-.5px;text-transform:uppercase;color:#fff!important;display:flex;align-items:center;gap:10px}' +
+        M + '.nvx-hg-cnt{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 6px;border-radius:7px;background:' + A + ';color:#fff;font:700 14px/1 ' + HSG + ';letter-spacing:0}' +
+        M + '.modal-close,' + M + '.modal-close svg{color:#fff!important;fill:#fff!important}' +
+        M + '.modal-body{background:#0d1b2a!important;padding:14px 16px 24px!important}' +
+        M + '.js-ajax-cart-list{padding:0!important}' +
+        M + '.js-ajax-cart-list .cart-item{display:grid!important;grid-template-columns:92px minmax(0,1fr);gap:14px;margin:0 0 10px!important;padding:12px!important;background:#fff;border-radius:18px;color:#0d1b2a}' +
+        M + '.cart-item-image-container{width:92px!important;min-width:92px}' + M + '.cart-item-image-container img{width:92px!important;height:92px!important;object-fit:cover;border-radius:12px}' +
+        M + '.cart-item-info-container{min-width:0;width:auto!important;max-width:100%!important;padding:0!important}' + M + '.js-ajax-cart-list .cart-item>*{min-width:0}' + M + '.cart-item-product-info{position:relative}' +
+        M + '.cart-item-name-container{padding-right:52px;margin:0!important}' +
+        M + '.cart-item-name{display:block;font:400 14.5px/1.2 ' + HDG + '!important;text-transform:uppercase;color:#0d1b2a!important;letter-spacing:-.2px}' +
+        M + '.cart-item-variant{display:inline-block;margin-top:4px;font:600 11.5px/1.3 ' + HSG + ';letter-spacing:.06em;text-transform:uppercase;color:#0d1b2a;border-bottom:1.5px solid #0d1b2a}' +
+        M + '.cart-item-label{margin:6px 0 0!important;font:600 11.5px/1.2 ' + HSG + '!important;color:' + A + '!important}' + M + '.cart-item-label svg{width:15px;height:15px;margin-right:4px}' +
+        M + '.cart-item-delete{position:absolute;top:0;right:0}' + M + '.cart-item-delete-button{padding:0!important;font:500 12px ' + HSG + '!important;color:#8a94a3!important;text-decoration:none!important}' +
+        M + '.cart-item-totals-container{display:flex!important;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:6px 8px;margin-top:10px}' +
+        M + '.cart-item-quantity .js-quantity{margin:0!important;border:0!important;border-bottom:1.5px solid #0d1b2a!important;border-radius:0!important;width:104px}' +
+        M + '.cart-item-quantity .js-quantity>div{display:grid;grid-template-columns:32px 1fr 32px;align-items:center}' +
+        M + '.cart-item-quantity .js-cart-quantity-btn{width:32px!important;height:34px!important;padding:0!important;display:grid!important;place-items:center;color:#0d1b2a}' +
+        M + '.cart-item-quantity .js-cart-quantity-input{border:0!important;background:transparent!important;text-align:center;font:700 16px ' + HSG + '!important;color:#0d1b2a!important;height:34px}' +
+        M + '.cart-item-subtotal{text-align:right;min-width:0;margin-left:auto}' + M + '.cart-item-subtotal .js-cart-item-subtotal{font:400 16px/1.1 ' + HDG + '!important;color:#0d1b2a!important;letter-spacing:-.4px}' +
+        M + '.cart-item-subtotal .price-compare,' + M + '.js-cart-item-subtotal-compare-price-container{font-size:12px!important;color:#8a94a3!important}' +
+        M + '.js-fulfillment-info.cart-fulfillment-info{margin:14px 0 0!important;padding:14px!important;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px}' +
+        M + '.js-fulfillment-info .form-label,' + M + '.js-fulfillment-info .font-small,' + M + '.js-fulfillment-info a,' + M + '.js-fulfillment-info span,' + M + '.js-fulfillment-info strong{color:#fff!important}' +
+        M + '.form-control-container .form-control,' + M + '.js-coupon-form input{background:#fff!important;color:#0d1b2a!important;border-radius:10px!important}' +
+        M + '.btn-inline,' + M + '.js-coupon-form button{border-radius:10px!important;background:' + A + '!important;color:#fff!important;border:0!important}' +
+        M + '[data-store="coupon-input"]{padding:14px 2px!important;margin:6px 0 0!important;border-bottom:1px solid rgba(255,255,255,.12)!important}' + M + '[data-store="coupon-input"] *{color:#fff!important}' + M + '[data-store="coupon-input"] input{color:#0d1b2a!important}' + M + '[data-store="coupon-input"] svg{fill:#fff!important;color:#fff!important}' +
+        M + '.cart-totals-container{color:#fff!important;border:0!important}' + M + '.cart-totals-container *{color:inherit}' + M + '.cart-subtotals-container{opacity:.7}' +
+        M + '.cart-total{margin:14px 0 4px!important;align-items:end}' + M + '.cart-total-label{font:700 13px ' + HSG + '!important;letter-spacing:.2em;text-transform:uppercase}' + M + '.js-cart-total{font:400 32px/1 ' + HDG + '!important;letter-spacing:-1px}' +
+        M + '.payment-discount-price-cart-container{display:none!important}' +
+        M + '.js-ajax-cart-submit{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important}' +
+        M + '.nvx-cg-info,' + M + '.nvx-cg-pay{display:none!important}' +
+        M + '.nvx-cg-d{background:#fff!important;border:0!important;border-radius:16px!important;padding:12px 14px!important;color:#0d1b2a!important;font:500 13px/1.35 ' + HSG + '!important}' + M + '.nvx-cg-d b{color:' + A + '!important}' + M + '.nvx-cg-d svg{color:' + A + '!important}' +
+        M + '.nvx-cg-d em{display:block;font-style:normal;font-size:11.5px;color:#5b6777;margin-top:2px}' + M + '.nvx-cg-d em b{font-variant-numeric:tabular-nums;color:#0d1b2a!important}' +
+        '.nvx-hg-tr>small,.nvx-hg-pg>small{display:block;font:700 10.5px/1 ' + HSG + ';letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.6);margin:16px 2px 9px}' +
+        '.nvx-hg-tr .rr{display:grid;grid-auto-flow:column;grid-auto-columns:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;scroll-behavior:smooth}.nvx-hg-tr .rr::-webkit-scrollbar{display:none}' +
+        '.nvx-hg-tr .rr>div{scroll-snap-align:start;display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:14px;color:#0d1b2a}' +
+        '.nvx-hg-tr .rr i{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:#0d1b2a;color:#fff}.nvx-hg-tr .rr svg{width:20px;height:20px}' +
+        '.nvx-hg-tr .rr b{display:block;font:700 14px/1.2 ' + HSG + '}.nvx-hg-tr .rr span{display:block;font:400 13px/1.35 ' + HSG + ';color:#5b6777;margin-top:2px}' +
+        '.nvx-hg-tr .dots{display:flex;justify-content:center;gap:6px;margin-top:10px}.nvx-hg-tr .dots i{width:7px;height:7px;border-radius:9px;background:rgba(255,255,255,.3);transition:width .3s,background .3s}.nvx-hg-tr .dots i.on{width:22px;background:' + A + '}' +
+        '.nvx-hg-pg{margin-top:6px}.nvx-hg-pg a{display:block;margin:0 0 10px;text-decoration:none!important;border-radius:4px;overflow:hidden}' +
+        '.nvx-hg-pg .tp{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:16px 16px 12px}.nvx-hg-pg .tp b{display:block;font:400 17px/1.1 ' + HDG + ';text-transform:uppercase;letter-spacing:-.3px}.nvx-hg-pg .tp span{display:block;font:500 12.5px/1.3 ' + HSG + ';margin-top:4px}' +
+        '.nvx-hg-pg .tp strong{font:400 22px/1 ' + HDG + ';letter-spacing:-.6px;white-space:nowrap}' +
+        '.nvx-hg-pg .bt{display:flex;justify-content:space-between;align-items:center;margin:0 16px;padding:13px 0 15px;border-top:1px solid rgba(13,27,42,.14);font:700 12.5px/1 ' + HSG + ';letter-spacing:.2em;text-transform:uppercase}' +
+        '.nvx-hg-pg .on{background:#fff;color:#0d1b2a!important}.nvx-hg-pg .on *{color:#0d1b2a}' +
+        '.nvx-hg-pg .wa{background:' + A + ';color:#fff!important}.nvx-hg-pg .wa *{color:#fff}.nvx-hg-pg .wa .bt{border-color:rgba(255,255,255,.3)}' +
+        '.nvx-hg-pg .lg{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:4px}.nvx-hg-pg .lg span{background:#fff;color:#0d1b2a!important;border-radius:6px;padding:6px 9px;font:700 10.5px/1 ' + HSG + ';letter-spacing:.04em}' +
+        'body.nvx-cart-hogar-open .nvx-bar{display:none!important}' +
+        '@media(max-width:767px){#modal-cart.nvx-cart-hogar{width:100%!important;max-width:none!important}}': '') +
       '#modal-cart.nvx-cart-hogar .nvx-cg-d{background:#eef7fd;border:1px solid rgba(52,152,219,.18);color:#17324d}#modal-cart.nvx-cart-hogar .nvx-cg-d svg{color:' + A + '}#modal-cart.nvx-cart-hogar .nvx-cg-d b{color:#1671a8}' +
       '.nvx-cg-d{display:flex;align-items:center;gap:8px;margin:0 0 12px;background:#f4f4f4;border-radius:10px;padding:10px 12px;font:500 12.5px/1.3 Inter,' + FONT + ';color:#333}.nvx-cg-d svg{flex:none;width:17px;height:17px;color:#777}.nvx-cg-d b{color:#15803d;font-weight:700}' +
       '.nvx-cg{margin:12px 0 4px;font-family:Inter,' + FONT + ';color:#111}' +
@@ -3632,6 +3663,57 @@
         box.querySelector('.nvx-cg-b').classList.toggle('ok', ok);
         box.querySelector('.nvx-cg-b i').style.width = Math.min(100, Math.round(total / monto * 100)) + '%';
       }
+      if (CG.estilo === 'hogar') armarHogar(modal, lista, vacio);
+    };
+    // Carrito de Hogar Digital: título con cantidad, compra tranquila (datos de la ficha) y opciones de pago en tarjetas
+    var armarHogar = function (modal, lista, vacio) {
+      var tit = modal.querySelector('.modal-title, .js-modal-title, h2, h3');
+      var cant = [].reduce.call(modal.querySelectorAll('.js-cart-quantity-input'), function (n, i) { return n + (parseInt(i.value, 10) || 0); }, 0);
+      if (tit) {
+        if (!tit.querySelector('.nvx-hg-cnt')) tit.innerHTML = 'Tu carrito <span class="nvx-hg-cnt"></span>';
+        var cn = tit.querySelector('.nvx-hg-cnt'); if (cn.textContent !== String(cant)) cn.textContent = cant; cn.style.display = cant ? '' : 'none';
+      }
+      var box = modal.querySelector('.nvx-cg'); if (!box) return;
+      var CF = (NEVUX.fichaDestino && NEVUX.fichaDestino.confianza) || [];
+      if (CF.length && !box.querySelector('.nvx-hg-tr')) {
+        box.insertAdjacentHTML('beforeend', '<div class="nvx-hg-tr"><small>' + hEsc(CG.confianzaTitulo || 'Comprá tranquilo') + '</small><div class="rr">' +
+          CF.map(function (c) { return '<div><i>' + dsIcono(c.icono) + '</i><div><b>' + hEsc(c.titulo) + '</b>' + (c.texto ? '<span>' + hEsc(c.texto) + '</span>' : '') + '</div></div>'; }).join('') +
+          '</div><div class="dots">' + CF.map(function (c, i) { return '<i' + (i ? '' : ' class="on"') + '></i>'; }).join('') + '</div></div>');
+        var rr = box.querySelector('.nvx-hg-tr .rr'), dots = box.querySelectorAll('.nvx-hg-tr .dots i'), k = 0;
+        var marcar = function () { var i = Math.round(rr.scrollLeft / Math.max(1, rr.clientWidth)); [].forEach.call(dots, function (d, j) { d.classList.toggle('on', j === i); }); };
+        rr.addEventListener('scroll', marcar, { passive: true });
+        if (CF.length > 1 && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) setInterval(function () { if (!rr.offsetParent) return; k = (Math.round(rr.scrollLeft / Math.max(1, rr.clientWidth)) + 1) % CF.length; rr.scrollTo({ left: k * rr.clientWidth }); }, 3500);
+      }
+      var tot = modal.querySelector('.js-cart-total-container');
+      var pg = modal.querySelector('.nvx-hg-pg');
+      if (!pg && tot) {
+        var nombre = ((lista.querySelector('.cart-item-name') || {}).textContent || 'mi pedido').trim();
+        var MP = NEVUX.mediosDePago || [];
+        tot.insertAdjacentHTML('afterend', '<div class="nvx-hg-pg"><small>Iniciá el pago con:</small>' +
+          '<a class="on" href="#" data-nvx-hg="comprar"><div class="tp"><div><b>Pago online</b><span>' + hEsc(MP.length ? MP.join(', ').replace(/, ([^,]*)$/, ' o $1') : 'Tarjeta o Mercado Pago') + '</span></div><strong class="nvx-hg-tt"></strong></div><div class="bt">Iniciar compra <span>→</span></div></a>' +
+          (NEVUX.whatsapp ? '<a class="wa" target="_blank" rel="noopener" href="https://wa.me/' + hEsc(NEVUX.whatsapp) + '?text=' + encodeURIComponent('Hola! Quiero consultar otro medio de pago para ' + nombre + ' ' + location.href) + '"><div class="tp"><div><b>Otro medio de pago</b><span>Consultanos por WhatsApp</span></div></div><div class="bt">Consultar <span>→</span></div></a>' : '') +
+          (MP.length ? '<div class="lg">' + MP.map(function (m) { return '<span>' + hEsc(m) + '</span>'; }).join('') + '</div>' : '') + '</div>');
+        pg = modal.querySelector('.nvx-hg-pg');
+        pg.querySelector('[data-nvx-hg="comprar"]').addEventListener('click', function (e) {
+          e.preventDefault();
+          var b = modal.querySelector('.js-ajax-cart-submit input[type=submit], .js-ajax-cart-submit button, [name="go_to_checkout"]');
+          if (b) b.click(); else location.href = '/comprar/';
+        });
+      }
+      if (pg) {
+        var te = modal.querySelector('.js-cart-total'), tt = pg.querySelector('.nvx-hg-tt');
+        if (te && tt && tt.textContent !== hMoney(hNum(te.textContent))) tt.textContent = hMoney(hNum(te.textContent));
+        pg.style.display = vacio ? 'none' : '';
+      }
+      // Despacho: cuenta regresiva hasta el corte, con los datos reales de envío
+      var dsp = modal.querySelector('.nvx-cg-d span'), E = NEVUX.envio;
+      if (dsp && E && E.corte && !dsp.querySelector('em') && /sale hoy/i.test(dsp.textContent)) {
+        dsp.insertAdjacentHTML('beforeend', '<em>Faltan <b class="nvx-hg-clk">--:--:--</b> para el corte</em>');
+        var clk = dsp.querySelector('.nvx-hg-clk');
+        var tic = function () { var ar = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' })), f = new Date(ar); f.setHours(E.corte, 0, 0, 0);
+          var l = Math.max(0, f - ar); clk.textContent = [l / 36e5 | 0, l % 36e5 / 6e4 | 0, l % 6e4 / 1e3 | 0].map(function (n) { return String(n).padStart(2, '0'); }).join(':'); };
+        tic(); setInterval(tic, 1000);
+      }
     };
     var conectar = function () {
       var modal = document.querySelector('#modal-cart, .js-modal-cart');
@@ -3647,7 +3729,7 @@
       var t;
       if ('MutationObserver' in window) new MutationObserver(function (ms) {
         syncBar();
-        if (ms.every(function (m) { return m.target.closest && m.target.closest('.nvx-cg, .nvx-cg-d'); })) return;
+        if (ms.every(function (m) { return m.target.closest && m.target.closest('.nvx-cg, .nvx-cg-d, .nvx-hg-pg, .nvx-hg-cnt'); })) return;
         clearTimeout(t); t = setTimeout(function () { armar(modal); }, 150);
       }).observe(modal, { childList: true, subtree: true, characterData: true });
       return true;
