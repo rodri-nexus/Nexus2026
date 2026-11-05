@@ -2949,16 +2949,16 @@
         '.nvd-mv{background:#0b0d12;color:#fff;padding:56px 0 64px;margin:0}.nvd-mv .in{max-width:1200px;margin:0 auto;padding:0 28px}' +
         '.nvd-mv .lg{display:block;height:44px;width:auto;margin:0 0 14px}.nvd-mv h2{margin:0 0 18px;font:italic 800 clamp(44px,12vw,84px)/.95 Archivo,sans-serif;letter-spacing:-.04em;color:#fff}' +
         '.nvd-mv .ig{display:inline-block;color:#fff!important;text-decoration:none!important;font:600 15px/1 "Space Grotesk",sans-serif;letter-spacing:.2em;text-transform:uppercase;padding-bottom:7px;border-bottom:2px solid #fff}' +
-        '.nvd-mv .rw{display:grid;grid-auto-flow:column;grid-auto-columns:min(72vw,300px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:34px 14vw 4px;scroll-padding:0 14vw}.nvd-mv .rw::-webkit-scrollbar{display:none}' +
-        '.nvd-mv .rw a{position:relative;display:block;aspect-ratio:9/16;border-radius:22px;overflow:hidden;scroll-snap-align:center;background:#1a1d24;transform:scale(.94);transition:transform .5s cubic-bezier(.2,.8,.2,1)}.nvd-mv .rw a.on{transform:none}' +
-        '.nvd-mv .rw img{width:100%;height:100%;object-fit:cover;display:block}.nvd-mv .rw a:after{content:"";position:absolute;inset:auto 0 0;height:30%;background:linear-gradient(transparent,rgba(0,0,0,.55))}' +
-        '.nvd-mv .rw svg{position:absolute;z-index:1;left:14px;bottom:14px;width:26px;height:26px;color:#fff}' +
-        '@media(min-width:900px){.nvd-mv .rw{grid-auto-columns:300px;padding:34px 28px 4px;scroll-padding:0 28px;max-width:1200px;margin:0 auto}.nvd-mv .rw a{transform:none}}');
+        '.nvd-mv .rw{display:grid;grid-auto-flow:column;grid-auto-columns:min(40vw,210px);gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:30px 28px 4px;scroll-padding:0 28px}.nvd-mv .rw::-webkit-scrollbar{display:none}' +
+        '.nvd-mv .rw a{position:relative;display:block;aspect-ratio:9/16;border-radius:18px;overflow:hidden;scroll-snap-align:start;background:#1a1d24}' +
+        '.nvd-mv .rw img,.nvd-mv .rw video{width:100%;height:100%;object-fit:cover;display:block}.nvd-mv .rw a:after{content:"";position:absolute;inset:auto 0 0;height:30%;background:linear-gradient(transparent,rgba(0,0,0,.55))}' +
+        '.nvd-mv .rw svg{position:absolute;z-index:1;left:10px;bottom:10px;width:20px;height:20px;color:#fff}' +
+        '@media(min-width:900px){.nvd-mv .rw{grid-auto-columns:220px;gap:14px;max-width:1200px;margin:0 auto}}');
       var IGI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>';
       var LGB = CO.logo || (NEVUX.cabecera && NEVUX.cabecera.logoBlanco);
       html += '<section class="nvd-mv"><div class="in">' + (LGB ? '<img class="lg" src="' + hEsc(LGB) + '" alt="">' : '') + '<h2>' + hEsc(CO.titulo || 'en movimiento') + '</h2>' +
         '<a class="ig" href="' + hEsc(CO.url || '#') + '" target="_blank" rel="noopener">' + hEsc(CO.boton || 'Ver en Instagram') + '</a></div><div class="rw">' +
-        CO.fotos.map(function (f) { return '<a href="' + hEsc(f.url || CO.url || '#') + '" target="_blank" rel="noopener"><img src="' + hEsc(f.foto) + '" alt="" loading="lazy">' + IGI + '</a>'; }).join('') + '</div></section>';
+        CO.fotos.map(function (f) { return '<a href="' + hEsc(f.url || CO.url || '#') + '" target="_blank" rel="noopener">' + (f.video ? '<video muted loop playsinline preload="none" poster="' + hEsc(f.foto) + '" data-src="' + hEsc(f.video) + '"></video>' : '<img src="' + hEsc(f.foto) + '" alt="" loading="lazy">') + IGI + '</a>'; }).join('') + '</div></section>';
     } else if (CO && CO.fotos && CO.fotos.length) {
       // Como Destino: historias 9:16 en una fila que corre sola (54 s por vuelta), con la barrita de progreso arriba y bordes que se esfuman
       var st = CO.fotos.map(function (f) {
@@ -3013,15 +3013,15 @@
     var slp = document.querySelector('[data-store="home-slider"]');
     if (slp && D.reemplazarBanner !== false) slp.style.display = 'none';
     var box = document.querySelector('.nvd');
-    // "En movimiento": marca la tarjeta del centro y avanza sola cada 3,5 s (se frena si la tocan)
+    // "En movimiento": los videos cargan y se reproducen solos cuando la sección está en pantalla; la fila avanza sola cada 3,5 s
     var mvr = box.querySelector('.nvd-mv .rw');
     if (mvr) {
-      var mva = [].slice.call(mvr.children), mvq = false;
-      var mvm = function () { var c = mvr.scrollLeft + mvr.clientWidth / 2, best = 0, bd = 1e9; mva.forEach(function (a, i) { var d = Math.abs(a.offsetLeft + a.offsetWidth / 2 - c); if (d < bd) { bd = d; best = i; } }); mva.forEach(function (a, i) { a.classList.toggle('on', i === best); }); return best; };
-      mvr.addEventListener('scroll', function () { clearTimeout(mvr._t); mvr._t = setTimeout(mvm, 80); }, { passive: true });
+      var mvv = [].slice.call(mvr.querySelectorAll('video')), mvq = false, mvon = false;
+      var mvPlay = function (on) { mvon = on; mvv.forEach(function (v) { if (on) { if (!v.src) v.src = v.getAttribute('data-src'); if (!quieto) v.play().catch(function () {}); } else v.pause(); }); };
+      if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { mvPlay(es[0].isIntersecting); }, { rootMargin: '200px 0px' }).observe(mvr); else mvPlay(true);
       mvr.addEventListener('touchstart', function () { mvq = true; }, { passive: true });
-      if (innerWidth < 900) mvr.scrollLeft = mva.length > 2 ? mva[1].offsetLeft - (mvr.clientWidth - mva[1].offsetWidth) / 2 : 0; mvm();
-      if (!quieto && mva.length > 1) setInterval(function () { if (mvq || !mvr.offsetParent) return; var i = (mvm() + 1) % mva.length; mvr.scrollTo({ left: mva[i].offsetLeft - (mvr.clientWidth - mva[i].offsetWidth) / 2, behavior: 'smooth' }); }, 3500);
+      var mva = [].slice.call(mvr.children);
+      if (!quieto && mva.length > 2) setInterval(function () { if (mvq || !mvon) return; var w = mva[0].offsetWidth + 10, fin = mvr.scrollLeft + mvr.clientWidth >= mvr.scrollWidth - 4; mvr.scrollTo({ left: fin ? 0 : mvr.scrollLeft + w, behavior: 'smooth' }); }, 3500);
     }
     // Portada: cortes de clip
     var cl = [].slice.call(box.querySelectorAll('.nvd-hero .m>*')), ci = 0;

@@ -234,22 +234,12 @@ export const CLIENTES: Record<string, Cliente> = {
             "cuenta": "Así trabajamos día a día",
             "url": "https://instagram.com/hogardigitaltiendaonline",
             "fotos": [
-              {
-                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/parlante-rgb.jpg",
-                "url": "https://www.instagram.com/reel/Dc5-mW-xr5o/"
-              },
-              {
-                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-smartwatch.jpg",
-                "url": "https://www.instagram.com/reel/Dc3gtpxxr5z/"
-              },
-              {
-                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/aro-de-luz.jpg",
-                "url": "https://www.instagram.com/reel/Dcd-1K5xvjq/"
-              },
-              {
-                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/empaquetando.jpg",
-                "url": "https://www.instagram.com/reel/DcbUqMARi4y/"
-              }
+              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/aro-de-luz.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/aro-de-luz.mp4", "url": "https://www.instagram.com/reel/Dc5-mW-xr5o/" },
+              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-compatibilidad.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-compatibilidad.mp4", "url": "https://www.instagram.com/reel/Dc3gtpxxr5z/" },
+              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/parlante-rgb.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/parlante-rgb.mp4", "url": "https://www.instagram.com/reel/DcRbx7esRZI/" },
+              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-smartwatch.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-smartwatch.mp4", "url": "https://www.instagram.com/reel/Dcd-1K5xvjq/" },
+              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/empaquetando.jpg" },
+              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-consejos.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-consejos.mp4", "url": "https://www.instagram.com/reel/DcbUqMARi4y/" }
             ]
           },
           "locales": {
