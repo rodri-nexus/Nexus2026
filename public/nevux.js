@@ -3280,6 +3280,7 @@
       '.nvx-hg-dk b{font:400 22px/1.1 ' + DG + ';letter-spacing:-.6px;white-space:nowrap}.nvx-hg-dk em{display:inline-block;white-space:nowrap;font:700 13px/1 ' + SG + ';font-style:normal;background:' + R + ';color:#fff;border-radius:8px;padding:6px 9px}.nvx-hg-dk .r{text-align:right}.nvx-hg-dk .r span{display:block;font:400 12.5px/1.2 ' + SG + ';color:rgba(255,255,255,.7);margin-top:8px}' +
       '.nvx-hg-cu{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#eef1f4;border-radius:16px;padding:14px 18px;font:400 14px/1.2 ' + SG + ';color:#333}.nvx-hg-cu b{font:400 20px/1 ' + DG + ';color:#0B0B0B;letter-spacing:-.4px}' +
       '.nvx-hg-bx{border:1.5px solid #0d1b2a;margin:14px 0 12px}.nvx-hg-bx>div{display:flex;align-items:center;gap:14px;padding:14px}.nvx-hg-bx>div+div{border-top:1px solid rgba(13,27,42,.14)}' +
+      '.nvx-hg-bx>div>div{flex:1;min-width:0}.nvx-hg-fs{display:block;height:5px;border-radius:5px;background:#e3e8ee;margin-top:10px;overflow:hidden}.nvx-hg-fs i{display:block!important;width:0;height:100%!important;background:' + R + '!important;border-radius:5px}' +
       '.nvx-hg-bx i{flex:none;display:grid;place-items:center;width:46px;height:46px;background:#0d1b2a;color:#fff}.nvx-hg-bx svg{width:22px;height:22px}' +
       '.nvx-hg-bx b{display:block;font:700 15px/1.25 ' + SG + ';color:#0d1b2a}.nvx-hg-bx span{display:block;font:400 13.5px/1.35 ' + SG + ';color:#5b6777;margin-top:2px}.nvx-hg-bx span b{display:inline;font-size:13.5px;font-variant-numeric:tabular-nums}' +
       // Computadora: dos columnas
@@ -3338,7 +3339,9 @@
       else {
         var LC = ((NEVUX.home && NEVUX.home.destino && NEVUX.home.destino.locales && NEVUX.home.destino.locales.items) || [])[0];
         abajo += '<div class="nvx-hg-bx"><div><i>' + dsIcono('reloj') + '</i><div><b>' + txt.replace(/<\/?b>/g, '').replace(/^Tu pedido sale/, 'Sale').replace(/HOY/, 'hoy') + '</b>' + (E.corte ? '<span>Faltan <b class="nvx-fd-sale-clock">--:--:--</b> para el próximo despacho</span>' : '') + '</div></div>' +
-          (E.min ? '<div><i>' + dsIcono('envio') + '</i><div><b>Envío a todo el país</b><span>Llega en ' + E.min + (E.max && E.max !== E.min ? ' a ' + E.max : '') + ' días hábiles</span></div></div>' : '') +
+          (E.min ? '<div><i>' + dsIcono('envio') + '</i><div><b>' + (NEVUX.envioGratisDesde > 0 ? (d.precio >= NEVUX.envioGratisDesde ? 'Este producto tiene envío gratis' : 'Envío gratis superando ' + d.money(NEVUX.envioGratisDesde)) : 'Envío a todo el país') + '</b><span>' +
+            (NEVUX.envioGratisDesde > 0 && d.precio < NEVUX.envioGratisDesde ? 'Te faltan <b>' + d.money(NEVUX.envioGratisDesde - d.precio) + '</b>: sumá otro producto' : 'A todo el país, llega en ' + E.min + (E.max && E.max !== E.min ? ' a ' + E.max : '') + ' días hábiles') + '</span>' +
+            (NEVUX.envioGratisDesde > 0 && d.precio < NEVUX.envioGratisDesde ? '<em class="nvx-hg-fs"><i style="width:' + Math.round(d.precio / NEVUX.envioGratisDesde * 100) + '%"></i></em>' : '') + '</div></div>' : '') +
           (LC ? '<div><i>' + dsIcono('local') + '</i><div><b>Local en ' + hEsc((LC.zona || '').split('·')[0].trim() || LC.nombre) + '</b><span>' + hEsc((LC.direccion || '').split(',')[0]) + (LC.horario ? ' · ' + hEsc(LC.horario) : '') + '</span></div></div>' : '') + '</div>';
       }
     }
@@ -3595,6 +3598,9 @@
         M + '.payment-discount-price-cart-container{display:none!important}' +
         M + '.js-ajax-cart-submit{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important}' +
         M + '.nvx-cg-info,' + M + '.nvx-cg-pay{display:none!important}' +
+        M + '.nvx-cg-eg{background:#fff;border-radius:18px;padding:16px 16px 12px;margin:0 0 10px;color:#0d1b2a}' + M + '.nvx-cg-e{font:500 14px/1.35 ' + HSG + '!important;color:#0d1b2a}' + M + '.nvx-cg-e span b{color:#0d1b2a!important;font-weight:700}' + M + '.nvx-cg-e.ok span{color:' + A + '!important;font-weight:700}' + M + '.nvx-cg-e svg{display:none}' +
+        M + '.nvx-cg-b{height:5px!important;margin:16px 0 10px!important;background:#e3e8ee!important}' + M + '.nvx-cg-b em{right:auto!important;left:var(--p,0%);margin-left:-15px;width:30px!important;height:22px!important;margin-top:-11px!important;border:0!important;border-radius:6px!important;background:' + A + '!important;color:#fff!important;font:800 10px/1 ' + HSG + '!important;transition:left .7s cubic-bezier(.2,.8,.2,1)}' + M + '.nvx-cg-b em:before{content:"HD"}' + M + '.nvx-cg-b em{font-size:0!important}' + M + '.nvx-cg-b em:before{font-size:10px}' + M + '.nvx-cg-b.ok em{background:#16a34a!important}' +
+        M + '.nvx-cg-lb{display:flex!important;justify-content:space-between;font:600 10.5px/1 ' + HSG + ';letter-spacing:.12em;text-transform:uppercase;color:#8a94a3}' +
         M + '.nvx-cg-d{background:#fff!important;border:0!important;border-radius:16px!important;padding:12px 14px!important;color:#0d1b2a!important;font:500 13px/1.35 ' + HSG + '!important}' + M + '.nvx-cg-d b{color:' + A + '!important}' + M + '.nvx-cg-d svg{color:' + A + '!important}' +
         M + '.nvx-cg-d em{display:block;font-style:normal;font-size:11.5px;color:#5b6777;margin-top:2px}' + M + '.nvx-cg-d em b{font-variant-numeric:tabular-nums;color:#0d1b2a!important}' +
         '.nvx-hg-tr>small,.nvx-hg-pg>small{display:block;font:700 10.5px/1 ' + HSG + ';letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.6);margin:16px 2px 9px}' +
@@ -3622,7 +3628,7 @@
       '.nvx-cg-e{display:flex;align-items:center;justify-content:space-between;gap:10px;font:700 13px/1.3 Inter,' + FONT + '}.nvx-cg-e span b{color:' + A + '}.nvx-cg-e.ok span{color:' + A + '}.nvx-cg-e svg{flex:none;width:20px;height:20px;color:' + A + '}' +
       '.nvx-cg-b{position:relative;height:4px;background:#ececec;border-radius:4px;margin:8px 22px 14px 0}.nvx-cg-b i{position:absolute;left:0;top:0;bottom:0;width:0;background:' + A + ';border-radius:4px;transition:width .7s cubic-bezier(.2,.8,.2,1)}' +
       '.nvx-cg-b em{position:absolute;right:-22px;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:4px;background:#fff;border:1.5px solid #ccc;font-style:normal;display:grid;place-items:center;color:#fff;font-size:11px;transition:background-color .3s,border-color .3s}' +
-      '.nvx-cg-b.ok em{background:' + A + ';border-color:' + A + '}' +
+      '.nvx-cg-b.ok em{background:' + A + ';border-color:' + A + '}' + '.nvx-cg-lb{display:none}' +
       '.nvx-cg-r>small{display:block;font:700 9.5px/1 Inter,' + FONT + ';letter-spacing:.2em;text-transform:uppercase;color:#888;margin:4px 0 8px}' +
       '.nvx-cg-rr{display:grid;grid-auto-flow:column;grid-auto-columns:78%;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}.nvx-cg-rr::-webkit-scrollbar{display:none}' +
       '.nvx-cg-rr>div{scroll-snap-align:start;border:1px solid #eee;border-radius:12px;padding:10px 12px;background:#fff}.nvx-cg-rr .u{display:flex;align-items:center;gap:8px}.nvx-cg-rr .u i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#111;color:#fff;font:800 11px Inter,sans-serif;font-style:normal}' +
@@ -3648,7 +3654,7 @@
       if (!dsp && CG.despacho !== false) { var t = despacho(); if (t) { lista.insertAdjacentHTML('beforebegin', '<div class="nvx-cg-d">' + CAMION + '<span>' + t + '</span></div>'); dsp = modal.querySelector('.nvx-cg-d'); } }
       if (!box) {
         var infoEnvio = !monto ? '<div class="nvx-cg-info">' + CAMION + '<div><b>Calculá el costo de envío</b><span>Ingresá tu código postal y te mostramos las opciones disponibles para tu zona.</span></div></div>' : '';
-        lista.insertAdjacentHTML('afterend', '<div class="nvx-cg">' + infoEnvio + (monto ? '<div class="nvx-cg-e"><span></span>' + CAMION + '</div><div class="nvx-cg-b"><i></i><em>✓</em></div>' : '') +
+        lista.insertAdjacentHTML('afterend', '<div class="nvx-cg">' + infoEnvio + (monto ? '<div class="nvx-cg-eg"><div class="nvx-cg-e"><span></span>' + CAMION + '</div><div class="nvx-cg-b"><i></i><em>✓</em></div><div class="nvx-cg-lb"><span>$0</span><span>Envío gratis · ' + hMoney(monto) + '</span></div></div>' : '') +
           (RS.length ? '<div class="nvx-cg-r"><small>' + hEsc(CG.resenasTitulo || 'Ya lo vivieron') + '</small><div class="nvx-cg-rr">' + RS.slice(0, 8).map(function (r) {
             var n = Math.max(1, Math.min(5, r.estrellas || 5));
             return '<div><div class="u"><i>' + hEsc((r.nombre || '?').charAt(0)) + '</i><div><b>' + hEsc(r.nombre) + '</b><small>' + hEsc(r.verificada ? 'Compra verificada' : (r.producto || '')) + '</small></div></div><div class="s">' + '★★★★★'.slice(0, n) + '</div><p>' + hEsc(r.texto) + '</p></div>';
@@ -3666,6 +3672,7 @@
         box.querySelector('.nvx-cg-e span').innerHTML = ok ? '¡Genial! Tenés envío gratis' : 'Te faltan <b>' + hMoney(falta) + '</b> para el envío gratis';
         box.querySelector('.nvx-cg-b').classList.toggle('ok', ok);
         box.querySelector('.nvx-cg-b i').style.width = Math.min(100, Math.round(total / monto * 100)) + '%';
+        box.querySelector('.nvx-cg-b').style.setProperty('--p', Math.min(100, Math.round(total / monto * 100)) + '%');
       }
       if (CG.estilo === 'hogar') armarHogar(modal, lista, vacio);
     };

@@ -59,7 +59,7 @@ export const CLIENTES: Record<string, Cliente> = {
         "max": 6,
         "zona": ""
       },
-      "envioGratisDesde": 0,
+      "envioGratisDesde": 50000,
       "transferencia": 10,
       "whatsapp": "5493489520436",
       "evento": {
