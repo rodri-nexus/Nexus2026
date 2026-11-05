@@ -99,6 +99,7 @@ export const CLIENTES: Record<string, Cliente> = {
       "home": {
         "destino": {
           "acento": "#3498db",
+          "modo": "editorial",
           "cinta": [
             "Envíos a *todo el país*",
             "*30 días* de garantía",
