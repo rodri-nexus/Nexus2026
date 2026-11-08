@@ -96,5 +96,12 @@
   "lista": 89990,
   "url": "https://hogardigital.com.ar/productos/set-de-pilates-completo-11-piezas/",
   "img": "p/pilates.jpg"
+ },
+ "kit": {
+  "nombre": "Kit de Gimnasio en Casa",
+  "precio": 24900,
+  "lista": 54900,
+  "url": "https://hogardigital.com.ar/productos/kit-de-gimnasio/",
+  "img": "p/kit.jpg"
  }
 }

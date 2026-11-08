@@ -49,6 +49,14 @@ REELS = {
         dict(tipo="precio", p="smartwatch", nombre="Smartwatch KD99 Ultra", tag="10% OFF CON TRANSFERENCIA", voz="Sale veintisiete mil novecientos, y pagando con transferencia tenés diez por ciento off."),
         dict(tipo="cierre", voz="Pedilo en hogar digital punto com punto ar. Enviamos a todo el país."),
     ],
+    "bienestar": [
+        dict(tipo="logo", voz="Dos formas de cuidarte sin salir de casa."),
+        dict(tipo="foto", p="masajeador", img="p/masajeador-3.jpg", et="MASAJEADOR DE CABEZA", tit="8 BRAZOS", voz="El masajeador de cabeza eléctrico de ocho brazos, para regalarte una pausa al final del día."),
+        dict(tipo="foto", p="masajeador", img="p/masajeador-2.jpg", et="TU MOMENTO", tit="PARA DESCONECTAR", precio=True, voz="Lo usás mientras descansás o mirás una serie. Sale cuarenta y seis mil novecientos noventa."),
+        dict(tipo="foto", p="kit", et="KIT DE GIMNASIO", tit="ENTRENÁ EN CASA", precio=True, voz="Y el kit de gimnasio, para entrenar en casa sin depender de horarios, a veinticuatro mil novecientos."),
+        dict(tipo="foto", p="kit", img="p/kit-2.jpg", et="BANDAS Y AGARRES", tit="DISTINTAS ZONAS", voz="Trabajás distintas zonas del cuerpo según el ejercicio que hagas."),
+        dict(tipo="cierre", voz="Pedilos en hogar digital punto com punto ar. Pagando con transferencia, tenés diez por ciento off."),
+    ],
     "parlantes": [
         dict(tipo="logo", voz="Llega el finde y falta la música."),
         dict(tipo="foto", p="parlante-rgb", et="PARA EL LIVING", tit="PARLANTE RGB", precio=True, voz="El parlante RGB, con luces de colores, a sesenta mil pesos."),

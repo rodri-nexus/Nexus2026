@@ -60,6 +60,12 @@ const historias = [
   { archivo: "1110-1", tipo: "portada", eb: "Pregunta rápida", titulo: '¿Cómo pagás cuando <span class="az">comprás online</span>?', sub: "Contestame con la encuesta 👇 Hoy subimos cómo pagar menos.", resp: "Tarjeta · Transferencia 💳" },
   { ...prod("auriculares", `CON TRANSFERENCIA: ${plata(P.auriculares.precio * 0.9)}`), archivo: "1110-2" },
   nuevo("1110-3", "Nuevo post", '2 formas de <span class="az">pagar menos</span>', "Guardalo para tu próxima compra."),
+
+  // Mié 11/11 · Reel: bienestar en casa (masajeador y kit de gimnasio)
+  { archivo: "1111-1", tipo: "opciones", eb: "Elegí una", titulo: '¿Qué te hace falta <span class="az">esta semana</span>?', opciones: [
+    { letra: "A", nombre: "Relajarme", img: "p/masajeador-3.jpg" }, { letra: "B", nombre: "Moverme", img: P.kit.img }], resp: "Respondé A o B en la encuesta 👇" },
+  { ...prod("kit", "PARA ENTRENAR EN CASA", "Bandas, agarres y todo para moverte sin ir al gimnasio."), archivo: "1111-2" },
+  nuevo("1111-3", "Nuevo reel", 'Cuidarte <span class="az">sin salir de casa</span>', "Masajeador y kit de gimnasio. Miralo en el perfil 👀"),
 ];
 
 module.exports = { carruseles, historias };
