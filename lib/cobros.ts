@@ -1,4 +1,5 @@
 import type { Cliente } from "./clientes";
+import { planesDelCliente } from "./planesMp";
 
 // Estado de cobro de un cliente: decide si su tienda se prende o se apaga
 export type EstadoCobro = {
@@ -38,7 +39,7 @@ async function buscarSuscripcion(id?: string, email?: string, planMp?: string): 
   return lista.find((s) => s.status === "authorized") || lista[0] || null;
 }
 
-export async function estadoCobro(c: Cliente, ahora = Date.now()): Promise<EstadoCobro> {
+export async function estadoCobro(c: Cliente, ahora = Date.now(), id?: string): Promise<EstadoCobro> {
   if (!c.activo) return { prendida: false, motivo: "Apagada a mano (activo: false)" };
   if (c.cobro.tipo === "manual") return { prendida: true, motivo: "Cobro manual: prendida a mano" };
 
@@ -46,7 +47,16 @@ export async function estadoCobro(c: Cliente, ahora = Date.now()): Promise<Estad
   if (!process.env.MP_ACCESS_TOKEN) return { prendida: true, motivo: "Falta MP_ACCESS_TOKEN: no se puede consultar Mercado Pago (queda prendida)" };
   let s: Preapproval | null;
   try {
-    s = await buscarSuscripcion(c.cobro.suscripcion, c.cobro.email, c.cobro.planMp);
+    if (c.cobro.planPropio && id && !c.cobro.suscripcion && !c.cobro.email) {
+      // Plan propio: la suscripción más reciente de cualquiera de los planes de este cliente
+      const planes = await planesDelCliente(id, c);
+      if (!planes.length) return { prendida: false, motivo: "Todavía no se suscribió (no abrió su link de pago)" };
+      const subs = (await Promise.all(planes.map((p) => buscarSuscripcion(undefined, undefined, p.id)))).filter(Boolean) as Preapproval[];
+      subs.sort((a, b) => (b.date_created || "").localeCompare(a.date_created || ""));
+      s = subs.find((x) => x.status === "authorized") || subs[0] || null;
+    } else {
+      s = await buscarSuscripcion(c.cobro.suscripcion, c.cobro.email, c.cobro.planMp);
+    }
   } catch (e) {
     return { prendida: true, motivo: `No se pudo consultar Mercado Pago (queda prendida): ${(e as Error).message}` };
   }

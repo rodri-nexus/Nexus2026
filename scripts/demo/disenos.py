@@ -5,7 +5,7 @@
 import json, html, os
 
 SALIDA = os.path.join(os.path.dirname(__file__), '..', '..', 'public', 'demo', 'disenos')
-IMG = '/demo/valmont/img/'
+IMG = '/demo/disenos/img/'  # relojes dibujados con la marca NEVUX, nunca Valmont (scripts/demo/relojes/relojes.js)
 
 CSS = """
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:#fff;color:#141414}
@@ -27,7 +27,17 @@ select{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font:15p
 footer{background:#111;color:#999;text-align:center;padding:36px 16px;font-size:12px}
 """
 
+# Estilo Wess (el de Valmont, la tienda de Miguel) con marca y fotos de ejemplo: config en wess-demo.json
+WESS = json.load(open(os.path.join(os.path.dirname(__file__), 'wess-demo.json')))
+WESS_FICHA = {k: v for k, v in WESS.items() if k != 'home'}
+WESS_FICHA.update({'transferencia': 15, 'mediosDePago': ['Visa', 'Mastercard', 'Débito', 'Mercado Pago']})
+# Cabecera negra con la inicial 3D girando, como en Valmont (el motor la arma dentro de .js-logo-container)
+WESS_HEAD = ('<style>.nvx-hd .js-logo-container>b{display:none}header.nvx-hd>span{color:#f4efe6}</style>'
+             '<header class="js-head-main"><span>☰</span><div class="js-logo-container"><b>NEVUX DEMO</b></div><span>🛒</span></header>')
+
 FICHAS = {
+    # Ficha estilo Wess (plan Premium, como la de Valmont): la que se ve al tocar un reloj en home-wess
+    'ficha-wess': {'titulo': 'Reloj Royal Gold', 'fotos': ['royal-1.jpg', 'royal-2.jpg', 'hero-royal.png'], 'precio': 61900, 'stock': 3, 'cfg': WESS_FICHA, 'header': WESS_HEAD},
     'ficha-oscura': {
         'titulo': 'Reloj Noir Sport', 'fotos': ['noir-1.jpg', 'noir-2.jpg', 'royal-1.jpg'], 'precio': 56250, 'stock': 1,
         'cfg': {
@@ -62,12 +72,30 @@ FICHAS = {
             'whatsapp': '5490000000000',
         },
     },
+    # Ficha estilo Destino (plan Premium): la que se ve al tocar un producto en la home Destino de la demo
+    'ficha-destino': {
+        'titulo': 'Reloj Noir Sport', 'fotos': ['noir-1.jpg', 'noir-2.jpg', 'royal-1.jpg'], 'precio': 56250, 'stock': 5,
+        'cfg': {
+            'color': '#111111', 'transferencia': 15, 'estiloFicha': 'destino', 'packs': [], 'ventas': False, 'whatsapp': '5490000000000',
+            'premium': {'tema': 'destino'}, 'mediosDePago': ['Visa', 'Mastercard', 'Débito', 'Mercado Pago'],
+            'carrito': {'envioGratis': 120000}, 'envio': {'corte': 14, 'dias': [1, 2, 3, 4, 5], 'min': 3, 'max': 6},
+            'cinta': [], 'cabecera': {'cinta': ['Envío gratis + *2 relojes*', '3 y 6 cuotas *sin interés*', '-15% off *transferencia*', 'Cambios *fáciles*']},
+            'fichaDestino': {
+                'sello': 'Nevux Demo · *Garantía* 6 meses',
+                'confianza': [{'icono': 'cambios', 'titulo': 'Cambios fáciles', 'texto': '30 días para cambiarlo'},
+                              {'icono': 'chat', 'titulo': 'Atención personalizada', 'texto': 'Te respondemos por WhatsApp'},
+                              {'icono': 'garantia', 'titulo': 'Garantía', 'texto': '6 meses por escrito'}],
+                'faq': [{'p': '¿Tiene garantía?', 'r': 'Sí, 6 meses por fallas de fabricación.'}, {'p': '¿Cuánto tarda el envío?', 'r': 'Entre 3 y 6 días hábiles a todo el país.'},
+                        {'p': '¿Puedo cambiarlo?', 'r': 'Sí, tenés 30 días para cambiarlo.'}, {'p': '¿Cómo puedo pagar?', 'r': 'Con tarjeta, Mercado Pago o transferencia con 15% OFF.'}],
+            },
+        },
+    },
     'ficha-clara': {
         'titulo': 'Reloj Classic Silver', 'fotos': ['classic-1.jpg', 'classic-2.jpg', 'chrono-1.jpg'], 'precio': 8750, 'stock': 15,
         'cfg': {
             'color': '#9b2c43', 'transferencia': 20, 'estiloFicha': 'pro', 'ventas': False,
             'carrito': {'envioGratis': 20000, 'acento': '#9b2c43'}, 'envio': {'corte': 14, 'dias': [1, 2, 3, 4, 5], 'min': 3, 'max': 6},
-            'packs': [{'cantidad': 1, 'titulo': 'Llevá 1', 'descuento': 0}, {'cantidad': 2, 'titulo': 'Llevá 2', 'descuento': 10, 'etiqueta': 'MÁS ELEGIDO'},
+            'packs': [{'cantidad': 1, 'titulo': 'Llevá 1', 'descuento': 0}, {'cantidad': 2, 'titulo': 'Llevá 2', 'descuento': 10, 'etiqueta': 'Recomendado'},
                       {'cantidad': 3, 'titulo': 'Llevá 3', 'descuento': 15, 'etiqueta': 'MEJOR PRECIO'}],
             'cuentaRegresiva': {'hasta': '2099-01-01T00:00:00-03:00', 'texto': '🕐 El descuento por cantidad termina en'},
             'pro': {
@@ -129,7 +157,7 @@ for nombre, F in FICHAS.items():
 window.NEVUX_CFG={json.dumps(F['cfg'], ensure_ascii=False)};
 if(NEVUX_CFG.cuentaRegresiva){{var f=new Date();f.setHours(23,59,59,0);NEVUX_CFG.cuentaRegresiva.hasta=f.toISOString();}}</script></head><body>
 <div class="demo">DEMO de Nevux · Marca, fotos y precios ilustrativos</div>
-<header><span>☰</span><b>NEVUX DEMO</b><span>🛒</span></header>
+{F.get('header', '<header><span>☰</span><b>NEVUX DEMO</b><span>🛒</span></header>')}
 <div class="wrap"><div id="single-product" class="js-product-detail"><div class="gal">{fotos}<div class="thumbs">{thumbs}</div></div>
 <div><div class="migas">Inicio · Productos · {html.escape(F['titulo'])}</div><h1 class="js-product-name">{html.escape(F['titulo'])}</h1>
 <div class="js-price-container"><span id="price_display" class="js-price-display">{pesos(F['precio'])}</span></div>
@@ -192,13 +220,13 @@ CATALOGO = [('Noir Sport', 'noir', 56250, 69900), ('Royal Gold', 'royal', 61900,
             ('Heritage', 'heritage', 52900, 64900), ('Noir Sport Dorado', 'royal', 61900, 0), ('Chrono Edición Azul', 'chrono', 58900, 0), ('Classic Cuero', 'classic', 49900, 59900)]
 def var_cat(p, l):
     v = variante(p, 0, 5); v['compare_at_price_number'] = l or None; return v
-cat = ''.join(f"""<div class="js-item-product" data-variants="{html.escape(json.dumps([var_cat(p, l)]))}"><a href="ficha-oscura.html" title="{html.escape(n)}"><img src="{IMG}{f}-1.jpg" alt=""><img src="{IMG}{f}-2.jpg" alt=""></a>
+cat = ''.join(f"""<div class="js-item-product" data-variants="{html.escape(json.dumps([var_cat(p, l)]))}"><a href="ficha-destino.html" title="{html.escape(n)}"><img src="{IMG}{f}-1.jpg" alt=""><img src="{IMG}{f}-2.jpg" alt=""></a>
 <div class="js-item-name">{html.escape(n)}</div><span class="js-price-display">{pesos(p)}</span></div>""" for n, f, p, l in CATALOGO)
 open(os.path.join(SALIDA, 'catalogo.html'), 'w').write(f'<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Catálogo demo</title></head><body>{cat}</body></html>')
 
 CAT_URL = '/demo/disenos/catalogo.html'
 DESTINO_CFG = {
-    'color': '#111111', 'transferencia': 15, 'whatsapp': '5490000000000',
+    'color': '#111111', 'transferencia': 15, 'whatsapp': '5490000000000', 'premium': {'tema': 'destino'},
     'tarjetas': {'transferencia': 15, 'cuotas': 6},
     'ventas': {'estilo': 'destino', 'marca': 'Nevux Demo', 'cada': 9},
     'carrito': {'envioGratis': 120000}, 'envio': {'corte': 14, 'dias': [1, 2, 3, 4, 5], 'min': 3, 'max': 6},
@@ -244,3 +272,21 @@ dest = f"""<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name
 <script src="/nevux.js"></script></body></html>"""
 open(os.path.join(SALIDA, 'home-destino.html'), 'w').write(dest)
 print('ok home-destino')
+
+# ----- Home Premium estilo Wess (la de Valmont) con marca y fotos de ejemplo -----
+# El motor Wess busca enlaces con "/productos/" (como en Tiendanube): va en el ancla para que lleve a la ficha de la demo
+cat_w = cat.replace('href="ficha-destino.html"', 'href="/demo/disenos/ficha-wess.html#/productos/royal-gold/"')
+open(os.path.join(SALIDA, 'catalogo-wess.html'), 'w').write(f'<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Catálogo demo</title></head><body>{cat_w}</body></html>')
+wess = f"""<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home Premium estilo Wess · Demo de Nevux</title><meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>{CSS}</style><script>window.LS={json.dumps({'template': 'home'})};window.NEVUX_CFG={json.dumps(WESS, ensure_ascii=False)};</script></head><body>
+<div class="demo">DEMO de Nevux Premium · Marca, fotos y precios ilustrativos</div>
+{WESS_HEAD}
+<div data-store="home-slider"></div>
+<div class="wrap" style="height:20px"></div>
+<footer class="js-footer">Nevux Demo · Tienda de demostración</footer>
+{CARRITO_HTML}
+<script src="/nevux.js"></script></body></html>"""
+open(os.path.join(SALIDA, 'home-wess.html'), 'w').write(wess)
+print('ok home-wess')

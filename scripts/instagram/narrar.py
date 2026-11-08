@@ -28,7 +28,7 @@ GUIONES = {
     ]),
     "packs": (16, [
         (0.1, "La misma visita puede valer el doble."),
-        (3.0, "Caso real: llevá uno, dos o tres."),
+        (3.0, "Por ejemplo: llevá uno, dos o tres."),
         (6.4, "Si elige dos, la venta pasa de cuarenta y cinco mil, a setenta y ocho mil."),
         (10.8, "Setenta por ciento más, con la misma visita."),
         (12.8, "Comentá ficha, y te digo qué pack armar."),

@@ -1,6 +1,6 @@
 # Estado de Nevux
 
-**Actualizado:** 01/11/2026 (mediodía).
+**Actualizado:** 04/11/2026.
 
 ## Cómo trabajamos
 
@@ -17,27 +17,32 @@
   - De otras tiendas se replica la idea y el diseño, no el código.
 - **Permisos:** `.claude/settings.json` (lo creó Rodrigo) permite usar Windsor (publicar en Instagram y leer métricas) sin pedir confirmación.
 
-## Para retomar en un chat nuevo (actualizado 02/11/2026) ← LEER ESTO PRIMERO
+## Para retomar en un chat nuevo (actualizado 03/11/2026, noche) ← LEER ESTO PRIMERO
 
-**Sesión anterior:** `session_01PDD9Es5e9V3nkNbyxc3gnr` (rama `ccr-aacae2fe-pg8b5d`, todo mergeado a `main` hasta el PR #97). Leer también `docs/hogar-digital-premium.md`, `docs/referencias/destino.md`, `docs/instagram.md`, `docs/instagram-hogar-digital.md`, `docs/clientes.md` y `docs/valmont.md`.
+**Sesión anterior:** `session_01PDD9Es5e9V3nkNbyxc3gnr` (rama `ccr-aacae2fe-pg8b5d`, **todo mergeado a `main` y publicado en nevux.ar hasta el PR #106**). Leer también `.claude/product-marketing.md`, `docs/clientes.md`, `docs/hogar-digital-premium.md`, `docs/referencias/destino.md`, `docs/valmont.md`, `docs/instagram.md` y `docs/instagram-hogar-digital.md`.
 
-### Dónde quedamos (lo más urgente)
+### Hecho el 02 y 03/11 (todo en vivo)
 
-1. **Instagram de @nevux.app, semana del lunes 2 al domingo 8/11: Rodrigo lo está programando a mano en Meta Business Suite, día por día.** Ya se le pasó el **lunes 2/11** (historias `1102-1/2/3` + Reel `reels/precio.mp4` + descripción de `reels/precio.txt`). **Sigue el martes 3/11.** Forma de trabajo (pedido de Rodrigo): mandarle con SendUserFile, en orden, primero las 3 historias del día con su horario y el sticker que conviene (encuesta, link, etc.), después el post (las imágenes del carrusel en orden, o el Reel) y la descripción en un bloque para copiar. Esperar su "listo" antes de pasar al día siguiente.
+1. **Cobro automático (`planPropio`)** para Hogar Digital, Valmont y los clientes futuros: cada cliente paga en **`nevux.ar/pagar/<id>`** (ej. `nevux.ar/pagar/hogar-digital`), se crea su propio plan en Mercado Pago ("Nevux Premium · Hogar Digital") y **la tienda se prende sola al pagar**; sin pago, queda apagada. Ya no hay que pasar emails ni prender a mano. El link se ve bien en WhatsApp (vista previa grande). El checkout ofrece cuenta de Mercado Pago o tarjeta. Código: `lib/planesMp.ts`, `lib/cobros.ts`, `app/pagar/[cliente]/`. Ver `docs/clientes.md`.
+2. **Landing, sección Plan Premium:** dos notebooks con video, una al lado de la otra:
+   - **Hogar Digital** (real): home → toca el Parlante → ficha Destino.
+   - **Tienda demo** con el **estilo de Valmont (Wess, negro y dorado)**, marca "Nevux Demo" y relojes dibujados: home completa → toca un reloj de "Colgado" → ficha Wess. Rodrigo pidió que **no sea igual a la de Marcelo**. Demos: `public/demo/disenos/home-wess.html`, `ficha-wess.html`; config en `scripts/demo/wess-demo.json`; generador `scripts/demo/disenos.py`.
+   - Los videos están en `public/casos/premium/`. Se grabaron con Playwright (CDP screencast 1440×900) y se armaron con ffmpeg (CRF 25).
+3. **Instagram @nevux.app, semana 2 al 8/11:** pasada entera a Rodrigo, que la programó en Business Suite.
+4. **Skills instaladas** en `.claude/skills/`: find-skills, cro, marketing-psychology y copywriting. El contexto de marketing está en `.claude/product-marketing.md`.
 
-   | Día | Historias (9:47 · 13:17 · 20:17) | Post 19:30 | Descripción |
-   |---|---|---|---|
-   | Mar 3/11 | `historias/1103-1..3` | Carrusel `04-que-hace-nevux/1..7.jpg` | `04-que-hace-nevux/caption.txt` |
-   | Mié 4/11 | `1104-1..3` | Carrusel `02-antes-despues/1..5.jpg` | `02-antes-despues/caption.txt` |
-   | Jue 5/11 | `1105-1..3` | Reel `reels/packs.mp4` | `reels/packs.txt` |
-   | Vie 6/11 | `1106-1..3` | Carrusel `05-como-trabajamos/1..7.jpg` | `05-como-trabajamos/caption.txt` |
-   | Sáb 7/11 | `1107-1..3` | Reel `reels/envio.mp4` | `reels/envio.txt` |
-   | Dom 8/11 | `1108-1..3` | Carrusel `06-checklist/1..7.jpg` | `06-checklist/caption.txt` |
+### Lo que falta (en orden)
 
-   Todo está en `public/ig/`, en máxima calidad (JPG al 97 % 4:4:4; Reels con CRF 14 y la **portada integrada como primer cuadro**, así Rodrigo no carga miniatura). Los Reels se suben como Reel con "Compartir también en el feed".
-2. **No se programa ni se publica nada desde Claude** (pedido de Rodrigo, 02/11). Las 8 tareas de publicación (4 de @nevux.app y 4 de Hogar Digital) están **apagadas** (`enabled: false`, no borradas). Queda prendida la tarea del **sábado 7/11, 12:00** (informe de la semana 1 y armado de la semana 2) en la sesión `session_01PDD9EtCY9JFJzsoyimb9Yn`. **Esa sesión se traba esperando permiso para Windsor y tiene el contexto casi lleno:** conviene hacer el informe y la semana 2 desde el chat nuevo y apagar esa tarea. Ahí quedaron pedidos de Windsor pendientes del 01/11: **no aprobarlos**, porque duplicarían posts que ya salieron.
-3. **Hogar Digital (Marcelo): tienda APAGADA** (`activo: false`) hasta que pague el **Premium el 10/11**. Link de pago: `nevux.ar/suscribirme?c=hogar-digital` ($69.900/mes, `mpago.la/2mkcebx`). Cuando pague: `activo: true` y `cobro: { tipo: 'mercadopago', email: '<su email>', gracia: 3 }` (no `planMp`: lo usa Valmont). La configuración Premium tal cual Destino ya está en `lib/clientes.ts`, en azul: home, ficha (`estiloFicha: 'destino'`), cabecera y pie (`premium.tema: 'destino'`), comunidad con cuadros de sus Reels, local en Belgrano 276 (Campana, lunes a sábado de 8 a 21 h) y números (+35 años, +300 ventas en 2026, +800 calificaciones en Mercado Libre, 1 local).
-4. **Instagram de Hogar Digital, semana 2 al 6/11:** ya se le pasó entera a Rodrigo y la programó. Para el 9 al 13/11, armar la semana 2 y pasársela igual.
+0. **Rediseño de la landing: terminado y publicado (03/11, tandas 1 a 3; verificado el 04/11).** Orden, archivos y reglas de fluidez en `docs/landing.md`. Sin foto de Rodrigo (no quiere mostrarse) y sin pedir contraseña (solo el link de la tienda). En la ficha demo, el pack **Llevá 2** ahora dice **“Recomendado”**. Falta: las miniaturas `public/links/premium.jpg` y `disenos.jpg`, que todavía muestran "VALMONT" (fuera de la landing, pendiente).
+0. **05/11 · Hogar Digital, sección "en movimiento"** (`home.destino.comunidad.estilo: 'movimiento'`): reemplaza "Detrás de escena". Bloque oscuro con el logo blanco, título grande "en movimiento", "Ver en Instagram" (@hogardigitaltiendaonline) y sus Reels en tarjetas 9:16 chicas, como tiendacry (2 y media en celular), que pasan solas. **Los videos se reproducen solos** (sin sonido, en bucle, cargan solo cuando la sección aparece): clips de 8 s en `public/clientes/hogar-digital/comunidad/*.mp4`, bajados de sus Reels; los de Marcelo hablando son horizontales y van con fondo desenfocado arriba y abajo. Cada tarjeta abre su Reel; "empaquetando" queda como foto y abre su perfil.
+0. **05/11 · Ficha y carrito de Hogar Digital rehechos** (referencia que mandó Rodrigo: ficha y carrito de una tienda de ropa, "similar, no igual", en el estilo de Hogar Digital). Ficha (`fichaDestino.estilo: 'hogar'`): chip "+800 calificaciones en Mercado Libre · +35 años" (`fichaDestino.chip`), precio grande, tarjeta azul noche con el ahorro real contra el precio de lista, tarjeta gris con las cuotas que muestra la tienda y recuadro con despacho y cuenta regresiva, envío a todo el país y local en Campana. Carrito (`carrito.estilo: 'hogar'`): panel azul noche, "Tu carrito" con la cantidad, tarjetas blancas por producto, cuenta regresiva al corte, "Comprá tranquilo" (las 3 garantías reales de la ficha, pasan solas) y "Iniciá el pago con:" en dos tarjetas (pago online con el total, y otro medio por WhatsApp). **No se pusieron** ni reseñas de Google, ni "X personas están viendo esto", : Marcelo no tiene reseñas verificadas y ese contador sería falso. **Envío gratis superando $50.000** (`envioGratisDesde: 50000`, dato de Rodrigo del 05/11): barra "Te faltan $X" en el carrito y fila en la ficha; Marcelo va a sacar los carteles de envío gratis de cada producto y tiene que cargar el monto en Tiendanube. **Transferencia 10 %** (`transferencia: 10`, dato de Rodrigo del 05/11): tiene que estar configurado igual en Tiendanube (Medios de pago → Transferencia → descuento) para que el checkout lo aplique. Se ve cuando su tienda se prenda al pagar (10/11).
+0. **Carrito de Hogar Digital (versión anterior, reemplazada el 05/11):** se agregó un modo visual específico para Marcelo, inspirado en la referencia compartida: encabezado limpio, aviso de despacho, producto, selector de cantidad, cálculo de envío, cupón, totales y CTA. Conserva los datos y acciones nativas de Tiendanube; queda pendiente probar agregando un producto real después de publicar.
+1. **Pagos:** Valmont (Miguel) paga entre el **5 y el 7/11** y Hogar Digital (Marcelo) el **10/11**, cada uno en su `nevux.ar/pagar/<id>`. Hay que **verificar que la tienda se prenda sola** con el primer pago real (`nevux.ar/panel`).
+2. **Instagram, semana 2:** @nevux.app del 9 al 15/11 y Hogar Digital del 9 al 13/11, con el informe de la semana 1 si hay métricas. Se le pasa a Rodrigo **día por día, en orden, en máxima calidad, con la portada integrada en los Reels**. Él lo sube a mano.
+3. **Apagar la tarea del sábado 7/11, 12:00** en la sesión trabada `session_01PDD9EtCY9JFJzsoyimb9Yn` (informe y semana 2: se hace desde el chat nuevo). **No aprobar** sus pedidos pendientes de Windsor, porque duplicarían posts.
+4. **5/11:** Rodrigo vuelve a poner el banner anterior de Hogar Digital, en lugar del de Cyber.
+5. **Valmont:** el video y el caso real con productos recién cuando cargue relojes originales.
+6. **Windsor:** la prueba vence ~29/11. Ya no se usa para publicar.
 
 ### Reglas que se hablaron en esta sesión (no reabrir)
 
@@ -45,7 +50,7 @@
 - **All Time (alltimerelojes.com):** vende "Superclones AAA" de Rolex, Omega, etc. y no es Tiendanube. Se le dijo a Rodrigo que no se trabaja con réplicas (es su regla).
 - Para Hogar Digital: nada de "el más elegido" sin confirmarlo. La historia `1103-2` lo decía y había que confirmarlo con Marcelo.
 
-### Otros pendientes
+### Otros pendientes (del 02/11; lo vigente está arriba)
 
 - **Valmont (Miguel):** paga el Premium entre el 5 y el 7/11 → cambiar `planMp` por su email y sumarla como segundo caso real en la landing y en `nevux.ar/links`.
 - **Jueves 5/11:** Rodrigo vuelve a poner el banner anterior de Hogar Digital, en lugar del de Cyber.
@@ -83,6 +88,11 @@
 
 ### Lo que falta (en orden)
 
+> **03/11 · LANDING, PLAN PREMIUM:** la demo genérica de la notebook se reemplazó por **dos videos: Hogar Digital (real) y una tienda demo**. Valmont se sacó porque Rodrigo quería mostrar sus relojes y son réplicas: no se muestran (decisión firme). Cada video recorre la home, toca un producto y muestra la ficha Premium por dentro; la ficha demo es `public/demo/disenos/ficha-destino.html`, generada por `scripts/demo/disenos.py`. Antes había, en `public/casos/premium/`: Hogar Digital completa, bajando sola, y Valmont con portada, "Por qué Valmont", preguntas y cierre. En el de Valmont **no se ve ningún producto** (tiene réplicas) y la sección "Colgado por poco tiempo" se ocultó durante la grabación. Componente: `app/components/landing/NotebookVideo.tsx`. Para regrabar: Playwright con CDP screencast a 1440×900 y la configuración inyectada; el guion de cada video está en la sesión del 03/11. El botón pasó a ser "Quiero el Premium" (`/suscribirme?plan=premium`).
+>   - **Corrección de Rodrigo (03/11):** la demo no tiene que ser igual a la de Marcelo. Ahora la tienda demo usa **el estilo de Valmont (Wess, negro y dorado) con sus funciones propias**: portada con esfera gigante y hora en vivo, vitrina colgada que se balancea, grilla, categorías que giran, foto con puntos, medidor de muñeca, "Por qué", "Colgado por poco tiempo", cierre en arco y la ficha Wess. Marca "Nevux Demo" y relojes dibujados (sin réplicas). Páginas: `public/demo/disenos/home-wess.html`, `ficha-wess.html` y `catalogo-wess.html`; la config sale de `scripts/demo/wess-demo.json` (copia de la de Valmont sin su marca, sus productos ni sus videos). Video: `public/casos/premium/demo.mp4` (home → toca un reloj de "Colgado" → ficha).
+>
+> **03/11 · COBRO AUTOMÁTICO PARA TODOS (pedido de Rodrigo):** Hogar Digital y Valmont tienen `planPropio` (ver `docs/clientes.md`). Cada uno paga en su link (`nevux.ar/suscribirme?c=hogar-digital` y `?c=valmont`), se crea su propio plan en Mercado Pago y **la tienda se prende sola al pagar**: ya no hay que pasar emails ni prender a mano. Los clientes nuevos se dan de alta igual. Hasta que paguen, quedan apagadas.
+>
 > **02/11 · INSTAGRAM, TODO A MANO:** Rodrigo pidió que no se programe más nada desde acá, ni @nevux.app ni Hogar Digital. Las 8 tareas de publicación quedaron apagadas. Se crea el contenido y se le pasa día por día, en máxima calidad, con la portada integrada en los Reels (ver `docs/instagram.md`).
 >
 > **01/11 (noche) · INSTAGRAM DE HOGAR DIGITAL A MANO:** Rodrigo programa los posts en Business Suite. Las tareas automáticas de Hogar Digital están apagadas; ver `docs/instagram-hogar-digital.md`. La sesión `session_01PDD9EtCY9JFJzsoyimb9Yn`, donde corren las tareas de @nevux.app, **se traba esperando permiso para Windsor** y tiene el contexto casi lleno: el 01/11 se publicaron desde otra sesión el carrusel "La cuenta que nadie hace" y la historia de las 20:17, y sus pedidos pendientes **no hay que aprobarlos** porque duplicarían. Conviene mover esas tareas a una sesión nueva.

@@ -5,6 +5,8 @@ import { CLIENTES } from "@/lib/clientes";
 import BotonPago from "./BotonPago";
 import { planDe, precioTexto } from "@/lib/planes";
 
+export const dynamic = "force-dynamic";
+
 // Página de suscripción: lo que se le manda al cliente en lugar del link pelado de Mercado Pago.
 // Con ?c=<cliente> se personaliza con el nombre de su tienda y su plan (ver lib/clientes.ts y lib/planes.ts). ?plan=premium sin cliente.
 
@@ -18,7 +20,7 @@ export function generateMetadata({ searchParams }: { searchParams: { c?: string;
   const plan = planDe(searchParams.plan, c ? CLIENTES[c].plan : undefined);
   const descripcion = `${plan.nombre} · ${precioTexto(plan.precio)} por mes con cobro automático por Mercado Pago. Cancelás cuando quieras. Garantía de 7 días.`;
   const extra = c ? `?c=${c}` : searchParams.plan ? `?plan=${searchParams.plan}` : "";
-  const url = `/suscribirme${extra}`;
+  const url = c ? `/pagar/${c}` : `/suscribirme${extra}`;
   const imagen = `/og?v=suscripcion${c ? `&c=${c}` : searchParams.plan ? `&plan=${searchParams.plan}` : ""}`;
   return {
     title: `${titulo} · Nevux`,
@@ -46,6 +48,10 @@ const PASOS = [
 export default function SuscribirmePage({ searchParams }: { searchParams: { c?: string; plan?: string } }) {
   const cliente = searchParams.c ? CLIENTES[searchParams.c] : undefined;
   const plan = planDe(searchParams.plan, cliente?.plan);
+  // Cliente con plan propio: el botón pasa por /pagar/<id>/ir, que busca o crea su plan en Mercado Pago y redirige.
+  // Así la página carga sin esperar a Mercado Pago (WhatsApp arma bien la vista previa).
+  const link =
+    cliente && searchParams.c && cliente.cobro.tipo === "mercadopago" && cliente.cobro.planPropio ? `/pagar/${searchParams.c}/ir` : plan.link;
   const tienda = cliente?.nombre.replace(/\s*\(.*\)\s*$/, "");
   const whatsapp = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
     `Hola! Tengo una consulta sobre la suscripción a Nevux${tienda ? ` para ${tienda}` : ""}.`
@@ -98,7 +104,16 @@ export default function SuscribirmePage({ searchParams }: { searchParams: { c?: 
             ))}
           </ul>
 
-          <BotonPago url={plan.link} tienda={tienda} plan={plan.nombre} precio={plan.precio} />
+          {link ? (
+            <BotonPago url={link} tienda={tienda} plan={plan.nombre} precio={plan.precio} />
+          ) : (
+            <a
+              href={whatsapp}
+              className="w-full inline-flex items-center justify-center gap-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-base px-7 py-4 rounded-2xl transition-all active:scale-95"
+            >
+              Escribinos y te pasamos el link de pago
+            </a>
+          )}
           <p className="text-[11px] text-neutral-500 text-center mt-3">
             Vas a ir a Mercado Pago para cargar tu tarjeta de forma segura. Nevux nunca ve los datos de tu tarjeta.
           </p>

@@ -18,7 +18,7 @@ export async function GET(req: Request) {
   const conexion = await estadoConexion();
   const filas = await Promise.all(
     Object.entries(CLIENTES).map(async ([id, c]) => {
-      const e = await estadoCobro(c);
+      const e = await estadoCobro(c, Date.now(), id);
       return `<tr>
         <td><b>${esc(c.nombre)}</b><small>${esc(c.dominios.join(", "))} · c/${esc(id)}.js</small></td>
         <td><span class="${e.prendida ? "on" : "off"}">${e.prendida ? "Prendida" : "Apagada"}</span></td>

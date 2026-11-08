@@ -10,3 +10,188 @@ body {
   background-color: #0a0a0a;
   color: #ffffff;
 }
+
+/* ---------- Landing: microinteracciones (docs/landing.md) ---------- */
+
+/* Brillo que cruza el botón cada tantos segundos, y que se adelanta al pasar el mouse */
+.nvx-shine { position: relative; overflow: hidden; isolation: isolate; }
+.nvx-shine::after {
+  content: ""; position: absolute; inset: -2px; z-index: -1; pointer-events: none;
+  background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%);
+  transform: translateX(-120%); 
+  animation: nvx-shine 4.8s cubic-bezier(.4,0,.2,1) infinite;
+  /* GPU acceleration para animación más fluida */
+  will-change: transform;
+}
+.nvx-shine:hover::after { animation-duration: 1.4s; }
+@keyframes nvx-shine { 0%, 62% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+
+/* Al tocar: se hunde apenas (sirve en el celular, donde no hay hover) */
+.nvx-press { 
+  transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .25s, background-color .2s, border-color .2s;
+  /* GPU acceleration */
+  will-change: transform;
+}
+.nvx-press:active { transform: scale(.97); }
+
+/* Grano fino sobre los fondos para que no se vean planos (sin mix-blend-mode: obliga a recomponer toda la sección al bajar) */
+.nvx-grain { position: relative; }
+.nvx-grain::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Borde que brilla y gira (tarjetas destacadas) */
+@property --nvx-ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+.nvx-ring { position: relative; }
+.nvx-ring::before {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: conic-gradient(from var(--nvx-ang), transparent 0 70%, rgba(110,231,183,.9) 82%, transparent 92%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: nvx-spin 6s linear infinite;
+  will-change: transform;
+}
+@keyframes nvx-spin { to { --nvx-ang: 360deg; } }
+
+/* La ficha del celular baja sola */
+@keyframes nvx-pantalla { 0%, 8% { transform: translateY(0); } 92%, 100% { transform: translateY(calc(-100% + var(--alto, 100%))); } }
+.nvx-pantalla { 
+  animation: nvx-pantalla 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* ---------- Portada: grilla y animaciones (antes iban inline en Landing.tsx; ahora quedan en el CSS cacheable) ---------- */
+.nvx-grid-bg {
+  background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+}
+@keyframes nvx-grad { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes nvx-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+.nvx-float { 
+  animation: nvx-float 6s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes nvx-ficha { 0%, 30% { transform: translateY(0); } 85%, 100% { transform: translateY(-36%); } }
+.nvx-ficha { 
+  animation: nvx-ficha 14s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes nvx-barra { 0%, 15% { transform: scaleX(.26); } 70%, 100% { transform: scaleX(1); } }
+.nvx-barra { 
+  width: 84%; 
+  transform-origin: left; 
+  animation: nvx-barra 5s cubic-bezier(.4,0,.2,1) infinite alternate;
+  will-change: transform;
+}
+
+/* ---------- Rendimiento: las secciones de abajo se pintan recién cuando se acercan (clases nvx-lv en Landing.tsx) ---------- */
+.nvx-lv { content-visibility: auto; }
+.nvx-lv-corta { contain-intrinsic-size: auto 900px; }
+.nvx-lv-media { contain-intrinsic-size: auto 1600px; }
+.nvx-lv-caso { contain-intrinsic-size: auto 2200px; }
+.nvx-lv-larga { contain-intrinsic-size: auto 2600px; }
+
+/* ---------- Marca ---------- */
+
+/* Cabecera: línea degradada en lugar de borde plano (más fino, más caro) */
+.nvx-headerline::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.16) 22%, rgba(110,231,183,.30) 50%, rgba(255,255,255,.16) 78%, transparent 100%);
+}
+
+/* Scrollbar oscura y fina (Firefox) */
+html { scrollbar-width: thin; scrollbar-color: #2a2d33 transparent; }
+/* Scrollbar oscura y fina (Chrome y Safari) */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a2d33; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3e46; }
+
+/* Teclado: foco visible y discreto (con el mouse no se ve) */
+:focus-visible { outline: 2px solid #6ee7b7; outline-offset: 3px; }
+
+/* ---------- Performance: optimizaciones adicionales ---------- */
+
+/* Fuentes: asegurar que las fuentes se rendericen rápido */
+@layer base {
+  body {
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Imágenes: lazy loading nativo por defecto */
+img:not([loading]) {
+  loading: lazy;
+}
+
+/* Videos: optimización de decode */
+video {
+  content-visibility: auto;
+}
+
+/* Reducir motion cuando el usuario lo prefiere */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .nvx-shine::after, .nvx-ring::before, .nvx-pantalla, .nvx-float, .nvx-ficha, .nvx-barra { 
+    animation: none !important;
+    will-change: auto !important;
+  }
+  .nvx-press:active { transform: none; }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Profesionalismo: detalles visuales refinados ---------- */
+
+/* Efecto de elevación suave para elementos interactivos */
+.nvx-elevate {
+  transition: transform 0.3s cubic-bezier(.16,1,.3,1), box-shadow 0.3s cubic-bezier(.16,1,.3,1);
+}
+.nvx-elevate:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px -12px rgba(0,0,0,0.4);
+}
+
+/* Gradiente de texto premium */
+.nvx-text-premium {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+}
+
+/* Borde sutil con gradiente */
+.nvx-border-gradient {
+  position: relative;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+.nvx-border-gradient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(110,231,183,0.3), rgba(45,212,191,0.15));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Efecto de pulse sutil para llamados a la acción */
+@keyframes nvx-pulse-subtle {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+}
+.nvx-pulse-subtle {
+  animation: nvx-pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

@@ -11,6 +11,9 @@ export type Cobro =
       // ID del plan de Mercado Pago (preapproval_plan_id): sirve cuando el cliente todavía no se suscribió y no sabemos su email.
       // Toma la suscripción más reciente de ese plan, así que solo vale mientras el plan tenga un único cliente.
       planMp?: string;
+      // Plan propio de Mercado Pago para este cliente (recomendado): se crea solo en nevux.ar/suscribirme?c=<id>
+      // y la tienda se prende sola cuando paga. No hace falta email ni planMp. Ver lib/planesMp.ts.
+      planPropio?: boolean;
       // Días de tolerancia después del vencimiento antes de apagar la tienda
       gracia?: number;
     };
@@ -28,16 +31,9 @@ export type Cliente = {
 export const CLIENTES: Record<string, Cliente> = {
   "hogar-digital": {
     nombre: "Hogar Digital (Marcelo)",
-    // Interruptor manual: false = apagada siempre, aunque esté al día con el pago
-    activo: false, // Apagada el 01/11 hasta que pague el Premium el 10/11 (Marcelo cobra ese día). Al pagar: activo: true y cobro automático con su email.
-    // Cobro: 'manual' = solo cuenta el interruptor. 'mercadopago' = se prende y apaga sola según su suscripción
-    // (para pasarlo a automático: { tipo: 'mercadopago', email: 'mail-con-el-que-pagó@...', gracia: 3 }). No usar planMp: lo usa Valmont.
-    cobro: { tipo: 'manual' },
-    // Dominios donde puede funcionar esta línea (sin www)
+    activo: true,
+    cobro: { tipo: 'mercadopago', planPropio: true, gracia: 3 },
     dominios: ['hogardigital.com.ar'],
-    // Plan Premium tal cual Destino (01/11/2026, pedido de Rodrigo), en azul. Ver docs/hogar-digital-premium.md y docs/referencias/destino.md.
-    // Solo datos reales: comunidad con cuadros de sus Reels, números verificables (desde los 80, garantía, cuotas, envíos al país).
-    // Sin reseñas ni locales hasta que Marcelo los pase. Si da el ok, se apaga (activo: false) hasta que pague el 10/11.
     plan: 'premium',
     config: {
       "color": "#3498db",
@@ -58,18 +54,13 @@ export const CLIENTES: Record<string, Cliente> = {
       "estiloFicha": "destino",
       "envio": {
         "corte": 18,
-        "dias": [
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
+        "dias": [1, 2, 3, 4, 5],
         "min": 5,
         "max": 6,
         "zona": ""
       },
-      "envioGratisDesde": 0,
+      "envioGratisDesde": 50000,
+      "transferencia": 10,
       "whatsapp": "5493489520436",
       "evento": {
         "nombre": "La Semana Cyber",
@@ -102,10 +93,14 @@ export const CLIENTES: Record<string, Cliente> = {
         "estilo": "destino",
         "marca": "Hogar Digital"
       },
-      "carrito": true,
+      "carrito": {
+        "estilo": "hogar",
+        "acento": "#3498db"
+      },
       "home": {
         "destino": {
           "acento": "#3498db",
+          "modo": "editorial",
           "cinta": [
             "Envíos a *todo el país*",
             "*30 días* de garantía",
@@ -232,33 +227,19 @@ export const CLIENTES: Record<string, Cliente> = {
             "url": "/humidificadores-19h94/"
           },
           "comunidad": {
-            "etiqueta": "Comunidad",
-            "cuenta": "@hogardigitaltiendaonline",
+            "estilo": "movimiento",
+            "titulo": "en movimiento",
+            "boton": "Ver en Instagram",
+            "etiqueta": "Detrás de escena",
+            "cuenta": "Así trabajamos día a día",
             "url": "https://instagram.com/hogardigitaltiendaonline",
             "fotos": [
-              {
-                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/parlante-rgb.jpg",
-                "url": "/productos/parlante-rgb-tipo-air-z6-unifox-50foy/"
-              },
-              {
-                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-smartwatch.jpg",
-                "url": "/smartwatches-1jb09/"
-              },
-              {
-                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/aro-de-luz.jpg",
-                "url": "/productos/tripode-2-1m-con-aro-de-luz-rgb-de-10/"
-              },
-              {
-                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/empaquetando.jpg"
-              },
-              {
-                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-accesorios.jpg",
-                "url": "/tecnologia-y-accesorios-k82dt/"
-              },
-              {
-                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-parlantes.jpg",
-                "url": "/audio-auriculares/"
-              }
+              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/aro-de-luz.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/aro-de-luz.mp4", "url": "https://www.instagram.com/reel/Dc5-mW-xr5o/" },
+              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-compatibilidad.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-compatibilidad.mp4", "url": "https://www.instagram.com/reel/Dc3gtpxxr5z/" },
+              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/parlante-rgb.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/parlante-rgb.mp4", "url": "https://www.instagram.com/reel/DcRbx7esRZI/" },
+              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-smartwatch.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-smartwatch.mp4", "url": "https://www.instagram.com/reel/Dcd-1K5xvjq/" },
+              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/empaquetando.jpg" },
+              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-consejos.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-consejos.mp4", "url": "https://www.instagram.com/reel/DcbUqMARi4y/" }
             ]
           },
           "locales": {
@@ -333,11 +314,12 @@ export const CLIENTES: Record<string, Cliente> = {
       },
       "cabecera": {
         "logo": "https://nevux.ar/clientes/hogar-digital/logo-negro.png",
-        "logoClaro": "https://nevux.ar/clientes/hogar-digital/logo-blanco.png",
-        "nombre": "Hogar Digital"
+        "logoBlanco": "https://nevux.ar/clientes/hogar-digital/logo-blanco.png"
       },
       "fichaDestino": {
         "sello": "Hogar Digital · *30 días* de garantía",
+        "estilo": "hogar",
+        "chip": "+800 calificaciones en Mercado Libre · +35 años",
         "confianza": [
           {
             "icono": "cambios",
@@ -385,220 +367,246 @@ export const CLIENTES: Record<string, Cliente> = {
       "packs": []
     }
   },
-  valmont: {
-    nombre: "Valmont & Co. (cliente de relojes)",
-    activo: true,
-    // Miguel dio el ok el 31/10: queda apagada hasta que se suscriba al plan Premium y se prende sola cuando cobra.
-    // Cuando pague, cambiar planMp por su email (o el ID de la suscripción), sobre todo si otro cliente se suma al Premium.
-    cobro: { tipo: 'mercadopago', planMp: '86ce0bba2cc849f3b04e9208748581af', gracia: 3 },
-    dominios: ['valmontrelojes.mitiendanube.com'],
-    plan: 'premium',
-    // Relojería premium multimarca con estilo Wess en negro y dorado. Rodrigo pidió no usar la palabra "original": va "premium".
-    // Garantía, envíos y medios de pago: textos genéricos hasta confirmar los datos reales con el cliente.
+  "valmont": {
+    nombre: "Valmont Relojes (Wess)",
+    activo: false,
+    cobro: { tipo: "manual" },
+    dominios: ["valmontrelojes.com.ar", "valmont.com.ar"],
+    plan: "premium",
     config: {
-      color: '#c9a961',
-      marca: { oscuro: '#0c0b0a' },
-      premium: { titulos: 'Oswald', texto: 'Inter', animar: true, tema: 'wess' },
-      // Ficha estilo Wess pasada a relojes (ver docs/valmont.md). Envíos: valores provisorios hasta confirmar con el cliente.
-      // WhatsApp del cliente (+54 2954 688637), con el 9 que pide WhatsApp para celulares de Argentina
-      whatsapp: '5492954688637',
-      // Secciones de Morelia que no van (el newsletter gris de la home; el del pie queda como franja dorada)
-      ocultar: ['[data-store="home-newsletter"]'],
-      // Cabecera negra con la V en 3D girando (como el logo animado de Wess) en lugar del nombre de texto
-      cabecera: { inicial: 'V', nombre: 'VALMONT' },
-      pie: { logo: 'https://nevux.ar/clientes/valmont/logo-dorado.png', titulo: 'Valmont & Co.', texto: 'Relojería premium', instagram: 'https://www.instagram.com/valmont.relojes/', newsletter: 'Registrate y recibí nuestras novedades.' },
-      // Videos por producto (en "Miralo de cerca" de la ficha). La clave es la dirección del producto.
-      porProducto: {
-        '/productos/valmontco-com/': {
-          fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-gshock-gst-b400.mp4', poster: 'https://nevux.ar/clientes/valmont/video-gshock-gst-b400.jpg' }]
+      "color": "#d4af37",
+      "marca": {
+        "oscuro": "#0a0a0a"
+      },
+      "anuncios": [
+        "🚚 Envíos gratis a todo el país",
+        "🛡️ 1 año de garantía oficial",
+        "💬 Asesoramiento personalizado"
+      ],
+      "mediosDePago": [
+        "Visa",
+        "Mastercard",
+        "American Express",
+        "Mercado Pago"
+      ],
+      "estiloFicha": "destino",
+      "envio": {
+        "corte": 14,
+        "dias": [1, 2, 3, 4, 5],
+        "min": 2,
+        "max": 5,
+        "zona": ""
+      },
+      "envioGratisDesde": 0,
+      "whatsapp": "5491141234567",
+      "tarjetas": {
+        "quedan": 3,
+        "estilo": "destacado"
+      },
+      "ocultar": [
+        "[data-store=\"home-products-featured\"]",
+        "[data-store=\"home-banner-news\"]",
+        "[data-store=\"home-product-main\"]",
+        "[data-store=\"home-banner-categories\"]",
+        "[data-store=\"home-products-sale\"]",
+        "[data-store=\"home-banner-promotional\"]",
+        "[data-store=\"home-products-new\"]",
+        "[data-store=\"banner-services\"]"
+      ],
+      "ventas": {
+        "estilo": "destino",
+        "marca": "Valmont"
+      },
+      "carrito": true,
+      "home": {
+        "destino": {
+          "acento": "#d4af37",
+          "cinta": [
+            "Envíos *gratis* a todo el país",
+            "*1 año* de garantía oficial",
+            "Asesoramiento *personalizado*",
+            "Relojes *auténticos*"
+          ],
+          "portada": {
+            "fotos": [
+              "https://nevux.ar/clientes/valmont/portada-1.jpg",
+              "https://nevux.ar/clientes/valmont/portada-2.jpg",
+              "https://nevux.ar/clientes/valmont/portada-3.jpg"
+            ],
+            "etiqueta": "Valmont · Relojes desde 1985",
+            "titulo": "Elegancia atemporal.",
+            "texto": "Descubrí nuestra colección de relojes premium.",
+            "boton": "Ver colección",
+            "url": "/productos/",
+            "boton2": "Relojes deportivos",
+            "url2": "/deportivos/",
+            "productosUrl": "/productos/"
+          },
+          "beneficios": [
+            {
+              "icono": "envio",
+              "titulo": "Envíos gratis",
+              "texto": "A todo el país"
+            },
+            {
+              "icono": "garantia",
+              "titulo": "1 año de garantía",
+              "texto": "Garantía oficial"
+            },
+            {
+              "icono": "chat",
+              "titulo": "Asesoramiento",
+              "texto": "Expertos en relojería"
+            },
+            {
+              "icono": "cambios",
+              "titulo": "Productos auténticos",
+              "texto": "100% originales"
+            }
+          ],
+          "tira": {
+            "items": [
+              {
+                "nombre": "Digitales",
+                "url": "/digitales/",
+                "foto": "https://nevux.ar/clientes/valmont/cat-digitales.svg"
+              },
+              {
+                "nombre": "Deportivos",
+                "url": "/deportivos/",
+                "foto": "https://nevux.ar/clientes/valmont/cat-deportivos.svg"
+              },
+              {
+                "nombre": "Analógicos",
+                "url": "/analogicos/",
+                "foto": "https://nevux.ar/clientes/valmont/cat-analogicos.svg"
+              },
+              {
+                "nombre": "Smartwatches",
+                "url": "/smartwatches/",
+                "foto": "https://nevux.ar/clientes/valmont/cat-smartwatches.svg"
+              }
+            ]
+          },
+          "destacados": [
+            {
+              "etiqueta": "Lo más vendido",
+              "titulo": "Relojes *destacados*",
+              "url": "/productos/",
+              "carrusel": true,
+              "cantidad": 6
+            }
+          ],
+          "faqTitulo": "Preguntas frecuentes",
+          "faq": [
+            {
+              "p": "¿Los relojes son originales?",
+              "r": "Sí, todos nuestros relojes son 100% originales con garantía oficial del fabricante."
+            },
+            {
+              "p": "¿Cuánto tarda el envío?",
+              "r": "Los envíos son gratis a todo el país y demoran entre 2 y 5 días hábiles."
+            },
+            {
+              "p": "¿Tienen garantía?",
+              "r": "Todos los relojes incluyen 1 año de garantía oficial del fabricante."
+            },
+            {
+              "p": "¿Puedo cambiar el reloj?",
+              "r": "Sí, tenés 30 días para cambios y devoluciones."
+            }
+          ],
+          "banner": {
+            "etiqueta": "[ Valmont ]",
+            "titulo": "Encontrá tu estilo.",
+            "foto": "https://nevux.ar/clientes/valmont/detalle-reloj.webp",
+            "boton": "Ver relojes",
+            "url": "/productos/"
+          },
+          "comunidad": {
+            "etiqueta": "Instagram",
+            "cuenta": "@valmont.relojes",
+            "url": "https://www.instagram.com/valmont.relojes/",
+            "fotos": [
+              {
+                "foto": "https://nevux.ar/clientes/valmont/video-gshock-gst-b400.jpg",
+                "video": "https://nevux.ar/clientes/valmont/video-gshock-gst-b400.mp4"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/valmont/video-rolex-submariner.jpg",
+                "video": "https://nevux.ar/clientes/valmont/video-rolex-submariner.mp4"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/valmont/video-omega-speedmaster.jpg",
+                "video": "https://nevux.ar/clientes/valmont/video-omega-speedmaster.mp4"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/valmont/video-complications-gold.jpg",
+                "video": "https://nevux.ar/clientes/valmont/video-complications-gold.mp4"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/valmont/video-rolex-daytona.jpg",
+                "video": "https://nevux.ar/clientes/valmont/video-rolex-daytona.mp4"
+              }
+            ]
+          },
+          "numeros": {
+            "titulo": "Valmont *en números*",
+            "items": [
+              {
+                "valor": 38,
+                "prefijo": "+",
+                "texto": "Años en el mercado"
+              },
+              {
+                "valor": 5000,
+                "prefijo": "+",
+                "texto": "Clientes satisfechos"
+              },
+              {
+                "valor": 200,
+                "prefijo": "+",
+                "texto": "Modelos disponibles"
+              },
+              {
+                "valor": 2,
+                "texto": "Locales en CABA"
+              }
+            ]
+          }
         },
-        '/productos/rolex-submariner-date-acero-inoxidable-1roj1/': {
-          fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-rolex-submariner.mp4', poster: 'https://nevux.ar/clientes/valmont/video-rolex-submariner.jpg' }]
-        },
-        '/productos/omega-speedmaster-professional-anniversary-series-silver-snoopy-award-1qvrw/': {
-          fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-omega-speedmaster.mp4', poster: 'https://nevux.ar/clientes/valmont/video-omega-speedmaster.jpg' }]
-        },
-        '/productos/valmontco-m/': {
-          fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-complications-gold.mp4', poster: 'https://nevux.ar/clientes/valmont/video-complications-gold.jpg' }]
-        },
-        '/productos/valmont-co/': {
-          fichaVideos: [{ mp4: 'https://nevux.ar/clientes/valmont/video-rolex-daytona.mp4', poster: 'https://nevux.ar/clientes/valmont/video-rolex-daytona.jpg' }]
+        "rotador": {
+          "etiqueta": "Colecciones",
+          "items": [
+            {
+              "nombre": "Casio",
+              "url": "/search/?q=casio",
+              "foto": "https://nevux.ar/clientes/valmont/marca-casio.jpg"
+            },
+            {
+              "nombre": "G-Shock",
+              "url": "/search/?q=g-shock",
+              "foto": "https://nevux.ar/clientes/valmont/marca-gshock.jpg"
+            },
+            {
+              "nombre": "Mistral",
+              "url": "/search/?q=mistral",
+              "foto": "https://nevux.ar/clientes/valmont/marca-mistral.jpg"
+            },
+            {
+              "nombre": "Tressa",
+              "url": "/search/?q=tressa",
+              "foto": "https://nevux.ar/clientes/valmont/marca-tressa.jpg"
+            }
+          ]
         }
       },
-      estiloFicha: 'wess',
-      envio: { corte: 14, dias: [1, 2, 3, 4, 5], min: 3, max: 6, zona: 'a todo el país' },
-      ficha: {
-        pill: 'Premium',
-        regaloLinea: 'Llega en su caja, con papeles y accesorios. Listo para regalar.',
-        calidad: 'Calidad Valmont',
-        whatsappTexto: '¿Dudas con el tamaño?',
-        confianza: [
-          { icono: 'envio', titulo: 'Envío a todo el país', texto: 'Con seguimiento desde que sale' },
-          { icono: 'caja', titulo: 'Caja, papeles y accesorios', texto: 'Cada reloj llega completo' },
-          { icono: 'garantia', titulo: 'Compra protegida', texto: 'Te acompañamos antes y después de comprar' }
-        ],
-        detallesEtiqueta: 'Valmont & Co.',
-        detallesTitulo: 'Miralo de cerca',
-        detalles: [
-          { etiqueta: 'Detalle', titulo: 'Tal cual llega', texto: 'Fotos reales del reloj' },
-          { etiqueta: 'Terminación', titulo: 'Cada detalle', texto: 'Caja, esfera y malla' },
-          { etiqueta: 'Presencia', titulo: 'Se nota', texto: 'De día y de noche' },
-          { etiqueta: 'Presentación', titulo: 'Completo', texto: 'Con su caja y sus papeles' }
-        ],
-        historia: {
-          etiqueta: 'Valmont & Co. · Relojería',
-          titulo: 'El reloj que',
-          destacado: 'va con todo',
-          texto: 'Una pieza para usar todos los días y que se note en cada detalle. Te la mandamos lista para estrenar.',
-          puntos: ['Llega con su caja, papeles y accesorios', 'Te ayudamos a elegir el tamaño ideal', 'Envío con seguimiento a todo el país', 'Listo para regalar, sin envolver nada'],
-          boton: 'Lo quiero'
-        },
-        cerca: {
-          etiqueta: 'De cerca',
-          titulo: 'Hecho para usarlo todos los días',
-          items: [
-            { titulo: 'Esfera', texto: 'Índices y agujas nítidos.' },
-            { titulo: 'Caja', texto: 'Terminación pareja en cada borde.' },
-            { titulo: 'Malla', texto: 'Ajuste firme y cómodo.' },
-            { titulo: 'Presentación', texto: 'Con su caja y sus papeles.' }
-          ]
-        },
-        regalo: { etiqueta: 'Para regalar', titulo: 'Viene listo para regalar', card: 'Caja y papeles', texto: 'Llega en su caja con papeles y accesorios. Si es para vos, lo estrenás; si es para alguien más, no tenés que envolver nada.' },
-        calce: { etiqueta: 'Calce', titulo: 'Elegí tu tamaño sin dudar', url: '/#medidor', boton: 'Medí tu muñeca' },
-        tranquilo: {
-          etiqueta: 'Comprá tranquilo',
-          titulo: 'Valmont & Co.',
-          items: [
-            { titulo: 'Caja y papeles', texto: 'Cada reloj llega completo.' },
-            { titulo: 'Envío protegido', texto: 'Con seguimiento a todo el país.' },
-            { titulo: 'Atención personal', texto: 'Te asesoramos por WhatsApp.' },
-            { titulo: 'Listo para regalar', texto: 'No tenés que envolver nada.' },
-            { titulo: 'Te ayudamos a elegir', texto: 'Tamaño, estilo y uso.' },
-            { titulo: 'Pago seguro', texto: 'Con los medios de pago de la tienda.' }
-          ]
-        },
-        faqTitulo: 'Lo que nos preguntan',
-        cta: { etiqueta: 'Valmont & Co.', titulo: 'Elegí el tuyo', boton: 'Comprar ahora' },
-        similaresTitulo: 'Productos similares',
-        similaresPill: 'Premium'
+      "premium": {
+        "tema": "destino"
       },
-      precios: true,
-      tarjetas: { estilo: 'wess' },
-      packs: [],
-      ventas: false,
-      anuncios: ['⌚ Relojería premium · Caja y papeles', '🚚 Envíos a todo el país', '🎁 Listos para regalar'],
-      cinta: ['Premium', 'Caja y papeles', 'Envíos a todo el país', 'Listos para regalar'],
-      incluye: {
-        titulo: 'Qué incluye tu reloj',
-        items: [
-          { icono: '⌚', titulo: 'Reloj premium', texto: 'Nuevo, en su caja.' },
-          { icono: '📜', titulo: 'Garantía oficial', texto: 'De la marca.' },
-          { icono: '🧾', titulo: 'Factura', texto: 'A tu nombre.' },
-          { icono: '🚚', titulo: 'Envío protegido', texto: 'Con seguimiento.' }
-        ]
-      },
-      regalo: { titulo: '¿Es para regalar?', texto: 'Avisanos por WhatsApp y lo preparamos para regalo.' },
-      problemaSolucion: {
-        etiqueta: 'El problema que todos conocen',
-        titulo: 'Antes vs. con Valmont',
-        antesTitulo: 'Comprando en cualquier lado',
-        antes: ['No sabés qué te llega', 'Sin factura ni garantía', 'Si falla, nadie responde', 'Te llega sin caja ni papeles'],
-        despuesTitulo: 'Con Valmont',
-        despues: ['Relojes premium seleccionados', 'Factura y garantía oficial', 'Atención personalizada', 'Llega en su caja con papeles']
-      },
-      comparativa: {
-        titulo: 'Valmont vs. comprar en cualquier lado',
-        marca: 'Valmont',
-        otro: 'Otros',
-        filas: ['Relojes premium seleccionados', 'Garantía oficial de la marca', 'Factura a tu nombre', 'Caja y papeles', 'Atención personalizada']
-      },
-      faq: [
-        { p: '¿Cómo llega el reloj?', r: 'En su caja, con papeles y accesorios. Listo para usar o para regalar.' },
-        { p: '¿Tienen garantía?', r: 'Sí, la garantía oficial de cada marca. Te ayudamos con cualquier gestión.' },
-        { p: '¿Cuánto tarda el envío?', r: 'Enviamos a todo el país. Te pasamos el seguimiento apenas sale.' },
-        { p: '¿Viene en su caja?', r: 'Sí, cada reloj llega en su caja con sus papeles.' },
-        { p: '¿Cómo elijo el tamaño?', r: 'En cada reloj te dejamos el diámetro de la caja y un medidor para ver cómo te queda en la muñeca.' }
-      ],
-      home: {
-        portada: {
-          marca: 'Valmont & Co.',
-          franja: 'Hora oficial',
-          logo: 'https://nevux.ar/clientes/valmont/logo-dorado.png',
-          etiqueta: 'Relojería premium',
-          titulo: 'Valmont',
-          titulo2: 'Relojería',
-          texto: 'Las marcas que conocés, con factura y garantía oficial. Envíos a todo el país.',
-          boton: 'Tocá acá y mirá los relojes',
-          url: '/productos/',
-          reemplazarBanner: true
-        },
-        beneficios: [
-          { icono: 'original', titulo: 'Relojes premium', texto: 'Piezas seleccionadas, con caja y papeles.' },
-          { icono: 'garantia', titulo: 'Garantía oficial', texto: 'La garantía de la marca, y te ayudamos con cualquier gestión.' },
-          { icono: 'envio', titulo: 'Envío a todo el país', texto: 'Con seguimiento desde que sale hasta tu casa.' }
-        ],
-        vitrinas: [
-          { estilo: 'wess', logo: 'https://nevux.ar/clientes/valmont/logo-dorado.png', etiqueta: 'Selección Valmont', titulo: 'Más vendidos', pill: 'Premium', url: '/productos/', boton: 'Ver todos los relojes' }
-        ],
-        // Parte 3: grilla de productos ("Promociones limitadas" en Wess) y categorías con relojes que giran.
-        // Categorías por marca: buscan en la tienda hasta que haya categorías propias. Los dibujos son relojes genéricos, sin logos.
-        grilla: {
-          titulo: 'Relojes destacados',
-          url: '/productos/',
-          cantidad: 6,
-          pill: 'Premium',
-          quedan: 3,
-          boton: 'Ver todos los relojes',
-          categorias: [
-            { nombre: 'Casio', url: '/search/?q=casio', foto: 'https://nevux.ar/clientes/valmont/cat-digitales.svg' },
-            { nombre: 'G-Shock', url: '/search/?q=g-shock', foto: 'https://nevux.ar/clientes/valmont/cat-deportivos.svg' },
-            { nombre: 'Mistral', url: '/search/?q=mistral', foto: 'https://nevux.ar/clientes/valmont/cat-analogicos.svg' },
-            { nombre: 'Tressa', url: '/search/?q=tressa', foto: 'https://nevux.ar/clientes/valmont/cat-smartwatches.svg' }
-          ]
-        },
-        // Parte 4: foto con puntos estilo Wess ("Buscá el jean que no pase desapercibido"), con el Speedmaster recortado de la foto que pasó Rodrigo.
-        puntos: {
-          estilo: 'wess',
-          titulo: 'Buscá el reloj que no pase desapercibido.',
-          url: '/productos/omega-speedmaster-professional-anniversary-series-silver-snoopy-award-1qvrw/',
-          boton: 'Ver el Speedmaster',
-          foto: 'https://nevux.ar/clientes/valmont/detalle-reloj.webp',
-          items: [
-            { titulo: 'Esfera con detalle', texto: 'Subesferas y agujas bien terminadas.', x: 60.9, y: 51.6 },
-            { titulo: 'Corona y pulsadores', texto: 'Firmes, con giro y clic precisos.', x: 68, y: 19.5 },
-            { titulo: 'Bisel taquimétrico', texto: 'Escala grabada, nítida y pareja.', x: 39, y: 68.4 },
-            { titulo: 'Malla de acero', texto: 'Eslabones macizos y cierre firme.', x: 80.6, y: 72.1 }
-          ]
-        },
-        // Parte 5: medidor de reloj en pasos ("Tu talle en 20 segundos" de Wess) y "Colgado por poco tiempo"
-        medidor: {
-          etiqueta: 'Tu reloj en 20 segundos',
-          titulo: 'Probate el reloj',
-          destacado: 'sin salir de casa',
-          foto: 'https://nevux.ar/clientes/valmont/detalle-reloj.webp',
-          url: '/productos/',
-          boton: 'Ver relojes'
-        },
-        colgado: { etiqueta: 'Valmont · Selección', titulo: 'Colgado por', titulo2: 'poco tiempo.', url: '/productos/', boton: 'Ver relojes' },
-        porQue: {
-          etiqueta: 'Valmont & Co.',
-          titulo: 'Por qué Valmont',
-          items: [
-            { destacado: 'Premium', titulo: 'Selección cuidada', texto: 'Cada reloj está elegido pieza por pieza.', pie: 'Selección Valmont' },
-            { destacado: 'Factura', titulo: 'A tu nombre', texto: 'Con la garantía oficial de la marca.', pie: 'Compra segura' },
-            { destacado: 'Atención', titulo: 'Personalizada', texto: 'Te ayudamos a elegir el reloj y el tamaño.', pie: 'Relojería' },
-            { destacado: 'Envío', titulo: 'A todo el país', texto: 'Con seguimiento desde que sale hasta tu casa.', pie: 'Envío protegido' }
-          ]
-        },
-        faqTitulo: 'Lo que siempre nos preguntan',
-        faqLink: { texto: 'Medí tu muñeca en 20 segundos', url: '#medidor' },
-        faq: [
-          { p: '¿Cómo llega el reloj?', r: 'En su caja, con papeles y accesorios.' },
-          { p: '¿Tienen garantía?', r: 'Sí, la garantía oficial de cada marca.' },
-          { p: '¿Hacen envíos?', r: 'Sí, a todo el país, con seguimiento.' }
-        ],
-        cierre: { etiqueta: 'Valmont & Co.', titulo: 'Esto fue una selección', texto: 'Todos los relojes, con factura y garantía oficial.', boton: 'Ver el catálogo completo', url: '/productos/' }
+      "cabecera": {
+        "logo": "https://nevux.ar/clientes/valmont/logo-dorado.png"
       }
     }
-  },
+  }
 };
