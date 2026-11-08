@@ -40,6 +40,15 @@ REELS = {
         dict(tipo="foto", p="g", et="03 · MODELO G", tit="PARLANTE Y LUCES", voz="Y el modelo G, con parlante y luces de colores."),
         dict(tipo="cierre", voz="Elegí el tuyo en hogar digital punto com punto ar. Llevando dos o tres, pagás menos."),
     ],
+    # Semana 2 (9 al 13/11)
+    "smartwatch": [
+        dict(tipo="logo", voz="¿Seguís sacando el celular para ver cada notificación?"),
+        dict(tipo="foto", p="smartwatch", et="SMARTWATCH KD99 ULTRA", tit="TODO EN LA MUÑECA", voz="Con el smartwatch KD99 Ultra, las notificaciones te llegan a la muñeca."),
+        dict(tipo="foto", p="smartwatch", img="p/smartwatch-24.jpg", et="LLAMADAS POR BLUETOOTH", tit="SIN SACAR EL CELU", voz="Gestionás las llamadas por Bluetooth y seguís tu actividad del día."),
+        dict(tipo="foto", p="smartwatch", img="p/smartwatch-26.jpg", et="PANTALLA TÁCTIL", tit="PARA TODOS LOS DÍAS", voz="Pantalla táctil y diseño tipo Ultra, para el trabajo o para entrenar."),
+        dict(tipo="precio", p="smartwatch", nombre="Smartwatch KD99 Ultra", tag="10% OFF CON TRANSFERENCIA", voz="Sale veintisiete mil novecientos, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Pedilo en hogar digital punto com punto ar. Enviamos a todo el país."),
+    ],
     "parlantes": [
         dict(tipo="logo", voz="Llega el finde y falta la música."),
         dict(tipo="foto", p="parlante-rgb", et="PARA EL LIVING", tit="PARLANTE RGB", precio=True, voz="El parlante RGB, con luces de colores, a sesenta mil pesos."),
@@ -78,8 +87,8 @@ def texto(d, xy, s, fnt, fill, anchor="la", esp=0):
     y += asc if anchor[1] == "t" else (asc - desc) / 2 if anchor[1] == "m" else 0
     for c in s: d.text((x, y), c, font=fnt, fill=fill, anchor="ls"); x += d.textlength(c, font=fnt) + esp
 
-def foto_llena(k, t, zoom):
-    im = Image.open(os.path.join(PUB, P[k]["img"])).convert("RGB")
+def foto_llena(k, t, zoom, img=None):
+    im = Image.open(os.path.join(PUB, img or P[k]["img"])).convert("RGB")
     # Fondo: la misma foto desenfocada; adelante, la foto entera con un acercamiento lento
     bg = im.resize((int(H * im.width / im.height), H)) if im.width / im.height < W / H else im.resize((W, int(W * im.height / im.width)))
     bg = bg.resize((max(W, bg.width), max(H, bg.height)))
@@ -113,14 +122,14 @@ def cuadro(esc, t, d_esc):
         texto(d, (W / 2, 1270), "ENVÍOS A TODO EL PAÍS", F("inter800.ttf", 36), (255, 255, 255), "mm", esp=3)
         return im
     if esc["tipo"] == "precio":
-        im = foto_llena(k, x, False); d = ImageDraw.Draw(im)
+        im = foto_llena(k, x, False, esc.get("img")); d = ImageDraw.Draw(im)
         d.rectangle((0, 1290, W, 1700), fill=(8, 10, 14))
         texto(d, (W / 2, 1360), esc.get("nombre", P[k]["nombre"]).upper(), F("mont900.ttf", 34), (180, 190, 200), "mm", esp=3)
         texto(d, (W / 2, 1480), plata(P[k]["precio"]), F("mont900.ttf", 150), (255, 255, 255), "mm")
         d.rounded_rectangle((W / 2 - 300, 1570, W / 2 + 300, 1660), radius=45, fill=AZUL)
-        texto(d, (W / 2, 1615), "LLEVANDO 2: 15% OFF", F("inter800.ttf", 38), (255, 255, 255), "mm", esp=2)
+        texto(d, (W / 2, 1615), esc.get("tag", "LLEVANDO 2: 15% OFF"), F("inter800.ttf", 38), (255, 255, 255), "mm", esp=2)
         return im
-    im = foto_llena(k, x, esc.get("zoom")); d = ImageDraw.Draw(im)
+    im = foto_llena(k, x, esc.get("zoom"), esc.get("img")); d = ImageDraw.Draw(im)
     a = ease(t / 0.35)
     off = int((1 - a) * -60)
     d.rectangle((60 + off, 1280, 60 + off + 12, 1470), fill=AZUL)
@@ -152,17 +161,19 @@ def armar(nombre):
     n = 0
     for e, dd in zip(escenas, durs):
         for j in range(int(round(dd * FPS))):
-            cuadro(e, j / FPS, dd).save(os.path.join(fr, f"{n:05d}.jpg"), quality=90); n += 1
+            cuadro(e, j / FPS, dd).save(os.path.join(fr, f"{n:05d}.jpg"), quality=97, subsampling=0); n += 1
+    # Portada integrada: los 2 primeros cuadros son la primera foto de producto, así Business Suite la toma como miniatura
+    port = next(i for i, e in enumerate(escenas) if e["tipo"] in ("foto", "precio"))
+    ini = int(sum(durs[:port]) * FPS) + 20
+    portada = Image.open(os.path.join(fr, f"{ini:05d}.jpg")).copy()
+    for j in range(2): portada.save(os.path.join(fr, f"{j:05d}.jpg"), quality=97, subsampling=0)
     os.makedirs(os.path.join(PUB, "reels"), exist_ok=True)
     out = os.path.join(PUB, "reels", f"{nombre}.mp4")
     sinmusica = os.path.join(tmp, "video.mp4")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(fr, "%05d.jpg"), "-i", voz,
-        "-c:v", "libx264", "-preset", "slow", "-crf", "21", "-pix_fmt", "yuv420p", "-profile:v", "high", "-c:a", "copy", "-shortest", "-movflags", "+faststart", sinmusica], check=True)
+        "-c:v", "libx264", "-preset", "slow", "-crf", "14", "-pix_fmt", "yuv420p", "-profile:v", "high", "-c:a", "copy", "-shortest", "-movflags", "+faststart", sinmusica], check=True)
     mezclar(sinmusica, voz, out)
-    # Portada: la primera foto de producto
-    port = next(i for i, e in enumerate(escenas) if e["tipo"] in ("foto", "precio"))
-    ini = int(sum(durs[:port]) * FPS) + 20
-    Image.open(os.path.join(fr, f"{ini:05d}.jpg")).save(os.path.join(PUB, "reels", f"{nombre}.jpg"), quality=90)
+    portada.save(os.path.join(PUB, "reels", f"{nombre}.jpg"), quality=97, subsampling=0)
     print(nombre, f"{sum(durs):.1f} s", f"{os.path.getsize(out) / 1e6:.1f} MB")
 
 for nombre in (sys.argv[1:] or list(REELS)):

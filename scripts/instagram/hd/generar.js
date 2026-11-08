@@ -15,8 +15,12 @@ async function sacar(b, pieza, archivo, alto) {
   await p.goto(plantilla, { waitUntil: "networkidle" });
   await p.evaluate(() => document.fonts.ready);
   await p.waitForTimeout(150);
-  await p.screenshot({ path: archivo, type: "jpeg", quality: 90 });
+  // Máxima calidad para subir a mano en Business Suite: PNG sin pérdida y JPG al 97 % con color completo (4:4:4)
+  const png = archivo.replace(/\.jpg$/, ".png");
+  await p.screenshot({ path: png, type: "png" });
   await p.close();
+  require("child_process").execFileSync("python3", ["-c", "import sys;from PIL import Image;Image.open(sys.argv[1]).convert('RGB').save(sys.argv[2],quality=97,subsampling=0,optimize=True)", png, archivo]);
+  fs.rmSync(png);
 }
 
 (async () => {
