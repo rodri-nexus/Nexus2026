@@ -48,6 +48,38 @@ Los dos descuentos se ven en cada producto antes de pagar. No son acumulables co
 
 ${H}`,
   },
+  {
+    carpeta: "08-conoce-hogar-digital",
+    nombre: "Conocé Hogar Digital",
+    placas: [
+      { tipo: "portada", eb: "Desde los años 80", titulo: 'Conocé <span class="az">Hogar Digital</span>', sub: "Detrás de la tienda online hay un local de verdad en Campana, atendiendo desde los años 80.", desliza: "Deslizá →" },
+      { tipo: "foto", img: "../../clientes/hogar-digital/comunidad/marcelo-consejos.jpg", eb: "Quién te atiende", titulo: 'Marcelo, <span class="az">al frente</span>', sub: "Lo ves en nuestros videos explicando cada producto. Si tenés una duda, te responde él." },
+      { tipo: "foto", img: "../../clientes/hogar-digital/comunidad/marcelo-parlantes.jpg", eb: "El local", titulo: 'Belgrano 276, <span class="az">Campana</span>', sub: "Lunes a sábado de 8 a 21 h. Vení a ver los productos en persona." },
+      { tipo: "foto", img: "../../clientes/hogar-digital/comunidad/empaquetando.jpg", eb: "Tu pedido", titulo: 'Lo armamos <span class="az">acá</span>', sub: "Despachamos de lunes a viernes a todo el país." },
+      { tipo: "lista", eb: "En números", titulo: "Lo que nos respalda", items: [
+        { icono: "35", t: "Más de 35 años de trayectoria", d: "Empezamos en la década del 80." },
+        { icono: "300", t: "Más de 300 ventas en 2026" },
+        { icono: "800", t: "Más de 800 calificaciones", d: "En Mercado Libre." },
+      ] },
+      { tipo: "portada", eb: "Te esperamos", titulo: 'En el local o <span class="az">online</span>', sub: "Comprá en hogardigital.com.ar con envío a todo el país, o vení a Belgrano 276. Te respondemos por WhatsApp.", boton: "Link en el perfil" },
+    ],
+    caption: `🏠 Conocé Hogar Digital
+
+Detrás de la tienda online hay un local de verdad en Campana, atendiendo desde los años 80.
+
+👨 Marcelo, al frente: lo ves en nuestros videos explicando cada producto, y si tenés una duda, te responde él.
+📍 Local: Belgrano 276, Campana (Buenos Aires). Lunes a sábado de 8 a 21 h.
+📦 Armamos cada pedido acá y despachamos de lunes a viernes a todo el país.
+
+✅ Más de 35 años de trayectoria
+✅ Más de 300 ventas en 2026
+✅ Más de 800 calificaciones en Mercado Libre
+
+¿Sos de Campana o alrededores? Pasá a conocernos 🙌
+🛒 O comprá online en hogardigital.com.ar (link en el perfil)
+
+${H}`,
+  },
 ];
 
 const historias = [
@@ -66,6 +98,11 @@ const historias = [
     { letra: "A", nombre: "Relajarme", img: "p/masajeador-3.jpg" }, { letra: "B", nombre: "Moverme", img: P.kit.img }], resp: "Respondé A o B en la encuesta 👇" },
   { ...prod("kit", "PARA ENTRENAR EN CASA", "Bandas, agarres y todo para moverte sin ir al gimnasio."), archivo: "1111-2" },
   nuevo("1111-3", "Nuevo reel", 'Cuidarte <span class="az">sin salir de casa</span>', "Masajeador y kit de gimnasio. Miralo en el perfil 👀"),
+
+  // Jue 12/11 · Carrusel: Conocé Hogar Digital
+  { archivo: "1112-1", tipo: "portada", eb: "Pregunta rápida", titulo: '¿Sabías que tenemos <span class="az">local en Campana</span>?', sub: "Contestame con la encuesta 👇 Hoy te lo mostramos.", resp: "Sí · No 📍" },
+  { archivo: "1112-2", tipo: "dato", eb: "Desde los años 80", grande: "+35", az: true, titulo: "años de trayectoria", sub: "Y <b>más de 800 calificaciones</b> en Mercado Libre." },
+  nuevo("1112-3", "Nuevo post", 'Conocé <span class="az">Hogar Digital</span>', "El local, quién te atiende y cómo armamos tu pedido."),
 ];
 
 module.exports = { carruseles, historias };
