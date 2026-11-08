@@ -53,6 +53,21 @@ La **semana 1 la programó Rodrigo a mano en Meta Business Suite**: se le pasó 
 | Jue 5/11 | Carrusel (6) | Así es comprar en Hogar Digital | ¿Qué te frena? · 30 días de garantía · Nuevo post |
 | Vie 6/11 | Reel con voz (23 s) | Música para el finde (3 parlantes) | ¿Juntada o relax? · Parlante RGB $60.000 · Nuevo reel |
 
+## Semana 2 (9 al 13 de noviembre), pasada a Rodrigo día por día el 08/11
+
+Precios revisados en la tienda el 08/11 (`productos.json`). Promos reales que se ven en cada ficha: **10 % con transferencia** y **15 % llevando 2 / 25 % llevando 3**, "no acumulable con algunas promociones". **No usar** "cuotas sin interés" (el checkout cobra interés desde 2 cuotas) ni el monto del envío gratis hasta confirmarlo. Reels con CRF 14 y la portada integrada como primer cuadro (`reels.py`); carruseles e historias en JPG al 97 % (`generar.js semana-2`).
+
+| Día | 19:48 | Pieza | Historias (10:12 · 14:42 · 21:12) |
+|---|---|---|---|
+| Lun 9/11 | Reel `smartwatch` (28 s) | Smartwatch KD99 Ultra ($27.900) | ¿Cuántas veces sacás el celular? · 10 % con transferencia · Nuevo reel |
+| Mar 10/11 | Carrusel (6) `06-pagar-menos` | 2 formas de pagar menos | ¿Cómo pagás? · Auriculares con transferencia · Nuevo post |
+| Mié 11/11 | Reel `bienestar` (33 s) | Masajeador ($46.990) y kit de gimnasio ($24.900) | ¿Relajarme o moverme? · Kit de gimnasio · Nuevo reel |
+| Jue 12/11 | Carrusel (6) `08-conoce-hogar-digital` | Local, Marcelo y pedidos (cuadros de sus Reels) | ¿Sabías del local? · +35 años · Nuevo post |
+| Vie 13/11 | Reel `luz` (26 s) | Luz de emergencia 60 LED ($54.990) | ¿Te quedaste sin luz? · 60 LED · Nuevo reel |
+
+- Las fotos de la **balanza Oryx** en su tienda muestran "NEVUX" en la pantalla: se avisó a Rodrigo para que las cambien; no se usan.
+- Sin métricas de la semana 1 (Windsor no estaba disponible en el chat del 08/11).
+
 ## Pendiente
 
 - Si vence Windsor (~29/11): publicación manual, después de la de @nevux.app (ver `docs/instagram.md`).
