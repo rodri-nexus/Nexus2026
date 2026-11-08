@@ -103,6 +103,11 @@ const historias = [
   { archivo: "1112-1", tipo: "portada", eb: "Pregunta rápida", titulo: '¿Sabías que tenemos <span class="az">local en Campana</span>?', sub: "Contestame con la encuesta 👇 Hoy te lo mostramos.", resp: "Sí · No 📍" },
   { archivo: "1112-2", tipo: "dato", eb: "Desde los años 80", grande: "+35", az: true, titulo: "años de trayectoria", sub: "Y <b>más de 800 calificaciones</b> en Mercado Libre." },
   nuevo("1112-3", "Nuevo post", 'Conocé <span class="az">Hogar Digital</span>', "El local, quién te atiende y cómo armamos tu pedido."),
+
+  // Vie 13/11 · Reel: luz de emergencia 60 LED
+  { archivo: "1113-1", tipo: "portada", eb: "Pregunta rápida", titulo: '¿Te quedaste <span class="az">sin luz</span> este año?', sub: "Contestame con la encuesta 👇 Hoy te mostramos cómo no quedarte a oscuras.", resp: "Sí · No 💡" },
+  { archivo: "1113-2", tipo: "dato", eb: "Luz de emergencia", grande: "60", az: true, titulo: "luces LED", sub: `Para el hogar, las habitaciones y cualquier imprevisto. <b>${plata(P.luz.precio)}</b>, o ${plata(P.luz.precio * 0.9)} con transferencia.` },
+  nuevo("1113-3", "Nuevo reel", 'Que el corte <span class="az">no te agarre a oscuras</span>', "Luz de emergencia de 60 LED. Miralo en el perfil 👀"),
 ];
 
 module.exports = { carruseles, historias };

@@ -103,5 +103,12 @@
   "lista": 54900,
   "url": "https://hogardigital.com.ar/productos/kit-de-gimnasio/",
   "img": "p/kit.jpg"
+ },
+ "luz": {
+  "nombre": "Luz de Emergencia 60 Luces LED",
+  "precio": 54990,
+  "lista": 74990,
+  "url": "https://hogardigital.com.ar/productos/luz-de-emergencia-60-luces-led/",
+  "img": "p/luz.jpg"
  }
 }

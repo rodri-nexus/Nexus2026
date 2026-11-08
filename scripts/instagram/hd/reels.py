@@ -57,6 +57,14 @@ REELS = {
         dict(tipo="foto", p="kit", img="p/kit-2.jpg", et="BANDAS Y AGARRES", tit="DISTINTAS ZONAS", voz="Trabajás distintas zonas del cuerpo según el ejercicio que hagas."),
         dict(tipo="cierre", voz="Pedilos en hogar digital punto com punto ar. Pagando con transferencia, tenés diez por ciento off."),
     ],
+    "luz": [
+        dict(tipo="logo", voz="¿Qué hacés cuando se corta la luz?"),
+        dict(tipo="foto", p="luz", et="LUZ DE EMERGENCIA", tit="60 LUCES LED", voz="Con la luz de emergencia de sesenta LED, no te quedás a oscuras."),
+        dict(tipo="foto", p="luz", img="p/luz-2.jpg", et="PARA TU CASA", tit="CUALQUIER CUARTO", voz="Es ideal para el hogar, las habitaciones y cualquier imprevisto."),
+        dict(tipo="foto", p="luz", img="p/luz-3.jpg", et="SIEMPRE A MANO", tit="LISTA PARA EL CORTE", voz="Tenela preparada para cuando la necesitás."),
+        dict(tipo="precio", p="luz", nombre="Luz de emergencia 60 LED", tag="10% OFF CON TRANSFERENCIA", voz="Sale cincuenta y cuatro mil novecientos noventa, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Anticipate a los cortes. Pedila en hogar digital punto com punto ar."),
+    ],
     "parlantes": [
         dict(tipo="logo", voz="Llega el finde y falta la música."),
         dict(tipo="foto", p="parlante-rgb", et="PARA EL LIVING", tit="PARLANTE RGB", precio=True, voz="El parlante RGB, con luces de colores, a sesenta mil pesos."),
