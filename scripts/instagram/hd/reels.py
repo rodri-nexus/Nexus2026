@@ -45,7 +45,7 @@ REELS = {
         dict(tipo="logo", voz="¿Seguís sacando el celular para ver cada notificación?"),
         dict(tipo="foto", p="smartwatch", et="SMARTWATCH KD99 ULTRA", tit="TODO EN LA MUÑECA", voz="Con el smartwatch KD99 Ultra, las notificaciones te llegan a la muñeca."),
         dict(tipo="foto", p="smartwatch", img="p/smartwatch-24.jpg", et="LLAMADAS POR BLUETOOTH", tit="SIN SACAR EL CELU", voz="Gestionás las llamadas por Bluetooth y seguís tu actividad del día."),
-        dict(tipo="foto", p="smartwatch", img="p/smartwatch-26.jpg", et="PANTALLA TÁCTIL", tit="PARA TODOS LOS DÍAS", voz="Pantalla táctil y diseño tipo Ultra, para el trabajo o para entrenar."),
+        dict(tipo="foto", p="smartwatch", img="p/smartwatch-26.jpg", et="DISEÑO TIPO ULTRA", tit="PARA TODOS LOS DÍAS", voz="Pantalla táctil y diseño tipo Ultra, para el trabajo o para entrenar."),
         dict(tipo="precio", p="smartwatch", nombre="Smartwatch KD99 Ultra", tag="10% OFF CON TRANSFERENCIA", voz="Sale veintisiete mil novecientos, y pagando con transferencia tenés diez por ciento off."),
         dict(tipo="cierre", voz="Pedilo en hogar digital punto com punto ar. Enviamos a todo el país."),
     ],
@@ -126,8 +126,10 @@ def cuadro(esc, t, d_esc):
         d.rectangle((0, 1290, W, 1700), fill=(8, 10, 14))
         texto(d, (W / 2, 1360), esc.get("nombre", P[k]["nombre"]).upper(), F("mont900.ttf", 34), (180, 190, 200), "mm", esp=3)
         texto(d, (W / 2, 1480), plata(P[k]["precio"]), F("mont900.ttf", 150), (255, 255, 255), "mm")
-        d.rounded_rectangle((W / 2 - 300, 1570, W / 2 + 300, 1660), radius=45, fill=AZUL)
-        texto(d, (W / 2, 1615), esc.get("tag", "LLEVANDO 2: 15% OFF"), F("inter800.ttf", 38), (255, 255, 255), "mm", esp=2)
+        tag = esc.get("tag", "LLEVANDO 2: 15% OFF"); ft = F("inter800.ttf", 38)
+        ancho = max(300, (d.textlength(tag, font=ft) + 2 * (len(tag) - 1)) / 2 + 50)
+        d.rounded_rectangle((W / 2 - ancho, 1570, W / 2 + ancho, 1660), radius=45, fill=AZUL)
+        texto(d, (W / 2, 1615), tag, ft, (255, 255, 255), "mm", esp=2)
         return im
     im = foto_llena(k, x, esc.get("zoom"), esc.get("img")); d = ImageDraw.Draw(im)
     a = ease(t / 0.35)
