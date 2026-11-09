@@ -66,6 +66,7 @@ Fichas de producto que venden · Sin apps
 
 Nada de fichas simuladas ni productos inventados: las piezas muestran **cómo quedó la tienda de un cliente, tal cual la tiene**. Capturas en celular (390 px, x3) con Playwright sobre la tienda real y su configuración de `lib/clientes.ts` (si la tienda está apagada, la configuración se carga solo en el navegador de prueba). **Los avisos de compra del Premium se dejan en las capturas** (Rodrigo: "eso va con lo premium"). Se saca solo un evento que ya terminó (por ejemplo, la Semana Cyber después del 4/11). Valmont no se usa mientras tenga réplicas cargadas.
 - Primer carrusel: `07-hogar-digital-real` (martes 3/11), hecho con `scripts/instagram/real-1.js` y las capturas de `scripts/instagram/capturas/hd/`. Reemplaza a `04-que-hace-nevux`.
+- **Desde el 09/11 Nevux está prendido en la tienda de Marcelo** (`activo: true`, cobro `planPropio`): las capturas se sacan de su tienda en vivo, sin cargar nada en el navegador (`real-2.js`, capturas en `scripts/instagram/capturas/hd-vivo/`). Semana del 9 al 15/11: historias en `historias-3.js`.
 - A rehacer igual: miércoles 4/11 (`02-antes-despues`), jueves 5/11 (Reel `packs`) y sábado 7/11 (Reel `envio`). Los carruseles del viernes y el domingo son solo texto y quedan.
 
 ## Frecuencia y horarios (todo programado, hora de Argentina)
