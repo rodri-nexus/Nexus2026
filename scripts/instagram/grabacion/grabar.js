@@ -27,6 +27,23 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
     while ((x = w.nextNode())) { const e = x.parentElement; if (x.textContent.toUpperCase().includes(t.toUpperCase()) && e.offsetParent && e.getBoundingClientRect().height) return e.getBoundingClientRect().top + scrollY; }
     return null;
   }, texto);
+  // Tiempo real: graba la pantalla con el screencast de Chrome (los videos y carruseles se ven andando a su velocidad)
+  const cdp = await ctx.newCDPSession(p);
+  const enVivo = async (k) => {
+    if (k <= 0) return;
+    const fr = [];
+    const h = (e) => { fr.push({ d: e.data, t: e.metadata.timestamp }); cdp.send("Page.screencastFrameAck", { sessionId: e.sessionId }).catch(() => {}); };
+    cdp.on("Page.screencastFrame", h);
+    await cdp.send("Page.startScreencast", { format: "jpeg", quality: 95, maxWidth: 1080, maxHeight: 1920, everyNthFrame: 1 });
+    await p.waitForTimeout((k / 30) * 1000 + 400);
+    await cdp.send("Page.stopScreencast"); cdp.off("Page.screencastFrame", h);
+    if (!fr.length) return quieto(k);
+    const t0 = fr[0].t;
+    for (let i = 0; i < k; i++) {
+      let f = fr[0]; for (const x of fr) { if (x.t <= t0 + i / 30) f = x; else break; }
+      fs.writeFileSync(path.join(salida, `${String(n++).padStart(5, "0")}.png`), Buffer.from(f.d, "base64"));
+    }
+  };
   const ease = (x) => 0.5 - 0.5 * Math.cos(Math.PI * Math.max(0, Math.min(1, x)));
   // Desliza la página (o el panel del carrito) desde donde está hasta "destino" durante "k" cuadros
   const deslizar = async (destino, k, panel) => {
@@ -56,7 +73,9 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
     } else if (s.accion === "bajar") {
       const y = await yDe(s.texto);
       const mov = Math.round(k * 0.55);
-      await deslizar(Math.max(0, y - (s.margen || 90)), mov); await quieto(k - mov);
+      await deslizar(Math.max(0, y - (s.margen || 90)), mov); await (s.vivo ? enVivo : quieto)(k - mov);
+    } else if (s.accion === "vivo") {
+      await enVivo(k);
     } else if (s.accion === "tocar") {
       // baja hasta el producto, lo toca y abre su ficha
       const y = await yDe(s.texto);

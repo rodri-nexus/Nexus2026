@@ -1,5 +1,5 @@
 # Reel "Una compra real en Hogar Digital": grabación de la tienda en vivo + voz de Tomás + música suave + rótulos de Nevux.
-# Uso: python3 scripts/instagram/grabacion/compra.py   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
+# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento]   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
 # Sale en public/ig/reels/compra.mp4 (+ .jpg). La portada va integrada como primer cuadro.
 import json, os, subprocess, sys, tempfile, shutil
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -16,7 +16,8 @@ F = lambda n, s: ImageFont.truetype(os.path.join(FUENTES, n), s)
 HOME = "https://hogardigital.com.ar/"
 OVNI = "https://hogardigital.com.ar/productos/humidificador-ovni-267/"
 
-ESCENAS = [
+REELS = {}
+REELS["compra"] = [
     dict(accion="abrir", url=HOME, et="CASO REAL · EN VIVO", tit="Una compra real en Hogar Digital", voz="Así compra un cliente en Hogar Digital. Es su tienda real, en vivo."),
     dict(accion="bajar", texto="ATENCIÓN POR WHATSAPP", margen=330, et="1 · LA HOME", tit="La confianza, primero", voz="Apenas entra, ve envíos a todo el país, garantía y atención por WhatsApp."),
     dict(accion="bajar", texto="DESTACADOS", margen=120, et="2 · LOS PRODUCTOS", tit="Precio y descuento a la vista", voz="Baja, y cada producto tiene el precio y el descuento a la vista."),
@@ -27,6 +28,16 @@ ESCENAS = [
     dict(accion="panel", texto="TOTAL", margen=60, et="4 · EL CARRITO", tit="Elige cómo pagar", voz="Elige cómo pagar, y con transferencia ve el descuento antes de pagar."),
     dict(accion="cierre", voz="Todo con los datos reales de su tienda. ¿Querés la tuya así? Comentá ficha."),
 ]
+REELS["movimiento"] = [
+    dict(accion="abrir", url=HOME, et="CASO REAL · EN VIVO", tit="Sus Reels, dentro de su tienda", voz="¿Tenés videos de tus productos en Instagram? Mirá dónde los puso Hogar Digital."),
+    dict(accion="bajar", texto="en movimiento", margen=150, vivo=True, et="EN MOVIMIENTO", tit="Sus videos, en la home", voz="En su home hay una sección con sus propios Reels."),
+    dict(accion="vivo", et="EN MOVIMIENTO", tit="Se reproducen solos", voz="Se reproducen solos, sin sonido, y van pasando como en Instagram."),
+    dict(accion="vivo", et="EN MOVIMIENTO", tit="Productos funcionando", voz="Quien entra a la tienda ve los productos funcionando, y a Marcelo explicándolos."),
+    dict(accion="vivo", et="EN MOVIMIENTO", tit="Cada uno abre su Reel", voz="Y si toca uno, se abre ese Reel en su Instagram."),
+    dict(accion="cierre", voz="¿Tenés videos en Instagram? Pueden estar en tu tienda. Comentá ficha."),
+]
+NOMBRE = sys.argv[1] if len(sys.argv) > 1 else "compra"
+ESCENAS = REELS[NOMBRE]
 
 def fondo():
     im = Image.new("RGB", (W, H), BG)
@@ -111,10 +122,10 @@ def main():
     sinmusica = os.path.join(tmp, "video.mp4")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(fr, "%05d.png"), "-i", voz,
         "-c:v", "libx264", "-preset", "slow", "-crf", "14", "-tune", "animation", "-pix_fmt", "yuv420p", "-profile:v", "high", "-c:a", "copy", "-shortest", "-movflags", "+faststart", sinmusica], check=True)
-    out = os.path.join(SALIDA, "compra.mp4")
+    out = os.path.join(SALIDA, f"{NOMBRE}.mp4")
     mezclar(sinmusica, voz, out)
-    portada.convert("RGB").save(os.path.join(SALIDA, "compra.jpg"), quality=97, subsampling=0)
-    print("compra", f"{sum(durs):.1f} s", f"{os.path.getsize(out) / 1e6:.1f} MB", n, "cuadros")
+    portada.convert("RGB").save(os.path.join(SALIDA, f"{NOMBRE}.jpg"), quality=97, subsampling=0)
+    print(NOMBRE, f"{sum(durs):.1f} s", f"{os.path.getsize(out) / 1e6:.1f} MB", n, "cuadros")
     shutil.rmtree(tmp, ignore_errors=True)
 
 main()

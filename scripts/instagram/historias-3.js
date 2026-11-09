@@ -47,5 +47,19 @@ module.exports = {
       pie: "Efecto meta",
     },
     nuevo("1111-3", "Nuevo post", 'El carrito <span class="verde">también vende</span>', "El de Hogar Digital, en vivo. 🛒"),
+
+    // Jue 12/11 · reel: "en movimiento", sus Reels dentro de su tienda
+    {
+      archivo: "1112-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Tus videos de Instagram <span class="verde">están en tu tienda</span>?',
+      sub: "Respondé con la encuesta. Hoy te muestro dónde los puso Hogar Digital.", responde: "SÍ · NO 🎥",
+    },
+    {
+      archivo: "1112-2", tipo: "punto", num: "PSICOLOGÍA DE VENTA",
+      titulo: 'Verlo andando <span class="verde">convence</span>',
+      texto: "Una foto muestra el producto. Un video lo muestra <b>funcionando</b>, en manos de alguien.<br><br>Así quien compra se imagina usándolo antes de pagar.",
+      pie: "Prueba visual",
+    },
+    nuevo("1112-3", "Nuevo reel", 'Sus Reels, <span class="verde">dentro de su tienda</span>', "La sección “en movimiento” de Hogar Digital. 🎥"),
   ],
 };
