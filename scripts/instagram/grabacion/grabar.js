@@ -88,19 +88,21 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
       await p.waitForTimeout(2500);
       await quieto(k - mov - 6);
     } else if (s.accion === "panel") {
-      // baja dentro del panel del carrito hasta "texto"
-      const sel = await p.evaluate(() => {
-        const els = [...document.querySelectorAll("*")].filter((e) => e.scrollHeight > e.clientHeight + 50 && /(auto|scroll)/.test(getComputedStyle(e).overflowY) && e.getBoundingClientRect().width > 300);
-        const e = els.sort((a, b) => b.scrollHeight - a.scrollHeight)[0]; if (!e) return null; e.setAttribute("data-nx-panel", "1"); return '[data-nx-panel="1"]';
-      });
-      const y = await p.evaluate(([t, sel]) => {
-        const c = document.querySelector(sel); const w = document.createTreeWalker(c, NodeFilter.SHOW_TEXT); let x;
-        while ((x = w.nextNode())) if (x.textContent.toUpperCase().includes(t.toUpperCase())) return x.parentElement.getBoundingClientRect().top - c.getBoundingClientRect().top + c.scrollTop;
-        return 0;
-      }, [s.texto, sel]);
+      // baja dentro del panel del carrito con la ruedita, hasta que "texto" quede arriba
+      await p.mouse.move(195, 420);
+      const top = () => p.evaluate((t) => {
+        const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); let x, mejor = null;
+        while ((x = w.nextNode())) { const e = x.parentElement; if (x.textContent.trim().toUpperCase().startsWith(t.toUpperCase()) && e.getBoundingClientRect().height && getComputedStyle(e).visibility !== "hidden") { const r = e.getBoundingClientRect(); if (r.width && (!mejor || r.top > mejor)) mejor = r.top; } }
+        return mejor;
+      }, s.texto);
       const mov = Math.round(k * 0.5);
-      await deslizar(Math.max(0, y - (s.margen || 90)), mov, sel); await quieto(k - mov);
-    }
+      for (let i = 0; i < mov; i++) {
+        const t = await top(); const falta = t == null ? 0 : t - (s.margen || 90);
+        const paso = falta * (1 - Math.cos(Math.PI / (mov - i + 1)) + 0.12);
+        if (Math.abs(falta) > 2) { await p.mouse.wheel(0, paso); await p.waitForTimeout(60); }
+        await foto();
+      }
+      await quieto(k - mov);
     console.log(s.accion, k, "cuadros");
   }
   await b.close();
