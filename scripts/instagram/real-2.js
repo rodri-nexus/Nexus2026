@@ -82,4 +82,42 @@ Todo con los datos reales de su tienda.
 
 ${HASHTAGS}`,
   },
+  {
+    carpeta: "10-tres-cosas-ficha",
+    nombre: "3 cosas que tu ficha tiene que mostrar",
+    placas: [
+      { tipo: "portada", eyebrow: "Guardalo para después", titulo: '3 cosas que tu ficha <span class="verde">tiene que mostrar</span>', sub: "Con un ejemplo real: la ficha del smartwatch de Hogar Digital, en vivo." },
+      f("1 · CUÁNTO PAGA DE VERDAD", "El precio final y el ahorro, sin hacer cuentas", "sw-2.jpg"),
+      f("2 · CUÁNDO LE LLEGA", "La hora de corte y cuánto falta para el envío gratis", "sw-3.jpg"),
+      f("3 · QUÉ PASA SI SALE MAL", "Cambios, garantía y a quién escribirle", "sw-4.jpg"),
+      {
+        tipo: "punto", num: "LA REGLA",
+        titulo: 'Si tiene que preguntarlo, <span class="verde">ya dudó</span>',
+        texto: "Cuánto pago, cuándo llega y qué pasa si sale mal: <b>las 3 dudas de toda compra online</b>.<br><br>La ficha que las responde antes de que aparezcan es la que vende.",
+      },
+      {
+        tipo: "cta", ultima: true, eyebrow: "Análisis gratis",
+        titulo: '¿Cuántas de las 3 <span class="verde">tiene la tuya</span>?',
+        texto: 'Comentá <span class="palabra">FICHA</span> y te digo cuáles le faltan.',
+      },
+    ],
+    caption: `📌 3 cosas que tu ficha de producto tiene que mostrar (guardalo para después)
+
+Las 3 dudas de toda compra online, con un ejemplo real: la ficha del smartwatch de Hogar Digital (@hogardigitaltiendaonline), en vivo 👇
+
+1️⃣ Cuánto paga de verdad
+No alcanza con el precio: el precio final con transferencia y cuánto ahorra, sin que tenga que hacer cuentas.
+
+2️⃣ Cuándo le llega
+"Envíos a todo el país" no responde nada. La hora de corte ("sale hoy si comprás antes de las 18 h") y cuánto le falta para el envío gratis, sí.
+
+3️⃣ Qué pasa si sale mal
+Cambios, garantía y a quién escribirle, a la vista. Así comprar no da miedo.
+
+Si tiene que preguntarlo, ya dudó. Y el que duda se va a "pensarlo".
+
+👉 ¿Cuántas de las 3 tiene la tuya? Comentá FICHA y te digo cuáles le faltan.
+
+${HASHTAGS}`,
+  },
 ];

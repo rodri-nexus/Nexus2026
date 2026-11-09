@@ -61,5 +61,19 @@ module.exports = {
       pie: "Prueba visual",
     },
     nuevo("1112-3", "Nuevo reel", 'Sus Reels, <span class="verde">dentro de su tienda</span>', "La sección “en movimiento” de Hogar Digital. 🎥"),
+
+    // Vie 13/11 · post: 3 cosas que tu ficha tiene que mostrar
+    {
+      archivo: "1113-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Cuál es la duda que <span class="verde">más te preguntan</span> por WhatsApp?',
+      sub: "Respondé con la encuesta. Hoy te digo cómo sacarla de la ficha.", responde: "ENVÍO · PRECIO 💬",
+    },
+    {
+      archivo: "1113-2", tipo: "punto", num: "PSICOLOGÍA DE VENTA",
+      titulo: 'Cada mensaje es <span class="verde">una venta en pausa</span>',
+      texto: "Si te preguntan “¿cuánto tarda?” o “¿tiene garantía?”, la ficha no lo dijo.<br><br>Y por cada uno que pregunta, <b>hay otros que se fueron sin preguntar</b>.",
+      pie: "Fricción",
+    },
+    nuevo("1113-3", "Nuevo post", '3 cosas que tu ficha <span class="verde">tiene que mostrar</span>', "Con un ejemplo real, en vivo. 📌"),
   ],
 };
