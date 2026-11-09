@@ -98,11 +98,12 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
       const mov = Math.round(k * 0.5);
       for (let i = 0; i < mov; i++) {
         const t = await top(); const falta = t == null ? 0 : t - (s.margen || 90);
-        const paso = falta * (1 - Math.cos(Math.PI / (mov - i + 1)) + 0.12);
+        const paso = falta / Math.max(1, mov - i);
         if (Math.abs(falta) > 2) { await p.mouse.wheel(0, paso); await p.waitForTimeout(60); }
         await foto();
       }
       await quieto(k - mov);
+    }
     console.log(s.accion, k, "cuadros");
   }
   await b.close();
