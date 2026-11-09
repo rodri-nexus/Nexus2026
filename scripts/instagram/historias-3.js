@@ -19,5 +19,19 @@ module.exports = {
       pie: "Fricción",
     },
     nuevo("1109-3", "Nuevo post", 'La ficha de <span class="verde">Hogar Digital</span>, parte por parte', "Caso real, en vivo en su tienda. 📲"),
+
+    // Mar 10/11 · reel: una compra real en Hogar Digital
+    {
+      archivo: "1110-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Cuántos pasos hay entre <span class="verde">entrar y comprar</span> en tu tienda?',
+      sub: "Respondé con la encuesta. Hoy te muestro una compra real, paso a paso.", responde: "POCOS · MUCHOS 🛒",
+    },
+    {
+      archivo: "1110-2", tipo: "punto", num: "PSICOLOGÍA DE VENTA",
+      titulo: 'La duda aparece <span class="verde">en cada paso</span>',
+      texto: "En la home: ¿es confiable? En la ficha: ¿cuánto pago y cuándo llega? En el carrito: ¿cuánto sale el envío?<br><br>Si cada paso responde su duda, <b>la compra sigue sola</b>.",
+      pie: "El recorrido de compra",
+    },
+    nuevo("1110-3", "Nuevo reel", 'Una compra real en <span class="verde">Hogar Digital</span>', "Grabada en su tienda, de punta a punta. 🎥"),
   ],
 };
