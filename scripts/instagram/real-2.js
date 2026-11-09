@@ -44,4 +44,42 @@ Todo con los datos reales de su tienda: si algo no lo ofrece, no se muestra.
 
 ${HASHTAGS}`,
   },
+  {
+    carpeta: "09-carrito-hogar-digital",
+    nombre: "El carrito también vende",
+    placas: [
+      f("CASO REAL · EN VIVO", 'El carrito de Hogar Digital <span class="verde">también vende</span>', "carrito-1.jpg"),
+      {
+        tipo: "punto", num: "POR QUÉ IMPORTA",
+        titulo: 'El carrito es <span class="verde">la última duda</span>',
+        texto: "Ahí la persona se pregunta: ¿cuándo me llega?, ¿cuánto sale el envío?, ¿y si algo sale mal?<br><br>Si el carrito no responde, <b>cierra la pestaña “para pensarlo”</b>.",
+      },
+      f("1 · CUÁNDO SALE Y EL ENVÍO", "Hora de corte y envío gratis, confirmados", "carrito-1.jpg"),
+      f("2 · COMPRÁ TRANQUILO", "Garantía, cambios y atención, pasando solas", "carrito-2.jpg"),
+      f("3 · CÓMO PAGAR", "El total y el ahorro con transferencia, antes de pagar", "carrito-4.jpg"),
+      {
+        tipo: "cta", ultima: true, eyebrow: "Sin apps · Sin cambiar de plantilla",
+        titulo: '¿Tu carrito <span class="verde">responde todo esto</span>?',
+        texto: 'Comentá <span class="palabra">FICHA</span> y te digo qué cambiaría en tu tienda.',
+      },
+    ],
+    caption: `El carrito también vende 🛒 Así es hoy el de Hogar Digital (@hogardigitaltiendaonline), en vivo en su Tiendanube 👇
+
+El carrito es la última duda antes de pagar. Ahí la persona se pregunta: ¿cuándo me llega?, ¿cuánto sale el envío?, ¿y si algo sale mal?
+
+En el de Hogar Digital, cada respuesta está a la vista:
+
+⏰ Cuándo sale el pedido, con la hora de corte y cuenta regresiva.
+🚚 La barra de envío gratis: cuánto le falta o, si ya llegó, que lo tiene confirmado.
+🤝 Garantía, cambios y atención por WhatsApp, pasando solas.
+💳 El total y cómo pagar, con el ahorro por transferencia antes de pagar.
+
+Todo con los datos reales de su tienda.
+✅ Sin apps
+✅ Sin cambiar de plantilla
+
+👉 ¿Tu carrito responde todo esto? Comentá FICHA y te digo qué cambiaría en tu tienda.
+
+${HASHTAGS}`,
+  },
 ];

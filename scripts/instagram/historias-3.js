@@ -33,5 +33,19 @@ module.exports = {
       pie: "El recorrido de compra",
     },
     nuevo("1110-3", "Nuevo reel", 'Una compra real en <span class="verde">Hogar Digital</span>', "Grabada en su tienda, de punta a punta. 🎥"),
+
+    // Mié 11/11 · post: el carrito también vende
+    {
+      archivo: "1111-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Tu carrito dice <span class="verde">cuánto falta</span> para el envío gratis?',
+      sub: "Respondé con la encuesta. Hoy te muestro uno que sí.", responde: "SÍ · NO 🚚",
+    },
+    {
+      archivo: "1111-2", tipo: "punto", num: "PSICOLOGÍA DE VENTA",
+      titulo: 'Una meta cerca <span class="verde">empuja</span>',
+      texto: "“Te faltan $22.100 para el envío gratis” no es un dato: es una meta.<br><br>Cuando la meta se ve cerca, muchos <b>suman otro producto</b> en vez de pagar el envío.",
+      pie: "Efecto meta",
+    },
+    nuevo("1111-3", "Nuevo post", 'El carrito <span class="verde">también vende</span>', "El de Hogar Digital, en vivo. 🛒"),
   ],
 };
