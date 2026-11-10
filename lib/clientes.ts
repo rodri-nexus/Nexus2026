@@ -372,14 +372,15 @@ export const CLIENTES: Record<string, Cliente> = {
     activo: true,
     // Premium estilo Destino en naranja (plantilla Ipanema). Se prende sola cuando paga en nevux.ar/pagar/suplementacion-la-plata.
     // Datos de la tienda (08/11): envío gratis desde $75.000, 3 cuotas sin interés, transferencia solo web (el % sale de cada producto),
-    // 2 locales en La Plata, cambios hasta 2 días. La cabecera y el pie quedan los de Ipanema (la cabecera Destino es para Brasilia).
+    // 2 locales en La Plata, cambios hasta 2 días. Igual que Hogar Digital (cabecera, pie, ficha y carrito en tarjetas) con su naranja.
     cobro: { tipo: 'mercadopago', planPropio: true, gracia: 3 },
     dominios: ['suplementacionlaplata.com'],
     plan: 'premium',
     config: {
       "color": "#dd701b",
       "marca": {
-        "oscuro": "#0b0b0b"
+        "oscuro": "#0b0b0b",
+        "noche": "#141414"
       },
       "anuncios": [
         "🚚 Envío gratis a La Plata o a todo el país desde $75.000",
@@ -402,19 +403,19 @@ export const CLIENTES: Record<string, Cliente> = {
         "sello": "Suplementación La Plata · *desde 2017*",
         "confianza": [
           {
-            "icono": "envio",
-            "titulo": "Envío gratis",
-            "texto": "Desde $75.000 a todo el país"
-          },
-          {
-            "icono": "cuotas",
-            "titulo": "3 cuotas sin interés",
-            "texto": "En la web y en los locales"
+            "icono": "cambios",
+            "titulo": "Cambios",
+            "texto": "Hasta 2 días después de recibirlo"
           },
           {
             "icono": "chat",
             "titulo": "Te asesoramos",
             "texto": "Por WhatsApp"
+          },
+          {
+            "icono": "cuotas",
+            "titulo": "3 cuotas sin interés",
+            "texto": "En la web y en los locales"
           }
         ],
         "faq": [
@@ -434,13 +435,20 @@ export const CLIENTES: Record<string, Cliente> = {
             "p": "¿Tienen local?",
             "r": "Sí, dos en La Plata: Avenida 32 n.º 842, entre 11 y 12, y Calle 14 n.º 629, entre 44 y 45."
           }
-        ]
+        ],
+        "estilo": "hogar",
+        "chip": "Desde 2017 · 2 locales en La Plata",
+        "envioTexto": "A La Plata o a todo el país"
       },
       "packs": [],
       "tarjetas": {
         "estilo": "destacado"
       },
-      "carrito": true,
+      "carrito": {
+        "estilo": "hogar",
+        "acento": "#dd701b",
+        "marcador": "SLP"
+      },
       "ventas": {
         "estilo": "destino",
         "marca": "Suplementación La Plata"
@@ -667,7 +675,13 @@ export const CLIENTES: Record<string, Cliente> = {
         "[data-store=\"home-products-sale\"]",
         "[data-store=\"featured_products_2\"]",
         "[data-store=\"banner-services\"]"
-      ]
+      ],
+      "cabecera": {
+        "logo": "https://nevux.ar/clientes/suplementacion-la-plata/logo-negro.png",
+        "logoBlanco": "https://nevux.ar/clientes/suplementacion-la-plata/logo-blanco.png",
+        "nombre": "Suplementación La Plata"
+      },
+      "transferencia": 8
     }
   },
   "valmont": {
