@@ -367,6 +367,309 @@ export const CLIENTES: Record<string, Cliente> = {
       "packs": []
     }
   },
+  "suplementacion-la-plata": {
+    nombre: "Suplementación La Plata",
+    activo: true,
+    // Premium estilo Destino en naranja (plantilla Ipanema). Se prende sola cuando paga en nevux.ar/pagar/suplementacion-la-plata.
+    // Datos de la tienda (08/11): envío gratis desde $75.000, 3 cuotas sin interés, transferencia solo web (el % sale de cada producto),
+    // 2 locales en La Plata, cambios hasta 2 días. La cabecera y el pie quedan los de Ipanema (la cabecera Destino es para Brasilia).
+    cobro: { tipo: 'mercadopago', planPropio: true, gracia: 3 },
+    dominios: ['suplementacionlaplata.com'],
+    plan: 'premium',
+    config: {
+      "color": "#dd701b",
+      "marca": {
+        "oscuro": "#0b0b0b"
+      },
+      "anuncios": [
+        "🚚 Envío gratis a La Plata o a todo el país desde $75.000",
+        "💳 Hasta 3 cuotas sin interés",
+        "📍 2 locales en La Plata"
+      ],
+      "mediosDePago": [
+        "Mercado Pago",
+        "Transferencia",
+        "Débito",
+        "Crédito"
+      ],
+      "estiloFicha": "destino",
+      "envioGratisDesde": 75000,
+      "whatsapp": "542215704907",
+      "premium": {
+        "tema": "destino"
+      },
+      "fichaDestino": {
+        "sello": "Suplementación La Plata · *desde 2017*",
+        "confianza": [
+          {
+            "icono": "envio",
+            "titulo": "Envío gratis",
+            "texto": "Desde $75.000 a todo el país"
+          },
+          {
+            "icono": "cuotas",
+            "titulo": "3 cuotas sin interés",
+            "texto": "En la web y en los locales"
+          },
+          {
+            "icono": "chat",
+            "titulo": "Te asesoramos",
+            "texto": "Por WhatsApp"
+          }
+        ],
+        "faq": [
+          {
+            "p": "¿Cuánto sale el envío?",
+            "r": "Es gratis a La Plata o a todo el país en compras superiores a $75.000. Enviamos por Correo Argentino o Andreani y te llega el código de seguimiento por mail."
+          },
+          {
+            "p": "¿Cómo puedo pagar?",
+            "r": "Con Mercado Pago, transferencia, débito o crédito. Hasta 3 cuotas sin interés en la web y en los locales; en efectivo, solo en los locales."
+          },
+          {
+            "p": "¿Puedo cambiarlo o devolverlo?",
+            "r": "Sí, hasta 2 días después de recibirlo o retirarlo. El producto tiene que estar cerrado y en excelente estado."
+          },
+          {
+            "p": "¿Tienen local?",
+            "r": "Sí, dos en La Plata: Avenida 32 n.º 842, entre 11 y 12, y Calle 14 n.º 629, entre 44 y 45."
+          }
+        ]
+      },
+      "packs": [],
+      "tarjetas": {
+        "estilo": "destacado"
+      },
+      "carrito": true,
+      "ventas": {
+        "estilo": "destino",
+        "marca": "Suplementación La Plata"
+      },
+      "home": {
+        "destino": {
+          "acento": "#dd701b",
+          "modo": "editorial",
+          "cinta": [
+            "Envío *gratis* desde $75.000",
+            "Hasta *3 cuotas* sin interés",
+            "*2 locales* en La Plata",
+            "Más de *40 marcas*"
+          ],
+          "portada": {
+            "fotos": [
+              "https://acdn-us.mitiendanube.com/stores/003/189/220/products/starnutrition-creatinamonohidrato-uva-995e3d2d8fe5b562e317884636144229-1024-1024.webp",
+              "https://acdn-us.mitiendanube.com/stores/003/189/220/products/wheyprotein7900-gentech-chocolate1k-603eaf936e9e97198f17879291348728-1024-1024.webp",
+              "https://acdn-us.mitiendanube.com/stores/003/189/220/products/creatina-gentech-500-149b2cfb4afc9b6ddb17839759250293-1024-1024.webp"
+            ],
+            "etiqueta": "Suplementación La Plata · Desde 2017",
+            "titulo": "Suplementos al mejor precio.",
+            "texto": "Proteínas, creatinas, barritas y más de 40 marcas.",
+            "boton": "Ver productos",
+            "url": "/productos1/",
+            "boton2": "Ver ofertas",
+            "url2": "/ofertas/",
+            "productosUrl": "/productos1/proteinas/"
+          },
+          "beneficios": [
+            {
+              "icono": "envio",
+              "titulo": "Envío gratis",
+              "texto": "Desde $75.000 a todo el país"
+            },
+            {
+              "icono": "cuotas",
+              "titulo": "3 cuotas sin interés",
+              "texto": "En la web y en los locales"
+            },
+            {
+              "icono": "transferencia",
+              "titulo": "Descuento por transferencia",
+              "texto": "Solo en la web"
+            },
+            {
+              "icono": "chat",
+              "titulo": "Te asesoramos",
+              "texto": "Por WhatsApp"
+            }
+          ],
+          "tira": {
+            "items": [
+              {
+                "nombre": "Proteína",
+                "url": "/productos1/proteinas/",
+                "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/b6aedc70-categoria-proteina/original/200.png"
+              },
+              {
+                "nombre": "Creatina",
+                "url": "/productos1/creatina/",
+                "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/4d25b1c6-categoria-creatina/original/200.png"
+              },
+              {
+                "nombre": "Barritas",
+                "url": "/productos1/barras-proteicas/",
+                "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/16612c3c-categoria-barraproteica/original/200.png"
+              },
+              {
+                "nombre": "Colágeno",
+                "url": "/productos1/colageno1/",
+                "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/e09e7111-categoria-colageno/original/200.png"
+              },
+              {
+                "nombre": "Magnesio",
+                "url": "/productos1/citrato-de-magnesio/",
+                "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/20baf9ab-categoria-citratodemagnesio/original/200.png"
+              },
+              {
+                "nombre": "Proteína vegana",
+                "url": "/productos1/proteina-vegana/",
+                "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/9176e3ba-categoria-proteinavegetal/original/200.png"
+              },
+              {
+                "nombre": "Ganador de masa",
+                "url": "/productos1/ganador-de-masa/",
+                "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/3b1cd934-categoria-ganadordemasa/original/200.png"
+              },
+              {
+                "nombre": "Pre entreno",
+                "url": "/productos1/pre-entreno/",
+                "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/36b265bf-categoria-preentreno/original/200.png"
+              },
+              {
+                "nombre": "Aminoácidos",
+                "url": "/productos1/aminoacidos1/",
+                "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/b49ea5af-categoria-aminoacidos/original/200.png"
+              },
+              {
+                "nombre": "Vitaminas",
+                "url": "/productos1/vitaminas/",
+                "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/15e45c3d-categoria-vitaminas/original/200.png"
+              }
+            ]
+          },
+          "destacados": [
+            {
+              "etiqueta": "Lo más buscado",
+              "titulo": "Proteínas",
+              "url": "/productos1/proteinas/",
+              "cantidad": 4
+            },
+            {
+              "etiqueta": "Fuerza y rendimiento",
+              "titulo": "*Creatinas*",
+              "url": "/productos1/creatina/",
+              "carrusel": true,
+              "cantidad": 8
+            },
+            {
+              "etiqueta": "Ahorrá más",
+              "titulo": "Los mejores *combos*",
+              "url": "/combos-creatina-proteina/",
+              "carrusel": true,
+              "cantidad": 8
+            }
+          ],
+          "numeros": {
+            "titulo": "Suplementación La Plata *en números*",
+            "items": [
+              {
+                "valor": 2017,
+                "texto": "El año en que empezamos"
+              },
+              {
+                "valor": 40,
+                "prefijo": "+",
+                "texto": "Marcas"
+              },
+              {
+                "valor": 2,
+                "texto": "Locales en La Plata"
+              }
+            ]
+          },
+          "locales": {
+            "etiqueta": "Suplementación La Plata",
+            "titulo": "Vení a *conocernos*",
+            "texto": "Te asesoramos en persona. En los locales también podés pagar en efectivo.",
+            "items": [
+              {
+                "zona": "La Plata",
+                "nombre": "Local de 32",
+                "direccion": "Avenida 32 n.º 842, entre 11 y 12, La Plata"
+              },
+              {
+                "zona": "La Plata",
+                "nombre": "Local de 14",
+                "direccion": "Calle 14 n.º 629, entre 44 y 45, La Plata"
+              }
+            ]
+          },
+          "faqTitulo": "Antes de comprar",
+          "faq": [
+            {
+              "p": "¿Cómo compro?",
+              "r": "Agregá los productos al carrito (elegí sabor y cantidad), tocá \"Iniciar compra\", completá tus datos y el envío, y elegí cómo pagar. Una vez acreditado el pago, te lo enviamos."
+            },
+            {
+              "p": "¿Cuánto sale el envío?",
+              "r": "Es gratis a La Plata o a todo el país en compras superiores a $75.000. Enviamos por Correo Argentino o Andreani y te llega el código de seguimiento por mail."
+            },
+            {
+              "p": "¿Cómo puedo pagar?",
+              "r": "Con Mercado Pago, transferencia, débito o crédito. Hasta 3 cuotas sin interés en la web y en los locales; en efectivo, solo en los locales."
+            },
+            {
+              "p": "¿Puedo cambiarlo o devolverlo?",
+              "r": "Sí, hasta 2 días después de recibirlo o retirarlo. El producto tiene que estar cerrado y en excelente estado."
+            },
+            {
+              "p": "¿Tienen local?",
+              "r": "Sí, dos en La Plata: Avenida 32 n.º 842, entre 11 y 12, y Calle 14 n.º 629, entre 44 y 45."
+            }
+          ],
+          "banner": {
+            "etiqueta": "[ Tu objetivo ]",
+            "titulo": "Aumento de masa.",
+            "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/998e1eb1-aumento-masa-muscular-nuevo/original/735.png",
+            "boton": "Ver productos",
+            "url": "/objetivo-fitness/aumento-de-masa"
+          }
+        },
+        "rotador": {
+          "etiqueta": "Tu objetivo fitness",
+          "items": [
+            {
+              "nombre": "Aumento de masa",
+              "url": "/objetivo-fitness/aumento-de-masa",
+              "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/998e1eb1-aumento-masa-muscular-nuevo/original/735.png"
+            },
+            {
+              "nombre": "Definición muscular",
+              "url": "/objetivo-fitness/definicion-muscular",
+              "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/9555230b-definicion-muscular-tamaog/original/520.png"
+            },
+            {
+              "nombre": "Rendimiento y energía",
+              "url": "/objetivo-fitness/rendimiento-y-energia",
+              "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/325f0838-rendimiento-energia-tamaog/original/520.png"
+            },
+            {
+              "nombre": "Recuperación y bienestar",
+              "url": "/objetivo-fitness/recuperacion-y-bienestar",
+              "foto": "https://acdn-us.mitiendanube.com/stores/003/189/220/media/8929ae7d-recuperacion-bienestar-tamaog/original/520.png"
+            }
+          ]
+        }
+      },
+      "ocultar": [
+        "[data-store=\"home-categories-featured\"]",
+        "[data-store=\"home-institutional-message\"]",
+        "[data-store=\"home-banner-categories\"]",
+        "[data-store=\"home-products-sale\"]",
+        "[data-store=\"featured_products_2\"]",
+        "[data-store=\"banner-services\"]"
+      ]
+    }
+  },
   "valmont": {
     nombre: "Valmont Relojes (Wess)",
     activo: false,
