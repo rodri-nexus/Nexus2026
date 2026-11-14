@@ -72,7 +72,8 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
       await quieto(k);
     } else if (s.accion === "bajar") {
       const y = await yDe(s.texto);
-      const mov = Math.round(k * 0.55);
+      // con "vivo" baja más rápido (35 % del tramo) para que el rótulo coincida enseguida con la sección
+      const mov = Math.round(k * (s.vivo ? 0.35 : 0.55));
       await deslizar(Math.max(0, y - (s.margen || 90)), mov); await (s.vivo ? enVivo : quieto)(k - mov);
     } else if (s.accion === "vivo") {
       await enVivo(k);
