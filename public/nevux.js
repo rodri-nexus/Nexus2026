@@ -32,6 +32,10 @@
     cuentaRegresiva: null,
     // WhatsApp con código de país, sin + ni espacios (ej: 5491123456789). '' = no se muestra.
     whatsapp: '',
+    // Efecto 3D en las fotos de producto: se inclinan siguiendo el mouse o el dedo, con un brillo encima.
+    // true = tarjetas de la home, grillas de productos y foto principal de la ficha. En celular las tarjetas flotan suaves.
+    // O { selectores: ['...'], flotar: false } para elegir dónde.
+    efecto3d: null,
 
     // ----- Contenido de la ficha (tanda 2). null o [] = no se muestra -----
     // Cinta animada de beneficios
@@ -3809,6 +3813,58 @@
     if (!conectar()) { var k = 0, iv = setInterval(function () { if (conectar() || ++k > 20) clearInterval(iv); }, 500); }
   }
 
+  // ===== EFECTO 3D EN LAS FOTOS DE PRODUCTO (efecto3d) =====
+  // Las fotos se inclinan hacia donde está el mouse o el dedo (máximo 10°), con un brillo que las sigue.
+  // En celulares las tarjetas además flotan suave en 3D para que el efecto se vea sin tocar. Respeta "reducir movimiento".
+  function initEfecto3D() {
+    var E = NEVUX.efecto3d;
+    if (!E) return;
+    if (E === true) E = {};
+    var TARJ = E.selectores || ['.nvd-c .f', '[data-store^="product-item-image-"]', '.js-item-product .item-image'];
+    var FICHA = E.ficha === false ? [] : ['.js-product-slider', '[data-store^="product-image-"]'];
+    var flotar = E.flotar !== false;
+    hCss('nvx-3d-css',
+      '.nvx-3d-p{perspective:900px}' +
+      '.nvx-3d{transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.8,.2,1),box-shadow .55s;will-change:transform}' +
+      '.nvx-3d.on{transition:transform .12s linear,box-shadow .3s;box-shadow:0 22px 40px -18px rgba(0,0,0,.45)}' +
+      '.nvx-3d-b{position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;opacity:0;transition:opacity .4s;' +
+        'background:radial-gradient(circle at var(--bx,50%) var(--by,30%),rgba(255,255,255,.32),rgba(255,255,255,0) 55%);mix-blend-mode:soft-light}' +
+      '.nvx-3d.on .nvx-3d-b{opacity:1}' +
+      '@keyframes nvx3dF{0%,100%{transform:rotateY(-7deg) rotateX(3deg)}50%{transform:rotateY(7deg) rotateX(-3deg)}}' +
+      '@media (hover:none){.nvx-3d.fl:not(.on){animation:nvx3dF 6.5s ease-in-out infinite;animation-delay:var(--fd,0s)}.nvx-3d.fl:not(.on) .nvx-3d-b{opacity:.5}}' +
+      '@media (prefers-reduced-motion:reduce){.nvx-3d,.nvx-3d.fl{animation:none!important;transform:none!important}.nvx-3d-b{display:none}}');
+    var n = 0;
+    function preparar(el, esFicha) {
+      if (el.classList.contains('nvx-3d') || el.closest('.nvx-3d') || el.querySelector('.nvx-3d')) return;
+      el.classList.add('nvx-3d');
+      if (el.parentElement) el.parentElement.classList.add('nvx-3d-p');
+      if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+      var b = document.createElement('i'); b.className = 'nvx-3d-b'; el.appendChild(b);
+      if (flotar && !esFicha) { el.classList.add('fl'); el.style.setProperty('--fd', (-(n++ % 4) * 1.6) + 's'); }
+      var max = esFicha ? 6 : 10;
+      function mover(x, y) {
+        var r = el.getBoundingClientRect(); if (!r.width) return;
+        var px = Math.min(1, Math.max(0, (x - r.left) / r.width)), py = Math.min(1, Math.max(0, (y - r.top) / r.height));
+        el.classList.add('on');
+        el.style.transform = 'rotateY(' + ((px - .5) * 2 * max).toFixed(2) + 'deg) rotateX(' + ((.5 - py) * 2 * max).toFixed(2) + 'deg) scale(' + (esFicha ? 1.01 : 1.03) + ')';
+        el.style.setProperty('--bx', (px * 100).toFixed(1) + '%'); el.style.setProperty('--by', (py * 100).toFixed(1) + '%');
+      }
+      function soltar() { el.classList.remove('on'); el.style.transform = ''; }
+      el.addEventListener('pointermove', function (ev) { mover(ev.clientX, ev.clientY); });
+      el.addEventListener('pointerleave', soltar);
+      el.addEventListener('touchmove', function (ev) { var t = ev.touches[0]; if (t) mover(t.clientX, t.clientY); }, { passive: true });
+      el.addEventListener('touchend', soltar, { passive: true });
+      el.addEventListener('touchcancel', soltar, { passive: true });
+    }
+    function buscar() {
+      TARJ.forEach(function (q) { [].forEach.call(document.querySelectorAll(q), function (el) { preparar(el, false); }); });
+      FICHA.forEach(function (q) { [].forEach.call(document.querySelectorAll(q), function (el) { if (!el.closest('.nvx-3d')) preparar(el, true); }); });
+    }
+    buscar();
+    var k = 0, iv = setInterval(function () { buscar(); if (++k > 24) clearInterval(iv); }, 500);
+    if ('MutationObserver' in window) { var t; new MutationObserver(function () { clearTimeout(t); t = setTimeout(buscar, 300); }).observe(document.body, { childList: true, subtree: true }); }
+  }
+
   function arrancar() {
     // Secciones de la plantilla que el cliente no quiere ver (ej: el newsletter de la home)
     if (NEVUX.ocultar && NEVUX.ocultar.length) hCss('nvx-ocultar-css', NEVUX.ocultar.join(',') + '{display:none!important}');
@@ -3828,6 +3884,7 @@
     init();
     initCmpAnim();
     initPremium();
+    initEfecto3D();
     // Las tarjetas que la plantilla carga después (carruseles, scroll infinito) también se completan
     if (NEVUX.tarjetas && 'MutationObserver' in window) {
       var t;
