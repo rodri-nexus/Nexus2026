@@ -696,6 +696,7 @@ export const CLIENTES: Record<string, Cliente> = {
     plan: 'premium',
     config: {
       "color": "#B08A45",
+      "efecto3d": true,
       "marca": {
         "oscuro": "#0a0a0a",
         "noche": "#141414"
