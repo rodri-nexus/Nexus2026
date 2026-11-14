@@ -89,5 +89,19 @@ module.exports = {
       pie: "Primera impresión",
     },
     nuevo("1114-3", "Nuevo reel", 'La home de <span class="verde">Hogar Digital</span>, en vivo', "Sección por sección, en 30 segundos. 🏠"),
+
+    // Dom 15/11 · post: Básico o Premium
+    {
+      archivo: "1115-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Qué querés mejorar primero <span class="verde">en tu tienda</span>?',
+      sub: "Respondé con la encuesta. Hoy te cuento qué plan va con cada cosa.", responde: "LA FICHA · TODA LA TIENDA",
+    },
+    {
+      archivo: "1115-2", tipo: "punto", num: "CÓMO TRABAJAMOS",
+      titulo: 'Lo probás en <span class="verde">tu tienda</span> primero',
+      texto: "Antes de activarlo, lo armamos sobre un producto tuyo y te lo mostramos.<br><br>Después: <b>garantía de 7 días</b> y cancelás cuando quieras.",
+      pie: "Sin permanencia",
+    },
+    nuevo("1115-3", "Nuevo post", 'Básico o Premium: <span class="verde">¿cuál es para vos?</span>', "Lo que incluye cada plan, sin letra chica."),
   ],
 };

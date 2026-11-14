@@ -69,6 +69,21 @@ Nada de fichas simuladas ni productos inventados: las piezas muestran **cómo qu
 - **Desde el 09/11 Nevux está prendido en la tienda de Marcelo** (`activo: true`, cobro `planPropio`): las capturas se sacan de su tienda en vivo, sin cargar nada en el navegador (`real-2.js`, capturas en `scripts/instagram/capturas/hd-vivo/`). Semana del 9 al 15/11: historias en `historias-3.js`.
 - A rehacer igual: miércoles 4/11 (`02-antes-despues`), jueves 5/11 (Reel `packs`) y sábado 7/11 (Reel `envio`). Los carruseles del viernes y el domingo son solo texto y quedan.
 
+## Semana del 9 al 15/11 (pasada a Rodrigo día por día; todo con Hogar Digital en vivo)
+
+| Día | 19:30 | Pieza | Archivos |
+|---|---|---|---|
+| Lun 9/11 | Carrusel (7) | La ficha de Hogar Digital, parte por parte | `08-ficha-hogar-digital` |
+| Mar 10/11 | Reel (43 s) | Una compra real, de la home al carrito | `reels/compra.mp4` |
+| Mié 11/11 | Carrusel (6) | El carrito también vende | `09-carrito-hogar-digital` |
+| Jue 12/11 | Reel (30 s) | "En movimiento": sus Reels en su tienda | `reels/movimiento.mp4` |
+| Vie 13/11 | Carrusel (6) | 3 cosas que tu ficha tiene que mostrar | `10-tres-cosas-ficha` |
+| Sáb 14/11 | Reel (31 s) | La home de Hogar Digital en 30 segundos | `reels/home.mp4` |
+| Dom 15/11 | Carrusel (8) | Básico o Premium | `11-basico-o-premium` |
+
+Historias en `historias-3.js` (`MMDD-1..3`). Los Reels grabados en la tienda salen de `scripts/instagram/grabacion/compra.py [compra|movimiento|home]`: Playwright en celular (390×693 a 1080×1920), voz de Tomás, música propia, rótulos de Nevux y portada integrada. Las pausas con `vivo: true` se graban en tiempo real (screencast de Chrome) para que los videos y carruseles se vean andando.
+- **Para avisarle a Marcelo:** en el carrito, con pedidos de menos de $50.000 el producto dice "Envío gratis" y la barra "Te faltan $X" (cartel de envío gratis cargado en cada producto de Tiendanube).
+
 ## Frecuencia y horarios (todo programado, hora de Argentina)
 
 | Hora | Qué | Archivo |

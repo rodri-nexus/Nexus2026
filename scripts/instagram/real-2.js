@@ -120,4 +120,63 @@ Si tiene que preguntarlo, ya dudó. Y el que duda se va a "pensarlo".
 
 ${HASHTAGS}`,
   },
+  {
+    carpeta: "11-basico-o-premium",
+    nombre: "Básico o Premium",
+    placas: [
+      { tipo: "portada", eyebrow: "Guardalo para después", titulo: 'Básico o Premium: <span class="verde">¿cuál es para vos?</span>', sub: "Lo que incluye cada plan de Nevux, sin letra chica." },
+      {
+        tipo: "punto", num: "PLAN BÁSICO · $39.900 POR MES",
+        titulo: 'Tu ficha, como la de <span class="verde">las marcas grandes</span>',
+        lista: ["Ficha Pro clara u oscura, con tus colores", "Transferencia y cuotas reales, en escalera", "Packs Llevá 2 y Llevá 3", "Comparativa y preguntas frecuentes", "Home con secciones de confianza"],
+      },
+      {
+        tipo: "punto", num: "PLAN PREMIUM · $69.900 POR MES",
+        titulo: 'Tu tienda entera, <span class="verde">de marca grande</span>',
+        lista: ["Todo lo del plan Básico", "Home con portada, categorías que rotan y comunidad", "Números que suben y local con mapa", "Carrito con barra de envío gratis", "Cabecera con tu logo y pie a medida"],
+      },
+      f("ASÍ SE VE EL PREMIUM · EN VIVO", "La home de Hogar Digital", "home-1.jpg"),
+      f("ASÍ SE VE EL PREMIUM · EN VIVO", "Sus números y sus productos", "home-2.jpg"),
+      f("ASÍ SE VE EL PREMIUM · EN VIVO", "Su carrito, con envío gratis confirmado", "carrito-1.jpg"),
+      {
+        tipo: "punto", num: "¿CUÁL ELEGIR?",
+        titulo: 'Depende de <span class="verde">qué querés mejorar</span>',
+        lista: ["<b>Básico:</b> si querés que tu ficha de producto venda más", "<b>Premium:</b> si querés que toda tu tienda se vea de marca grande, de la home al carrito"],
+      },
+      {
+        tipo: "cta", ultima: true, eyebrow: "Garantía de 7 días · Cancelás cuando quieras",
+        titulo: '¿No sabés <span class="verde">cuál te conviene</span>?',
+        texto: 'Comentá <span class="palabra">FICHA</span> y miro tu tienda para recomendarte uno.',
+      },
+    ],
+    caption: `Básico o Premium: ¿cuál es para vos? 🤔 (guardalo para después)
+
+📄 PLAN BÁSICO · $39.900 por mes
+Tu ficha de producto como la de las marcas grandes:
+✅ Ficha Pro clara u oscura, con tus colores
+✅ Precios en escalera: transferencia y cuotas reales de tu tienda
+✅ Packs Llevá 2 y Llevá 3 con descuento
+✅ Comparativa y preguntas frecuentes
+✅ Home con secciones de confianza
+
+🏠 PLAN PREMIUM · $69.900 por mes
+Tu tienda entera de marca grande:
+✅ Todo lo del plan Básico
+✅ Home con portada, categorías que rotan y comunidad
+✅ Números que suben y local con mapa
+✅ Carrito con barra de envío gratis
+✅ Cabecera con tu logo y pie a medida
+
+En el carrusel ves el Premium en vivo, en la tienda de Hogar Digital (@hogardigitaltiendaonline).
+
+¿Cuál elegir?
+👉 Básico, si querés que tu ficha de producto venda más.
+👉 Premium, si querés que toda tu tienda se vea de marca grande, de la home al carrito.
+
+En los dos: cambios por WhatsApp sin costo extra, garantía de 7 días y cancelás cuando quieras. Sin apps y sin cambiar de plantilla.
+
+¿No sabés cuál te conviene? Comentá FICHA y miro tu tienda para recomendarte uno.
+
+${HASHTAGS}`,
+  },
 ];
