@@ -684,6 +684,266 @@ export const CLIENTES: Record<string, Cliente> = {
       "transferencia": 8
     }
   },
+  "kingsson": {
+    nombre: "KING'SSON",
+    activo: true,
+    // Premium estilo Destino en negro y dorado (plantilla Uyuni). Se prende sola cuando paga en nevux.ar/pagar/kingsson.
+    // Datos de la tienda y del Instagram (14/11): 2 productos (billetera negra y marrón), envío gratis desde $140.000,
+    // 3 cuotas sin interés, 15 % por transferencia, envíos desde Buenos Aires. Sin local ni reseñas cargadas: [FALTA] que las pasen.
+    // Logo redibujado de su foto de perfil (public/clientes/kingsson/). Videos de la comunidad: kingsson-landing.vercel.app/videos/.
+    cobro: { tipo: 'mercadopago', planPropio: true, gracia: 3 },
+    dominios: ['kingssonleather.mitiendanube.com'],
+    plan: 'premium',
+    config: {
+      "color": "#B08A45",
+      "marca": {
+        "oscuro": "#0a0a0a",
+        "noche": "#141414"
+      },
+      "anuncios": [
+        "🚚 Envíos a todo el país desde Buenos Aires",
+        "💳 3 cuotas sin interés",
+        "💸 15 % OFF pagando con transferencia"
+      ],
+      "mediosDePago": [
+        "Tarjetas de crédito",
+        "Débito",
+        "Transferencia",
+        "Pago Nube"
+      ],
+      "estiloFicha": "destino",
+      "envioGratisDesde": 140000,
+      "whatsapp": "5491157402805",
+      "premium": {
+        "tema": "destino"
+      },
+      "fichaDestino": {
+        "sello": "KING'SSON · *billeteras minimalistas*",
+        "confianza": [
+          {
+            "icono": "envio",
+            "titulo": "Envíos a todo el país",
+            "texto": "Desde Buenos Aires"
+          },
+          {
+            "icono": "chat",
+            "titulo": "Te asesoramos",
+            "texto": "Por WhatsApp"
+          },
+          {
+            "icono": "cuotas",
+            "titulo": "3 cuotas sin interés",
+            "texto": "Con tarjeta de crédito"
+          }
+        ],
+        "faq": [
+          {
+            "p": "¿De qué material son?",
+            "r": "De cuero seleccionado 100 % genuino, de curtido vegetal."
+          },
+          {
+            "p": "¿Cuánto entra?",
+            "r": "Entre 6 y 7 tarjetas y de 10 a 30 billetes, que van en vertical, sin perder el perfil delgado."
+          },
+          {
+            "p": "¿Tiene broches o imán?",
+            "r": "No. Cierra con el pliegue natural del cuero: sin imán, sin botón."
+          },
+          {
+            "p": "¿Por qué cada billetera es distinta?",
+            "r": "Porque es cuero auténtico: puede tener pequeñas marcas, variaciones de textura o de tono. No son defectos, son la prueba de que cada KING'SSON es única."
+          },
+          {
+            "p": "¿Cómo puedo pagar?",
+            "r": "Con tarjeta en 3 cuotas sin interés o por transferencia con 15 % de descuento."
+          }
+        ],
+        "estilo": "hogar",
+        "chip": "Cuero 100 % genuino · Hecha a mano en Argentina",
+        "envioTexto": "A todo el país desde Buenos Aires"
+      },
+      "packs": [],
+      "tarjetas": {
+        "estilo": "destacado"
+      },
+      "carrito": {
+        "estilo": "hogar",
+        "acento": "#B08A45",
+        "marcador": "KS"
+      },
+      "ventas": {
+        "estilo": "destino",
+        "marca": "KING'SSON"
+      },
+      "transferencia": 15,
+      "home": {
+        "destino": {
+          "acento": "#B08A45",
+          "modo": "editorial",
+          "cinta": [
+            "Cuero *100 % genuino*",
+            "Hecha *a mano* en Argentina",
+            "*3 cuotas* sin interés",
+            "*15 % OFF* por transferencia",
+            "Envíos a *todo el país*"
+          ],
+          "portada": {
+            "fotos": [
+              "https://acdn-us.mitiendanube.com/stores/005/212/331/products/img_6976-3961f164a606a4693317900377122600-1024-1024.webp",
+              "https://acdn-us.mitiendanube.com/stores/005/212/331/products/img_6994-0734dfbd9b7f73109c17900382927363-1024-1024.webp",
+              "https://acdn-us.mitiendanube.com/stores/005/212/331/products/img_2817-40f948a007f924a12917900374150164-1024-1024.webp"
+            ],
+            "etiqueta": "KING'SSON · Billeteras minimalistas",
+            "titulo": "Lo esencial, sin llevar de más.",
+            "texto": "Billeteras de cuero 100 % genuino, hechas a mano en Argentina.",
+            "boton": "Ver la colección",
+            "url": "/productos/",
+            "boton2": "Escribinos",
+            "url2": "https://wa.me/5491157402805",
+            "productosUrl": "/productos/"
+          },
+          "beneficios": [
+            {
+              "icono": "envio",
+              "titulo": "Envíos a todo el país",
+              "texto": "Gratis desde $140.000"
+            },
+            {
+              "icono": "cuotas",
+              "titulo": "3 cuotas sin interés",
+              "texto": "Con tarjeta de crédito"
+            },
+            {
+              "icono": "transferencia",
+              "titulo": "15 % OFF",
+              "texto": "Pagando con transferencia"
+            },
+            {
+              "icono": "chat",
+              "titulo": "Te asesoramos",
+              "texto": "Por WhatsApp"
+            }
+          ],
+          "destacados": [
+            {
+              "etiqueta": "La colección",
+              "titulo": "Elegí *la tuya*",
+              "url": "/productos/",
+              "cantidad": 2
+            }
+          ],
+          "numeros": {
+            "titulo": "KING'SSON *en números*",
+            "items": [
+              {
+                "valor": 100,
+                "texto": "% cuero genuino"
+              },
+              {
+                "valor": 7,
+                "texto": "Tarjetas, hasta"
+              },
+              {
+                "valor": 30,
+                "texto": "Billetes, hasta"
+              }
+            ]
+          },
+          "faqTitulo": "Antes de elegir la tuya",
+          "faq": [
+            {
+              "p": "¿De qué material son?",
+              "r": "De cuero seleccionado 100 % genuino, de curtido vegetal."
+            },
+            {
+              "p": "¿Cuánto entra?",
+              "r": "Entre 6 y 7 tarjetas y de 10 a 30 billetes, que van en vertical, sin perder el perfil delgado."
+            },
+            {
+              "p": "¿Tiene broches o imán?",
+              "r": "No. Cierra con el pliegue natural del cuero: sin imán, sin botón."
+            },
+            {
+              "p": "¿Por qué cada billetera es distinta?",
+              "r": "Porque es cuero auténtico: puede tener pequeñas marcas, variaciones de textura o de tono. No son defectos, son la prueba de que cada KING'SSON es única."
+            },
+            {
+              "p": "¿Hacen envíos?",
+              "r": "Sí, desde Buenos Aires a todo el país. El envío es gratis en compras desde $140.000."
+            },
+            {
+              "p": "¿Cómo puedo pagar?",
+              "r": "Con tarjeta en 3 cuotas sin interés o por transferencia con 15 % de descuento."
+            },
+            {
+              "p": "¿Venden por mayor?",
+              "r": "Sí. Escribinos por WhatsApp y te pasamos el catálogo mayorista."
+            }
+          ],
+          "banner": {
+            "etiqueta": "[ Bienvenido a la familia ]",
+            "titulo": "Pensada para acompañarte por años.",
+            "foto": "https://kingsson-landing.vercel.app/fotos/luz.jpg",
+            "boton": "Elegir la mía",
+            "url": "/productos/"
+          },
+          "comunidad": {
+            "estilo": "movimiento",
+            "titulo": "en movimiento",
+            "boton": "Ver en Instagram",
+            "etiqueta": "Detrás de escena",
+            "cuenta": "Así trabajamos cada billetera",
+            "url": "https://www.instagram.com/kingsson.leather/",
+            "fotos": [
+              {
+                "foto": "https://kingsson-landing.vercel.app/videos/taller.jpg",
+                "video": "https://kingsson-landing.vercel.app/videos/taller.mp4",
+                "url": "https://www.instagram.com/kingsson.leather/"
+              },
+              {
+                "foto": "https://kingsson-landing.vercel.app/videos/tiempo.jpg",
+                "video": "https://kingsson-landing.vercel.app/videos/tiempo.mp4",
+                "url": "https://www.instagram.com/kingsson.leather/"
+              },
+              {
+                "foto": "https://kingsson-landing.vercel.app/videos/billetes.jpg",
+                "video": "https://kingsson-landing.vercel.app/videos/billetes.mp4",
+                "url": "https://www.instagram.com/kingsson.leather/"
+              },
+              {
+                "foto": "https://kingsson-landing.vercel.app/videos/portada.jpg",
+                "video": "https://kingsson-landing.vercel.app/videos/portada.mp4",
+                "url": "https://www.instagram.com/kingsson.leather/"
+              },
+              {
+                "foto": "https://kingsson-landing.vercel.app/videos/dia.jpg",
+                "video": "https://kingsson-landing.vercel.app/videos/dia.mp4",
+                "url": "https://www.instagram.com/kingsson.leather/"
+              },
+              {
+                "foto": "https://kingsson-landing.vercel.app/videos/cuidado.jpg",
+                "video": "https://kingsson-landing.vercel.app/videos/cuidado.mp4",
+                "url": "https://www.instagram.com/kingsson.leather/"
+              }
+            ]
+          }
+        }
+      },
+      "cabecera": {
+        "logo": "https://nevux.ar/clientes/kingsson/logo-negro.png",
+        "nombre": "KING'SSON",
+        "logoClaro": "https://nevux.ar/clientes/kingsson/logo-blanco.png"
+      },
+      "ocultar": [
+        "#ns-section-product-list_1793813470186",
+        "#ns-section-custom_1793835448078",
+        "#ns-section-video_1794316692251",
+        "#ns-section-custom_1794580421486",
+        "#ns-section-custom_1793837528945",
+        "#ns-section-video_1794529176598"
+      ]
+    }
+  },
   "valmont": {
     nombre: "Valmont Relojes (Wess)",
     activo: false,

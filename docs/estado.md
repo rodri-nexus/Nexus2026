@@ -195,6 +195,13 @@
 
 **Terminada el 31/10: Rodrigo dijo que no se toca más.** Falta solo el ok del cliente (Miguel), apagarla hasta que pague y pasarla a cobro automático. Ver `docs/valmont.md`.
 
+### KING'SSON · kingssonleather.mitiendanube.com · plantilla Uyuni · plan Premium (estilo Destino, negro y dorado) · propuesta (14/11)
+
+- Config `kingsson` en `lib/clientes.ts`: cabecera con logo (redibujado de su foto de perfil, `public/clientes/kingsson/`), portada editorial, cinta, beneficios, colección, "en movimiento" con sus videos (servidos desde `kingsson-landing.vercel.app/videos/`), números reales del producto, preguntas, banner, ficha Destino-hogar, carrito hogar y avisos de compra. Oculta los bloques viejos de su home (ids `#ns-section-...` de Uyuni).
+- Probada inyectando el motor en su tienda real (home y ficha, celular y compu). Uyuni anda con la rama Ipanema de la cabecera (`header.js-header`).
+- Ojo: la cabecera usa `logoClaro` (no `logoBlanco`) para el logo sobre la portada.
+- **[FALTA]:** dirección o punto de retiro (sin eso no se muestra ubicación ni "local"), reseñas reales, que peguen la línea `nevux.ar/c/kingsson.js` y paguen en `nevux.ar/pagar/kingsson`. Descripciones de producto aparte: repo `kingsson-landing`, carpeta `tiendanube/`.
+
 ## Instagram
 
 - **@nevux.app:** Windsor conectado. La semana 1 está programada del 30/10 al 6/11:
