@@ -75,5 +75,19 @@ module.exports = {
       pie: "Fricción",
     },
     nuevo("1113-3", "Nuevo post", '3 cosas que tu ficha <span class="verde">tiene que mostrar</span>', "Con un ejemplo real, en vivo. 📌"),
+
+    // Sáb 14/11 · reel: la home de Hogar Digital, en vivo
+    {
+      archivo: "1114-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Tu home dice en 5 segundos <span class="verde">por qué comprarte</span>?',
+      sub: "Respondé con la encuesta. Hoy te muestro una que sí.", responde: "SÍ · NO 🏠",
+    },
+    {
+      archivo: "1114-2", tipo: "punto", num: "PSICOLOGÍA DE VENTA",
+      titulo: 'La primera impresión <span class="verde">decide</span>',
+      texto: "Quien entra por primera vez se pregunta: ¿es confiable?, ¿qué vende?, ¿existe de verdad?<br><br>Si la home responde eso en segundos, <b>sigue bajando</b>. Si no, vuelve atrás.",
+      pie: "Primera impresión",
+    },
+    nuevo("1114-3", "Nuevo reel", 'La home de <span class="verde">Hogar Digital</span>, en vivo', "Sección por sección, en 30 segundos. 🏠"),
   ],
 };

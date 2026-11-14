@@ -1,5 +1,5 @@
 # Reel "Una compra real en Hogar Digital": grabación de la tienda en vivo + voz de Tomás + música suave + rótulos de Nevux.
-# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento]   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
+# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home]   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
 # Sale en public/ig/reels/compra.mp4 (+ .jpg). La portada va integrada como primer cuadro.
 import json, os, subprocess, sys, tempfile, shutil
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -35,6 +35,16 @@ REELS["movimiento"] = [
     dict(accion="vivo", et="EN MOVIMIENTO", tit="Productos funcionando", voz="Quien entra a la tienda ve los productos funcionando, y a Marcelo explicándolos."),
     dict(accion="vivo", et="EN MOVIMIENTO", tit="Cada uno abre su Reel", voz="Y si toca uno, se abre ese Reel en su Instagram."),
     dict(accion="cierre", voz="¿Tenés videos en Instagram? Pueden estar en tu tienda. Comentá ficha."),
+]
+REELS["home"] = [
+    dict(accion="abrir", url=HOME, et="CASO REAL · EN VIVO", tit="La home de Hogar Digital", voz="Esta es la home de Hogar Digital, en vivo. Mirá todo lo que tiene."),
+    dict(accion="bajar", texto="ATENCIÓN POR WHATSAPP", margen=330, vivo=True, et="1 · BENEFICIOS", tit="Lo primero que se ve", voz="Envíos, garantía y WhatsApp, apenas entrás."),
+    dict(accion="bajar", texto="DESTACADOS", margen=120, vivo=True, et="2 · DESTACADOS", tit="Precio y descuento a la vista", voz="Destacados, con el precio y el descuento."),
+    dict(accion="bajar", texto="en movimiento", margen=150, vivo=True, et="3 · EN MOVIMIENTO", tit="Sus Reels, andando", voz="Sus propios videos, andando."),
+    dict(accion="bajar", texto="ENCONTRÁ LO TUYO", margen=40, vivo=True, et="4 · CATEGORÍAS", tit="Cambian mientras bajás", voz="Categorías que cambian mientras bajás."),
+    dict(accion="bajar", texto="EN NÚMEROS", margen=260, vivo=True, et="5 · NÚMEROS", tit="Sus números reales", voz="Sus números reales."),
+    dict(accion="bajar", texto="CONOCER EL LOCAL", margen=120, vivo=True, et="6 · EL LOCAL", tit="Mapa y horario", voz="Y su local en Campana, con mapa y horario."),
+    dict(accion="cierre", voz="Todo en una sola home. ¿Querés la tuya así? Comentá ficha."),
 ]
 NOMBRE = sys.argv[1] if len(sys.argv) > 1 else "compra"
 ESCENAS = REELS[NOMBRE]
