@@ -81,22 +81,28 @@ def marca(d, y=70):
 def cuadro(png, esc):
     im = BASE.copy(); d = ImageDraw.Draw(im); marca(d)
     et, tit = esc["et"], esc["tit"]
+    s = Image.open(png).convert("RGB")
+    if s.width > s.height:
+        # computadora: notebook grande y centrada, con el rótulo abajo en letra grande
+        sw = 1040; sh = int(sw * s.height / s.width)
+        s = s.resize((sw, sh), Image.LANCZOS)
+        x, y = (W - sw) // 2, 520
+        d.rounded_rectangle((x - 16, y - 16, x + sw + 16, y + sh + 16), radius=22, fill=(28, 28, 31))
+        im.paste(s, (x, y))
+        d.rounded_rectangle((x - 30, y + sh + 16, x + sw + 30, y + sh + 44), radius=12, fill=(48, 48, 52))
+        d.rounded_rectangle((W // 2 - 90, y + sh + 16, W // 2 + 90, y + sh + 28), radius=6, fill=(32, 32, 35))
+        fe = F("inter800.ttf", 36); ft = F("mont900.ttf", 72)
+        yy = y + sh + 130
+        w = d.textlength(et, font=fe) + 52
+        d.rounded_rectangle((80, yy, 80 + w, yy + 62), radius=16, fill=VERDE)
+        d.text((106, yy + 9), et, font=fe, fill=BG)
+        d.text((80, yy + 92), tit, font=ft, fill=(255, 255, 255))
+        return im
     fe = F("inter800.ttf", 30); ft = F("mont900.ttf", 54)
     w = d.textlength(et, font=fe) + 44
     d.rounded_rectangle((80, 150, 80 + w, 202), radius=14, fill=VERDE)
     d.text((102, 158), et, font=fe, fill=BG)
     d.text((80, 222), tit, font=ft, fill=(255, 255, 255))
-    s = Image.open(png).convert("RGB")
-    if s.width > s.height:
-        # computadora: la pantalla dentro de una notebook, centrada
-        sw = 1000; sh = int(sw * s.height / s.width)
-        s = s.resize((sw, sh), Image.LANCZOS)
-        x, y = (W - sw) // 2, 640
-        d.rounded_rectangle((x - 22, y - 22, x + sw + 22, y + sh + 22), radius=26, fill=(28, 28, 31))
-        im.paste(s, (x, y))
-        d.rounded_rectangle((x - 80, y + sh + 22, x + sw + 80, y + sh + 52), radius=14, fill=(48, 48, 52))
-        d.rounded_rectangle((W // 2 - 90, y + sh + 22, W // 2 + 90, y + sh + 34), radius=6, fill=(32, 32, 35))
-        return im
     # pantalla real del celular, achicada y con bordes redondeados
     sw = 860; sh = int(sw * s.height / s.width)
     s = s.resize((sw, sh), Image.LANCZOS)
