@@ -55,6 +55,12 @@ const historias = [
   { archivo: "1117-1", tipo: "portada", eb: "Pregunta rápida", titulo: '¿Ya armaste <span class="az">el árbol</span>?', sub: "Contestame con la encuesta 👇 Hoy subimos algo para vos.", resp: "Sí · Todavía no 🎄" },
   { ...prod("combo", "NUEVO EN LA TIENDA", "Árbol, estrella, adornos, luces y arbolito de mesa."), archivo: "1117-2" },
   nuevo("1117-3", "Nuevo post", 'Llegó el <span class="az">Combo Navideño</span>', "Mirá todo lo que trae en el perfil 🎄"),
+
+  // Mié 18/11 · Reel: Combo Navideño (el trípode con aro de luz ya no aparece en la tienda)
+  { archivo: "1118-1", tipo: "opciones", eb: "Elegí uno", titulo: '¿Árbol grande o <span class="az">arbolito de mesa</span>?', opciones: [
+    { letra: "A", nombre: "Árbol", img: "p/combo-arbol.jpg" }, { letra: "B", nombre: "Arbolito", img: "p/combo-arbolito.jpg" }], resp: "Respondé A o B en la encuesta 👇 (el combo trae los dos)" },
+  { archivo: "1118-2", tipo: "dato", eb: "Combo Navideño", grande: "5", az: true, titulo: "cosas en un solo combo", sub: `Árbol, estrella, adornos, luces y arbolito de mesa. <b>${plata(P.combo.precio)}</b>, o ${plata(P.combo.precio * 0.9)} con transferencia.` },
+  nuevo("1118-3", "Nuevo reel", 'Tu Navidad, <span class="az">en un combo</span>', "Miralo en el perfil 🎄"),
 ];
 
 module.exports = { carruseles, historias };
