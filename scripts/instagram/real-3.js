@@ -96,4 +96,38 @@ Con un ejemplo real: el Combo Navideño que armó Marcelo en Hogar Digital (@hog
 
 ${HASHTAGS}`,
   },
+  {
+    carpeta: "14-black-friday",
+    nombre: "5 cosas para revisar antes del Black Friday",
+    placas: [
+      { tipo: "portada", eyebrow: "Black Friday · 27/11", titulo: '5 cosas para revisar <span class="verde">antes del Black Friday</span>', sub: "Con ejemplos reales de la tienda de Hogar Digital. Guardalo para esta semana." },
+      f("1 · EL DESCUENTO, CLARO", "Precio de lista, % OFF y precio final", "combo/2.jpg"),
+      f("2 · CUÁNDO LE LLEGA", "Hora de corte y envío, a la vista", "combo/3.jpg"),
+      {
+        tipo: "punto", num: "3 · PROMOS CARGADAS DE VERDAD",
+        titulo: 'Que el carrito <span class="verde">cobre lo que promete</span>',
+        texto: "Si la ficha dice 20% OFF, la promo tiene que estar cargada en Tiendanube.<br><br>Si no, el checkout cobra otro precio y <b>la venta se cae en el último paso</b>.",
+      },
+      f("4 · LAS DUDAS, RESPONDIDAS", "Preguntas frecuentes en la ficha", "combo/5.jpg"),
+      f("5 · WHATSAPP A MANO", "Para la duda de último momento", "ficha-5.jpg"),
+      {
+        tipo: "cta", ultima: true, eyebrow: "Análisis gratis",
+        titulo: '¿Reviso <span class="verde">tu tienda</span> antes del 27?',
+        texto: 'Comentá <span class="palabra">FICHA</span> y te digo qué le falta antes del Black Friday.',
+      },
+    ],
+    caption: `🖤 5 cosas para revisar en tu tienda antes del Black Friday (27/11). Guardalo para esta semana 👇
+
+Con ejemplos reales de la tienda de Hogar Digital (@hogardigitaltiendaonline):
+
+1️⃣ El descuento, claro: precio de lista, % OFF y precio final. Que se entienda en un segundo.
+2️⃣ Cuándo le llega: hora de corte y envío a la vista. En Black Friday todos quieren saber si llega a tiempo.
+3️⃣ Promos cargadas de verdad: si la ficha dice 20% OFF, la promo tiene que estar cargada en Tiendanube. Si no, el checkout cobra otro precio y la venta se cae en el último paso.
+4️⃣ Las dudas, respondidas: envío, garantía, cambios y medios de pago, en la ficha.
+5️⃣ WhatsApp a mano: para la duda de último momento.
+
+👉 ¿Querés que revise tu tienda antes del 27? Comentá FICHA y te digo qué le falta.
+
+${HASHTAGS} #blackfriday`,
+  },
 ];

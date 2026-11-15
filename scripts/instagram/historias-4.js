@@ -60,5 +60,19 @@ module.exports = {
       pie: "Celular y computadora",
     },
     nuevo("1119-3", "Nuevo reel", 'Hogar Digital, <span class="verde">en computadora</span>', "Grabado en su tienda, en vivo. 💻"),
+
+    // Vie 20/11 · post: antes del Black Friday
+    {
+      archivo: "1120-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Vas a hacer promo para el <span class="verde">Black Friday</span>?',
+      sub: "Respondé con la encuesta. Hoy te dejo qué revisar antes del 27.", responde: "SÍ · NO 🖤",
+    },
+    {
+      archivo: "1120-2", tipo: "punto", num: "TIP PARA ESTA SEMANA",
+      titulo: 'Mirá tu ficha <span class="verde">como cliente</span>',
+      texto: "Abrila desde el celular y preguntate: ¿entiendo el precio, cuándo llega y cómo pago <b>en 5 segundos</b>?<br><br>Si dudás vos, duda el que compra.",
+      pie: "Black Friday · 27/11",
+    },
+    nuevo("1120-3", "Nuevo post", '5 cosas para revisar <span class="verde">antes del Black Friday</span>', "Con ejemplos reales. 🖤"),
   ],
 };
