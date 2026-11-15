@@ -5,3 +5,8 @@
 - Demo: `config-demo.json` inyectado en su tienda real (no está en `lib/clientes.ts`). Capturas en esta carpeta.
 - Motor: se sumó soporte de la cabecera de Toluca (deja su lupa y oculta su barra de anuncios) y `home.destino.alternar: false` (sus segundas fotos son tablas nutricionales).
 - Si contrata: pasar la config a `lib/clientes.ts` como `voltrox` (dominio voltroxsuplementos.com) y revisar su popup de suscripción (Nuvem Marketing), que tapa la portada al entrar.
+
+## Versión 2 (16/11): estilo DOTS + Hogar Digital
+- Rodrigo no aprobó la primera. Nueva: portada con video propio, sello de reseñas reales (Revie: 15, promedio 5,0) y seguidores (+4.900), grilla oscura, "Cada pedido lo preparamos nosotros" con su video armando un pedido, "en movimiento" con 6 de sus Reels, testimonios reales de WhatsApp (13, con las etiquetas de envío difuminadas), números, "Por qué Voltrox" en 4 pilares, reseñas de la tienda, combos, preguntas y banner.
+- Bloques nuevos del motor (sirven para cualquier cliente): `home.destino.sello`, `historia`, `testimonios`, `pilares`, `destacados[].oscuro` y `portada.lleno`.
+- Videos y testimonios en `public/clientes/voltrox/`. El carrito no se pudo capturar: su tienda devuelve 403 a los navegadores automáticos al agregar al carrito.
