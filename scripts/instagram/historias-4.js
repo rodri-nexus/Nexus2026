@@ -32,5 +32,19 @@ module.exports = {
       pie: "Urgencia honesta",
     },
     nuevo("1117-3", "Nuevo reel", 'La cuenta regresiva <span class="verde">del despacho</span>', "En vivo, en la tienda de Hogar Digital. ⏰"),
+
+    // Mié 18/11 · post: combos
+    {
+      archivo: "1118-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Tenés algún <span class="verde">combo</span> en tu tienda?',
+      sub: "Respondé con la encuesta. Hoy te cuento cómo armar uno que venda.", responde: "SÍ · NO 🎁",
+    },
+    {
+      archivo: "1118-2", tipo: "punto", num: "PSICOLOGÍA DE VENTA",
+      titulo: 'Una decisión <span class="verde">en vez de cinco</span>',
+      texto: "Elegir cinco productos cansa.<br><br>Un combo resuelve todo con una sola decisión: <b>comprar o no</b>.",
+      pie: "Fatiga de decisión",
+    },
+    nuevo("1118-3", "Nuevo post", 'Combos: cómo armarlos <span class="verde">para vender más</span>', "Con un ejemplo real. 🎁"),
   ],
 };
