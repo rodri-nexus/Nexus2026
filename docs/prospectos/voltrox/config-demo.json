@@ -1,0 +1,233 @@
+{
+ "color": "#f57c00",
+ "marca": {
+  "oscuro": "#0b0b0b",
+  "noche": "#141414"
+ },
+ "anuncios": [
+  "💵 18% OFF abonando con transferencia",
+  "💳 3 cuotas sin interés",
+  "✈️ Despachamos en 24 hs · Envío gratis desde $140.000"
+ ],
+ "mediosDePago": [
+  "Tarjetas de crédito",
+  "Débito",
+  "Transferencia",
+  "Mercado Pago"
+ ],
+ "estiloFicha": "destino",
+ "envioGratisDesde": 140000,
+ "whatsapp": "5493472525274",
+ "premium": {
+  "tema": "destino"
+ },
+ "fichaDestino": {
+  "sello": "Voltrox Suplementos · *primeras marcas*",
+  "confianza": [
+   {
+    "icono": "envio",
+    "titulo": "Despacho en 24 hs",
+    "texto": "Correo Argentino o Andreani"
+   },
+   {
+    "icono": "chat",
+    "titulo": "Te asesoramos",
+    "texto": "Por WhatsApp, de 8 a 20 hs"
+   },
+   {
+    "icono": "cuotas",
+    "titulo": "3 cuotas sin interés",
+    "texto": "Con todas las tarjetas"
+   }
+  ],
+  "faq": [
+   {
+    "p": "¿Cuánto tarda en llegar mi pedido?",
+    "r": "Despachamos dentro de las 24 hs hábiles de acreditado el pago. El tiempo estimado de entrega es de 3 a 7 días hábiles según tu ubicación."
+   },
+   {
+    "p": "¿Cuánto cuesta el envío?",
+    "r": "Se calcula al momento de la compra según tu zona y los productos. Es gratis en compras que superen los $140.000. Trabajamos con Correo Argentino y Andreani."
+   },
+   {
+    "p": "¿Cuáles son los medios de pago?",
+    "r": "Todas las tarjetas en 3 cuotas sin interés, o transferencia bancaria con 18% de descuento directo."
+   },
+   {
+    "p": "¿Aceptan cambios?",
+    "r": "Dentro de los 2 días de recibido, solo si hubo un error en el envío. El producto tiene que estar sellado y sin abrir."
+   }
+  ],
+  "estilo": "hogar",
+  "chip": "Primeras marcas · 100% originales y sellados",
+  "envioTexto": "A todo el país · despacho en 24 hs"
+ },
+ "packs": [],
+ "tarjetas": {
+  "estilo": "destacado"
+ },
+ "carrito": {
+  "estilo": "hogar",
+  "acento": "#f57c00",
+  "marcador": "VX"
+ },
+ "ventas": {
+  "estilo": "destino",
+  "marca": "Voltrox"
+ },
+ "home": {
+  "destino": {
+   "acento": "#f57c00",
+   "modo": "editorial",
+   "cinta": [
+    "*18% OFF* con transferencia",
+    "*3 cuotas* sin interés",
+    "Despacho en *24 hs*",
+    "Envío *gratis* desde $140.000",
+    "*Primeras marcas* 100% originales"
+   ],
+   "portada": {
+    "fotos": [
+     "https://acdn-us.mitiendanube.com/stores/004/596/618/products/whey-protein-star-nutrition-2lbs-ac29ef1099b056b64117674579658226-1024-1024.webp",
+     "https://acdn-us.mitiendanube.com/stores/004/596/618/products/creatina-gold-nutrition-300-grs-804be907abb420e6f717584758297261-1024-1024.webp",
+     "https://acdn-us.mitiendanube.com/stores/004/596/618/products/combo-star-nutrition-829c2e77bace9fed6c17789711502809-1024-1024.webp"
+    ],
+    "etiqueta": "Voltrox Suplementos · Primeras marcas",
+    "titulo": "Tu objetivo está más cerca.",
+    "texto": "Suplementos originales, asesoramiento real y el plus que necesitás para llegar más lejos.",
+    "boton": "Ver productos",
+    "url": "/productos/",
+    "boton2": "Ver combos",
+    "url2": "/combos/",
+    "productosUrl": "/productos/"
+   },
+   "beneficios": [
+    {
+     "icono": "envio",
+     "titulo": "Despacho en 24 hs",
+     "texto": "Gratis desde $140.000"
+    },
+    {
+     "icono": "cuotas",
+     "titulo": "3 cuotas sin interés",
+     "texto": "Con todas las tarjetas"
+    },
+    {
+     "icono": "transferencia",
+     "titulo": "18% OFF",
+     "texto": "Abonando con transferencia"
+    },
+    {
+     "icono": "chat",
+     "titulo": "Te asesoramos",
+     "texto": "Por WhatsApp, sin costo"
+    }
+   ],
+   "destacados": [
+    {
+     "etiqueta": "Lo más pedido",
+     "titulo": "La *semana* 🔥",
+     "url": "/productos/",
+     "cantidad": 4
+    },
+    {
+     "etiqueta": "Ahorrá más",
+     "titulo": "Combos para tu *objetivo*",
+     "url": "/combos/",
+     "carrusel": true,
+     "cantidad": 8
+    },
+    {
+     "etiqueta": "Esenciales",
+     "titulo": "No pueden faltar en tu *rutina*",
+     "url": "/creatinas/",
+     "carrusel": true,
+     "cantidad": 8
+    }
+   ],
+   "faqTitulo": "Antes de comprar",
+   "faq": [
+    {
+     "p": "¿Cuánto tarda en llegar mi pedido?",
+     "r": "Despachamos dentro de las 24 hs hábiles de acreditado el pago. El tiempo estimado de entrega es de 3 a 7 días hábiles según tu ubicación."
+    },
+    {
+     "p": "¿Cuánto cuesta el envío?",
+     "r": "Se calcula al momento de la compra según tu zona y los productos. Es gratis en compras que superen los $140.000. Trabajamos con Correo Argentino y Andreani."
+    },
+    {
+     "p": "¿Cuáles son los medios de pago?",
+     "r": "Todas las tarjetas en 3 cuotas sin interés, o transferencia bancaria con 18% de descuento directo."
+    },
+    {
+     "p": "¿Los suplementos son originales?",
+     "r": "Sí, trabajamos exclusivamente con primeras marcas, 100% originales y sellados."
+    },
+    {
+     "p": "¿Me pueden asesorar?",
+     "r": "Sí, es parte de lo que nos diferencia. Escribinos por WhatsApp o Instagram y te orientamos sin costo."
+    },
+    {
+     "p": "¿Aceptan cambios?",
+     "r": "Dentro de los 2 días de recibido, solo si hubo un error en el envío. El producto tiene que estar sellado y sin abrir."
+    }
+   ],
+   "banner": {
+    "etiqueta": "[ Somos el plus ]",
+    "titulo": "Te asesoramos sin costo.",
+    "foto": "https://acdn-us.mitiendanube.com/stores/004/596/618/products/whey-protein-star-nutrition-2lbs-ac29ef1099b056b64117674579658226-1024-1024.webp",
+    "boton": "Escribinos",
+    "url": "https://wa.me/5493472525274"
+   },
+   "tira": {
+    "items": [
+     {
+      "nombre": "Proteínas",
+      "url": "/proteinas/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/004/596/618/products/whey-protein-star-nutrition-2lbs-ac29ef1099b056b64117674579658226-1024-1024.webp"
+     },
+     {
+      "nombre": "Creatinas",
+      "url": "/creatinas/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/004/596/618/products/creatina-gold-nutrition-300-grs-804be907abb420e6f717584758297261-1024-1024.webp"
+     },
+     {
+      "nombre": "Magnesio",
+      "url": "/magnesio-y-omega-3/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/004/596/618/products/citrato-de-magnesio-star-nutrition-frutos-rojos-1-7b2253d80d8a69f08317647196566242-1024-1024.webp"
+     },
+     {
+      "nombre": "Combos",
+      "url": "/combos/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/004/596/618/products/combo-star-nutrition-829c2e77bace9fed6c17789711502809-1024-1024.webp"
+     },
+     {
+      "nombre": "Combo ENA",
+      "url": "/combos/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/004/596/618/products/combo-ena-sports-20b189d5dd85a7b17717584753008299-1024-1024.webp"
+     }
+    ]
+   },
+   "alternar": false
+  }
+ },
+ "ocultar": [
+  "[data-store=\"home-slider\"]",
+  "[data-store=\"home-banner-categories\"]",
+  "[data-store=\"home-products-featured\"]",
+  "[data-store=\"home-products-sale\"]",
+  "[data-store=\"home-brands\"]",
+  "[data-store=\"home-products-new\"]",
+  "[data-store=\"home-banner-services\"]",
+  "[data-store=\"home-instagram-feed\"]",
+  "[data-store=\"home-welcome-message\"]",
+  "[data-store=\"home-newsletter\"]",
+  "[data-store=\"banner-services\"]",
+  "[data-store=\"home-banner-promotional\"]"
+ ],
+ "transferencia": 18,
+ "efecto3d": true,
+ "cabecera": {
+  "nombre": "Voltrox Suplementos"
+ }
+}
