@@ -3066,7 +3066,7 @@
         ps = ps.slice(G.desde || 0, (G.desde || 0) + (G.cantidad || (G.carrusel ? 8 : 4)));
         if (!ps.length) { cont.closest('.nvd-s').remove(); return; }
         cont.innerHTML = ps.map(tarjeta).join('');
-        if (!quieto) [].forEach.call(cont.querySelectorAll('.f'), function (f, i) { if (f.querySelectorAll('img').length > 1) setTimeout(function () { setInterval(function () { f.classList.toggle('b'); }, 2600); }, (i % 4) * 650); });
+        if (!quieto && D.alternar !== false) [].forEach.call(cont.querySelectorAll('.f'), function (f, i) { if (f.querySelectorAll('img').length > 1) setTimeout(function () { setInterval(function () { f.classList.toggle('b'); }, 2600); }, (i % 4) * 650); });
       });
     });
     var PRx = box.querySelector('.nvd-hero .pr');
@@ -3557,7 +3557,11 @@
       lc.insertAdjacentHTML('beforeend', '<img class="nvx-dh-l n" src="' + hEsc(K.logo) + '" alt="' + hEsc(K.nombre || '') + '">' + (K.logoClaro ? '<img class="nvx-dh-l b" src="' + hEsc(K.logoClaro) + '" alt="">' : ''));
     }
     // Lupa roja (celular): abre el buscador adentro de la tarjeta
-    var ut = IP ? null : hd.querySelector('.utilities-container');
+    // Toluca: el buscador es una ventana propia (sin campo en la cabecera) y la barra de anuncios va adentro del header:
+    // se deja su lupa y se oculta la barra (la cinta de Nevux ya dice lo mismo)
+    var TL = !IP && !!hd.querySelector('.js-search-button.js-fullscreen-modal-open');
+    if (TL) hCss('nvx-dh-tl-css', '.nvx-dh .js-adbar,.nvx-dh .section-adbar{display:none!important}');
+    var ut = IP || TL ? null : hd.querySelector('.utilities-container');
     if (ut) {
       ut.insertAdjacentHTML('afterbegin', '<button type="button" class="nvx-dh-lupa" aria-label="Buscar"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.6-4.6"/></svg></button>');
       ut.querySelector('.nvx-dh-lupa').addEventListener('click', function () {
