@@ -3749,7 +3749,7 @@
         M + '.nvx-hg-cnt{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 6px;border-radius:7px;background:' + A + ';color:#fff;font:700 14px/1 ' + HSG + ';letter-spacing:0}' +
         M + '.modal-close,' + M + '.modal-close svg{color:#fff!important;fill:#fff!important}' +
         M + '.modal-body{background:' + NOC + '!important;padding:14px 16px 24px!important}' +
-        M + '.js-ajax-cart-list{padding:0!important}' +
+        M + '.js-ajax-cart-list{padding:0!important;background:transparent!important}' +
         M + '.js-ajax-cart-list .cart-item{display:grid!important;grid-template-columns:92px minmax(0,1fr);gap:14px;margin:0 0 10px!important;padding:12px!important;background:#fff;border-radius:18px;color:' + NOC + '}' +
         M + '.cart-item-image-container{width:92px!important;min-width:92px}' + M + '.cart-item-image-container img{width:92px!important;height:92px!important;object-fit:cover;border-radius:12px}' +
         M + '.cart-item-info-container{min-width:0;width:auto!important;max-width:100%!important;padding:0!important}' + M + '.js-ajax-cart-list .cart-item>*{min-width:0}' + M + '.cart-item-product-info{position:relative}' +

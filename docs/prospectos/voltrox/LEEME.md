@@ -15,3 +15,4 @@
 - Pie: "Tienda diseñada por @nevux.app" (opción nueva `credito`).
 - Logo de la cabecera girando en 3D con grosor (opción nueva `cabecera.logo3d`). Video: `logo-3d.mp4`.
 - Ficha más completa (opción nueva `fichaDestino.extras`): reseñas de la tienda, "Pedidos que ya llegaron" con los testimonios y "Te asesoramos" con sus Reels. Toma lo de la home si no se define aparte.
+- Carrito: capturado cargando en la página dos productos reales con sus precios (la tienda bloquea el "agregar" a navegadores automáticos). `carrito-celular.jpg`. Arreglo en el motor: la lista del carrito queda transparente (en Toluca venía con fondo blanco).
