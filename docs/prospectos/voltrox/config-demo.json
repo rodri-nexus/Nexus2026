@@ -60,7 +60,8 @@
   ],
   "estilo": "hogar",
   "chip": "Primeras marcas · 100% originales y sellados",
-  "envioTexto": "A todo el país · despacho en 24 hs"
+  "envioTexto": "A todo el país · despacho en 24 hs",
+  "extras": true
  },
  "packs": [],
  "tarjetas": {
@@ -401,6 +402,12 @@
  "transferencia": 18,
  "efecto3d": true,
  "cabecera": {
-  "nombre": "Voltrox Suplementos"
+  "nombre": "Voltrox Suplementos",
+  "logo3d": true
+ },
+ "credito": {
+  "texto": "Tienda diseñada por",
+  "marca": "@nevux.app",
+  "url": "https://www.instagram.com/nevux.app/"
  }
 }

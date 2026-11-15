@@ -10,3 +10,8 @@
 - Rodrigo no aprobó la primera. Nueva: portada con video propio, sello de reseñas reales (Revie: 15, promedio 5,0) y seguidores (+4.900), grilla oscura, "Cada pedido lo preparamos nosotros" con su video armando un pedido, "en movimiento" con 6 de sus Reels, testimonios reales de WhatsApp (13, con las etiquetas de envío difuminadas), números, "Por qué Voltrox" en 4 pilares, reseñas de la tienda, combos, preguntas y banner.
 - Bloques nuevos del motor (sirven para cualquier cliente): `home.destino.sello`, `historia`, `testimonios`, `pilares`, `destacados[].oscuro` y `portada.lleno`.
 - Videos y testimonios en `public/clientes/voltrox/`. El carrito no se pudo capturar: su tienda devuelve 403 a los navegadores automáticos al agregar al carrito.
+
+## Ajustes (16/11)
+- Pie: "Tienda diseñada por @nevux.app" (opción nueva `credito`).
+- Logo de la cabecera girando en 3D con grosor (opción nueva `cabecera.logo3d`). Video: `logo-3d.mp4`.
+- Ficha más completa (opción nueva `fichaDestino.extras`): reseñas de la tienda, "Pedidos que ya llegaron" con los testimonios y "Te asesoramos" con sus Reels. Toma lo de la home si no se define aparte.

@@ -3481,13 +3481,52 @@
     var ab = root.querySelector('.nvx-fd-abajo'), sig = ab && ab.nextElementSibling;
     if (sig && FD.ocultarConfianzaPlantilla !== false) [].forEach.call(sig.children, function (ch) { if (!ch.querySelector('input,select,form,iframe') && /compra protegida|cambios y devoluciones|devoluci|segur/i.test(ch.textContent)) ch.style.display = 'none'; });
   }
+  // Ficha (fichaDestino.extras): reseñas, pedidos que ya llegaron (capturas reales) y videos de asesoramiento. Toma lo de la home si no hay propio.
+  function fichaExtras(FD) {
+    var HD = (NEVUX.home && NEVUX.home.destino) || {}, R = fdAcento(), SG = "'Space Grotesk','Helvetica Neue',Arial,sans-serif";
+    var RS = FD.resenas === false ? null : (FD.resenas || HD.resenas), TE = FD.testimonios === false ? null : (FD.testimonios || HD.testimonios);
+    var MV = FD.videos === false ? null : (FD.videos || (HD.comunidad && HD.comunidad.estilo === 'movimiento' ? HD.comunidad : null));
+    hCss('nvx-fdx-css',
+      '.nvx-fdx{margin:26px 0 0;font-family:' + SG + '}.nvx-fdx h3{margin:0 0 4px;font:800 19px/1.15 Inter,sans-serif;color:#111;text-transform:none}.nvx-fdx h3 span{color:' + R + '}.nvx-fdx .s{margin:0 0 12px;font-size:12.5px;color:#666}' +
+      '.nvx-fdx-rs .sum{display:flex;align-items:center;gap:12px;background:#0b0b0b;color:#fff;border-radius:16px;padding:14px 16px;margin:10px 0}.nvx-fdx-rs .sum b{font:800 30px/1 Inter,sans-serif}.nvx-fdx-rs .sum span{color:#f5b400;letter-spacing:2px;font-size:14px}.nvx-fdx-rs .sum small{display:block;font-size:11.5px;color:rgba(255,255,255,.7)}' +
+      '.nvx-fdx-rs .c{border:1px solid #ececec;border-radius:14px;padding:13px 14px;margin:0 0 8px;background:#fff}.nvx-fdx-rs .c .u{display:flex;justify-content:space-between;gap:8px;font:700 13px/1.2 Inter,sans-serif;color:#111}.nvx-fdx-rs .c .u i{font-style:normal;color:#f5b400;letter-spacing:1px}.nvx-fdx-rs .c small{display:block;font-size:11px;color:#888;margin:2px 0 6px}.nvx-fdx-rs .c p{margin:0;font-size:13px;line-height:1.5;color:#333}' +
+      '.nvx-fdx .rw{display:grid;grid-auto-flow:column;grid-auto-columns:44%;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}.nvx-fdx .rw::-webkit-scrollbar{display:none}' +
+      '.nvx-fdx .rw>*{scroll-snap-align:start;border-radius:14px;overflow:hidden;aspect-ratio:9/16;background:#111;display:block;border:1px solid #e8e8e8}.nvx-fdx .rw img,.nvx-fdx .rw video{width:100%;height:100%;object-fit:cover;display:block}' +
+      '.nvx-fdx-te{background:#0b0b0b;border-radius:18px;padding:18px 14px 14px}.nvx-fdx-te h3{color:#fff}.nvx-fdx-te .s{color:rgba(255,255,255,.65)}.nvx-fdx-te .rw>*{border-color:rgba(255,255,255,.14)}' +
+      '.nvx-fdx .bt{display:block;text-align:center;margin:12px 0 0;background:' + R + ';color:#fff!important;border-radius:999px;padding:12px;font:800 11px/1 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none!important}');
+    var h = '', em = function (t) { return hEsc(t || '').replace(/\*([^*]+)\*/g, '<span>$1</span>'); };
+    if (RS && RS.items && RS.items.length) {
+      h += '<div class="nvx-fdx nvx-fdx-rs"><h3>' + em(FD.resenasTitulo || 'Lo que dicen *nuestros clientes*') + '</h3>' +
+        (RS.puntaje ? '<div class="sum"><b>' + hEsc(String(RS.puntaje).replace('.', ',').replace(/^5$/, '5,0')) + '</b><div><span>★★★★★</span><small>' + (RS.cantidad ? hEsc(RS.cantidad) + ' opiniones verificadas' : 'Opiniones verificadas') + '</small></div></div>' : '') +
+        RS.items.slice(0, 3).map(function (x) { return '<div class="c"><div class="u">' + hEsc(x.nombre) + '<i>' + '★★★★★'.slice(0, Math.max(1, Math.min(5, x.estrellas || 5))) + '</i></div>' + (x.producto ? '<small>Compró ' + hEsc(x.producto) + '</small>' : '') + '<p>' + hEsc(x.texto) + '</p></div>'; }).join('') + '</div>';
+    }
+    if (TE && TE.fotos && TE.fotos.length) {
+      var ext = /^https?:/.test(TE.url || '') ? ' target="_blank" rel="noopener"' : '';
+      h += '<div class="nvx-fdx nvx-fdx-te"><h3>' + em(FD.testimoniosTitulo || 'Pedidos que *ya llegaron*') + '</h3><p class="s">' + hEsc(FD.testimoniosTexto || 'Fotos reales que nos mandan nuestros clientes.') + '</p><div class="rw">' +
+        TE.fotos.map(function (f) { return '<a href="' + hEsc(TE.url || '#') + '"' + ext + '><img src="' + hEsc(f) + '" alt="Pedido de un cliente" loading="lazy"></a>'; }).join('') + '</div></div>';
+    }
+    if (MV && MV.fotos && MV.fotos.length) {
+      h += '<div class="nvx-fdx nvx-fdx-mv"><h3>' + em(FD.videosTitulo || 'Te *asesoramos*') + '</h3><p class="s">' + hEsc(FD.videosTexto || 'Consejos para que elijas lo que necesitás.') + '</p><div class="rw">' +
+        MV.fotos.filter(function (f) { return f.video; }).map(function (f) { return '<a href="' + hEsc(f.url || MV.url || '#') + '" target="_blank" rel="noopener"><video muted loop playsinline preload="none" poster="' + hEsc(f.foto) + '" data-src="' + hEsc(f.video) + '"></video></a>'; }).join('') + '</div>' +
+        (NEVUX.whatsapp ? '<a class="bt" target="_blank" rel="noopener" href="https://wa.me/' + NEVUX.whatsapp + '">Consultanos por WhatsApp</a>' : '') + '</div>';
+    }
+    return h;
+  }
+  function fichaExtrasVivo() {
+    var rw = document.querySelector('.nvx-fdx-mv .rw'); if (!rw) return;
+    var vs = [].slice.call(rw.querySelectorAll('video')), quieto = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var play = function (on) { vs.forEach(function (v) { if (on) { if (!v.src) v.src = v.getAttribute('data-src'); if (!quieto) v.play().catch(function () {}); } else v.pause(); }); };
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { play(es[0].isIntersecting); }, { rootMargin: '150px 0px' }).observe(rw); else play(true);
+  }
   function fichaDestinoAbajo(root, d) {
     var FD = NEVUX.fichaDestino || {}, faq = FD.faq || NEVUX.faq || [];
     var ic = function (p) { p = p.toLowerCase(); return dsIcono(/garant|falla|problema/.test(p) ? 'garantia' : /devol|cambi|arrepient/.test(p) ? 'cambios' : /llega|env|tarda|despach/.test(p) ? 'envio' : /pag|cuota|transfer/.test(p) ? 'cuotas' : 'chat'); };
     var desc = root.querySelector('[data-store^="product-description"]') || root.querySelector('.user-content');
     var html = '';
     if (faq.length) html += '<div class="nvx-fd-fq">' + faq.map(function (f) { return '<details><summary>' + ic(f.p) + '<span>' + hEsc(f.p) + '</span></summary><div>' + hEsc(f.r) + '</div></details>'; }).join('') + '</div>';
+    if (FD.extras) html += fichaExtras(FD);
     if (html) (desc || root).insertAdjacentHTML('afterend', html);
+    if (FD.extras) fichaExtrasVivo();
     // Productos similares: tarjetas como las de la home, de la misma categoría (y el resto del catálogo hasta 8)
     var R = fdAcento(), SG = "'Space Grotesk','Helvetica Neue',Arial,sans-serif", VID = 'background:#f4f4f4;border-radius:18px;';
     hCss('nvx-fdr-css',
@@ -3616,6 +3655,18 @@
     if (K.logo && lc) {
       lc.classList.add('nvx-dh-lg');
       lc.insertAdjacentHTML('beforeend', '<img class="nvx-dh-l n" src="' + hEsc(K.logo) + '" alt="' + hEsc(K.nombre || '') + '">' + (K.logoClaro ? '<img class="nvx-dh-l b" src="' + hEsc(K.logoClaro) + '" alt="">' : ''));
+    }
+    // Logo en 3D girando sobre sí mismo (cabecera.logo3d): capas apiladas atrás le dan grosor
+    if (K.logo3d && lc && !lc.querySelector('.nvx-l3')) {
+      hCss('nvx-l3-css', '.nvx-l3{display:inline-block;perspective:520px;vertical-align:middle}.nvx-l3 .r{position:relative;display:inline-block;transform-style:preserve-3d;animation:nvxL3 6s linear infinite}' +
+        '.nvx-l3 .ly{display:block;position:relative}.nvx-l3 .z{position:absolute;left:0;top:0;width:100%;height:100%;filter:brightness(.42);pointer-events:none}' +
+        '@keyframes nvxL3{to{transform:rotateY(360deg)}}@media (prefers-reduced-motion:reduce){.nvx-l3 .r{animation:none}}');
+      var l3 = document.createElement('span'); l3.className = 'nvx-l3';
+      var l3r = document.createElement('span'); l3r.className = 'r';
+      var ly = document.createElement('span'); ly.className = 'ly';
+      while (lc.firstChild) ly.appendChild(lc.firstChild);
+      for (var zk = 6; zk >= 1; zk--) { var cp = ly.cloneNode(true); cp.className = 'ly z'; cp.setAttribute('aria-hidden', 'true'); cp.style.transform = 'translateZ(' + (-zk * 0.7).toFixed(1) + 'px)'; [].forEach.call(cp.querySelectorAll('img'), function (im) { im.alt = ''; }); l3r.appendChild(cp); }
+      l3r.appendChild(ly); l3.appendChild(l3r); lc.appendChild(l3);
     }
     // Lupa roja (celular): abre el buscador adentro de la tarjeta
     // Toluca: el buscador es una ventana propia (sin campo en la cabecera) y la barra de anuncios va adentro del header:
@@ -3932,6 +3983,16 @@
     if ('MutationObserver' in window) { var t; new MutationObserver(function () { clearTimeout(t); t = setTimeout(buscar, 300); }).observe(document.body, { childList: true, subtree: true }); }
   }
 
+  // Crédito del pie (credito: { texto, marca, url }): reemplaza el "Tienda diseñada por ..." de la plantilla
+  function initCredito() {
+    var C = NEVUX.credito; if (!C) return;
+    var pie = document.querySelector('footer, [data-store="footer"]'); if (!pie) return;
+    [].forEach.call(pie.querySelectorAll('p, div, span'), function (el) {
+      if (el.children.length > 3 || !/dise(ñ|n)ad[ao] por/i.test(el.textContent || '') || el.querySelector('p, div')) return;
+      el.innerHTML = hEsc(C.texto || 'Tienda diseñada por') + ' <a href="' + hEsc(C.url || 'https://nevux.ar') + '" target="_blank" rel="noopener" style="font-weight:700;color:inherit!important">' + hEsc(C.marca || 'Nevux') + '</a>';
+    });
+  }
+
   function arrancar() {
     // Secciones de la plantilla que el cliente no quiere ver (ej: el newsletter de la home)
     if (NEVUX.ocultar && NEVUX.ocultar.length) hCss('nvx-ocultar-css', NEVUX.ocultar.join(',') + '{display:none!important}');
@@ -3952,6 +4013,7 @@
     initCmpAnim();
     initPremium();
     initEfecto3D();
+    initCredito();
     // Las tarjetas que la plantilla carga después (carruseles, scroll infinito) también se completan
     if (NEVUX.tarjetas && 'MutationObserver' in window) {
       var t;
