@@ -84,6 +84,14 @@ REELS = {
         dict(tipo="precio", p="combo", img="p/combo-estrella.jpg", nombre="Combo Navideño", tag="10% OFF CON TRANSFERENCIA", voz="Todo por sesenta y seis mil setecientos, y pagando con transferencia tenés diez por ciento off."),
         dict(tipo="cierre", voz="Pedilo en hogar digital punto com punto ar. Enviamos a todo el país."),
     ],
+    "volcan": [
+        dict(tipo="logo", voz="¿El ambiente de tu casa se siente seco?"),
+        dict(tipo="foto", p="volcan", img="p/volcan-oscuro.jpg", et="HUMIDIFICADOR VOLCÁN", tit="EFECTO ERUPCIÓN", voz="El humidificador Volcán aporta humedad al ambiente, y simula una erupción volcánica."),
+        dict(tipo="foto", p="volcan", img="p/volcan-luz.jpg", et="PARA TU ESPACIO", tit="CUARTO O LIVING", voz="Queda ideal en el dormitorio, el living o la oficina."),
+        dict(tipo="foto", p="volcan", img="p/volcan-arriba.jpg", et="CON CONTROL REMOTO", tit="SIN LEVANTARTE", voz="Y con el control remoto, lo manejás sin levantarte."),
+        dict(tipo="precio", p="volcan", img="p/volcan-oscuro.jpg", nombre="Humidificador Volcán", tag="10% OFF CON TRANSFERENCIA", voz="Sale setenta mil novecientos, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Pedilo en hogar digital punto com punto ar. Superando cincuenta mil pesos, el envío es gratis."),
+    ],
     "parlantes": [
         dict(tipo="logo", voz="Llega el finde y falta la música."),
         dict(tipo="foto", p="parlante-rgb", et="PARA EL LIVING", tit="PARLANTE RGB", precio=True, voz="El parlante RGB, con luces de colores, a sesenta mil pesos."),

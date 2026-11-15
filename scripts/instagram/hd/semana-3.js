@@ -96,6 +96,12 @@ const historias = [
   { archivo: "1119-1", tipo: "portada", eb: "Pregunta rápida", titulo: '¿Ya compraste en <span class="az">nuestra tienda online</span>?', sub: "Contestame con la encuesta 👇 Hoy te mostramos cómo es, paso a paso.", resp: "Sí · Todavía no 🛒" },
   { archivo: "1119-2", tipo: "dato", eb: "Cuándo sale tu pedido", grande: "18 h", az: true, titulo: "es la hora de corte", sub: "De lunes a viernes, si comprás antes de las 18, <b>tu pedido sale ese mismo día</b>." },
   nuevo("1119-3", "Nuevo post", 'Así comprás en <span class="az">Hogar Digital</span>', "Paso a paso, de la home al pago 🛒"),
+
+  // Vie 20/11 · Reel: humidificador Volcán (sin batería, en stock)
+  { archivo: "1120-1", tipo: "opciones", eb: "Elegí uno", titulo: '¿Encendido o <span class="az">apagado</span>?', opciones: [
+    { letra: "A", nombre: "Encendido", img: "p/volcan-oscuro.jpg" }, { letra: "B", nombre: "Apagado", img: "p/volcan-arriba.jpg" }], resp: "Respondé A o B en la encuesta 👇" },
+  { archivo: "1120-2", tipo: "dato", eb: "Humidificador Volcán", grande: plata(P.volcan.precio * 0.9), az: true, titulo: "con transferencia", sub: `Precio de lista ${plata(P.volcan.lista)}. Hoy <b>${plata(P.volcan.precio)}</b>, y con transferencia, 10% OFF.` },
+  nuevo("1120-3", "Nuevo reel", 'Una erupción <span class="az">en tu casa</span>', "Humidificador Volcán. Miralo en el perfil 🌋"),
 ];
 
 module.exports = { carruseles, historias };
