@@ -65,6 +65,15 @@ REELS = {
         dict(tipo="precio", p="luz", nombre="Luz de emergencia 60 LED", tag="10% OFF CON TRANSFERENCIA", voz="Sale cincuenta y cuatro mil novecientos noventa, y pagando con transferencia tenés diez por ciento off."),
         dict(tipo="cierre", voz="Anticipate a los cortes. Pedila en hogar digital punto com punto ar."),
     ],
+    # Semana 3 (16 al 20/11)
+    "auriculares": [
+        dict(tipo="logo", voz="¿Tus auriculares tienen pantalla? Estos sí."),
+        dict(tipo="foto", p="auriculares", et="AURICULARES AIR MAX", tit="CON PANTALLA", voz="Los auriculares Air Max, con una pantalla integrada en el estuche."),
+        dict(tipo="foto", p="auriculares", img="p/auriculares-2.jpg", et="PARA TODOS LOS DÍAS", tit="MÚSICA Y LLAMADAS", voz="Para escuchar música, mirar videos y atender llamadas."),
+        dict(tipo="foto", p="auriculares", img="p/auriculares-3.jpg", et="FÁCILES DE LLEVAR", tit="DE VIAJE O EN CASA", voz="Cómodos y fáciles de llevar, de viaje o en casa."),
+        dict(tipo="precio", p="auriculares", nombre="Auriculares Air Max con pantalla", tag="10% OFF CON TRANSFERENCIA", voz="Salen cuarenta y cinco mil novecientos, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Pedilos en hogar digital punto com punto ar. Enviamos a todo el país."),
+    ],
     "parlantes": [
         dict(tipo="logo", voz="Llega el finde y falta la música."),
         dict(tipo="foto", p="parlante-rgb", et="PARA EL LIVING", tit="PARLANTE RGB", precio=True, voz="El parlante RGB, con luces de colores, a sesenta mil pesos."),
