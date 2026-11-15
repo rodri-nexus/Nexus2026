@@ -1,5 +1,5 @@
 # Reel "Una compra real en Hogar Digital": grabación de la tienda en vivo + voz de Tomás + música suave + rótulos de Nevux.
-# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home]   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
+# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home|corte] (RELOJ=... para fijar el reloj del navegador)   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
 # Sale en public/ig/reels/compra.mp4 (+ .jpg). La portada va integrada como primer cuadro.
 import json, os, subprocess, sys, tempfile, shutil
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -45,6 +45,14 @@ REELS["home"] = [
     dict(accion="bajar", texto="EN NÚMEROS", margen=260, vivo=True, et="5 · NÚMEROS", tit="Sus números reales", voz="Sus números reales."),
     dict(accion="bajar", texto="CONOCER EL LOCAL", margen=120, vivo=True, et="6 · EL LOCAL", tit="Mapa y horario", voz="Y su local en Campana, con mapa y horario."),
     dict(accion="cierre", voz="Todo en una sola home. ¿Querés la tuya así? Comentá ficha."),
+]
+REELS["corte"] = [
+    dict(accion="abrir", url=OVNI, et="CASO REAL · EN VIVO", tit="La cuenta regresiva del despacho", voz="Mirá esta cuenta regresiva. Es real, y está en la ficha de Hogar Digital."),
+    dict(accion="bajar", texto="Sale hoy", margen=250, vivo=True, et="EN LA FICHA", tit="Sale hoy, antes de las 18 h", voz="Le dice a quien compra que su pedido sale hoy, si compra antes de las seis de la tarde."),
+    dict(accion="vivo", et="EN LA FICHA", tit="Cuenta en tiempo real", voz="Y cuenta, en tiempo real, cuánto falta para el corte."),
+    dict(accion="carrito", vivo=True, et="EN EL CARRITO", tit="Se lo recuerda otra vez", voz="Cuando lo agrega, el carrito se lo recuerda otra vez."),
+    dict(accion="vivo", et="EN EL CARRITO", tit="Un motivo real para hoy", voz="Así tiene un motivo real para no dejarlo para mañana."),
+    dict(accion="cierre", voz="Es la hora de corte real de su tienda, nada inventado. ¿Querés la tuya así? Comentá ficha."),
 ]
 NOMBRE = sys.argv[1] if len(sys.argv) > 1 else "compra"
 ESCENAS = REELS[NOMBRE]

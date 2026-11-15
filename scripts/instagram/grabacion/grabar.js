@@ -14,6 +14,9 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
 (async () => {
   const b = await chromium.launch();
   const ctx = await b.newContext({ ...devices["iPhone 13"], viewport: { width: 390, height: 693 }, deviceScaleFactor: 1080 / 390 });
+  // RELOJ=2026-11-17T15:00:00-03:00 fija el reloj del navegador en ese momento (y corre desde ahí), para que el despacho
+  // muestre lo que ve un cliente el día del post
+  if (process.env.RELOJ) await ctx.clock.install({ time: new Date(process.env.RELOJ) });
   const p = await ctx.newPage();
   fs.mkdirSync(salida, { recursive: true });
   let n = 0;
@@ -106,7 +109,7 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
       await btn.click(); await p.waitForTimeout(2500);
       await p.locator("text=Ver carrito >> visible=true").first().click({ timeout: 8000 });
       await p.waitForTimeout(2500);
-      await quieto(k - mov - 6);
+      await (s.vivo ? enVivo : quieto)(k - mov - 6);
     } else if (s.accion === "panel") {
       // baja dentro del panel del carrito con la ruedita, hasta que "texto" quede arriba
       await p.mouse.move(195, 420);
