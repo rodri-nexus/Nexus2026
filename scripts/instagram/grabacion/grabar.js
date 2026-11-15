@@ -13,7 +13,11 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
 
 (async () => {
   const b = await chromium.launch();
-  const ctx = await b.newContext({ ...devices["iPhone 13"], viewport: { width: 390, height: 693 }, deviceScaleFactor: 1080 / 390 });
+  // ESCRITORIO=1 graba la tienda en computadora (1440x900); si no, en celular (390x693, x2,77 = 1080x1920)
+  const ESC = !!process.env.ESCRITORIO;
+  const ctx = ESC
+    ? await b.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 })
+    : await b.newContext({ ...devices["iPhone 13"], viewport: { width: 390, height: 693 }, deviceScaleFactor: 1080 / 390 });
   // RELOJ=2026-11-17T15:00:00-03:00 fija el reloj del navegador en ese momento (y corre desde ahí), para que el despacho
   // muestre lo que ve un cliente el día del post
   if (process.env.RELOJ) await ctx.clock.install({ time: new Date(process.env.RELOJ) });
@@ -37,7 +41,7 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
     const fr = [];
     const h = (e) => { fr.push({ d: e.data, t: e.metadata.timestamp }); cdp.send("Page.screencastFrameAck", { sessionId: e.sessionId }).catch(() => {}); };
     cdp.on("Page.screencastFrame", h);
-    await cdp.send("Page.startScreencast", { format: "jpeg", quality: 95, maxWidth: 1080, maxHeight: 1920, everyNthFrame: 1 });
+    await cdp.send("Page.startScreencast", { format: "jpeg", quality: 95, maxWidth: ESC ? 1440 : 1080, maxHeight: ESC ? 900 : 1920, everyNthFrame: 1 });
     await p.waitForTimeout((k / 30) * 1000 + 400);
     await cdp.send("Page.stopScreencast"); cdp.off("Page.screencastFrame", h);
     if (!fr.length) return quieto(k);

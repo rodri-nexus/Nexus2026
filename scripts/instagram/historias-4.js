@@ -46,5 +46,19 @@ module.exports = {
       pie: "Fatiga de decisión",
     },
     nuevo("1118-3", "Nuevo post", 'Combos: cómo armarlos <span class="verde">para vender más</span>', "Con un ejemplo real. 🎁"),
+
+    // Jue 19/11 · reel: la tienda de Hogar Digital en computadora
+    {
+      archivo: "1119-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Revisaste cómo se ve tu tienda <span class="verde">en la computadora</span>?',
+      sub: "Respondé con la encuesta. Hoy te muestro una que vende igual en las dos.", responde: "SÍ · NUNCA 💻",
+    },
+    {
+      archivo: "1119-2", tipo: "punto", num: "DATO PARA TU TIENDA",
+      titulo: 'Miran en el celular, <span class="verde">compran donde sea</span>',
+      texto: "Mucha gente descubre en el celular y termina la compra en la computadora, o al revés.<br><br>Si tu tienda se ve bien en una sola, <b>perdés la otra</b>.",
+      pie: "Celular y computadora",
+    },
+    nuevo("1119-3", "Nuevo reel", 'Hogar Digital, <span class="verde">en computadora</span>', "Grabado en su tienda, en vivo. 💻"),
   ],
 };

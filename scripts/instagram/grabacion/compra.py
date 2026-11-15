@@ -1,5 +1,5 @@
 # Reel "Una compra real en Hogar Digital": grabación de la tienda en vivo + voz de Tomás + música suave + rótulos de Nevux.
-# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home|corte] (RELOJ=... para fijar el reloj del navegador)   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
+# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home|corte|computadora] (RELOJ=... para fijar el reloj del navegador)   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
 # Sale en public/ig/reels/compra.mp4 (+ .jpg). La portada va integrada como primer cuadro.
 import json, os, subprocess, sys, tempfile, shutil
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -54,6 +54,14 @@ REELS["corte"] = [
     dict(accion="vivo", et="EN EL CARRITO", tit="Un motivo real para hoy", voz="Así tiene un motivo real para no dejarlo para mañana."),
     dict(accion="cierre", voz="Es la hora de corte real de su tienda, nada inventado. ¿Querés la tuya así? Comentá ficha."),
 ]
+REELS["computadora"] = [  # correr con ESCRITORIO=1
+    dict(accion="abrir", url=HOME, et="CASO REAL · EN COMPUTADORA", tit="Hogar Digital, en computadora", voz="Esta es la tienda de Hogar Digital, en computadora. La misma tienda, adaptada a la pantalla grande."),
+    dict(accion="bajar", texto="ATENCIÓN POR WHATSAPP", margen=420, vivo=True, et="1 · LA HOME", tit="Los beneficios, a la vista", voz="Los beneficios, a la vista apenas entrás."),
+    dict(accion="bajar", texto="DESTACADOS", margen=140, vivo=True, et="2 · DESTACADOS", tit="Precio y descuento", voz="Los destacados, con el precio y el descuento."),
+    dict(accion="bajar", texto="ENCONTRÁ LO TUYO", margen=60, vivo=True, et="3 · CATEGORÍAS", tit="Cambian mientras bajás", voz="Las categorías, que cambian mientras bajás."),
+    dict(accion="bajar", texto="CONOCER EL LOCAL", margen=140, vivo=True, et="4 · EL LOCAL", tit="Con el mapa al costado", voz="Y el local, con el mapa al costado."),
+    dict(accion="cierre", voz="En el celular o en la computadora, la tienda vende igual. ¿Querés la tuya así? Comentá ficha."),
+]
 NOMBRE = sys.argv[1] if len(sys.argv) > 1 else "compra"
 ESCENAS = REELS[NOMBRE]
 
@@ -78,8 +86,18 @@ def cuadro(png, esc):
     d.rounded_rectangle((80, 150, 80 + w, 202), radius=14, fill=VERDE)
     d.text((102, 158), et, font=fe, fill=BG)
     d.text((80, 222), tit, font=ft, fill=(255, 255, 255))
-    # pantalla real del celular, achicada y con bordes redondeados
     s = Image.open(png).convert("RGB")
+    if s.width > s.height:
+        # computadora: la pantalla dentro de una notebook, centrada
+        sw = 1000; sh = int(sw * s.height / s.width)
+        s = s.resize((sw, sh), Image.LANCZOS)
+        x, y = (W - sw) // 2, 640
+        d.rounded_rectangle((x - 22, y - 22, x + sw + 22, y + sh + 22), radius=26, fill=(28, 28, 31))
+        im.paste(s, (x, y))
+        d.rounded_rectangle((x - 80, y + sh + 22, x + sw + 80, y + sh + 52), radius=14, fill=(48, 48, 52))
+        d.rounded_rectangle((W // 2 - 90, y + sh + 22, W // 2 + 90, y + sh + 34), radius=6, fill=(32, 32, 35))
+        return im
+    # pantalla real del celular, achicada y con bordes redondeados
     sw = 860; sh = int(sw * s.height / s.width)
     s = s.resize((sw, sh), Image.LANCZOS)
     x, y = (W - sw) // 2, 330
