@@ -68,6 +68,22 @@ Precios revisados en la tienda el 08/11 (`productos.json`). Promos reales que se
 - Las fotos de la **balanza Oryx** en su tienda muestran "NEVUX" en la pantalla: se avisó a Rodrigo para que las cambien; no se usan.
 - Sin métricas de la semana 1 (Windsor no estaba disponible en el chat del 08/11).
 
+## Semana 3 (16 al 20 de noviembre), pasada a Rodrigo día por día el 15/11
+
+Marcelo (15/11): no hace dropshipping y no quiere quedarse con mercadería; los productos con batería (parlantes, auriculares) se arruinan en stock. **Mostrar solo lo que tiene en stock y priorizar productos sin batería.** Evalúa sumar productos de Unidrop.
+
+| Día | 19:48 | Pieza | Historias (10:12 · 14:42 · 21:12) |
+|---|---|---|---|
+| Lun 16/11 | Reel `auriculares` (27 s) | Auriculares Air Max con pantalla ($45.900) | ¿Auriculares o parlante? · Envío gratis desde $50.000 · Nuevo reel |
+| Mar 17/11 | Carrusel (7) `09-combo-navideno` | Combo Navideño ($66.700, armado por Marcelo) | ¿Ya armaste el árbol? · El combo · Nuevo post |
+| Mié 18/11 | Reel `combo` (30 s) | Combo Navideño (el trípode con aro ya no está en la tienda) | ¿Árbol o arbolito? · 5 cosas en un combo · Nuevo reel |
+| Jue 19/11 | Carrusel (8) `10-como-comprar` | Así comprás en Hogar Digital, paso a paso (capturas en vivo, reloj del navegador en jueves 15 h) | ¿Ya compraste online? · Corte 18 h · Nuevo post |
+| Vie 20/11 | Reel `volcan` (28 s) | Humidificador Volcán ($70.900) | ¿Encendido o apagado? · $63.810 con transferencia · Nuevo reel |
+
+- **Combo Navideño:** la ficha no muestra envío gratis ni descuento por cantidad: no se prometen. Precio de lista: en la app $79.912 y en la web $89.900 (avisarle a Marcelo cuando vuelva).
+- **Productos nuevos (parlante Mixor Impacto, smartwatch ZL73J, smartwatch LAXASFIT H7):** se armaron fotos con fondo de estudio oscuro (`public/clientes/hogar-digital/fotos-nuevas/`, script `scripts/instagram/hd/fondo.py`). Faltan fotos con fondo liso de los colores rojo, azul y negro del parlante.
+- 13/11: Marcelo tuvo una venta orgánica (#114, $20.720) después del rediseño. Para usarla en el Instagram de Nevux, pedirle permiso.
+
 ## Pendiente
 
 - Si vence Windsor (~29/11): publicación manual, después de la de @nevux.app (ver `docs/instagram.md`).
