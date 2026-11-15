@@ -91,14 +91,18 @@ def cuadro(png, esc):
         im.paste(s, (x, y))
         d.rounded_rectangle((x - 30, y + sh + 16, x + sw + 30, y + sh + 44), radius=12, fill=(48, 48, 52))
         d.rounded_rectangle((W // 2 - 90, y + sh + 16, W // 2 + 90, y + sh + 28), radius=6, fill=(32, 32, 35))
-        fe = F("inter800.ttf", 36); ft = F("mont900.ttf", 72)
+        fe = F("inter800.ttf", 36); tam = 72
+        while d.textlength(tit, font=F("mont900.ttf", tam)) > W - 160 and tam > 40: tam -= 2
+        ft = F("mont900.ttf", tam)
         yy = y + sh + 130
         w = d.textlength(et, font=fe) + 52
         d.rounded_rectangle((80, yy, 80 + w, yy + 62), radius=16, fill=VERDE)
         d.text((106, yy + 9), et, font=fe, fill=BG)
         d.text((80, yy + 92), tit, font=ft, fill=(255, 255, 255))
         return im
-    fe = F("inter800.ttf", 30); ft = F("mont900.ttf", 54)
+    fe = F("inter800.ttf", 30); tam = 54
+    while d.textlength(tit, font=F("mont900.ttf", tam)) > W - 160 and tam > 34: tam -= 2
+    ft = F("mont900.ttf", tam)
     w = d.textlength(et, font=fe) + 44
     d.rounded_rectangle((80, 150, 80 + w, 202), radius=14, fill=VERDE)
     d.text((102, 158), et, font=fe, fill=BG)
