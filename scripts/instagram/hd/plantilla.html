@@ -91,7 +91,7 @@
   } else if (P.tipo === 'producto') {
     const off = P.lista && P.lista > P.precio ? Math.round((1 - P.precio / P.lista) * 100) : 0;
     h = `<div class="prod"><div class="foto"><img src="${img(P.img)}"></div>${P.n ? `<div class="n">${P.n}</div>` : ''}<h3>${P.nombre}</h3>
-      <div class="pr"><b>${plata(P.precio)}</b>${off ? `<s>${plata(P.lista)}</s><em>${off}% OFF</em>` : ''}</div>${P.texto ? `<p>${P.texto}</p>` : ''}</div>`;
+      ${P.precio ? `<div class="pr"><b>${plata(P.precio)}</b>${off ? `<s>${plata(P.lista)}</s><em>${off}% OFF</em>` : ''}</div>` : ''}${P.texto ? `<p>${P.texto}</p>` : ''}</div>`;
   } else if (P.tipo === 'lista') {
     h = `<div class="cuerpo">${P.eb ? `<div class="eb">${P.eb}</div>` : ''}<h2>${P.titulo}</h2><div class="items">${P.items.map((x, i) =>
       `<div><i>${x.icono || i + 1}</i><span>${x.t}${x.d ? `<small>${x.d}</small>` : ''}</span></div>`).join('')}</div></div>`;

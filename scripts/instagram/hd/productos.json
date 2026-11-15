@@ -110,5 +110,12 @@
   "lista": 74990,
   "url": "https://hogardigital.com.ar/productos/luz-de-emergencia-60-luces-led/",
   "img": "p/luz.jpg"
+ },
+ "combo": {
+  "nombre": "Combo Navideño",
+  "precio": 66700,
+  "lista": 89900,
+  "url": "https://hogardigital.com.ar/productos/combo-navideno-1be5s/",
+  "img": "p/combo-estrella.jpg"
  }
 }
