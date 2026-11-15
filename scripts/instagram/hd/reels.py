@@ -79,7 +79,7 @@ REELS = {
         dict(tipo="foto", p="combo", img="p/combo-arbol.jpg", et="COMBO NAVIDEÑO", tit="ÁRBOL DE 90 CM", voz="Llegó el combo navideño de Hogar Digital. Trae un árbol blanco de noventa centímetros,"),
         dict(tipo="foto", p="combo", img="p/combo-estrella-2.jpg", et="PARA LA PUNTA", tit="LA ESTRELLA", voz="la estrella para la punta,"),
         dict(tipo="foto", p="combo", img="p/combo-adornos.jpg", et="PARA COLGAR", tit="12 ADORNOS", voz="doce adornos para colgar,"),
-        dict(tipo="foto", p="combo", img="p/combo-luces.jpg", et="LUCES LED", tit="CON CONTROL REMOTO", voz="luces LED con control remoto,"),
+        dict(tipo="foto", p="combo", img="p/combo-luces.jpg", et="LUCES LED · CONTROL REMOTO", tit="CON EFECTOS", voz="luces LED con control remoto,"),
         dict(tipo="foto", p="combo", img="p/combo-arbolito.jpg", et="PARA LA MESA", tit="ARBOLITO DE MESA", voz="y un arbolito de mesa."),
         dict(tipo="precio", p="combo", img="p/combo-estrella.jpg", nombre="Combo Navideño", tag="10% OFF CON TRANSFERENCIA", voz="Todo por sesenta y seis mil setecientos, y pagando con transferencia tenés diez por ciento off."),
         dict(tipo="cierre", voz="Pedilo en hogar digital punto com punto ar. Enviamos a todo el país."),
