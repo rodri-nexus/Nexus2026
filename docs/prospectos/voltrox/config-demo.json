@@ -80,24 +80,24 @@
    "acento": "#f57c00",
    "modo": "editorial",
    "cinta": [
+    "*Somos el plus* que necesitás",
     "*18% OFF* con transferencia",
     "*3 cuotas* sin interés",
     "Despacho en *24 hs*",
     "Envío *gratis* desde $140.000",
-    "*Primeras marcas* 100% originales"
+    "*100% originales* y sellados"
    ],
    "portada": {
-    "fotos": [
-     "https://acdn-us.mitiendanube.com/stores/004/596/618/products/whey-protein-star-nutrition-2lbs-ac29ef1099b056b64117674579658226-1024-1024.webp",
-     "https://acdn-us.mitiendanube.com/stores/004/596/618/products/creatina-gold-nutrition-300-grs-804be907abb420e6f717584758297261-1024-1024.webp",
-     "https://acdn-us.mitiendanube.com/stores/004/596/618/products/combo-star-nutrition-829c2e77bace9fed6c17789711502809-1024-1024.webp"
+    "videos": [
+     "https://nevux.ar/clientes/voltrox/videos/portada.mp4"
     ],
-    "etiqueta": "Voltrox Suplementos · Primeras marcas",
-    "titulo": "Tu objetivo está más cerca.",
-    "texto": "Suplementos originales, asesoramiento real y el plus que necesitás para llegar más lejos.",
+    "etiqueta": "Voltrox · Noetinger, Córdoba",
+    "titulo": "Somos el *plus* que necesitás.",
+    "texto": "Suplementos 100% originales, asesoramiento real y envíos a toda la Argentina.",
     "boton": "Ver productos",
     "url": "/productos/",
-    "boton2": "Ver combos",
+    "lleno": true,
+    "boton2": "Combos",
     "url2": "/combos/",
     "productosUrl": "/productos/"
    },
@@ -126,9 +126,10 @@
    "destacados": [
     {
      "etiqueta": "Lo más pedido",
-     "titulo": "La *semana* 🔥",
+     "titulo": "Lo que más eligen *los que entrenan*",
      "url": "/productos/",
-     "cantidad": 4
+     "cantidad": 4,
+     "oscuro": true
     },
     {
      "etiqueta": "Ahorrá más",
@@ -173,10 +174,10 @@
     }
    ],
    "banner": {
-    "etiqueta": "[ Somos el plus ]",
-    "titulo": "Te asesoramos sin costo.",
-    "foto": "https://acdn-us.mitiendanube.com/stores/004/596/618/products/whey-protein-star-nutrition-2lbs-ac29ef1099b056b64117674579658226-1024-1024.webp",
-    "boton": "Escribinos",
+    "etiqueta": "[ Te asesoramos ]",
+    "titulo": "¿No sabés qué elegir? Escribinos.",
+    "foto": "https://nevux.ar/clientes/voltrox/videos/elegir-proteina.jpg",
+    "boton": "WhatsApp",
     "url": "https://wa.me/5493472525274"
    },
    "tira": {
@@ -208,7 +209,179 @@
      }
     ]
    },
-   "alternar": false
+   "alternar": false,
+   "sello": {
+    "puntaje": "5,0",
+    "texto": "15 opiniones verificadas",
+    "dato": "+4.900",
+    "datoTexto": "Nos siguen"
+   },
+   "historia": {
+    "etiqueta": "Desde Noetinger, Córdoba",
+    "titulo": "Cada pedido lo *preparamos nosotros*.",
+    "texto": "Elegimos cada producto, lo armamos a mano y lo despachamos en 24 hs a toda la Argentina, por Correo Argentino o Andreani.",
+    "puntos": [
+     "Primeras marcas, 100% originales y sellados",
+     "Cada pedido sale con su scoop y stickers Voltrox",
+     "Te asesoramos por WhatsApp de 8 a 20 hs, sin costo"
+    ],
+    "video": "https://nevux.ar/clientes/voltrox/videos/pedidos.mp4",
+    "poster": "https://nevux.ar/clientes/voltrox/videos/pedidos.jpg"
+   },
+   "comunidad": {
+    "estilo": "movimiento",
+    "titulo": "en movimiento",
+    "boton": "Ver en Instagram",
+    "url": "https://www.instagram.com/voltroxsuplementos/",
+    "fotos": [
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/estancado.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/estancado.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     },
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/isolada.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/isolada.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     },
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/magnesio.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/magnesio.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     },
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/destruido.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/destruido.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     },
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/elegir-proteina.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/elegir-proteina.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     },
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/precio-proteina.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/precio-proteina.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     },
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/creatina.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/creatina.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     }
+    ]
+   },
+   "testimonios": {
+    "etiqueta": "Clientes reales",
+    "titulo": "Pedidos que llegan a *todo el país*",
+    "texto": "Los mensajes que nos mandan cuando les llega su pedido.",
+    "fotos": [
+     "https://nevux.ar/clientes/voltrox/testimonios/t01.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t02.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t03.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t04.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t05.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t06.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t07.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t08.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t09.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t10.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t11.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t12.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t13.jpg"
+    ],
+    "url": "https://www.instagram.com/voltroxsuplementos/",
+    "boton": "Ver más en Instagram"
+   },
+   "numeros": {
+    "titulo": "Voltrox *en números*",
+    "items": [
+     {
+      "valor": 4900,
+      "prefijo": "+",
+      "texto": "Seguidores en Instagram"
+     },
+     {
+      "valor": 24,
+      "texto": "Horas para despachar"
+     },
+     {
+      "valor": 72,
+      "texto": "Productos en la tienda"
+     },
+     {
+      "valor": 15,
+      "texto": "Reseñas de 5 estrellas"
+     }
+    ]
+   },
+   "pilares": {
+    "etiqueta": "Por qué Voltrox",
+    "titulo": "Somos el *plus* que necesitás.",
+    "marca": "VOLTROX",
+    "items": [
+     {
+      "titulo": "100% originales",
+      "texto": "Primeras marcas, sellados y respaldados."
+     },
+     {
+      "titulo": "Asesoramiento real",
+      "texto": "Te orientamos sin costo para que compres lo que necesitás."
+     },
+     {
+      "titulo": "Despacho en 24 hs",
+      "texto": "A toda la Argentina, con seguimiento."
+     },
+     {
+      "titulo": "Detalles Voltrox",
+      "texto": "Tu pedido llega con su scoop y stickers."
+     }
+    ]
+   },
+   "resenas": {
+    "etiqueta": "Reseñas de la tienda",
+    "titulo": "Lo que dicen *nuestros clientes*",
+    "puntaje": 5.0,
+    "cantidad": "15",
+    "items": [
+     {
+      "nombre": "Karina C.",
+      "producto": "Combo One Fit",
+      "estrellas": 5,
+      "texto": "Excelente producto. Muy buena coordinación de envío. Y lo más lindo, los stickers."
+     },
+     {
+      "nombre": "Nicolás",
+      "producto": "Creatina Star Nutrition",
+      "estrellas": 5,
+      "texto": "Muy bueno, excelente amigo y muy conforme con la atención. Pronto estaré pidiendo nuevamente."
+     },
+     {
+      "nombre": "Alejandro P.",
+      "producto": "Creatina Star Nutrition 1 kg",
+      "estrellas": 5,
+      "texto": "Recomendable y excelente precio. Cuando se acabe pediré de nuevo."
+     },
+     {
+      "nombre": "Johana D.",
+      "producto": "Citrato de magnesio",
+      "estrellas": 5,
+      "texto": "La compra fue muy sencilla y práctica, y el producto es muy bueno."
+     },
+     {
+      "nombre": "Raquel",
+      "producto": "Combo Gold",
+      "estrellas": 5,
+      "texto": "Me llegó en perfecto estado. Los recomendaré."
+     },
+     {
+      "nombre": "Rocío A.",
+      "producto": "Whey Star Nutrition",
+      "estrellas": 5,
+      "texto": "Muy recomendable, excelentes precios."
+     }
+    ]
+   }
   }
  },
  "ocultar": [
