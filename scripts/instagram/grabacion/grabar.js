@@ -84,17 +84,26 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
       await deslizar(Math.max(0, y - (s.margen || 90)), mov); await (s.vivo ? enVivo : quieto)(k - mov);
     } else if (s.accion === "pregunta") {
       // toca una pregunta frecuente (la deja a la vista), la abre y graba la respuesta en tiempo real
-      // solo preguntas visibles que empiezan con "¿" (así no agarra la cinta de anuncios ni otros textos)
-      const q = p.locator(`text=/¿[^?]*${s.texto}/i >> visible=true`).first();
-      try {
-        await q.scrollIntoViewIfNeeded({ timeout: 5000 });
-        await p.evaluate((m) => scrollBy(0, -m), s.margen || 0);
-        await p.waitForTimeout(300);
-        const r = await q.boundingBox();
-        if (r) await p.evaluate(eval(TOQUE), [r.x + r.width / 2, r.y + r.height / 2]);
+      // busca la pregunta en la página (texto que empieza con "¿", visible), baja hasta ella y la toca
+      const pos = await p.evaluate(([t, m]) => {
+        const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); let x;
+        while ((x = w.nextNode())) {
+          const txt = x.textContent.trim(); const e = x.parentElement;
+          if (txt.startsWith("¿") && txt.toLowerCase().includes(t.toLowerCase()) && e.getBoundingClientRect().height > 0) {
+            e.setAttribute("data-nx-preg", "1");
+            window.scrollTo(0, e.getBoundingClientRect().top + scrollY - m);
+            return true;
+          }
+        }
+        return false;
+      }, [s.texto, s.margen || 160]);
+      await p.waitForTimeout(400);
+      if (pos) {
+        const r = await p.evaluate(() => { const q = document.querySelector('[data-nx-preg="1"]').getBoundingClientRect(); return [q.left + q.width / 2, q.top + q.height / 2]; });
+        await p.evaluate(eval(TOQUE), r);
         await quieto(5);
-        await q.click({ timeout: 5000 });
-      } catch (e) { console.log("no pude tocar", s.texto, e.message.split("\n")[0]); await quieto(5); }
+        await p.evaluate(() => { const e = document.querySelector('[data-nx-preg="1"]'); e.removeAttribute("data-nx-preg"); (e.closest("button,summary,[role=button],a,[onclick]") || e).click(); });
+      } else { console.log("no encontré", s.texto); await quieto(5); }
       await enVivo(k - 5);
     } else if (s.accion === "vivo") {
       await enVivo(k);
