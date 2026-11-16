@@ -84,13 +84,17 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
       await deslizar(Math.max(0, y - (s.margen || 90)), mov); await (s.vivo ? enVivo : quieto)(k - mov);
     } else if (s.accion === "pregunta") {
       // toca una pregunta frecuente (la deja a la vista), la abre y graba la respuesta en tiempo real
-      const q = p.getByText(new RegExp(s.texto, "i")).first();
-      await q.scrollIntoViewIfNeeded();
-      await p.evaluate((m) => scrollBy(0, -m), s.margen || 0);
-      const r = await q.boundingBox();
-      if (r) await p.evaluate(eval(TOQUE), [r.x + r.width / 2, r.y + r.height / 2]);
-      await quieto(5);
-      await q.click().catch((e) => console.log("no pude tocar", s.texto, e.message));
+      // solo preguntas visibles que empiezan con "¿" (así no agarra la cinta de anuncios ni otros textos)
+      const q = p.locator(`text=/¿[^?]*${s.texto}/i >> visible=true`).first();
+      try {
+        await q.scrollIntoViewIfNeeded({ timeout: 5000 });
+        await p.evaluate((m) => scrollBy(0, -m), s.margen || 0);
+        await p.waitForTimeout(300);
+        const r = await q.boundingBox();
+        if (r) await p.evaluate(eval(TOQUE), [r.x + r.width / 2, r.y + r.height / 2]);
+        await quieto(5);
+        await q.click({ timeout: 5000 });
+      } catch (e) { console.log("no pude tocar", s.texto, e.message.split("\n")[0]); await quieto(5); }
       await enVivo(k - 5);
     } else if (s.accion === "vivo") {
       await enVivo(k);
