@@ -84,6 +84,20 @@ Nada de fichas simuladas ni productos inventados: las piezas muestran **cómo qu
 Historias en `historias-3.js` (`MMDD-1..3`). Los Reels grabados en la tienda salen de `scripts/instagram/grabacion/compra.py [compra|movimiento|home]`: Playwright en celular (390×693 a 1080×1920), voz de Tomás, música propia, rótulos de Nevux y portada integrada. Las pausas con `vivo: true` se graban en tiempo real (screencast de Chrome) para que los videos y carruseles se vean andando.
 - **Para avisarle a Marcelo:** en el carrito, con pedidos de menos de $50.000 el producto dice "Envío gratis" y la barra "Te faltan $X" (cartel de envío gratis cargado en cada producto de Tiendanube).
 
+## Semana del 16 al 22/11 (pasada a Rodrigo día por día; Hogar Digital en vivo)
+
+| Día | 19:30 | Pieza | Archivos |
+|---|---|---|---|
+| Lun 16/11 | Carrusel (7) | Cargó un producto nuevo y la ficha salió completa (Combo Navideño) | `12-producto-nuevo` |
+| Mar 17/11 | Reel (31 s) | La cuenta regresiva del despacho, en vivo | `reels/corte.mp4` |
+| Mié 18/11 | Carrusel (8) | Combos: cómo armarlos para vender más (llamado: "Comentá COMBO") | `13-combos` |
+| Jue 19/11 | Reel (29 s) | Hogar Digital en computadora | `reels/computadora.mp4` |
+| Vie 20/11 | Carrusel (7) | 5 cosas para revisar antes del Black Friday (27/11) | `14-black-friday` |
+| Sáb 21/11 | Reel (32 s) | Las preguntas frecuentes de la ficha, en vivo | `reels/preguntas.mp4` |
+| Dom 22/11 | Carrusel (9) | Lo que más me preguntan de Nevux (respuestas de la landing) | `15-preguntas-nevux` |
+
+Historias en `historias-4.js`; carruseles en `real-3.js`. El grabador (`grabacion/compra.py`) suma `RELOJ=<fecha>` (reloj del navegador en el día del post), `ESCRITORIO=1` (notebook) y la acción `pregunta` (abre una pregunta frecuente).
+
 ## Frecuencia y horarios (todo programado, hora de Argentina)
 
 | Hora | Qué | Archivo |

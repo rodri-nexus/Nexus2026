@@ -130,4 +130,49 @@ Con ejemplos reales de la tienda de Hogar Digital (@hogardigitaltiendaonline):
 
 ${HASHTAGS} #blackfriday`,
   },
+  {
+    carpeta: "15-preguntas-nevux",
+    nombre: "Lo que más me preguntan de Nevux",
+    placas: [
+      { tipo: "portada", eyebrow: "Guardalo para después", titulo: 'Lo que más me preguntan <span class="verde">de Nevux</span>', sub: "Contraseña, plantilla, velocidad, garantía y precio. Sin vueltas." },
+      { tipo: "punto", num: "PREGUNTA 1", titulo: "¿Necesitan mi contraseña?", texto: "No. Solo necesitamos el link de tu tienda para ver cómo está. La línea la pegás vos desde tu panel, con nuestra guía." },
+      { tipo: "punto", num: "PREGUNTA 2", titulo: "¿Tengo que cambiar de plantilla o saber programar?", texto: "No. Nevux se suma a la plantilla que ya tenés. Te damos una sola línea, ya configurada para tu tienda, y la pegás en el editor de diseño." },
+      { tipo: "punto", num: "PREGUNTA 3", titulo: "¿Hace más lenta mi tienda?", texto: "La línea se carga en paralelo, así que no frena la carga de tu página. Es un solo archivo, sin apps." },
+      { tipo: "punto", num: "PREGUNTA 4", titulo: "¿Rompe algo? ¿Cómo lo saco?", texto: "No toca tu plantilla ni tus productos. Si borrás la línea, tu tienda vuelve a estar como antes." },
+      { tipo: "punto", num: "PREGUNTA 5", titulo: "¿Cuánto más voy a vender?", texto: "No te prometemos un número: depende de tu producto, tu precio y tu tráfico. Podés hacer la cuenta con tus números en la calculadora de nevux.ar." },
+      { tipo: "punto", num: "PREGUNTA 6", titulo: "¿Y si en mi tienda no funciona?", texto: "Lo probamos sobre una ficha real de tu tienda antes de activarlo, y tenés 7 días de garantía: si no te convence, te devolvemos el 100%." },
+      { tipo: "punto", num: "PREGUNTA 7", titulo: "¿Cómo se paga?", texto: "Suscripción mensual por Mercado Pago, con tarjeta o con tu cuenta. Básico $39.900 y Premium $69.900 por mes. Cancelás cuando quieras." },
+      {
+        tipo: "cta", ultima: true, eyebrow: "Análisis gratis",
+        titulo: '¿Te quedó <span class="verde">otra duda</span>?',
+        texto: 'Escribila en los comentarios o mandame <span class="palabra">FICHA</span> por mensaje y la vemos con tu tienda.',
+      },
+    ],
+    caption: `Lo que más me preguntan de Nevux, sin vueltas 👇 (guardalo para después)
+
+❓ ¿Necesitan mi contraseña?
+No. Solo necesitamos el link de tu tienda para ver cómo está. La línea la pegás vos desde tu panel, con nuestra guía.
+
+❓ ¿Tengo que cambiar de plantilla o saber programar?
+No. Nevux se suma a la plantilla que ya tenés. Te damos una sola línea, ya configurada para tu tienda, y la pegás en el editor de diseño.
+
+❓ ¿Hace más lenta mi tienda?
+La línea se carga en paralelo, así que no frena la carga de tu página. Es un solo archivo, sin apps.
+
+❓ ¿Rompe algo? ¿Cómo lo saco?
+No toca tu plantilla ni tus productos. Si borrás la línea, tu tienda vuelve a estar como antes.
+
+❓ ¿Cuánto más voy a vender?
+No te prometemos un número: depende de tu producto, tu precio y tu tráfico. Podés hacer la cuenta con tus números en la calculadora de nevux.ar.
+
+❓ ¿Y si en mi tienda no funciona?
+Lo probamos sobre una ficha real de tu tienda antes de activarlo, y tenés 7 días de garantía: si no te convence, te devolvemos el 100%.
+
+❓ ¿Cómo se paga?
+Suscripción mensual por Mercado Pago, con tarjeta o con tu cuenta. Básico $39.900 y Premium $69.900 por mes. Cancelás cuando quieras.
+
+👉 ¿Te quedó otra duda? Escribila en los comentarios o mandame FICHA por mensaje y la vemos con tu tienda.
+
+${HASHTAGS}`,
+  },
 ];

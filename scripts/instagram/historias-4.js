@@ -88,5 +88,19 @@ module.exports = {
       pie: "Respuesta inmediata",
     },
     nuevo("1121-3", "Nuevo reel", 'Las dudas, <span class="verde">respondidas en la ficha</span>', "En vivo, en la tienda de Hogar Digital. 💬"),
+
+    // Dom 22/11 · post: lo que más me preguntan de Nevux
+    {
+      archivo: "1122-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Qué te frena para <span class="verde">probar Nevux</span>?',
+      sub: "Respondé con la encuesta. Hoy respondo las dudas más comunes.", responde: "EL PRECIO · OTRA COSA",
+    },
+    {
+      archivo: "1122-2", tipo: "punto", num: "CÓMO TRABAJAMOS",
+      titulo: 'Primero lo ves <span class="verde">en tu tienda</span>',
+      texto: "Lo armamos sobre una ficha real tuya antes de activarlo.<br><br>Y si en los primeros 7 días no te convence, <b>te devolvemos el 100%</b>.",
+      pie: "Garantía de 7 días",
+    },
+    nuevo("1122-3", "Nuevo post", 'Lo que más me preguntan <span class="verde">de Nevux</span>', "Contraseña, plantilla, garantía y precio. ❓"),
   ],
 };
