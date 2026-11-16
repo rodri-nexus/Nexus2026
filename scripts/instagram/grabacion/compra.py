@@ -1,5 +1,5 @@
 # Reel "Una compra real en Hogar Digital": grabación de la tienda en vivo + voz de Tomás + música suave + rótulos de Nevux.
-# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home|corte|computadora] (RELOJ=... para fijar el reloj del navegador)   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
+# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home|corte|computadora|preguntas] (RELOJ=... para fijar el reloj del navegador)   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
 # Sale en public/ig/reels/compra.mp4 (+ .jpg). La portada va integrada como primer cuadro.
 import json, os, subprocess, sys, tempfile, shutil
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -61,6 +61,15 @@ REELS["computadora"] = [  # correr con ESCRITORIO=1
     dict(accion="bajar", texto="ENCONTRÁ LO TUYO", margen=60, vivo=True, et="3 · CATEGORÍAS", tit="Cambian mientras bajás", voz="Las categorías, que cambian mientras bajás."),
     dict(accion="bajar", texto="CONOCER EL LOCAL", margen=140, vivo=True, et="4 · EL LOCAL", tit="Con el mapa al costado", voz="Y el local, con el mapa al costado."),
     dict(accion="cierre", voz="En el celular o en la computadora, la tienda vende igual. ¿Querés la tuya así? Comentá ficha."),
+]
+REELS["preguntas"] = [
+    dict(accion="abrir", url=OVNI, et="CASO REAL · EN VIVO", tit="Las dudas, respondidas en la ficha", voz="¿Cuántas veces por día te preguntan lo mismo por WhatsApp? Mirá cómo lo resuelve Hogar Digital."),
+    dict(accion="bajar", texto="tarda en llegar", margen=220, vivo=True, et="EN LA FICHA", tit="Las preguntas de siempre", voz="En cada ficha tiene las preguntas que más le hacen."),
+    dict(accion="pregunta", texto="tarda en llegar", margen=160, et="PREGUNTA 1", tit="¿Cuánto tarda en llegar?", voz="¿Cuánto tarda en llegar? Respondido."),
+    dict(accion="pregunta", texto="tiene garant", margen=160, et="PREGUNTA 2", tit="¿Tiene garantía?", voz="¿Tiene garantía? Respondido."),
+    dict(accion="pregunta", texto="devolverlo", margen=160, et="PREGUNTA 3", tit="¿Y si me arrepiento?", voz="¿Y si me arrepiento? También."),
+    dict(accion="vivo", et="SIN ESCRIBIR", tit="La respuesta ya está ahí", voz="Así, quien compra no tiene que escribir y esperar: la respuesta ya está ahí."),
+    dict(accion="cierre", voz="Cada duda resuelta en la ficha es una venta que no se frena. Comentá ficha."),
 ]
 NOMBRE = sys.argv[1] if len(sys.argv) > 1 else "compra"
 ESCENAS = REELS[NOMBRE]

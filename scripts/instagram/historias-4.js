@@ -74,5 +74,19 @@ module.exports = {
       pie: "Black Friday · 27/11",
     },
     nuevo("1120-3", "Nuevo post", '5 cosas para revisar <span class="verde">antes del Black Friday</span>', "Con ejemplos reales. 🖤"),
+
+    // Sáb 21/11 · reel: las preguntas frecuentes de la ficha, en vivo
+    {
+      archivo: "1121-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Cuántas veces por día te preguntan <span class="verde">lo mismo</span>?',
+      sub: "Respondé con la encuesta. Hoy te muestro cómo sacarlo de la ficha.", responde: "POCAS · MUCHAS 💬",
+    },
+    {
+      archivo: "1121-2", tipo: "punto", num: "PSICOLOGÍA DE VENTA",
+      titulo: 'Esperar una respuesta <span class="verde">enfría</span> la compra',
+      texto: "Quien pregunta por WhatsApp a la noche y recibe la respuesta a la mañana, muchas veces ya compró en otro lado.<br><br>La respuesta en la ficha <b>llega al instante</b>.",
+      pie: "Respuesta inmediata",
+    },
+    nuevo("1121-3", "Nuevo reel", 'Las dudas, <span class="verde">respondidas en la ficha</span>', "En vivo, en la tienda de Hogar Digital. 💬"),
   ],
 };
