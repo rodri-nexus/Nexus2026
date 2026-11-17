@@ -83,7 +83,7 @@
 - **Catálogo para clientes:** `nevux.ar/disenos` (celulares 3D + notebook + planes). Demos en `public/demo/disenos/` (`python3 scripts/demo/disenos.py`).
 - **Landing**, en este orden: portada → "Así puede quedar tu tienda" (celulares 3D) → Plan Premium (notebook con la home Destino) → el problema → la cuenta → caso real de Hogar Digital con la home Destino en 6 partes (`public/casos/hogar-digital/`, "vista previa sobre su tienda real") → cómo lo hace → precio con los 2 planes (compactos y centrados) → preguntas. Se sacaron el celular de la portada, el antes y después deslizable y la demo "Urbana".
 - **nevux.ar/links:** tarjetas "Caso real: Hogar Digital", "Así puede quedar tu tienda", "Plan Premium" y precio de los dos planes.
-- **Planes** (`lib/planes.ts`): el Premium describe la home Destino. Básico $39.900, Premium $69.900.
+- **Planes** (`lib/planes.ts`): el Premium describe la home Destino. Básico $39.900, Premium $59.900.
 - **Para Marcelo:** 3 imágenes de su tienda con el Premium (`.capturas/marcelo/`, no están en el repo) y mensaje con Básico vs. Premium.
 - **Decisiones de Rodrigo:** la home va incluida en el Básico; **Valmont se queda con el estilo Wess**; a los clientes Premium nuevos se les deja la home **tal cual Destino**; los **avisos de compra** (`ventas`, nombres de ejemplo) **se quedan prendidos** (ya se le avisó del riesgo; no volver a planteárselo).
 
@@ -98,7 +98,7 @@
 >
 > **01/11 (noche) · INSTAGRAM DE HOGAR DIGITAL A MANO:** Rodrigo programa los posts en Business Suite. Las tareas automáticas de Hogar Digital están apagadas; ver `docs/instagram-hogar-digital.md`. La sesión `session_01PDD9EtCY9JFJzsoyimb9Yn`, donde corren las tareas de @nevux.app, **se traba esperando permiso para Windsor** y tiene el contexto casi lleno: el 01/11 se publicaron desde otra sesión el carrusel "La cuenta que nadie hace" y la historia de las 20:17, y sus pedidos pendientes **no hay que aprobarlos** porque duplicarían. Conviene mover esas tareas a una sesión nueva.
 >
-> **01/11 (noche) · TIENDA DE MARCELO APAGADA (`activo: false`)** a pedido de Rodrigo, hasta que pague el Premium el **10/11**. Link de pago: `nevux.ar/suscribirme?c=hogar-digital` ($69.900/mes, `mpago.la/2mkcebx`). Cuando pague: `activo: true` y `cobro: { tipo: 'mercadopago', email: '<su email>', gracia: 3 }`. La configuración Premium queda guardada tal cual.
+> **01/11 (noche) · TIENDA DE MARCELO APAGADA (`activo: false`)** a pedido de Rodrigo, hasta que pague el Premium el **10/11**. Link de pago: `nevux.ar/suscribirme?c=hogar-digital` ($59.900/mes, `mpago.la/2mkcebx`). Cuando pague: `activo: true` y `cobro: { tipo: 'mercadopago', email: '<su email>', gracia: 3 }`. La configuración Premium queda guardada tal cual.
 >
 > **01/11 (noche) · PUBLICADO: Hogar Digital con el Premium tal cual Destino, en azul** (pedido de Rodrigo: "mandale hasta que quede completo al 100% como Destino"). Home y ficha de producto con las medidas reales de Destino (`docs/referencias/destino.md`). Detalle y lo que falta en `docs/hogar-digital-premium.md`.
 > **Lo que sigue:** Rodrigo lo revisa y le avisa a Marcelo. **Si Marcelo da el ok → apagarla (`activo: false` en `lib/clientes.ts`, hogar-digital) hasta el 10/11, que cobra y paga.** Cuando pague el Premium (`nevux.ar/suscribirme?c=hogar-digital`) → `activo: true` y `cobro: { tipo: 'mercadopago', email: '<su email>', gracia: 3 }` (no `planMp`: lo usa Valmont). Local de Campana publicado (falta el horario). Reseñas en espera de verificación (ver `docs/hogar-digital-premium.md`). Faltan de Marcelo: reseñas verificables con producto y foto, si tiene local con atención al público, envío gratis desde algún monto y videos verticales limpios para la portada.
@@ -139,7 +139,7 @@
 
 **Hecho en la sesión del 30/10 al 01/11:**
 - Valmont & Co.: tienda terminada (home y ficha estilo Wess, plantilla Recife, videos de los 5 relojes). Miguel dio el ok; está apagada hasta que se suscriba al Premium y se prende sola al cobrar (`cobro.planMp`). Ver `docs/valmont.md`.
-- Planes de Mercado Pago: Básico $39.900/mes `mpago.la/2u5gT97` y Premium $69.900/mes `mpago.la/2mkcebx` (`lib/planes.ts`). Links para clientes: `nevux.ar/suscribirme?c=<id>`.
+- Planes de Mercado Pago: Básico $39.900/mes `mpago.la/2u5gT97` y Premium $59.900/mes `mpago.la/2mkcebx` (`lib/planes.ts`). Links para clientes: `nevux.ar/suscribirme?c=<id>`.
 - Instagram de Hogar Digital: conectado a Windsor, diagnóstico y semana 1 programada. Servicio de contenido: $85.000/mes. Ver `docs/instagram-hogar-digital.md`.
 - Regla: todos los Reels con narración en voz argentina (ver "Cómo trabajamos").
 
@@ -163,10 +163,10 @@
   - Vista previa de marca al compartir: `public/compartir.jpg`.
 - **Página de links:** `nevux.ar/links`, para la bio de Instagram. Miniaturas en `public/links/`. Tiene las tarjetas "Así puede quedar tu tienda" → `nevux.ar/disenos` y "Plan Premium" → `nevux.ar/#premium`.
 - **Suscripción:**
-  - Planes: Básico $39.900/mes (`mpago.la/2u5gT97`; el viejo `1LqFYin` era pago único y ya está borrado) y **Premium $69.900/mes** (`mpago.la/2mkcebx`, creado el 31/10). Ver `lib/planes.ts` y `docs/clientes.md`.
+  - Planes: Básico $39.900/mes (`mpago.la/2u5gT97`; el viejo `1LqFYin` era pago único y ya está borrado) y **Premium $59.900/mes** (`mpago.la/2mkcebx`, creado el 31/10). Ver `lib/planes.ts` y `docs/clientes.md`.
   - Página de pago: `nevux.ar/suscribirme?c=<cliente>`.
   - Página de gracias: `nevux.ar/gracias`.
-  - Mercado Pago: plan Básico `mpago.la/2u5gT97` ($39.900/mes) y plan Premium `mpago.la/2mkcebx` ($69.900/mes).
+  - Mercado Pago: plan Básico `mpago.la/2u5gT97` ($39.900/mes) y plan Premium `mpago.la/2mkcebx` ($59.900/mes).
 - **Home Premium · Destino (01/11):** referencia oficial del Premium (`home.destino`). Pedido de Rodrigo: a los clientes Premium nuevos se les deja la home tal cual Destino, con sus productos. **Valmont se queda con el estilo Wess** (decisión de Rodrigo). Ver `docs/disenos.md`.
 - **Diseños nuevos (01/11):** Ficha Pro clara y oscura (`estiloFicha: 'pro'`), Home Premium (`home.portadaVideo`, `home.rotador`, `tarjetas.alternar`) y la página `nevux.ar/disenos`. Ver `docs/disenos.md` y `docs/efectos.md`.
 - **Motor (`public/nevux.js`)**, con todas las piezas que se configuran por cliente en `lib/clientes.ts`:

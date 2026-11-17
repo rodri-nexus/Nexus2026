@@ -27,7 +27,7 @@ export const PLANES: Record<"basico" | "premium", Plan> = {
   },
   premium: {
     nombre: "Nevux Premium",
-    precio: 69900,
+    precio: 59900,
     link: "https://mpago.la/2mkcebx",
     bajada: "Tu tienda como las marcas grandes de ropa: home con video, categorías que rotan, comunidad, números que suben y carrito con envío gratis. Sin apps.",
     incluye: [
