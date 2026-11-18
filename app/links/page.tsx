@@ -44,13 +44,6 @@ export default function LinksPage() {
             texto="Por WhatsApp · Sin compromiso"
           />
           <LinkCard
-            href="/tiendanube#que-hace"
-            origen="antes-despues"
-            imagen="/links/caso-hd.jpg"
-            titulo="Caso real: Hogar Digital"
-            texto="Así queda su tienda con el Premium"
-          />
-          <LinkCard
             href="/sitios-web"
             origen="sitios-web"
             imagen="/casos/power-gym/landing.jpg"
@@ -63,27 +56,6 @@ export default function LinksPage() {
             imagen="/links/disenos.jpg"
             titulo="Así puede quedar tu tienda"
             texto="Diseños con efectos para Tiendanube"
-          />
-          <LinkCard
-            href="/tiendanube#premium"
-            origen="premium"
-            imagen="/links/premium.jpg"
-            titulo="Plan Premium"
-            texto="Tu tienda como las marcas grandes"
-          />
-          <LinkCard
-            href="/tiendanube#cuenta"
-            origen="calculadora"
-            imagen="/links/calculadora.jpg"
-            titulo="Hacé la cuenta"
-            texto="Calculadora con tus números"
-          />
-          <LinkCard
-            href="/tiendanube#precio"
-            origen="precio"
-            imagen="/links/precio.jpg"
-            titulo="Precio y garantía"
-            texto="Básico $47.900 · Premium $59.900"
           />
           <LinkCard
             href="/"
