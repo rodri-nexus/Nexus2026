@@ -32,6 +32,8 @@
     cuentaRegresiva: null,
     // WhatsApp con código de país, sin + ni espacios (ej: 5491123456789). '' = no se muestra.
     whatsapp: '',
+    // Productos que no se muestran en las grillas de la home ni en "similares" (expresión regular sobre el nombre). '' = ninguno.
+    excluirProductos: '',
     // Efecto 3D en las fotos de producto: se inclinan siguiendo el mouse o el dedo, con un brillo encima.
     // true = tarjetas de la home, grillas de productos y foto principal de la ficha. En celular las tarjetas flotan suaves.
     // O { selectores: ['...'], flotar: false } para elegir dónde.
@@ -3114,6 +3116,7 @@
     DE.forEach(function (G, n) {
       var cont = box.querySelector('[data-nvd-g="' + n + '"]'); if (!cont) return;
       traer(G.url || '/productos/').then(function (ps) {
+        if (NEVUX.excluirProductos) { var EXr = new RegExp(NEVUX.excluirProductos, 'i'); ps = ps.filter(function (p) { return !EXr.test(p.nombre || ''); }); }
         ps = ps.slice(G.desde || 0, (G.desde || 0) + (G.cantidad || (G.carrusel ? 8 : 4)));
         if (!ps.length) { cont.closest('.nvd-s').remove(); return; }
         cont.innerHTML = ps.map(tarjeta).join('');
@@ -3554,7 +3557,8 @@
     }).catch(function () { return []; }); };
     var aca = location.pathname;
     Promise.all([leer(cat), cat !== '/productos/' ? leer('/productos/') : Promise.resolve([])]).then(function (rs) {
-      var vistos = {}, ps = rs[0].concat(rs[1]).filter(function (p) { var u = p.url.replace(/^https?:\/\/[^/]+/, ''); if (vistos[u] || u === aca) return false; vistos[u] = 1; return true; }).slice(0, 8);
+      var EXs = NEVUX.excluirProductos ? new RegExp(NEVUX.excluirProductos, 'i') : null;
+      var vistos = {}, ps = rs[0].concat(rs[1]).filter(function (p) { if (EXs && EXs.test(p.nombre || '')) return false; var u = p.url.replace(/^https?:\/\/[^/]+/, ''); if (vistos[u] || u === aca) return false; vistos[u] = 1; return true; }).slice(0, 8);
       if (!ps.length) return;
       var h = '<section class="nvx-fdr"><div class="nvx-fdr-in"><div class="nvx-fdr-h"><h2>' + hEsc(FD.similaresTitulo || 'Productos similares') + '</h2><div><button type="button" aria-label="Anterior">‹</button><button type="button" aria-label="Siguiente">›</button></div></div><div class="nvx-fdr-r">' +
         ps.map(function (p) { var off = p.lista ? Math.round((1 - p.precio / p.lista) * 100) : 0;
