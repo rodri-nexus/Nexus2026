@@ -9,6 +9,7 @@ import { ArrowRight, Check, Store, Globe, Sparkles, Wrench, Search, MessageCircl
 import NotebookVideo from "@/app/components/landing/NotebookVideo";
 import { Glow, Reveal, Tilt } from "@/app/components/landing/fx";
 import { PLANES, precioTexto } from "@/lib/planes";
+import { trackWhatsApp } from "@/app/components/landing/cta";
 import { BotonWA, Cabecera, Celular, PieGeneral, Titulo, WA_TIENDA, WA_WEB, PRECIO_WEB } from "./comun";
 
 const HERO = { oculto: {}, visible: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } } };
@@ -66,18 +67,18 @@ function TarjetaServicio({ s, i }: { s: (typeof SERVICIOS)[number]; i: number })
       <Tilt max={5} scroll={0} glare className="h-full">
         <a
           href={s.href}
-          className={`group relative flex h-full flex-col overflow-hidden rounded-[28px] border p-6 sm:p-8 transition-colors ${v ? "border-violet-400/25 bg-gradient-to-b from-violet-500/[0.12] to-white/[0.02] hover:border-violet-300/50" : "border-emerald-400/25 bg-gradient-to-b from-emerald-500/[0.12] to-white/[0.02] hover:border-emerald-300/50"}`}
+          className={`group relative flex h-full flex-col overflow-hidden rounded-[28px] border p-6 sm:p-8 transition-colors ${v ? "border-emerald-400/25 bg-gradient-to-b from-emerald-500/[0.12] to-white/[0.02] hover:border-emerald-300/50" : "border-emerald-400/25 bg-gradient-to-b from-emerald-500/[0.12] to-white/[0.02] hover:border-emerald-300/50"}`}
         >
-          <div className={`grid h-12 w-12 place-items-center rounded-2xl ${v ? "bg-violet-400 text-black" : "bg-emerald-400 text-black"}`}>
+          <div className={`grid h-12 w-12 place-items-center rounded-2xl ${v ? "bg-emerald-400 text-black" : "bg-emerald-400 text-black"}`}>
             <I className="h-6 w-6" />
           </div>
-          <span className={`mt-6 text-xs font-bold uppercase tracking-[0.16em] ${v ? "text-violet-300" : "text-emerald-300"}`}>{s.eyebrow}</span>
+          <span className={`mt-6 text-xs font-bold uppercase tracking-[0.16em] ${v ? "text-emerald-300" : "text-emerald-300"}`}>{s.eyebrow}</span>
           <h3 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">{s.titulo}</h3>
           <p className="mt-3 text-[15px] leading-relaxed text-neutral-400">{s.texto}</p>
           <ul className="mt-6 space-y-2.5">
             {s.puntos.map((p) => (
               <li key={p} className="flex items-center gap-2.5 text-[15px] text-neutral-200">
-                <Check className={`h-4 w-4 shrink-0 ${v ? "text-violet-300" : "text-emerald-300"}`} /> {p}
+                <Check className={`h-4 w-4 shrink-0 ${v ? "text-emerald-300" : "text-emerald-300"}`} /> {p}
               </li>
             ))}
           </ul>
@@ -87,7 +88,7 @@ function TarjetaServicio({ s, i }: { s: (typeof SERVICIOS)[number]; i: number })
               <span className="text-sm text-neutral-400">/mes</span>
             </div>
             <p className="mt-1 text-xs text-neutral-500">{s.nota}</p>
-            <span className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[15px] font-extrabold text-black transition-transform group-hover:translate-y-[-1px] ${v ? "bg-violet-400" : "bg-emerald-400"}`}>
+            <span className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[15px] font-extrabold text-black transition-transform group-hover:translate-y-[-1px] ${v ? "bg-emerald-400" : "bg-emerald-400"}`}>
               {s.boton} <ArrowRight className="h-4 w-4" />
             </span>
           </div>
@@ -107,7 +108,7 @@ export default function Inicio() {
         <section className="nvx-grain relative overflow-hidden">
           <div className="nvx-grid-bg pointer-events-none absolute inset-0" />
           <Glow className="-top-72 left-[30%] h-[900px] w-[1100px] -translate-x-1/2" color="rgba(16,185,129,0.16)" />
-          <Glow className="-top-60 left-[75%] h-[900px] w-[1000px] -translate-x-1/2" color="rgba(139,92,246,0.15)" />
+          <Glow className="-top-60 left-[75%] h-[900px] w-[1000px] -translate-x-1/2" color="rgba(16,185,129,0.15)" />
           <div className="relative mx-auto max-w-6xl px-4 pb-16 pt-12 sm:px-6 md:pb-24 md:pt-24">
             <motion.div variants={HERO} initial="oculto" animate="visible" className="mx-auto max-w-4xl text-center">
               <motion.span variants={ITEM} className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-semibold text-neutral-200">
@@ -116,7 +117,7 @@ export default function Inicio() {
               <motion.h1 variants={ITEM} className="mb-6 text-[2.7rem] font-extrabold leading-[0.98] tracking-[-0.05em] sm:text-6xl lg:text-[5rem]">
                 Tu marca,
                 <br />
-                <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-violet-300 bg-[length:200%_100%] bg-clip-text text-transparent animate-[nvx-grad_6s_ease-in-out_infinite] motion-reduce:animate-none">
+                <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-300 bg-[length:200%_100%] bg-clip-text text-transparent animate-[nvx-grad_6s_ease-in-out_infinite] motion-reduce:animate-none">
                   a otro nivel.
                 </span>
               </motion.h1>
@@ -124,10 +125,10 @@ export default function Inicio() {
                 Rediseño tiendas de <b className="font-semibold text-white">Tiendanube</b> para que vendan más y creo <b className="font-semibold text-white">sitios web a medida</b> para marcas, emprendedores y comercios. Sin costo de creación: un monto mensual y me encargo de todo.
               </motion.p>
               <motion.div variants={ITEM} className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <a href="/tiendanube" className="nvx-press nvx-shine inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-6 py-4 text-[15px] font-extrabold text-black shadow-[0_12px_40px_-10px_rgba(52,211,153,0.7)] hover:bg-emerald-300 sm:w-auto">
-                  <Store className="h-5 w-5" /> Tengo una tienda Tiendanube
+                <a href={WA_TIENDA} target="_blank" rel="noopener noreferrer" onClick={() => trackWhatsApp("hero-inicio-analisis")} className="nvx-press nvx-shine inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-6 py-4 text-[15px] font-extrabold text-black shadow-[0_12px_40px_-10px_rgba(52,211,153,0.7)] hover:bg-emerald-300 sm:w-auto">
+                  <Store className="h-5 w-5" /> Analizá mi tienda
                 </a>
-                <a href="/sitios-web" className="nvx-press nvx-shine inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-violet-400 px-6 py-4 text-[15px] font-extrabold text-black shadow-[0_12px_40px_-10px_rgba(167,139,250,0.7)] hover:bg-violet-300 sm:w-auto">
+                <a href="/sitios-web" className="nvx-press inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-300/40 bg-emerald-400/[0.08] px-6 py-4 text-[15px] font-extrabold text-emerald-200 hover:bg-emerald-400/[0.15] sm:w-auto">
                   <Globe className="h-5 w-5" /> Quiero un sitio web
                 </a>
               </motion.div>
@@ -155,7 +156,7 @@ export default function Inicio() {
         {/* 3. Casos reales */}
         <section id="casos" className="scroll-mt-20 border-y border-white/5 bg-white/[0.015] py-16 md:py-24">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Titulo eyebrow="Trabajos reales" bajada="Tiendas y páginas funcionando hoy, con sus datos reales.">Así quedan <span className="bg-gradient-to-r from-emerald-300 to-violet-300 bg-clip-text text-transparent">mis trabajos.</span></Titulo>
+            <Titulo eyebrow="Trabajos reales" bajada="Tiendas y páginas funcionando hoy, con sus datos reales.">Así quedan <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">mis trabajos.</span></Titulo>
             <div className="grid items-center gap-10 md:grid-cols-[1.5fr_1fr]">
               <Reveal>
                 <NotebookVideo src="/casos/premium/hogar-digital.mp4" poster="/casos/premium/hogar-digital.jpg" url="hogardigital.com.ar" titulo="Tienda Hogar Digital con el plan Premium" />
@@ -168,7 +169,7 @@ export default function Inicio() {
               <Reveal delay={0.1}>
                 <Celular src="/casos/power-gym/landing.mp4" poster="/casos/power-gym/landing.jpg" titulo="Sitio web de Power Gym" />
                 <div className="mt-5 text-center">
-                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-violet-300">Sitio web a medida</span>
+                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-300">Sitio web a medida</span>
                   <p className="mt-1 text-lg font-bold">Power Gym · Diamante</p>
                   <p className="text-sm text-neutral-400">Ficha de cada profe, videos, horarios y reservas por WhatsApp.</p>
                 </div>
@@ -250,7 +251,7 @@ export default function Inicio() {
               {PASOS.map((p, i) => (
                 <Reveal key={p.n} delay={i * 0.08}>
                   <div className="h-full rounded-[24px] border border-white/10 bg-[#0d0f12] p-6">
-                    <span className="bg-gradient-to-r from-emerald-300 to-violet-300 bg-clip-text text-4xl font-extrabold text-transparent">{p.n}</span>
+                    <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-4xl font-extrabold text-transparent">{p.n}</span>
                     <p className="mt-4 text-lg font-bold">{p.t}</p>
                     <p className="mt-2 text-sm leading-relaxed text-neutral-400">{p.d}</p>
                   </div>
@@ -284,12 +285,12 @@ export default function Inicio() {
           <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
             <Reveal>
               <h2 className="mb-5 text-[2.2rem] font-extrabold leading-[1.02] tracking-[-0.04em] sm:text-6xl">
-                ¿Arrancamos con <span className="bg-gradient-to-r from-emerald-300 to-violet-300 bg-clip-text text-transparent">tu marca?</span>
+                ¿Arrancamos con <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">tu marca?</span>
               </h2>
               <p className="mx-auto mb-8 max-w-xl text-[15px] text-neutral-400 sm:text-lg">Contame qué tenés y qué querés lograr. Te armo una muestra sin compromiso.</p>
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <BotonWA href={WA_TIENDA} origen="cierre-inicio-tienda" className="w-full sm:w-auto">Mi tienda Tiendanube</BotonWA>
-                <BotonWA href={WA_WEB} origen="cierre-inicio-web" variante="violeta" className="w-full sm:w-auto">Quiero un sitio web</BotonWA>
+                <BotonWA href={WA_TIENDA} origen="cierre-inicio-tienda" className="w-full sm:w-auto">Analizá mi tienda</BotonWA>
+                <BotonWA href={WA_WEB} origen="cierre-inicio-web" variante="linea" className="w-full sm:w-auto">Quiero un sitio web</BotonWA>
               </div>
               <p className="mt-5 text-xs text-neutral-500">Te responde Rodrigo, creador de Nevux. Una persona, no un bot.</p>
             </Reveal>

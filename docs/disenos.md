@@ -16,7 +16,7 @@ Las demos son `public/demo/disenos/*.html` y se generan con `python3 scripts/dem
 
 | Plan | Precio | Diseños |
 |---|---|---|
-| **Básico** | $39.900/mes | **Ficha Pro** clara u oscura con todos sus efectos y home con secciones de confianza |
+| **Básico** | $47.900/mes | **Ficha Pro** clara u oscura con todos sus efectos y home con secciones de confianza |
 | **Premium** | $59.900/mes | Todo lo del Básico + **Home Premium · Destino** (la que se promete y se muestra en la landing), carrito con barra de envío gratis, cabecera con logo animado, pie a medida y herramientas del rubro. Valmont tiene el estilo Wess completo |
 
 Lo que incluye cada plan, tal como lo ve el cliente, está en `lib/planes.ts`, que usan `nevux.ar/suscribirme` y `nevux.ar/disenos`.

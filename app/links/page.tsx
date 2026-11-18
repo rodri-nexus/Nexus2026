@@ -83,7 +83,7 @@ export default function LinksPage() {
             origen="precio"
             imagen="/links/precio.jpg"
             titulo="Precio y garantía"
-            texto="Básico $39.900 · Premium $59.900"
+            texto="Básico $47.900 · Premium $59.900"
           />
           <LinkCard
             href="/"
