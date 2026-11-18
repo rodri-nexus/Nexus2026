@@ -11,39 +11,13 @@ import NotebookVideo from "@/app/components/landing/NotebookVideo";
 import { Glow, Reveal, Tilt } from "@/app/components/landing/fx";
 import { PLANES, precioTexto } from "@/lib/planes";
 import { trackWhatsApp } from "@/app/components/landing/cta";
-import { BotonWA, Cabecera, Celular, PieGeneral, Titulo, WA_TIENDA, WA_WEB, PRECIO_WEB } from "./comun";
+import { BotonWA, Cabecera, Celular, PieGeneral, Titulo, WA_TIENDA, WA_WEB, PLANES_WEB, waLink } from "./comun";
+import PlanesFlip from "./PlanesFlip";
 
 const HERO = { oculto: {}, visible: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } } };
 const ITEM = { oculto: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, transition: { duration: 0.85, ease: [0.16, 1, 0.3, 1] } } };
 
-const SERVICIOS = [
-  {
-    id: "tiendanube",
-    icono: Store,
-    color: "emerald",
-    eyebrow: "Para tiendas online",
-    titulo: "Rediseño de Tiendanube",
-    texto: "Tu tienda como la de las marcas grandes, sobre la que ya tenés: sin apps, sin cambiar de plantilla y sin tocar tus productos.",
-    precio: `Desde ${precioTexto(PLANES.basico.precio)}`,
-    nota: `Básico ${precioTexto(PLANES.basico.precio)} · Premium ${precioTexto(PLANES.premium.precio)} por mes`,
-    puntos: ["Ficha de producto que vende", "Inicio con video y tus productos", "Carrito con barra de envío gratis", "Efectos y animaciones premium"],
-    href: "/tiendanube",
-    boton: "Ver los planes de Tiendanube",
-  },
-  {
-    id: "web",
-    icono: Globe,
-    color: "violet",
-    eyebrow: "Para marcas, emprendedores y comercios",
-    titulo: "Sitios web a medida",
-    texto: "Tu página propia para la bio de Instagram: tus servicios, tu equipo, tus videos y pedidos o turnos directo a tu WhatsApp.",
-    precio: `Desde ${precioTexto(PRECIO_WEB)}`,
-    nota: "Básico $47.900 · Premium $55.000 por mes, con mantenimiento",
-    puntos: ["Diseño a medida con tu logo y tus colores", "Portada con video y galería de trabajos", "Ficha de cada persona del equipo", "Pedidos y turnos directo a tu WhatsApp", "Opiniones de clientes, ubicación y horarios", "Link propio para tu bio de Instagram", "Preparada para Google", "Mantenimiento y cambios incluidos"],
-    href: "/sitios-web",
-    boton: "Ver cómo es un sitio web",
-  },
-] as const;
+
 
 const PASOS = [
   { n: "01", t: "Me contás tu idea", d: "Por WhatsApp: qué vendés, cómo trabajás y qué querés lograr." },
@@ -60,106 +34,6 @@ const DUDAS = [
   { q: "¿Trabajás con gente de cualquier lugar?", r: "Sí. Trabajo con marcas y tiendas de distintas provincias: todo se hace online." },
 ];
 
-// Tarjeta de Tiendanube que se da vuelta: adelante el plan Básico, atrás el Premium completo (lo que dice lib/planes.ts).
-function TarjetaTiendanube({ i }: { i: number }) {
-  const [premium, setPremium] = useState(false);
-  const B = PLANES.basico, P = PLANES.premium;
-  const Selector = () => (
-    <div className="grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-black/30 p-1">
-      <button type="button" onClick={() => setPremium(false)} aria-pressed={!premium} className={`rounded-xl px-3 py-2.5 text-[13px] font-extrabold transition-colors ${!premium ? "bg-emerald-400 text-black" : "text-neutral-300 hover:text-white"}`}>Ver plan básico</button>
-      <button type="button" onClick={() => setPremium(true)} aria-pressed={premium} className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-[13px] font-extrabold transition-colors ${premium ? "bg-amber-300 text-black" : "text-neutral-300 hover:text-white"}`}><Crown className="h-3.5 w-3.5" /> Ver plan premium</button>
-    </div>
-  );
-  const Cara = ({ p, oro }: { p: typeof B; oro: boolean }) => (
-    <div className={`flex h-full flex-col rounded-[28px] border p-6 sm:p-8 ${oro ? "border-amber-300/35 bg-gradient-to-b from-amber-300/[0.12] via-[#0d0f12] to-[#0d0f12]" : "border-emerald-400/25 bg-gradient-to-b from-emerald-500/[0.12] via-[#0d0f12] to-[#0d0f12]"}`}>
-      <div className="flex items-start justify-between gap-4">
-        <div className={`grid h-12 w-12 place-items-center rounded-2xl text-black ${oro ? "bg-amber-300" : "bg-emerald-400"}`}>{oro ? <Crown className="h-6 w-6" /> : <Store className="h-6 w-6" />}</div>
-        {oro && <span className="rounded-full bg-amber-300 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-black">El más completo</span>}
-      </div>
-      <span className={`mt-6 text-xs font-bold uppercase tracking-[0.16em] ${oro ? "text-amber-300" : "text-emerald-300"}`}>Rediseño de Tiendanube · {oro ? "Premium" : "Básico"}</span>
-      <h3 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">{p.nombre}</h3>
-      <p className="mt-3 text-[15px] leading-relaxed text-neutral-400">{p.bajada}</p>
-      <div className="mt-6"><Selector /></div>
-      <ul className="mt-6 space-y-2.5">
-        {p.incluye.filter((t) => !/todo lo del plan/i.test(t)).map((t) => (
-          <li key={t} className="flex gap-2.5 text-[15px] text-neutral-200"><Check className={`mt-0.5 h-4 w-4 shrink-0 ${oro ? "text-amber-300" : "text-emerald-300"}`} /> {t}</li>
-        ))}
-      </ul>
-      {oro && (
-        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber-200">Y además, todo lo del Básico</p>
-          <ul className="mt-3 space-y-2">
-            {B.incluye.filter((t) => !/cambios y ajustes/i.test(t)).map((t) => (
-              <li key={t} className="flex gap-2 text-[13.5px] text-neutral-300"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300/80" /> {t}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-      <div className="mt-auto pt-8">
-        <div className="flex items-baseline gap-2">
-          <span className="text-4xl font-extrabold tracking-[-0.03em]">{precioTexto(p.precio)}</span>
-          <span className="text-sm text-neutral-400">/mes</span>
-        </div>
-        <p className="mt-1 text-xs text-neutral-500">Sin apps · Sin cambiar de plantilla · Cancelás cuando quieras</p>
-        <a href={oro ? "/suscribirme?plan=premium" : "/suscribirme?plan=basico"} className={`nvx-press mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[15px] font-extrabold text-black ${oro ? "bg-amber-300 hover:bg-amber-200" : "bg-emerald-400 hover:bg-emerald-300"}`}>
-          Quiero el {oro ? "Premium" : "Básico"} <ArrowRight className="h-4 w-4" />
-        </a>
-        <a href="/tiendanube" className="mt-3 flex items-center justify-center gap-1.5 text-sm font-semibold text-neutral-400 hover:text-white">
-          <RotateCw className="h-3.5 w-3.5" /> Ver todo sobre el rediseño de tiendas
-        </a>
-      </div>
-    </div>
-  );
-  return (
-    <Reveal delay={i * 0.1} className="h-full">
-      <div className="h-full [perspective:1600px]">
-        <div className={`grid h-full transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] [transform-style:preserve-3d] motion-reduce:transition-none ${premium ? "[transform:rotateY(180deg)]" : ""}`}>
-          <div className="[grid-area:1/1] [backface-visibility:hidden]" aria-hidden={premium}><Cara p={B} oro={false} /></div>
-          <div className="[grid-area:1/1] [backface-visibility:hidden] [transform:rotateY(180deg)]" aria-hidden={!premium}><Cara p={P} oro /></div>
-        </div>
-      </div>
-    </Reveal>
-  );
-}
-
-function TarjetaServicio({ s, i }: { s: (typeof SERVICIOS)[number]; i: number }) {
-  const v = s.color === "violet";
-  const I = s.icono;
-  return (
-    <Reveal delay={i * 0.1} className="h-full">
-      <Tilt max={5} scroll={0} glare className="h-full">
-        <a
-          href={s.href}
-          className={`group relative flex h-full flex-col overflow-hidden rounded-[28px] border p-6 sm:p-8 transition-colors ${v ? "border-emerald-400/25 bg-gradient-to-b from-emerald-500/[0.12] to-white/[0.02] hover:border-emerald-300/50" : "border-emerald-400/25 bg-gradient-to-b from-emerald-500/[0.12] to-white/[0.02] hover:border-emerald-300/50"}`}
-        >
-          <div className={`grid h-12 w-12 place-items-center rounded-2xl ${v ? "bg-emerald-400 text-black" : "bg-emerald-400 text-black"}`}>
-            <I className="h-6 w-6" />
-          </div>
-          <span className={`mt-6 text-xs font-bold uppercase tracking-[0.16em] ${v ? "text-emerald-300" : "text-emerald-300"}`}>{s.eyebrow}</span>
-          <h3 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">{s.titulo}</h3>
-          <p className="mt-3 text-[15px] leading-relaxed text-neutral-400">{s.texto}</p>
-          <ul className="mt-6 space-y-2.5">
-            {s.puntos.map((p) => (
-              <li key={p} className="flex items-center gap-2.5 text-[15px] text-neutral-200">
-                <Check className={`h-4 w-4 shrink-0 ${v ? "text-emerald-300" : "text-emerald-300"}`} /> {p}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-auto pt-8">
-            <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-extrabold tracking-[-0.03em]">{s.precio}</span>
-              <span className="text-sm text-neutral-400">/mes</span>
-            </div>
-            <p className="mt-1 text-xs text-neutral-500">{s.nota}</p>
-            <span className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[15px] font-extrabold text-black transition-transform group-hover:translate-y-[-1px] ${v ? "bg-emerald-400" : "bg-emerald-400"}`}>
-              {s.boton} <ArrowRight className="h-4 w-4" />
-            </span>
-          </div>
-        </a>
-      </Tilt>
-    </Reveal>
-  );
-}
 
 export default function Inicio() {
   return (
@@ -210,9 +84,32 @@ export default function Inicio() {
         <section id="servicios" className="scroll-mt-20 py-16 md:py-24">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <Titulo eyebrow="Elegí lo que necesitás">Dos servicios, <span className="text-neutral-500">un mismo objetivo:</span> que vendas más.</Titulo>
-            <div className="grid gap-5 md:grid-cols-2">
-              <TarjetaTiendanube i={0} />
-              {SERVICIOS.filter((s) => s.id !== "tiendanube").map((s, i) => <TarjetaServicio key={s.id} s={s} i={i + 1} />)}
+            <div className="grid items-start gap-5 md:grid-cols-2">
+              <Reveal>
+                <PlanesFlip
+                  etiqueta="Rediseño de Tiendanube"
+                  icono={<Store className="h-6 w-6" />}
+                  basico={PLANES.basico}
+                  premium={PLANES.premium}
+                  hrefBasico="/suscribirme?plan=basico"
+                  hrefPremium="/suscribirme?plan=premium"
+                  nota="Sin apps · Sin cambiar de plantilla · Cancelás cuando quieras"
+                  link={{ href: "/tiendanube", texto: "Ver todo sobre el rediseño de tiendas" }}
+                />
+              </Reveal>
+              <Reveal delay={0.1}>
+                <PlanesFlip
+                  etiqueta="Sitios web a medida"
+                  icono={<Globe className="h-6 w-6" />}
+                  basico={PLANES_WEB.basico}
+                  premium={PLANES_WEB.premium}
+                  hrefBasico={waLink(`Hola Rodrigo! Quiero el ${PLANES_WEB.basico.nombre} para mi marca: `)}
+                  hrefPremium={waLink(`Hola Rodrigo! Quiero el ${PLANES_WEB.premium.nombre} para mi marca: `)}
+                  whatsapp
+                  nota="Sin costo de creación · Mantenimiento incluido · Sin permanencia"
+                  link={{ href: "/sitios-web", texto: "Ver todo sobre los sitios web" }}
+                />
+              </Reveal>
             </div>
           </div>
         </section>
