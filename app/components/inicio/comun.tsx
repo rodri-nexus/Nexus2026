@@ -14,7 +14,41 @@ export const WA_GENERAL = waLink("Hola Rodrigo! Vi nevux.ar y quiero consultar p
 export const WA_WEB = waLink("Hola Rodrigo! Quiero una página web para mi marca: ");
 export const WA_TIENDA = waLink("Hola! Quiero el análisis gratis de mi tienda de Tiendanube: ");
 
-export const PRECIO_WEB = 55000;
+export const PRECIO_WEB = 47900; // "desde": el plan Básico de sitios web
+
+// Planes de sitios web (se cobran por WhatsApp/transferencia, no tienen link de Mercado Pago)
+export const PLANES_WEB = {
+  basico: {
+    nombre: "Sitio web Básico",
+    precio: 47900,
+    bajada: "Tu página profesional en una sola pantalla larga: todo lo que tu cliente necesita ver para escribirte.",
+    incluye: [
+      "Diseño a medida con tu logo y tus colores",
+      "Tus servicios o productos con fotos y precios",
+      "Galería de trabajos y opiniones de clientes",
+      "Ubicación con mapa y horarios",
+      "Botón directo a tu WhatsApp",
+      "Link propio para tu bio de Instagram",
+      "Vista prolija al compartir por WhatsApp",
+      "Mantenimiento: hasta 2 cambios por mes",
+    ],
+  },
+  premium: {
+    nombre: "Sitio web Premium",
+    precio: 55000,
+    bajada: "La experiencia completa: video, tu equipo uno por uno y pedidos o turnos que te llegan armados a tu WhatsApp.",
+    incluye: [
+      "Portada con video de tu marca",
+      "Ficha de cada persona del equipo, con sus videos y horarios",
+      "Pedidos o turnos que te llegan armados a tu WhatsApp",
+      "Secciones de novedades, promos y sorteos",
+      "Efectos y animaciones premium",
+      "Preparada para Google y ayuda con tu perfil de Google Maps",
+      "Cambios cuando quieras, sin límite",
+      "Velocidad, actualizaciones y copia de seguridad",
+    ],
+  },
+} as const;
 export const PRECIO_BASICO = 47900;
 
 export function BotonWA({ href, origen, children, className = "", variante = "verde" }: { href: string; origen: string; children: React.ReactNode; className?: string; variante?: "verde" | "violeta" | "linea" }) {

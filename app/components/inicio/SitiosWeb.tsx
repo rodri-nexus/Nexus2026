@@ -1,17 +1,18 @@
 "use client";
 
 // nevux.ar/sitios-web: páginas web a medida (landing pages) para marcas, emprendedores y comercios.
-// Precio: $55.000 por mes, sin costo de creación, con mantenimiento. Caso real: Power Gym (Diamante).
+// Precio: Básico $47.900 y Premium $55.000 por mes (tarjeta que se da vuelta), sin costo de creación, con mantenimiento. Caso real: Power Gym (Diamante).
 // Regla: nada inventado. El mensaje de WhatsApp de ejemplo es el que arma la página de Power Gym.
 
+import { useState } from "react";
 import { MotionConfig, motion } from "framer-motion";
 import {
   ArrowRight, Check, Dumbbell, Scissors, Sparkles, IceCream, ShoppingBag, Briefcase, Video, Users, Images,
-  MessageCircle, Star, MapPin, Megaphone, Search, Wrench, ShieldCheck, X,
+  MessageCircle, Star, MapPin, Megaphone, Search, Wrench, ShieldCheck, X, Crown,
 } from "lucide-react";
 import { Glow, Reveal } from "@/app/components/landing/fx";
 import { precioTexto } from "@/lib/planes";
-import { BotonWA, Cabecera, Celular, PieGeneral, Titulo, WA_WEB, PRECIO_WEB } from "./comun";
+import { BotonWA, Cabecera, Celular, PieGeneral, Titulo, WA_WEB, PLANES_WEB, waLink } from "./comun";
 
 const HERO = { oculto: {}, visible: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } } };
 const ITEM = { oculto: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, transition: { duration: 0.85, ease: [0.16, 1, 0.3, 1] } } };
@@ -36,16 +37,6 @@ const INCLUYE = [
   { i: Search, t: "Preparada para Google", d: "Para que te encuentren cuando te buscan." },
 ];
 
-const PRECIO_INCLUYE = [
-  "Diseño a medida con tu logo y tus colores",
-  "Todas las secciones que necesite tu marca",
-  "Pedidos o turnos directo a tu WhatsApp",
-  "Link propio para tu bio de Instagram",
-  "Vista prolija al compartir por WhatsApp",
-  "Cambios de precios, fotos y horarios cuando quieras",
-  "Velocidad, actualizaciones y copia de seguridad",
-  "Atención directa conmigo por WhatsApp",
-];
 
 const DUDAS = [
   { q: "¿Cuánto tarda en estar lista?", r: "Primero te armo una muestra con tu material. Cuando la aprobás y la ajustamos, la publicamos. Depende de qué tan rápido tengamos tus fotos, videos y datos." },
@@ -76,6 +67,67 @@ function MensajeWhatsApp() {
         <span className="mt-1 block text-right text-[10px] text-white/60">✓✓</span>
       </motion.div>
       <p className="mt-4 text-center text-[11px] text-neutral-500">Mensaje real que arma la página de Power Gym</p>
+    </div>
+  );
+}
+
+// Tarjeta que se da vuelta: adelante el Sitio web Básico, atrás el Premium completo (con todo lo del Básico).
+function TarjetaPlanesWeb() {
+  const [premium, setPremium] = useState(false);
+  const B = PLANES_WEB.basico, P = PLANES_WEB.premium;
+  const Selector = () => (
+    <div className="grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-black/30 p-1">
+      <button type="button" onClick={() => setPremium(false)} aria-pressed={!premium} className={`rounded-xl px-3 py-2.5 text-[13px] font-extrabold transition-colors ${!premium ? "bg-emerald-400 text-black" : "text-neutral-300 hover:text-white"}`}>Ver plan básico</button>
+      <button type="button" onClick={() => setPremium(true)} aria-pressed={premium} className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-[13px] font-extrabold transition-colors ${premium ? "bg-amber-300 text-black" : "text-neutral-300 hover:text-white"}`}><Crown className="h-3.5 w-3.5" /> Ver plan premium</button>
+    </div>
+  );
+  const Cara = ({ p, oro }: { p: typeof B | typeof P; oro: boolean }) => (
+    <div className={`flex h-full flex-col rounded-[28px] border p-7 sm:p-9 ${oro ? "border-amber-300/35 bg-gradient-to-b from-amber-300/[0.12] via-[#0d0f12] to-[#0d0f12]" : "border-emerald-300/40 bg-gradient-to-b from-emerald-500/[0.16] via-[#0d0f12] to-[#0d0f12]"}`}>
+      <div className="flex items-center justify-between gap-3">
+        <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em] text-black ${oro ? "bg-amber-300" : "bg-emerald-400"}`}>{p.nombre}</span>
+        {oro && <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-amber-200">El más completo</span>}
+      </div>
+      <div className="mt-6 flex items-baseline gap-2">
+        <span className="text-5xl font-extrabold tracking-[-0.04em] sm:text-6xl">{precioTexto(p.precio)}</span>
+        <span className="text-neutral-400">/mes</span>
+      </div>
+      <p className={`mt-2 text-sm font-semibold ${oro ? "text-amber-200" : "text-emerald-200"}`}>Sin costo de creación · Sin permanencia</p>
+      <p className="mt-3 text-[15px] leading-relaxed text-neutral-400">{p.bajada}</p>
+      <div className="mt-6"><Selector /></div>
+      <ul className="mt-6 space-y-3">
+        {p.incluye.map((t) => (
+          <li key={t} className="flex gap-3 text-[15px] text-neutral-200"><Check className={`mt-0.5 h-4 w-4 shrink-0 ${oro ? "text-amber-300" : "text-emerald-300"}`} />{t}</li>
+        ))}
+      </ul>
+      {oro && (
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber-200">Y además, todo lo del Básico</p>
+          <ul className="mt-3 space-y-2">
+            {B.incluye.filter((t) => !/mantenimiento/i.test(t)).map((t) => (
+              <li key={t} className="flex gap-2 text-[13.5px] text-neutral-300"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300/80" />{t}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <div className="mt-auto pt-8">
+        <a
+          href={waLink(`Hola Rodrigo! Quiero el ${p.nombre} para mi marca: `)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`nvx-press inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-[15px] font-extrabold text-black ${oro ? "bg-amber-300 hover:bg-amber-200" : "bg-emerald-400 hover:bg-emerald-300"}`}
+        >
+          <MessageCircle className="h-5 w-5" /> Quiero el {oro ? "Premium" : "Básico"} <ArrowRight className="h-4 w-4" />
+        </a>
+        <p className="mt-3 text-center text-xs text-neutral-500">Primero ves la muestra con tu marca. Pagás recién si te gusta.</p>
+      </div>
+    </div>
+  );
+  return (
+    <div className="h-full [perspective:1600px]">
+      <div className={`grid h-full transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] [transform-style:preserve-3d] motion-reduce:transition-none ${premium ? "[transform:rotateY(180deg)]" : ""}`}>
+        <div className="[grid-area:1/1] [backface-visibility:hidden]" aria-hidden={premium}><Cara p={B} oro={false} /></div>
+        <div className="[grid-area:1/1] [backface-visibility:hidden] [transform:rotateY(180deg)]" aria-hidden={!premium}><Cara p={P} oro /></div>
+      </div>
     </div>
   );
 }
@@ -213,24 +265,10 @@ export default function SitiosWeb() {
         {/* 6. Precio */}
         <section id="precio" className="scroll-mt-20 py-16 md:py-24">
           <div className="mx-auto max-w-5xl px-4 sm:px-6">
-            <Titulo eyebrow="Precio" color="text-emerald-300">Un solo precio, <span className="text-neutral-500">todo incluido.</span></Titulo>
+            <Titulo eyebrow="Planes" color="text-emerald-300">Dos planes, <span className="text-neutral-500">sin costo de creación.</span></Titulo>
             <div className="grid items-stretch gap-5 md:grid-cols-[1.15fr_1fr]">
               <Reveal>
-                <div className="relative h-full overflow-hidden rounded-[28px] border border-emerald-300/40 bg-gradient-to-b from-emerald-500/[0.16] to-[#0d0f12] p-7 sm:p-9">
-                  <span className="inline-flex rounded-full bg-emerald-400 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em] text-black">Sitio web a medida</span>
-                  <div className="mt-6 flex items-baseline gap-2">
-                    <span className="text-5xl font-extrabold tracking-[-0.04em] sm:text-6xl">{precioTexto(PRECIO_WEB)}</span>
-                    <span className="text-neutral-400">/mes</span>
-                  </div>
-                  <p className="mt-2 text-sm font-semibold text-emerald-200">Sin costo de creación · Sin permanencia</p>
-                  <ul className="mt-7 space-y-3">
-                    {PRECIO_INCLUYE.map((t) => (
-                      <li key={t} className="flex gap-3 text-[15px] text-neutral-200"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />{t}</li>
-                    ))}
-                  </ul>
-                  <BotonWA href={WA_WEB} origen="precio-web" variante="violeta" className="mt-8 w-full">Quiero mi muestra gratis</BotonWA>
-                  <p className="mt-3 text-center text-xs text-neutral-500">Primero ves la muestra con tu marca. Pagás recién si te gusta.</p>
-                </div>
+                <TarjetaPlanesWeb />
               </Reveal>
               <Reveal delay={0.1}>
                 <div className="flex h-full flex-col rounded-[28px] border border-white/10 bg-white/[0.02] p-7 sm:p-9">
