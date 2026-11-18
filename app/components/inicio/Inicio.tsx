@@ -4,8 +4,9 @@
 // sus precios y su estructura. Casos reales: Hogar Digital, Power Gym y el estilo de Valmont (en la tienda demo).
 // Regla: nada inventado (ni números de ventas, ni reseñas): solo trabajos y datos reales.
 
+import { useState } from "react";
 import { MotionConfig, motion } from "framer-motion";
-import { ArrowRight, Check, Store, Globe, Sparkles, Wrench, Search, MessageCircle, X } from "lucide-react";
+import { ArrowRight, Check, Store, Globe, Sparkles, Wrench, Search, MessageCircle, X, Crown, RotateCw } from "lucide-react";
 import NotebookVideo from "@/app/components/landing/NotebookVideo";
 import { Glow, Reveal, Tilt } from "@/app/components/landing/fx";
 import { PLANES, precioTexto } from "@/lib/planes";
@@ -38,7 +39,7 @@ const SERVICIOS = [
     texto: "Tu página propia para la bio de Instagram: tus servicios, tu equipo, tus videos y pedidos o turnos directo a tu WhatsApp.",
     precio: precioTexto(PRECIO_WEB),
     nota: "Por mes, con mantenimiento incluido",
-    puntos: ["Diseño a medida de tu marca", "Pedidos y turnos por WhatsApp", "Ficha de cada persona del equipo", "Preparada para Google"],
+    puntos: ["Diseño a medida con tu logo y tus colores", "Portada con video y galería de trabajos", "Ficha de cada persona del equipo", "Pedidos y turnos directo a tu WhatsApp", "Opiniones de clientes, ubicación y horarios", "Link propio para tu bio de Instagram", "Preparada para Google", "Mantenimiento y cambios incluidos"],
     href: "/sitios-web",
     boton: "Ver cómo es un sitio web",
   },
@@ -58,6 +59,68 @@ const DUDAS = [
   { q: "¿Qué pasa si quiero cambiar algo?", r: "Me escribís por WhatsApp y lo cambio: precios, productos, fotos, horarios o promos. Está incluido." },
   { q: "¿Trabajás con gente de cualquier lugar?", r: "Sí. Trabajo con marcas y tiendas de distintas provincias: todo se hace online." },
 ];
+
+// Tarjeta de Tiendanube que se da vuelta: adelante el plan Básico, atrás el Premium completo (lo que dice lib/planes.ts).
+function TarjetaTiendanube({ i }: { i: number }) {
+  const [premium, setPremium] = useState(false);
+  const B = PLANES.basico, P = PLANES.premium;
+  const Selector = () => (
+    <div className="grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-black/30 p-1">
+      <button type="button" onClick={() => setPremium(false)} aria-pressed={!premium} className={`rounded-xl px-3 py-2.5 text-[13px] font-extrabold transition-colors ${!premium ? "bg-emerald-400 text-black" : "text-neutral-300 hover:text-white"}`}>Ver plan básico</button>
+      <button type="button" onClick={() => setPremium(true)} aria-pressed={premium} className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-[13px] font-extrabold transition-colors ${premium ? "bg-amber-300 text-black" : "text-neutral-300 hover:text-white"}`}><Crown className="h-3.5 w-3.5" /> Ver plan premium</button>
+    </div>
+  );
+  const Cara = ({ p, oro }: { p: typeof B; oro: boolean }) => (
+    <div className={`flex h-full flex-col rounded-[28px] border p-6 sm:p-8 ${oro ? "border-amber-300/35 bg-gradient-to-b from-amber-300/[0.12] via-[#0d0f12] to-[#0d0f12]" : "border-emerald-400/25 bg-gradient-to-b from-emerald-500/[0.12] via-[#0d0f12] to-[#0d0f12]"}`}>
+      <div className="flex items-start justify-between gap-4">
+        <div className={`grid h-12 w-12 place-items-center rounded-2xl text-black ${oro ? "bg-amber-300" : "bg-emerald-400"}`}>{oro ? <Crown className="h-6 w-6" /> : <Store className="h-6 w-6" />}</div>
+        {oro && <span className="rounded-full bg-amber-300 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-black">El más completo</span>}
+      </div>
+      <span className={`mt-6 text-xs font-bold uppercase tracking-[0.16em] ${oro ? "text-amber-300" : "text-emerald-300"}`}>Rediseño de Tiendanube · {oro ? "Premium" : "Básico"}</span>
+      <h3 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">{p.nombre}</h3>
+      <p className="mt-3 text-[15px] leading-relaxed text-neutral-400">{p.bajada}</p>
+      <div className="mt-6"><Selector /></div>
+      <ul className="mt-6 space-y-2.5">
+        {p.incluye.filter((t) => !/todo lo del plan/i.test(t)).map((t) => (
+          <li key={t} className="flex gap-2.5 text-[15px] text-neutral-200"><Check className={`mt-0.5 h-4 w-4 shrink-0 ${oro ? "text-amber-300" : "text-emerald-300"}`} /> {t}</li>
+        ))}
+      </ul>
+      {oro && (
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber-200">Y además, todo lo del Básico</p>
+          <ul className="mt-3 space-y-2">
+            {B.incluye.filter((t) => !/cambios y ajustes/i.test(t)).map((t) => (
+              <li key={t} className="flex gap-2 text-[13.5px] text-neutral-300"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300/80" /> {t}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <div className="mt-auto pt-8">
+        <div className="flex items-baseline gap-2">
+          <span className="text-4xl font-extrabold tracking-[-0.03em]">{precioTexto(p.precio)}</span>
+          <span className="text-sm text-neutral-400">/mes</span>
+        </div>
+        <p className="mt-1 text-xs text-neutral-500">Sin apps · Sin cambiar de plantilla · Cancelás cuando quieras</p>
+        <a href={oro ? "/suscribirme?plan=premium" : "/suscribirme?plan=basico"} className={`nvx-press mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[15px] font-extrabold text-black ${oro ? "bg-amber-300 hover:bg-amber-200" : "bg-emerald-400 hover:bg-emerald-300"}`}>
+          Quiero el {oro ? "Premium" : "Básico"} <ArrowRight className="h-4 w-4" />
+        </a>
+        <a href="/tiendanube" className="mt-3 flex items-center justify-center gap-1.5 text-sm font-semibold text-neutral-400 hover:text-white">
+          <RotateCw className="h-3.5 w-3.5" /> Ver todo sobre el rediseño de tiendas
+        </a>
+      </div>
+    </div>
+  );
+  return (
+    <Reveal delay={i * 0.1} className="h-full">
+      <div className="h-full [perspective:1600px]">
+        <div className={`grid h-full transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] [transform-style:preserve-3d] motion-reduce:transition-none ${premium ? "[transform:rotateY(180deg)]" : ""}`}>
+          <div className="[grid-area:1/1] [backface-visibility:hidden]" aria-hidden={premium}><Cara p={B} oro={false} /></div>
+          <div className="[grid-area:1/1] [backface-visibility:hidden] [transform:rotateY(180deg)]" aria-hidden={!premium}><Cara p={P} oro /></div>
+        </div>
+      </div>
+    </Reveal>
+  );
+}
 
 function TarjetaServicio({ s, i }: { s: (typeof SERVICIOS)[number]; i: number }) {
   const v = s.color === "violet";
@@ -148,7 +211,8 @@ export default function Inicio() {
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <Titulo eyebrow="Elegí lo que necesitás">Dos servicios, <span className="text-neutral-500">un mismo objetivo:</span> que vendas más.</Titulo>
             <div className="grid gap-5 md:grid-cols-2">
-              {SERVICIOS.map((s, i) => <TarjetaServicio key={s.id} s={s} i={i} />)}
+              <TarjetaTiendanube i={0} />
+              {SERVICIOS.filter((s) => s.id !== "tiendanube").map((s, i) => <TarjetaServicio key={s.id} s={s} i={i + 1} />)}
             </div>
           </div>
         </section>
