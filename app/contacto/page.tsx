@@ -17,10 +17,10 @@ export default function ContactoPage() {
             Nevux
           </Link>
           <nav className="hidden md:flex items-center gap-8">
-            <Link href="/#premium" className="text-slate-600 hover:text-slate-900 transition">
+            <Link href="/tiendanube#premium" className="text-slate-600 hover:text-slate-900 transition">
               Plan Premium
             </Link>
-            <Link href="/#casos" className="text-slate-600 hover:text-slate-900 transition">
+            <Link href="/tiendanube#premium" className="text-slate-600 hover:text-slate-900 transition">
               Casos de éxito
             </Link>
             <Link href="/contacto" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
@@ -256,8 +256,8 @@ export default function ContactoPage() {
             <div>
               <h4 className="font-bold text-white mb-4">Producto</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/#premium" className="hover:text-white transition">Plan Premium</Link></li>
-                <li><Link href="/#casos" className="hover:text-white transition">Casos de éxito</Link></li>
+                <li><Link href="/tiendanube#premium" className="hover:text-white transition">Plan Premium</Link></li>
+                <li><Link href="/tiendanube#premium" className="hover:text-white transition">Casos de éxito</Link></li>
                 <li><Link href="/contacto" className="hover:text-white transition">Contacto</Link></li>
               </ul>
             </div>

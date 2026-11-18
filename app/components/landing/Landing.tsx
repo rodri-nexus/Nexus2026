@@ -130,10 +130,11 @@ export default function Landing() {
       {/* HEADER: el aviso de análisis gratis vive en el botón (antes era una franja aparte) */}
       <header className="nvx-headerline sticky top-0 z-50 bg-[#07080a]/95 md:bg-[#07080a]/75 md:backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
-          <a href="#" aria-label="Nevux, ir arriba">
+          <a href="/" aria-label="Nevux, ir al inicio">
             <NevuxLogo size="medium" textColor="#ffffff" />
           </a>
           <nav className="hidden md:flex items-center gap-7 text-sm text-neutral-400">
+            <a href="/sitios-web" className="hover:text-white transition-colors duration-200">Sitios web</a>
             <a href="#premium" className="hover:text-white transition-colors duration-200">Casos</a>
             <a href="#disenos" className="hover:text-white transition-colors duration-200">Diseños</a>
             <a href="#cuenta" className="hover:text-white transition-colors duration-200">Hacé la cuenta</a>
