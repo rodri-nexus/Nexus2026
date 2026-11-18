@@ -175,6 +175,13 @@
   - **Toda la tienda:** pie estilo Wess (`pie`, con `premium.tema: 'wess'`), secciones de la plantilla ocultas (`ocultar`), barra de anuncios que rota (`anuncios`), modo evento con fechas (`evento`: Cyber, Hot Sale, etc.; se prende y se apaga solo), tarjetas de producto (`tarjetas.estilo`: `'destacado'` o `'wess'`) y plan Premium (`premium`: tipografías, entrada animada y `tema: 'wess'`).
 - **Cobro automático:** `lib/cobros.ts` (Mercado Pago) y el panel en `nevux.ar/panel?clave=<PANEL_CLAVE>`.
 
+## Estructura de nevux.ar (18/11/2026)
+
+- **`/` (inicio):** presenta los dos servicios con su precio y un botón a cada página, casos reales (Hogar Digital, Power Gym y el estilo de Valmont en la tienda demo), "No te cobro la creación", cómo trabajo, preguntas y cierre con WhatsApp. Código: `app/components/inicio/Inicio.tsx`.
+- **`/tiendanube`:** la landing de siempre (planes Básico $39.900 y Premium $59.900). Código: `app/components/landing/`.
+- **`/sitios-web`:** sitios web a medida a **$55.000/mes**, sin costo de creación y con mantenimiento: para quién es, qué incluye, pedido por WhatsApp, caso Power Gym, precio vs. "lo común" ($500.000 a $800.000 + mantenimiento), preguntas. Código: `app/components/inicio/SitiosWeb.tsx`. Video del caso: `public/casos/power-gym/landing.mp4`.
+- Piezas comunes (cabecera, pie, celular, links de WhatsApp por servicio): `app/components/inicio/comun.tsx`. Los links viejos a `/#premium`, `/#cuenta`, etc. ahora van a `/tiendanube#...`.
+
 ## Clientes
 
 ### Hogar Digital (Marcelo) · hogardigital.com.ar · plantilla Brasilia · plan Básico · prendido, cobro manual
