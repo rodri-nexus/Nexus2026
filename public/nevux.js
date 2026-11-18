@@ -3845,6 +3845,24 @@
           }).join('') + '</div></div>' : '') + '</div>');
         box = modal.querySelector('.nvx-cg');
       }
+      // Sugeridos: "Sumá y llegá al envío gratis" con productos reales de la tienda (carrito.sugeridos)
+      if (CG.sugeridos && monto && !box.querySelector('.nvx-cg-sg')) {
+        var SP = []; try { SP = JSON.parse(sessionStorage.getItem('nvx-prods') || '[]') || []; } catch (e) {}
+        var EXc = NEVUX.excluirProductos ? new RegExp(NEVUX.excluirProductos, 'i') : null;
+        var enCarro = [].map.call(lista.querySelectorAll('.cart-item-name'), function (x) { return x.textContent.trim().toLowerCase(); });
+        SP = SP.filter(function (x) { return x && x.nombre && x.url && x.foto && !(EXc && EXc.test(x.nombre)) && enCarro.indexOf(x.nombre.trim().toLowerCase()) < 0; }).slice(0, 8);
+        if (SP.length) {
+          hCss('nvx-cg-sg-css', '#modal-cart .nvx-cg-sg{margin:0 0 10px}#modal-cart .nvx-cg-sg>small{display:block;font:700 11px/1 ' + HSG + ';letter-spacing:.14em;text-transform:uppercase;color:#fff;opacity:.75;margin:6px 2px 10px}' +
+            '#modal-cart .nvx-cg-sg .rw{display:grid;grid-auto-flow:column;grid-auto-columns:132px;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}#modal-cart .nvx-cg-sg .rw::-webkit-scrollbar{display:none}' +
+            '#modal-cart .nvx-cg-sg a{display:flex;flex-direction:column;background:#fff;border-radius:14px;padding:8px;color:' + NOC + '!important;text-decoration:none!important}#modal-cart .nvx-cg-sg img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;margin-bottom:7px}' +
+            '#modal-cart .nvx-cg-sg b{font:600 12px/1.25 ' + HSG + ';display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:30px;text-transform:none}#modal-cart .nvx-cg-sg span{font:700 14px/1 ' + HSG + ';margin-top:6px}' +
+            '#modal-cart .nvx-cg-sg em{font:700 11px/1 ' + HSG + ';font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:' + A + ';border-radius:999px;padding:7px 0;text-align:center;margin-top:8px}');
+          var eg = box.querySelector('.nvx-cg-eg');
+          (eg || box.firstChild).insertAdjacentHTML(eg ? 'afterend' : 'beforebegin', '<div class="nvx-cg-sg"><small>' + hEsc(CG.sugeridosTitulo || 'Sumá y llegá al envío gratis') + '</small><div class="rw">' + SP.map(function (x) {
+            return '<a href="' + hEsc(x.url) + '"><img src="' + hEsc(x.foto) + '" alt="" loading="lazy"><b>' + hEsc(x.nombre) + '</b><span>' + hEsc(x.precio) + '</span><em>+ Sumar</em></a>';
+          }).join('') + '</div></div>');
+        }
+      }
       if (!box.querySelector('.nvx-cg-pay') && NEVUX.whatsapp) {
         var nombre = (lista.querySelector('a') || {}).textContent || 'mi pedido';
         box.insertAdjacentHTML('beforeend', '<div class="nvx-cg-pay"><a class="online" href="/comprar/">Iniciar compra online</a><a class="transfer" target="_blank" rel="noopener" href="https://wa.me/' + hEsc(NEVUX.whatsapp) + '?text=' + encodeURIComponent('Hola! Quiero consultar opciones de pago para ' + nombre.trim() + ' ' + location.href) + '">Consultar otro medio de pago</a></div>');
@@ -3853,6 +3871,7 @@
       if (monto && !vacio) {
         var falta = monto - total, ok = falta <= 0;
         box.querySelector('.nvx-cg-e').classList.toggle('ok', ok);
+        var sgb = box.querySelector('.nvx-cg-sg'); if (sgb) sgb.style.display = ok ? 'none' : '';
         box.querySelector('.nvx-cg-e span').innerHTML = ok ? '¡Genial! Tenés envío gratis' : 'Te faltan <b>' + hMoney(falta) + '</b> para el envío gratis';
         box.querySelector('.nvx-cg-b').classList.toggle('ok', ok);
         box.querySelector('.nvx-cg-b i').style.width = Math.min(100, Math.round(total / monto * 100)) + '%';

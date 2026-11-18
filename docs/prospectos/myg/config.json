@@ -40,7 +40,8 @@
  "carrito": {
   "estilo": "hogar",
   "acento": "#16c7d4",
-  "marcador": "MYG"
+  "marcador": "MYG",
+  "sugeridos": true
  },
  "home": {
   "destino": {
