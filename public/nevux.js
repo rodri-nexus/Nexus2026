@@ -2525,6 +2525,7 @@
       var vistos = {};
       return [].slice.call(raiz.querySelectorAll('.js-item-product, .js-product-container')).map(productoDeTarjeta).filter(function (p) {
         if (!p || !p.nombre || vistos[p.url]) return false;
+        if (NEVUX.excluirProductos && new RegExp(NEVUX.excluirProductos, 'i').test(p.nombre)) return false;
         vistos[p.url] = 1;
         return true;
       });

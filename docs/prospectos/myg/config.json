@@ -67,7 +67,11 @@
     "lleno": true,
     "boton2": "Mayoristas",
     "url2": "/mayoristas/",
-    "productosUrl": "/cuidado-personal/"
+    "productosUrl": "/cuidado-personal/",
+    "videos": [
+     "https://nevux.ar/clientes/myg/video-tecno.mp4"
+    ],
+    "poster": "https://nevux.ar/clientes/myg/video-tecno.jpg"
    },
    "beneficios": [
     {
@@ -191,7 +195,7 @@
      {
       "zona": "Flores · CABA",
       "nombre": "MYG Technology",
-      "direccion": "Flores, Ciudad Autónoma de Buenos Aires"
+      "direccion": "Flores, Buenos Aires, Argentina"
      }
     ]
    },
@@ -243,6 +247,18 @@
       "texto": "Hice una compra mayorista, me llegó rápido la mercadería, un lujo."
      }
     ]
+   },
+   "historia": {
+    "etiqueta": "Cuidado personal",
+    "titulo": "Bienestar *en casa*.",
+    "texto": "Masajeadores recargables y máquinas de barbería para usar todos los días.",
+    "puntos": [
+     "Recargables por USB",
+     "Envío gratis desde $400.000",
+     "10% OFF pagando con transferencia"
+    ],
+    "video": "https://nevux.ar/clientes/myg/video-cuidado.mp4",
+    "poster": "https://nevux.ar/clientes/myg/video-cuidado.jpg"
    }
   }
  },
@@ -302,11 +318,12 @@
   "envioTexto": "A todo el país · Gratis desde $400.000"
  },
  "packs": [],
- "excluirProductos": "apple|airpod|jbl|xiaomi|redmi|samsung|sony|iphone|imitaci|replica|réplica|rayban|ray-ban|meta|magis|series 10|beats|marshall|stanley|huawei|alexa|abu garcia|shimano|watch ultra|por mayor|pack x|combo|parlante|auricular|airdots|airbuds|watch s|magsafe|psp|play ?5|rs5|gamestation|playstation|nintendo|switch|game ?boy",
+ "excluirProductos": "apple|airpod|jbl|xiaomi|redmi|samsung|sony|iphone|imitaci|replica|réplica|rayban|ray-ban|meta|magis|series 10|beats|marshall|stanley|huawei|alexa|abu garcia|shimano|watch ultra|por mayor|pack x|combo|parlante|auricular|airdots|airbuds|watch s|magsafe|psp|play ?5|rs5|gamestation|playstation|nintendo|switch|game ?boy|gs8|pro ?max|ultra",
  "efecto3d": true,
  "credito": {
   "texto": "Tienda diseñada por",
   "marca": "@nevux.app",
   "url": "https://www.instagram.com/nevux.app/"
- }
+ },
+ "ventas": true
 }
