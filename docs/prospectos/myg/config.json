@@ -1,0 +1,312 @@
+{
+ "color": "#16c7d4",
+ "marca": {
+  "oscuro": "#05071f",
+  "noche": "#00045d"
+ },
+ "anuncios": [
+  "🚚 Envío gratis a domicilio desde $400.000",
+  "💸 10% OFF abonando con transferencia",
+  "📦 Venta minorista y mayorista"
+ ],
+ "mediosDePago": [
+  "Tarjetas de crédito",
+  "Débito",
+  "Transferencia",
+  "Mercado Pago"
+ ],
+ "estiloFicha": "destino",
+ "envioGratisDesde": 400000,
+ "transferencia": 10,
+ "whatsapp": "5491125140025",
+ "tarjetas": {
+  "quedan": 5,
+  "estilo": "destacado"
+ },
+ "ocultar": [
+  "[data-store=\"home-products-featured\"]",
+  "[data-store=\"home-banner-news\"]",
+  "[data-store=\"home-product-main\"]",
+  "[data-store=\"home-banner-categories\"]",
+  "[data-store=\"home-products-sale\"]",
+  "[data-store=\"home-banner-promotional\"]",
+  "[data-store=\"home-products-new\"]",
+  "[data-store=\"banner-services\"]",
+  "[data-store=\"home-slider\"]",
+  "[data-store=\"home-categories-featured\"]",
+  "[data-store=\"home-testimonials\"]",
+  ".js-main-categories-container"
+ ],
+ "carrito": {
+  "estilo": "hogar",
+  "acento": "#16c7d4",
+  "marcador": "MYG"
+ },
+ "home": {
+  "destino": {
+   "acento": "#16c7d4",
+   "modo": "editorial",
+   "cinta": [
+    "Envío *gratis* desde $400.000",
+    "*10% OFF* con transferencia",
+    "Venta *mayorista*",
+    "Devolución *sin costo* por falla",
+    "Atención por *WhatsApp*"
+   ],
+   "portada": {
+    "fotos": [
+     "https://acdn-us.mitiendanube.com/stores/005/886/915/products/img_2609-4d23e67cd60398d69c17568802150159-1024-1024.webp",
+     "https://acdn-us.mitiendanube.com/stores/005/886/915/products/f907c43a-3c71-400e-888e-f4af3a183367-9fa430174b2ef1a10c17818112585636-1024-1024.webp",
+     "https://acdn-us.mitiendanube.com/stores/005/886/915/products/baf5c816-0e03-4f1a-bfd2-de9528836428-06bf4bb01cd8af338c17840133809269-1024-1024.webp"
+    ],
+    "etiqueta": "MYG Technology · Flores, CABA",
+    "titulo": "Tecnología que *te cambia el día*.",
+    "texto": "Proyectores, consolas retro, smartwatches, cámaras y más. Minorista y mayorista.",
+    "boton": "Ver productos",
+    "url": "/productos/",
+    "lleno": true,
+    "boton2": "Mayoristas",
+    "url2": "/mayoristas/",
+    "productosUrl": "/cuidado-personal/"
+   },
+   "beneficios": [
+    {
+     "icono": "envio",
+     "titulo": "Envío gratis",
+     "texto": "A domicilio desde $400.000"
+    },
+    {
+     "icono": "transferencia",
+     "titulo": "10% OFF",
+     "texto": "Abonando con transferencia"
+    },
+    {
+     "icono": "cambios",
+     "titulo": "Devolución sin costo",
+     "texto": "Si el producto tiene una falla"
+    },
+    {
+     "icono": "chat",
+     "titulo": "Atención por WhatsApp",
+     "texto": "Te ayudamos a elegir"
+    }
+   ],
+   "tira": {
+    "items": [
+     {
+      "nombre": "Consolas",
+      "url": "/consolas-proyectores/consolas1/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/005/886/915/products/img_6316-91cee25ac372a2ebd817653158936218-1024-1024.webp"
+     },
+     {
+      "nombre": "Proyectores",
+      "url": "/consolas-proyectores/proyectores/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/005/886/915/products/img_2609-4d23e67cd60398d69c17568802150159-1024-1024.webp"
+     },
+     {
+      "nombre": "Cámaras",
+      "url": "/camaras/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/005/886/915/products/baf5c816-0e03-4f1a-bfd2-de9528836428-06bf4bb01cd8af338c17840133809269-1024-1024.webp"
+     },
+     {
+      "nombre": "Drones",
+      "url": "/productos/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/005/886/915/products/f907c43a-3c71-400e-888e-f4af3a183367-9fa430174b2ef1a10c17818112585636-1024-1024.webp"
+     },
+     {
+      "nombre": "Cuidado personal",
+      "url": "/cuidado-personal/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/005/886/915/products/img_0068-87f6de4f33d6a352e417803560873936-1024-1024.webp"
+     },
+     {
+      "nombre": "Bicis y monopatines",
+      "url": "/bicicleta-monopatin/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/005/886/915/products/img_8639-bfbb3dce068bb5576317733738209872-1024-1024.webp"
+     },
+     {
+      "nombre": "Cargadores",
+      "url": "/cargadores-power-bank/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/005/886/915/products/84cadb21-7b3e-4ffd-a1af-828596cbd80c-a8c3fe9f4f6ba1f93c17818107627144-1024-1024.webp"
+     }
+    ]
+   },
+   "destacados": [
+    {
+     "etiqueta": "Lo más buscado",
+     "titulo": "Consolas y *proyectores*",
+     "url": "/consolas-proyectores/",
+     "cantidad": 4,
+     "oscuro": true
+    },
+    {
+     "etiqueta": "Para vos",
+     "titulo": "Cuidado *personal*",
+     "url": "/cuidado-personal/",
+     "carrusel": true,
+     "cantidad": 8
+    },
+    {
+     "etiqueta": "Novedades",
+     "titulo": "Lo nuevo en *MYG*",
+     "url": "/productos/",
+     "carrusel": true,
+     "cantidad": 8
+    }
+   ],
+   "faqTitulo": "Antes de comprar",
+   "faq": [
+    {
+     "p": "¿El envío es gratis?",
+     "r": "Sí, el envío a domicilio es gratis en compras desde $400.000. Para montos menores, lo calculás en el carrito con tu código postal."
+    },
+    {
+     "p": "¿Tienen descuento por transferencia?",
+     "r": "Sí, 10% OFF abonando con transferencia bancaria."
+    },
+    {
+     "p": "¿Qué pasa si un producto viene con falla?",
+     "r": "Lo podés devolver sin costo: pedile al equipo de ventas la etiqueta de devolución de Correo Argentino. Te damos una etiqueta gratis por compra."
+    },
+    {
+     "p": "¿Venden por mayor?",
+     "r": "Sí. Tenemos una sección de mayoristas y combos para emprendedores. Escribinos por WhatsApp y te asesoramos."
+    },
+    {
+     "p": "¿Dónde están?",
+     "r": "Estamos en Flores, Ciudad de Buenos Aires. También te atendemos por WhatsApp."
+    }
+   ],
+   "banner": {
+    "etiqueta": "[ Mayoristas ]",
+    "titulo": "¿Querés emprender? Comprá por mayor.",
+    "foto": "https://acdn-us.mitiendanube.com/stores/005/886/915/products/img_9947-7634a7ce620c852ff117416445544991-1024-1024.webp",
+    "boton": "Ver mayoristas",
+    "url": "/mayoristas/"
+   },
+   "locales": {
+    "etiqueta": "MYG Technology",
+    "titulo": "Estamos en *Flores*",
+    "texto": "Te atendemos por WhatsApp y coordinamos tu compra.",
+    "items": [
+     {
+      "zona": "Flores · CABA",
+      "nombre": "MYG Technology",
+      "direccion": "Flores, Ciudad Autónoma de Buenos Aires"
+     }
+    ]
+   },
+   "pilares": {
+    "etiqueta": "Por qué MYG",
+    "titulo": "Comprá *tranquilo*.",
+    "marca": "MYG",
+    "items": [
+     {
+      "titulo": "Envío gratis",
+      "texto": "A domicilio desde $400.000."
+     },
+     {
+      "titulo": "10% OFF",
+      "texto": "Pagando con transferencia bancaria."
+     },
+     {
+      "titulo": "Devolución por falla",
+      "texto": "Con etiqueta de Correo Argentino sin costo."
+     },
+     {
+      "titulo": "Minorista y mayorista",
+      "texto": "Combos para emprendedores."
+     }
+    ]
+   },
+   "resenas": {
+    "etiqueta": "Testimonios",
+    "titulo": "Lo que dicen *nuestros clientes*",
+    "items": [
+     {
+      "nombre": "Johanna",
+      "estrellas": 5,
+      "texto": "Quería agradecerles y felicitarlos por la atención y el producto. ¡Es tal cual lo publican!"
+     },
+     {
+      "nombre": "Martina",
+      "estrellas": 5,
+      "texto": "Me llegó el producto y quedé fascinada. Ya estoy haciendo una segunda compra para regalarle a mi mamá."
+     },
+     {
+      "nombre": "Erica",
+      "estrellas": 5,
+      "texto": "Dos compras y la verdad súper confiable y conforme. Gracias."
+     },
+     {
+      "nombre": "Ernesto",
+      "estrellas": 5,
+      "texto": "Hice una compra mayorista, me llegó rápido la mercadería, un lujo."
+     }
+    ]
+   }
+  }
+ },
+ "premium": {
+  "tema": "destino"
+ },
+ "cabecera": {
+  "logo": "https://nevux.ar/clientes/myg/logo-negro.png",
+  "logoClaro": "https://nevux.ar/clientes/myg/logo-blanco.png",
+  "nombre": "MYG Technology",
+  "logo3d": true
+ },
+ "fichaDestino": {
+  "sello": "MYG Technology · *tecnología para tu día*",
+  "estilo": "hogar",
+  "chip": "Venta minorista y mayorista · Flores, CABA",
+  "confianza": [
+   {
+    "icono": "envio",
+    "titulo": "Envío gratis",
+    "texto": "A domicilio desde $400.000"
+   },
+   {
+    "icono": "chat",
+    "titulo": "Te asesoramos",
+    "texto": "Por WhatsApp"
+   },
+   {
+    "icono": "cambios",
+    "titulo": "Devolución por falla",
+    "texto": "Sin costo para vos"
+   }
+  ],
+  "faq": [
+   {
+    "p": "¿El envío es gratis?",
+    "r": "Sí, el envío a domicilio es gratis en compras desde $400.000. Para montos menores, lo calculás en el carrito con tu código postal."
+   },
+   {
+    "p": "¿Tienen descuento por transferencia?",
+    "r": "Sí, 10% OFF abonando con transferencia bancaria."
+   },
+   {
+    "p": "¿Qué pasa si un producto viene con falla?",
+    "r": "Lo podés devolver sin costo: pedile al equipo de ventas la etiqueta de devolución de Correo Argentino. Te damos una etiqueta gratis por compra."
+   },
+   {
+    "p": "¿Venden por mayor?",
+    "r": "Sí. Tenemos una sección de mayoristas y combos para emprendedores. Escribinos por WhatsApp y te asesoramos."
+   },
+   {
+    "p": "¿Dónde están?",
+    "r": "Estamos en Flores, Ciudad de Buenos Aires. También te atendemos por WhatsApp."
+   }
+  ],
+  "extras": true,
+  "envioTexto": "A todo el país · Gratis desde $400.000"
+ },
+ "packs": [],
+ "excluirProductos": "apple|airpod|jbl|xiaomi|redmi|samsung|sony|iphone|imitaci|replica|réplica|rayban|ray-ban|meta|magis|series 10|beats|marshall|stanley|huawei|alexa|abu garcia|shimano|watch ultra|por mayor|pack x|combo|parlante|auricular|airdots|airbuds|watch s|magsafe|psp|play ?5|rs5|gamestation|playstation|nintendo|switch|game ?boy",
+ "efecto3d": true,
+ "credito": {
+  "texto": "Tienda diseñada por",
+  "marca": "@nevux.app",
+  "url": "https://www.instagram.com/nevux.app/"
+ }
+}
