@@ -14,13 +14,13 @@ export const WA_GENERAL = waLink("Hola Rodrigo! Vi nevux.ar y quiero consultar p
 export const WA_WEB = waLink("Hola Rodrigo! Quiero una página web para mi marca: ");
 export const WA_TIENDA = waLink("Hola! Quiero el análisis gratis de mi tienda de Tiendanube: ");
 
-export const PRECIO_WEB = 47900; // "desde": el plan Básico de sitios web
+export const PRECIO_WEB = 38900; // "desde": el plan Básico de sitios web
 
 // Planes de sitios web (se cobran por WhatsApp/transferencia, no tienen link de Mercado Pago)
 export const PLANES_WEB = {
   basico: {
     nombre: "Sitio web Básico",
-    precio: 47900,
+    precio: 38900,
     bajada: "Tu página profesional en una sola pantalla larga: todo lo que tu cliente necesita ver para escribirte.",
     incluye: [
       "Diseño a medida con tu logo y tus colores",
@@ -35,7 +35,7 @@ export const PLANES_WEB = {
   },
   premium: {
     nombre: "Sitio web Premium",
-    precio: 55000,
+    precio: 47900,
     bajada: "La experiencia completa: video, tu equipo uno por uno y pedidos o turnos que te llegan armados a tu WhatsApp.",
     incluye: [
       "Portada con video de tu marca",

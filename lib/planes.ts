@@ -12,7 +12,7 @@ export type Plan = {
 export const PLANES: Record<"basico" | "premium", Plan> = {
   basico: {
     nombre: "Pack Landing Page Pro",
-    precio: 47900,
+    precio: 37500,
     link: "https://mpago.la/2u5gT97",
     bajada: "Tu ficha de producto rediseñada como las de las marcas grandes, con efectos, y tu home con secciones de confianza. Sin cambiar de plantilla y sin apps.",
     incluye: [
@@ -27,7 +27,7 @@ export const PLANES: Record<"basico" | "premium", Plan> = {
   },
   premium: {
     nombre: "Nevux Premium",
-    precio: 59900,
+    precio: 48900,
     link: "https://mpago.la/2mkcebx",
     bajada: "Tu tienda como las marcas grandes de ropa: home con video, categorías que rotan, comunidad, números que suben y carrito con envío gratis. Sin apps.",
     incluye: [
