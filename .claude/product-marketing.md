@@ -12,7 +12,7 @@ Dueño: **Rodrigo** (habla en rioplatense). Él hace el contacto con los cliente
 
 | Plan | Precio | Qué incluye |
 |---|---|---|
-| **Básico** · "Pack Landing Page Pro" | $39.900/mes | Ficha Pro clara u oscura con tus colores, precios en escalera (transferencia y cuotas reales), packs Llevá 2/Llevá 3, problema y solución, comparativa, preguntas, efectos (secciones que entran al bajar, botón con brillo, "Agregado ✓") y home con secciones de confianza |
+| **Básico** · "Pack Landing Page Pro" | $47.900/mes | Ficha Pro clara u oscura con tus colores, precios en escalera (transferencia y cuotas reales), packs Llevá 2/Llevá 3, problema y solución, comparativa, preguntas, efectos (secciones que entran al bajar, botón con brillo, "Agregado ✓") y home con secciones de confianza |
 | **Premium** · "Nevux Premium" | $59.900/mes | Todo lo del Básico más una home de marca grande (referencia: la tienda Destino): portada en video o fotos, categorías que rotan, tira de categorías, comunidad, números que suben, reseñas y locales con mapa, carrito con barra de envío gratis, cabecera con logo animado y pie a medida |
 
 - **Garantía de 7 días:** si en los primeros 7 días no te convence, te devolvemos el 100 %. Cancelás cuando quieras, sin permanencia.

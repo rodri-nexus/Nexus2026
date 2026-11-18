@@ -15,12 +15,12 @@ export const WA_WEB = waLink("Hola Rodrigo! Quiero una página web para mi marca
 export const WA_TIENDA = waLink("Hola! Quiero el análisis gratis de mi tienda de Tiendanube: ");
 
 export const PRECIO_WEB = 55000;
-export const PRECIO_BASICO = 39900;
+export const PRECIO_BASICO = 47900;
 
 export function BotonWA({ href, origen, children, className = "", variante = "verde" }: { href: string; origen: string; children: React.ReactNode; className?: string; variante?: "verde" | "violeta" | "linea" }) {
   const estilos = {
     verde: "bg-emerald-400 hover:bg-emerald-300 text-black shadow-[0_12px_40px_-10px_rgba(52,211,153,0.7)]",
-    violeta: "bg-violet-400 hover:bg-violet-300 text-black shadow-[0_12px_40px_-10px_rgba(167,139,250,0.7)]",
+    violeta: "bg-emerald-400 hover:bg-emerald-300 text-black shadow-[0_12px_40px_-10px_rgba(52,211,153,0.7)]",
     linea: "border border-white/15 bg-white/[0.03] hover:bg-white/[0.07] text-white",
   }[variante];
   return (

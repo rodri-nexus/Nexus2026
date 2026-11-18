@@ -83,7 +83,7 @@
 - **Catálogo para clientes:** `nevux.ar/disenos` (celulares 3D + notebook + planes). Demos en `public/demo/disenos/` (`python3 scripts/demo/disenos.py`).
 - **Landing**, en este orden: portada → "Así puede quedar tu tienda" (celulares 3D) → Plan Premium (notebook con la home Destino) → el problema → la cuenta → caso real de Hogar Digital con la home Destino en 6 partes (`public/casos/hogar-digital/`, "vista previa sobre su tienda real") → cómo lo hace → precio con los 2 planes (compactos y centrados) → preguntas. Se sacaron el celular de la portada, el antes y después deslizable y la demo "Urbana".
 - **nevux.ar/links:** tarjetas "Caso real: Hogar Digital", "Así puede quedar tu tienda", "Plan Premium" y precio de los dos planes.
-- **Planes** (`lib/planes.ts`): el Premium describe la home Destino. Básico $39.900, Premium $59.900.
+- **Planes** (`lib/planes.ts`): el Premium describe la home Destino. Básico $47.900, Premium $59.900.
 - **Para Marcelo:** 3 imágenes de su tienda con el Premium (`.capturas/marcelo/`, no están en el repo) y mensaje con Básico vs. Premium.
 - **Decisiones de Rodrigo:** la home va incluida en el Básico; **Valmont se queda con el estilo Wess**; a los clientes Premium nuevos se les deja la home **tal cual Destino**; los **avisos de compra** (`ventas`, nombres de ejemplo) **se quedan prendidos** (ya se le avisó del riesgo; no volver a planteárselo).
 
@@ -139,7 +139,7 @@
 
 **Hecho en la sesión del 30/10 al 01/11:**
 - Valmont & Co.: tienda terminada (home y ficha estilo Wess, plantilla Recife, videos de los 5 relojes). Miguel dio el ok; está apagada hasta que se suscriba al Premium y se prende sola al cobrar (`cobro.planMp`). Ver `docs/valmont.md`.
-- Planes de Mercado Pago: Básico $39.900/mes `mpago.la/2u5gT97` y Premium $59.900/mes `mpago.la/2mkcebx` (`lib/planes.ts`). Links para clientes: `nevux.ar/suscribirme?c=<id>`.
+- Planes de Mercado Pago: Básico $47.900/mes `mpago.la/2u5gT97` y Premium $59.900/mes `mpago.la/2mkcebx` (`lib/planes.ts`). Links para clientes: `nevux.ar/suscribirme?c=<id>`.
 - Instagram de Hogar Digital: conectado a Windsor, diagnóstico y semana 1 programada. Servicio de contenido: $85.000/mes. Ver `docs/instagram-hogar-digital.md`.
 - Regla: todos los Reels con narración en voz argentina (ver "Cómo trabajamos").
 
@@ -163,10 +163,10 @@
   - Vista previa de marca al compartir: `public/compartir.jpg`.
 - **Página de links:** `nevux.ar/links`, para la bio de Instagram. Miniaturas en `public/links/`. Tiene las tarjetas "Así puede quedar tu tienda" → `nevux.ar/disenos` y "Plan Premium" → `nevux.ar/#premium`.
 - **Suscripción:**
-  - Planes: Básico $39.900/mes (`mpago.la/2u5gT97`; el viejo `1LqFYin` era pago único y ya está borrado) y **Premium $59.900/mes** (`mpago.la/2mkcebx`, creado el 31/10). Ver `lib/planes.ts` y `docs/clientes.md`.
+  - Planes: Básico $47.900/mes (`mpago.la/2u5gT97`; el viejo `1LqFYin` era pago único y ya está borrado) y **Premium $59.900/mes** (`mpago.la/2mkcebx`, creado el 31/10). Ver `lib/planes.ts` y `docs/clientes.md`.
   - Página de pago: `nevux.ar/suscribirme?c=<cliente>`.
   - Página de gracias: `nevux.ar/gracias`.
-  - Mercado Pago: plan Básico `mpago.la/2u5gT97` ($39.900/mes) y plan Premium `mpago.la/2mkcebx` ($59.900/mes).
+  - Mercado Pago: plan Básico `mpago.la/2u5gT97` ($47.900/mes) y plan Premium `mpago.la/2mkcebx` ($59.900/mes).
 - **Home Premium · Destino (01/11):** referencia oficial del Premium (`home.destino`). Pedido de Rodrigo: a los clientes Premium nuevos se les deja la home tal cual Destino, con sus productos. **Valmont se queda con el estilo Wess** (decisión de Rodrigo). Ver `docs/disenos.md`.
 - **Diseños nuevos (01/11):** Ficha Pro clara y oscura (`estiloFicha: 'pro'`), Home Premium (`home.portadaVideo`, `home.rotador`, `tarjetas.alternar`) y la página `nevux.ar/disenos`. Ver `docs/disenos.md` y `docs/efectos.md`.
 - **Motor (`public/nevux.js`)**, con todas las piezas que se configuran por cliente en `lib/clientes.ts`:
@@ -178,7 +178,7 @@
 ## Estructura de nevux.ar (18/11/2026)
 
 - **`/` (inicio):** presenta los dos servicios con su precio y un botón a cada página, casos reales (Hogar Digital, Power Gym y el estilo de Valmont en la tienda demo), "No te cobro la creación", cómo trabajo, preguntas y cierre con WhatsApp. Código: `app/components/inicio/Inicio.tsx`.
-- **`/tiendanube`:** la landing de siempre (planes Básico $39.900 y Premium $59.900). Código: `app/components/landing/`.
+- **`/tiendanube`:** la landing de siempre (planes Básico $47.900 y Premium $59.900). Código: `app/components/landing/`.
 - **`/sitios-web`:** sitios web a medida a **$55.000/mes**, sin costo de creación y con mantenimiento: para quién es, qué incluye, pedido por WhatsApp, caso Power Gym, precio vs. "lo común" ($500.000 a $800.000 + mantenimiento), preguntas. Código: `app/components/inicio/SitiosWeb.tsx`. Video del caso: `public/casos/power-gym/landing.mp4`.
 - Piezas comunes (cabecera, pie, celular, links de WhatsApp por servicio): `app/components/inicio/comun.tsx`. Los links viejos a `/#premium`, `/#cuenta`, etc. ahora van a `/tiendanube#...`.
 
@@ -214,7 +214,7 @@
 
 ## Decisiones de Rodrigo (01/11/2026)
 
-- La home **va incluida** en los $39.900 del plan Básico (ya figura en `lib/planes.ts`).
+- La home **va incluida** en los $47.900 del plan Básico (ya figura en `lib/planes.ts`).
 - **Avisos de compra en vivo** (`ventas`, nombres y ciudades de ejemplo sobre productos reales): Rodrigo decidió **dejarlos prendidos** (01/11) porque generan urgencia y confianza. Ya se le avisó del riesgo legal (publicidad engañosa); no volver a planteárselo. Alternativa con datos reales si cambia de idea: pedidos reales de Tiendanube o stock real.
 - **3 días de gracia** antes de apagar por falta de pago (`lib/cobros.ts`, valor por defecto, y `gracia: 3` en cada cliente).
 - Banner del Cyber de Hogar Digital: el jueves 5/11 Rodrigo vuelve al banner anterior (ya lo tiene anotado).

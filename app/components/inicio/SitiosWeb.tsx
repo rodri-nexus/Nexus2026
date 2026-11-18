@@ -83,21 +83,21 @@ function MensajeWhatsApp() {
 export default function SitiosWeb() {
   return (
     <MotionConfig reducedMotion="user">
-      <div className="min-h-screen overflow-x-hidden bg-[#07080a] text-white selection:bg-violet-400 selection:text-black">
+      <div className="min-h-screen overflow-x-hidden bg-[#07080a] text-white selection:bg-emerald-400 selection:text-black">
         <Cabecera activa="web" />
 
         {/* 1. Portada */}
         <section className="nvx-grain relative overflow-hidden">
           <div className="nvx-grid-bg pointer-events-none absolute inset-0" />
-          <Glow className="-top-72 left-1/2 h-[960px] w-[1300px] -translate-x-1/2" color="rgba(139,92,246,0.18)" />
+          <Glow className="-top-72 left-1/2 h-[960px] w-[1300px] -translate-x-1/2" color="rgba(16,185,129,0.18)" />
           <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-12 sm:px-6 md:grid-cols-[1.2fr_1fr] md:pb-24 md:pt-20">
             <motion.div variants={HERO} initial="oculto" animate="visible" className="text-center md:text-left">
-              <motion.span variants={ITEM} className="mb-6 inline-flex items-center gap-2 rounded-full border border-violet-300/25 bg-violet-400/[0.08] px-3.5 py-1.5 text-xs font-semibold text-violet-200">
+              <motion.span variants={ITEM} className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-400/[0.08] px-3.5 py-1.5 text-xs font-semibold text-emerald-200">
                 Sitios web a medida
               </motion.span>
               <motion.h1 variants={ITEM} className="mb-6 text-[2.6rem] font-extrabold leading-[0.98] tracking-[-0.05em] sm:text-6xl lg:text-[4.4rem]">
                 Tu página propia,{" "}
-                <span className="bg-gradient-to-r from-violet-300 via-fuchsia-200 to-violet-300 bg-[length:200%_100%] bg-clip-text text-transparent animate-[nvx-grad_6s_ease-in-out_infinite] motion-reduce:animate-none">
+                <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-300 bg-[length:200%_100%] bg-clip-text text-transparent animate-[nvx-grad_6s_ease-in-out_infinite] motion-reduce:animate-none">
                   lista para tu Instagram.
                 </span>
               </motion.h1>
@@ -113,13 +113,13 @@ export default function SitiosWeb() {
               <motion.ul variants={ITEM} className="mt-6 flex flex-wrap justify-center gap-2 text-xs text-neutral-300 md:justify-start">
                 {["Sin costo de creación", "Muestra gratis", "Mantenimiento incluido"].map((t) => (
                   <li key={t} className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5">
-                    <Check className="h-3.5 w-3.5 text-violet-300" /> {t}
+                    <Check className="h-3.5 w-3.5 text-emerald-300" /> {t}
                   </li>
                 ))}
               </motion.ul>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }} className="relative">
-              <Glow className="left-1/2 top-1/2 h-[120%] w-[140%] -translate-x-1/2 -translate-y-1/2" color="rgba(167,139,250,0.22)" />
+              <Glow className="left-1/2 top-1/2 h-[120%] w-[140%] -translate-x-1/2 -translate-y-1/2" color="rgba(52,211,153,0.22)" />
               <Celular src="/casos/power-gym/landing.mp4" poster="/casos/power-gym/landing.jpg" titulo="Sitio web de Power Gym bajando solo" className="nvx-float" />
               <p className="relative mt-5 text-center text-[11px] text-neutral-500">Sitio real: Power Gym, Diamante (Entre Ríos)</p>
             </motion.div>
@@ -129,12 +129,12 @@ export default function SitiosWeb() {
         {/* 2. Para quién */}
         <section className="py-16 md:py-24">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Titulo eyebrow="Para quién es" color="text-violet-300">Para cualquier marca <span className="text-neutral-500">que quiera verse profesional.</span></Titulo>
+            <Titulo eyebrow="Para quién es" color="text-emerald-300">Para cualquier marca <span className="text-neutral-500">que quiera verse profesional.</span></Titulo>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {RUBROS.map(({ i: I, t, d }, k) => (
                 <Reveal key={t} delay={k * 0.05}>
                   <div className="flex h-full items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-violet-400/15 text-violet-300"><I className="h-5 w-5" /></div>
+                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-emerald-400/15 text-emerald-300"><I className="h-5 w-5" /></div>
                     <div><p className="font-bold">{t}</p><p className="mt-1 text-sm text-neutral-400">{d}</p></div>
                   </div>
                 </Reveal>
@@ -146,12 +146,12 @@ export default function SitiosWeb() {
         {/* 3. Qué tiene tu página */}
         <section className="border-y border-white/5 bg-white/[0.015] py-16 md:py-24">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Titulo eyebrow="Qué tiene tu página" color="text-violet-300" bajada="Se arma con las secciones que necesita tu marca. Estas son las más usadas:">Todo lo que tu cliente <span className="text-neutral-500">necesita ver.</span></Titulo>
+            <Titulo eyebrow="Qué tiene tu página" color="text-emerald-300" bajada="Se arma con las secciones que necesita tu marca. Estas son las más usadas:">Todo lo que tu cliente <span className="text-neutral-500">necesita ver.</span></Titulo>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {INCLUYE.map(({ i: I, t, d }, k) => (
                 <Reveal key={t} delay={(k % 4) * 0.06}>
-                  <div className="h-full rounded-[22px] border border-white/10 bg-[#0d0f12] p-5 transition-colors hover:border-violet-300/40">
-                    <I className="h-6 w-6 text-violet-300" />
+                  <div className="h-full rounded-[22px] border border-white/10 bg-[#0d0f12] p-5 transition-colors hover:border-emerald-300/40">
+                    <I className="h-6 w-6 text-emerald-300" />
                     <p className="mt-4 font-bold">{t}</p>
                     <p className="mt-1.5 text-sm leading-relaxed text-neutral-400">{d}</p>
                   </div>
@@ -165,13 +165,13 @@ export default function SitiosWeb() {
         <section className="py-16 md:py-24">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 md:grid-cols-2">
             <Reveal>
-              <span className="text-xs font-bold uppercase tracking-[0.18em] text-violet-300">El botón que te ahorra tiempo</span>
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">El botón que te ahorra tiempo</span>
               <h2 className="mt-4 text-[2rem] font-extrabold leading-[1.04] tracking-[-0.04em] sm:text-5xl">Te llega el pedido <span className="text-neutral-500">ya armado.</span></h2>
               <p className="mt-5 text-[15px] leading-relaxed text-neutral-400 sm:text-lg">Basta de ir y venir con mensajes preguntando precios, horarios o con quién. En tu página, el cliente:</p>
               <ol className="mt-6 space-y-3">
                 {["Elige el servicio, el producto o la persona", "Pone su nombre y lo que necesita", "Toca el botón y te escribe a tu WhatsApp con todo el detalle"].map((t, k) => (
                   <li key={t} className="flex items-start gap-3 text-[15px]">
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-violet-400 text-sm font-extrabold text-black">{k + 1}</span>
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-emerald-400 text-sm font-extrabold text-black">{k + 1}</span>
                     <span className="pt-0.5 text-neutral-200">{t}</span>
                   </li>
                 ))}
@@ -182,13 +182,13 @@ export default function SitiosWeb() {
         </section>
 
         {/* 5. Caso real */}
-        <section className="border-y border-white/5 bg-gradient-to-b from-violet-500/[0.06] to-transparent py-16 md:py-24">
+        <section className="border-y border-white/5 bg-gradient-to-b from-emerald-500/[0.06] to-transparent py-16 md:py-24">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 md:grid-cols-[1fr_1.1fr]">
             <Reveal className="order-2 md:order-1">
               <Celular src="/casos/power-gym/landing.mp4" poster="/casos/power-gym/landing.jpg" titulo="Sitio web de Power Gym" />
             </Reveal>
             <Reveal delay={0.1} className="order-1 md:order-2">
-              <span className="text-xs font-bold uppercase tracking-[0.18em] text-violet-300">Caso real</span>
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">Caso real</span>
               <h2 className="mt-4 text-[2rem] font-extrabold leading-[1.04] tracking-[-0.04em] sm:text-5xl">Power Gym</h2>
               <p className="mt-2 text-neutral-400">Gimnasio en Diamante, Entre Ríos</p>
               <ul className="mt-6 space-y-3 text-[15px] text-neutral-200">
@@ -200,10 +200,10 @@ export default function SitiosWeb() {
                   "Reservas y consultas que llegan armadas a su WhatsApp",
                   "Ubicación con mapa y preguntas frecuentes",
                 ].map((t) => (
-                  <li key={t} className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />{t}</li>
+                  <li key={t} className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />{t}</li>
                 ))}
               </ul>
-              <a href="https://powergym-diamante.vercel.app" target="_blank" rel="noopener noreferrer" className="nvx-press mt-8 inline-flex items-center gap-2 rounded-2xl border border-violet-300/40 bg-violet-400/[0.08] px-6 py-3.5 font-bold text-violet-200 hover:bg-violet-400/[0.15]">
+              <a href="https://powergym-diamante.vercel.app" target="_blank" rel="noopener noreferrer" className="nvx-press mt-8 inline-flex items-center gap-2 rounded-2xl border border-emerald-300/40 bg-emerald-400/[0.08] px-6 py-3.5 font-bold text-emerald-200 hover:bg-emerald-400/[0.15]">
                 Ver la página <ArrowRight className="h-4 w-4" />
               </a>
             </Reveal>
@@ -213,19 +213,19 @@ export default function SitiosWeb() {
         {/* 6. Precio */}
         <section id="precio" className="scroll-mt-20 py-16 md:py-24">
           <div className="mx-auto max-w-5xl px-4 sm:px-6">
-            <Titulo eyebrow="Precio" color="text-violet-300">Un solo precio, <span className="text-neutral-500">todo incluido.</span></Titulo>
+            <Titulo eyebrow="Precio" color="text-emerald-300">Un solo precio, <span className="text-neutral-500">todo incluido.</span></Titulo>
             <div className="grid items-stretch gap-5 md:grid-cols-[1.15fr_1fr]">
               <Reveal>
-                <div className="relative h-full overflow-hidden rounded-[28px] border border-violet-300/40 bg-gradient-to-b from-violet-500/[0.16] to-[#0d0f12] p-7 sm:p-9">
-                  <span className="inline-flex rounded-full bg-violet-400 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em] text-black">Sitio web a medida</span>
+                <div className="relative h-full overflow-hidden rounded-[28px] border border-emerald-300/40 bg-gradient-to-b from-emerald-500/[0.16] to-[#0d0f12] p-7 sm:p-9">
+                  <span className="inline-flex rounded-full bg-emerald-400 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em] text-black">Sitio web a medida</span>
                   <div className="mt-6 flex items-baseline gap-2">
                     <span className="text-5xl font-extrabold tracking-[-0.04em] sm:text-6xl">{precioTexto(PRECIO_WEB)}</span>
                     <span className="text-neutral-400">/mes</span>
                   </div>
-                  <p className="mt-2 text-sm font-semibold text-violet-200">Sin costo de creación · Sin permanencia</p>
+                  <p className="mt-2 text-sm font-semibold text-emerald-200">Sin costo de creación · Sin permanencia</p>
                   <ul className="mt-7 space-y-3">
                     {PRECIO_INCLUYE.map((t) => (
-                      <li key={t} className="flex gap-3 text-[15px] text-neutral-200"><Check className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />{t}</li>
+                      <li key={t} className="flex gap-3 text-[15px] text-neutral-200"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />{t}</li>
                     ))}
                   </ul>
                   <BotonWA href={WA_WEB} origen="precio-web" variante="violeta" className="mt-8 w-full">Quiero mi muestra gratis</BotonWA>
@@ -252,7 +252,7 @@ export default function SitiosWeb() {
                   </ul>
                   <div className="mt-auto grid grid-cols-3 gap-2 pt-8 text-center text-[11px] text-neutral-300">
                     {[{ i: Wrench, t: "Mantenimiento" }, { i: ShieldCheck, t: "Copia de seguridad" }, { i: Search, t: "Google" }].map(({ i: I, t }) => (
-                      <div key={t} className="rounded-2xl border border-white/10 bg-white/[0.02] px-2 py-3"><I className="mx-auto mb-1.5 h-4 w-4 text-violet-300" />{t}<br /><span className="text-violet-300">incluido</span></div>
+                      <div key={t} className="rounded-2xl border border-white/10 bg-white/[0.02] px-2 py-3"><I className="mx-auto mb-1.5 h-4 w-4 text-emerald-300" />{t}<br /><span className="text-emerald-300">incluido</span></div>
                     ))}
                   </div>
                 </div>
@@ -267,13 +267,13 @@ export default function SitiosWeb() {
         {/* 7. Preguntas */}
         <section className="border-t border-white/5 py-16 md:py-24">
           <div className="mx-auto max-w-3xl px-4 sm:px-6">
-            <Titulo eyebrow="Preguntas" color="text-violet-300">Lo que más me preguntan</Titulo>
+            <Titulo eyebrow="Preguntas" color="text-emerald-300">Lo que más me preguntan</Titulo>
             <div className="space-y-3">
               {DUDAS.map((d) => (
                 <details key={d.q} className="group rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-4 open:bg-white/[0.04]">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">
                     {d.q}
-                    <span className="text-xl text-violet-300 transition-transform group-open:rotate-45">+</span>
+                    <span className="text-xl text-emerald-300 transition-transform group-open:rotate-45">+</span>
                   </summary>
                   <p className="mt-3 text-[15px] leading-relaxed text-neutral-400">{d.r}</p>
                 </details>
@@ -284,11 +284,11 @@ export default function SitiosWeb() {
 
         {/* 8. Cierre */}
         <section className="nvx-grain relative overflow-hidden py-20 md:py-28">
-          <Glow className="-bottom-40 left-1/2 h-[700px] w-[1100px] -translate-x-1/2" color="rgba(139,92,246,0.18)" />
+          <Glow className="-bottom-40 left-1/2 h-[700px] w-[1100px] -translate-x-1/2" color="rgba(16,185,129,0.18)" />
           <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
             <Reveal>
               <h2 className="mb-5 text-[2.2rem] font-extrabold leading-[1.02] tracking-[-0.04em] sm:text-6xl">
-                Tu marca merece <span className="bg-gradient-to-r from-violet-300 to-fuchsia-200 bg-clip-text text-transparent">su propia página.</span>
+                Tu marca merece <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">su propia página.</span>
               </h2>
               <p className="mx-auto mb-8 max-w-xl text-[15px] text-neutral-400 sm:text-lg">Pasame tu Instagram y te armo una muestra sin compromiso.</p>
               <BotonWA href={WA_WEB} origen="cierre-web" variante="violeta" className="w-full sm:w-auto">Quiero mi sitio web</BotonWA>

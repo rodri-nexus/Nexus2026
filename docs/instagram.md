@@ -40,7 +40,7 @@ Fichas de producto que venden · Sin apps
 |---|---|---|
 | Qué es | `que-es.jpg` | Qué hace Nevux en 3 historias + link a la landing |
 | Antes/Después | `antes-despues.jpg` | Fichas antes y después (con permiso del cliente) |
-| Precio | `precio.jpg` | $39.900/mes, qué incluye, garantía de 7 días, cancelás cuando quieras |
+| Precio | `precio.jpg` | $47.900/mes, qué incluye, garantía de 7 días, cancelás cuando quieras |
 | Clientes | `clientes.jpg` | Testimonios y capturas de mensajes reales (con permiso) |
 | Preguntas | `preguntas.jpg` | Las objeciones de la landing: precio, tiempo, confianza, necesidad |
 

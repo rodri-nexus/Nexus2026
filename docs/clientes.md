@@ -94,7 +94,7 @@ En `config.evento` de cada cliente: `nombre`, `desde`, `hasta`, `anticipo` (día
 
 | Plan | Precio | Link de Mercado Pago | Clientes |
 |---|---|---|---|
-| Básico · Pack Landing Page Pro | $39.900/mes | `mpago.la/2u5gT97` (plan "Nevux Básico", creado el 31/10) | — |
+| Básico · Pack Landing Page Pro | $47.900/mes | `mpago.la/2u5gT97` (plan "Nevux Básico", creado el 31/10) | — |
 | Premium · Nevux Premium | $59.900/mes | `mpago.la/2mkcebx` | Valmont, Hogar Digital (desde el 01/11) |
 
 Cada cliente lleva `plan: 'premium'` en `lib/clientes.ts` (sin `plan` = básico). La página `nevux.ar/suscribirme?c=<id>` muestra solo el precio, lo que incluye y el link del plan de ese cliente. Sin cliente: `?plan=premium`.
@@ -104,7 +104,8 @@ El link viejo del básico (`mpago.la/1LqFYin`) era un pago único, no una suscri
 
 **Link para mandarle al cliente:** `https://nevux.ar/suscribirme?c=<id>` (página con el plan, qué incluye, garantía y botón a Mercado Pago, personalizada con el nombre de su tienda). Sin `?c=` sirve para cualquiera. Después de pagar, Mercado Pago lo puede devolver a `https://nevux.ar/gracias` si se configura como URL de retorno del plan.
 
-- **Tarjeta:** suscripción de Mercado Pago a $39.900/mes. Se cobra sola cada mes.
+- **Tarjeta:** suscripción de Mercado Pago a $47.900/mes. Se cobra sola cada mes.
 - **Efectivo y transferencia:** no se pueden debitar solos, porque el cliente tiene que pagar cada mes. Se le manda un link de pago antes del vencimiento.
 - **Si un pago no entra:** con cobro automático la tienda se apaga sola después de los días de gracia (3 por defecto) y se prende sola cuando paga. Con cobro manual, apagala con el interruptor.
 - **17/11:** Rodrigo bajó el Premium a **$59.900/mes** en la web. Falta: actualizar el monto del plan en Mercado Pago (`mpago.la/2mkcebx` sigue cobrando $69.900) o crear uno nuevo y cambiar el link en `lib/planes.ts`.
+- **18/11:** Básico a **$47.900/mes** (pedido de Rodrigo). Colores del inicio y de /sitios-web en el verde de Nevux (sin violeta). Botón de la portada: "Analizá mi tienda" (abre WhatsApp con el pedido de análisis gratis). Falta: actualizar el plan Básico en Mercado Pago (`mpago.la/2u5gT97` cobra $39.900).
