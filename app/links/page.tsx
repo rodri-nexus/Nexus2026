@@ -48,7 +48,7 @@ export default function LinksPage() {
             origen="sitios-web"
             imagen="/casos/power-gym/landing.jpg"
             titulo="Sitios web a medida"
-            texto="Tu página para la bio · $55.000/mes"
+            texto="Tu página para la bio · desde $47.900/mes"
           />
           <LinkCard
             href="/disenos"
