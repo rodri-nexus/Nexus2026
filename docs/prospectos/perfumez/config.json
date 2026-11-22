@@ -48,7 +48,9 @@
   "estilo": "wess"
  },
  "packs": [],
- "ventas": true,
+ "ventas": {
+  "estilo": "chico"
+ },
  "efecto3d": true,
  "carrito": {
   "estilo": "hogar",

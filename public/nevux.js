@@ -2598,6 +2598,15 @@
         '.nvx-toast{left:14px;right:auto;top:auto;bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:330px;margin:0;border-radius:14px;transform:translateY(18px);transition:opacity .4s ease,transform .6s cubic-bezier(.2,.8,.2,1);box-shadow:0 10px 30px rgba(0,0,0,.16)}' +
         '.nvx-toast.nvx-show{transform:none}.nvx-toast b{text-transform:uppercase;font-size:12.5px}.nvx-toast em:before{background:#e3262f;animation:nvx-lat 1.6s ease-in-out infinite}@keyframes nvx-lat{50%{opacity:.25}}' +
         '.nvx-bar-on .nvx-toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}');
+      // Estilo "chico": abajo a la izquierda, más chico y oscuro, para no tapar el logo ni la cabecera
+      if (V.estilo === 'chico') hCss('nvx-v3-css',
+        '.nvx-toast{left:10px;right:auto;top:auto;bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:270px;margin:0;padding:7px 10px 7px 7px!important;gap:8px!important;border-radius:12px;' +
+        'background:rgba(14,12,9,.94)!important;color:#f5efe4!important;border:1px solid ' + (V.acento || NEVUX.color || '#d4a84f') + '55;box-shadow:0 10px 26px rgba(0,0,0,.45);transform:translateY(14px)}' +
+        '.nvx-toast.nvx-show{transform:none}.nvx-toast img{width:38px!important;height:38px!important;border-radius:8px}' +
+        '.nvx-toast small{font-size:10px!important;color:#b9b0a1!important}.nvx-toast b{font-size:11px!important;color:#fff!important}' +
+        '.nvx-toast em{font-size:9.5px!important;color:#9a9184!important}.nvx-toast em:before{background:' + (V.acento || NEVUX.color || '#d4a84f') + '}' +
+        '.nvx-toast strong{font-size:12px!important;color:' + (V.acento || NEVUX.color || '#d4a84f') + '!important}' +
+        '.nvx-bar-on .nvx-toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}');
       document.body.insertAdjacentHTML('beforeend', '<a class="nvx-toast" id="nvxToast" href="#"><img alt=""><div class="t"><small></small><b></b><em></em></div><strong></strong></a>');
       var t = document.getElementById('nvxToast');
       var azar = function (a) { return a[Math.floor(Math.random() * a.length)]; };
