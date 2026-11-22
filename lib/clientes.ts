@@ -429,7 +429,7 @@ export const CLIENTES: Record<string, Cliente> = {
   },
   "perfumez": {
     nombre: "Perfumez (Lorenzo)",
-    activo: true,
+    activo: false, // apagada hasta que pague el Premium (principios de diciembre)
     cobro: { tipo: "manual" },
     dominios: ["perfumes405.mitiendanube.com"],
     plan: "premium",
