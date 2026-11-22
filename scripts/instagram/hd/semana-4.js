@@ -99,6 +99,12 @@ const historias = [
   { archivo: "1125-1", tipo: "portada", eb: "Pregunta rápida", titulo: '¿Cuándo <span class="az">armás el árbol</span>?', sub: "Contestame con la encuesta 👇", resp: "Ya está armado · El 8 de diciembre 🎄" },
   { archivo: "1125-2", tipo: "dato", eb: "Combo Navideño · nuevo precio", grande: plata(P.combo.precio), az: true, titulo: "todo el combo", sub: `Árbol, estrella, luces y arbolito de mesa. Con transferencia, <b>${plata(P.combo.precio * 0.9)}</b>.` },
   nuevo("1125-3", "Nuevo post", 'Combo Navideño, <span class="az">nuevo precio</span>', "Miralo en el perfil 🎄"),
+
+  // Jue 26/11 · Reel: antifaz Bluetooth para dormir
+  { archivo: "1126-1", tipo: "opciones", eb: "Elegí uno", titulo: '¿Para dormir: <span class="az">música o silencio</span>?', opciones: [
+    { letra: "A", nombre: "Música", img: "p/antifaz-2.jpg" }, { letra: "B", nombre: "Silencio", img: "p/antifaz-3.jpg" }], resp: "Respondé A o B en la encuesta 👇" },
+  { archivo: "1126-2", tipo: "dato", eb: "Antifaz Bluetooth", grande: "8 h", az: true, titulo: "de música", sub: `Auriculares integrados y micrófono para llamadas. En negro o gris. <b>${plata(P.antifaz.precio)}</b>.` },
+  nuevo("1126-3", "Nuevo reel", 'Dormí con <span class="az">tu música</span>', "Antifaz Bluetooth. Miralo en el perfil 😴"),
 ];
 
 module.exports = { carruseles, historias };

@@ -101,6 +101,14 @@ REELS = {
         dict(tipo="precio", p="anteojos", img="p/anteojos-2.jpg", nombre="Anteojos inteligentes Hyundai", tag="10% OFF CON TRANSFERENCIA", voz="Salen diecinueve mil cien, y pagando con transferencia tenés diez por ciento off."),
         dict(tipo="cierre", voz="Pedilos en hogar digital punto com punto ar. Enviamos a todo el país."),
     ],
+    "antifaz": [
+        dict(tipo="logo", voz="¿Te gusta dormirte con música?"),
+        dict(tipo="foto", p="antifaz", img="p/antifaz-2.jpg", et="ANTIFAZ BLUETOOTH", tit="AURICULARES ADENTRO", voz="Es un antifaz acolchado, con auriculares Bluetooth integrados."),
+        dict(tipo="foto", p="antifaz", img="p/antifaz-3.jpg", et="PARA DESCANSAR", tit="OJOS CUBIERTOS", voz="Te cubre los ojos mientras escuchás tu música, un podcast o tu lista para dormir."),
+        dict(tipo="foto", p="antifaz", et="PARA VIAJAR", tit="UNAS 8 HORAS", voz="Tiene unas ocho horas de reproducción, y también sirve para viajar."),
+        dict(tipo="precio", p="antifaz", img="p/antifaz-2.jpg", nombre="Antifaz Bluetooth para dormir", tag="10% OFF CON TRANSFERENCIA", voz="Sale diecinueve mil cien, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Pedilo en hogar digital punto com punto ar. Viene en negro o en gris."),
+    ],
     "parlantes": [
         dict(tipo="logo", voz="Llega el finde y falta la música."),
         dict(tipo="foto", p="parlante-rgb", et="PARA EL LIVING", tit="PARLANTE RGB", precio=True, voz="El parlante RGB, con luces de colores, a sesenta mil pesos."),
