@@ -960,9 +960,9 @@ export const CLIENTES: Record<string, Cliente> = {
           ],
           "portada": {
             "fotos": [
-              "https://nevux.ar/clientes/valmont/portada-1.jpg",
-              "https://nevux.ar/clientes/valmont/portada-2.jpg",
-              "https://nevux.ar/clientes/valmont/portada-3.jpg"
+              "https://nevux.ar/clientes/valmont/video-gshock-gst-b400.jpg",
+              "https://nevux.ar/clientes/valmont/video-complications-gold.jpg",
+              "https://nevux.ar/clientes/valmont/detalle-reloj.webp"
             ],
             "etiqueta": "Valmont · Relojes desde 1985",
             "titulo": "Elegancia atemporal.",
@@ -1112,22 +1112,22 @@ export const CLIENTES: Record<string, Cliente> = {
             {
               "nombre": "Casio",
               "url": "/search/?q=casio",
-              "foto": "https://nevux.ar/clientes/valmont/marca-casio.jpg"
+              "foto": "https://nevux.ar/clientes/valmont/cat-digitales.svg"
             },
             {
               "nombre": "G-Shock",
               "url": "/search/?q=g-shock",
-              "foto": "https://nevux.ar/clientes/valmont/marca-gshock.jpg"
+              "foto": "https://nevux.ar/clientes/valmont/cat-deportivos.svg"
             },
             {
               "nombre": "Mistral",
               "url": "/search/?q=mistral",
-              "foto": "https://nevux.ar/clientes/valmont/marca-mistral.jpg"
+              "foto": "https://nevux.ar/clientes/valmont/cat-analogicos.svg"
             },
             {
               "nombre": "Tressa",
               "url": "/search/?q=tressa",
-              "foto": "https://nevux.ar/clientes/valmont/marca-tressa.jpg"
+              "foto": "https://nevux.ar/clientes/valmont/cat-smartwatches.svg"
             }
           ]
         }
