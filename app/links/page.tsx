@@ -44,11 +44,11 @@ export default function LinksPage() {
             texto="Por WhatsApp · Sin compromiso"
           />
           <LinkCard
-            href="/#solucion"
-            origen="antes-despues"
-            imagen="/links/caso-hd.jpg"
-            titulo="Caso real: Hogar Digital"
-            texto="Así queda su tienda con el Premium"
+            href="/sitios-web"
+            origen="sitios-web"
+            imagen="/casos/power-gym/landing.jpg"
+            titulo="Sitios web a medida"
+            texto="Tu página para la bio · desde $38.900/mes"
           />
           <LinkCard
             href="/disenos"
@@ -56,27 +56,6 @@ export default function LinksPage() {
             imagen="/links/disenos.jpg"
             titulo="Así puede quedar tu tienda"
             texto="Diseños con efectos para Tiendanube"
-          />
-          <LinkCard
-            href="/#premium"
-            origen="premium"
-            imagen="/links/premium.jpg"
-            titulo="Plan Premium"
-            texto="Tu tienda como las marcas grandes"
-          />
-          <LinkCard
-            href="/#cuenta"
-            origen="calculadora"
-            imagen="/links/calculadora.jpg"
-            titulo="Hacé la cuenta"
-            texto="Calculadora con tus números"
-          />
-          <LinkCard
-            href="/#precio"
-            origen="precio"
-            imagen="/links/precio.jpg"
-            titulo="Precio y garantía"
-            texto="Básico $39.900 · Premium $69.900"
           />
           <LinkCard
             href="/"

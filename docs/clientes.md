@@ -94,8 +94,8 @@ En `config.evento` de cada cliente: `nombre`, `desde`, `hasta`, `anticipo` (día
 
 | Plan | Precio | Link de Mercado Pago | Clientes |
 |---|---|---|---|
-| Básico · Pack Landing Page Pro | $39.900/mes | `mpago.la/2u5gT97` (plan "Nevux Básico", creado el 31/10) | — |
-| Premium · Nevux Premium | $69.900/mes | `mpago.la/2mkcebx` | Valmont, Hogar Digital (desde el 01/11) |
+| Básico · Pack Landing Page Pro | $47.900/mes | `mpago.la/2u5gT97` (plan "Nevux Básico", creado el 31/10) | — |
+| Premium · Nevux Premium | $59.900/mes | `mpago.la/2mkcebx` | Valmont, Hogar Digital (desde el 01/11) |
 
 Cada cliente lleva `plan: 'premium'` en `lib/clientes.ts` (sin `plan` = básico). La página `nevux.ar/suscribirme?c=<id>` muestra solo el precio, lo que incluye y el link del plan de ese cliente. Sin cliente: `?plan=premium`.
 El link viejo del básico (`mpago.la/1LqFYin`) era un pago único, no una suscripción: el 31/10 se reemplazó por el plan mensual "Nevux Básico". Rodrigo lo borró el 01/11.
@@ -104,6 +104,13 @@ El link viejo del básico (`mpago.la/1LqFYin`) era un pago único, no una suscri
 
 **Link para mandarle al cliente:** `https://nevux.ar/suscribirme?c=<id>` (página con el plan, qué incluye, garantía y botón a Mercado Pago, personalizada con el nombre de su tienda). Sin `?c=` sirve para cualquiera. Después de pagar, Mercado Pago lo puede devolver a `https://nevux.ar/gracias` si se configura como URL de retorno del plan.
 
-- **Tarjeta:** suscripción de Mercado Pago a $39.900/mes. Se cobra sola cada mes.
+- **Tarjeta:** suscripción de Mercado Pago a $47.900/mes. Se cobra sola cada mes.
 - **Efectivo y transferencia:** no se pueden debitar solos, porque el cliente tiene que pagar cada mes. Se le manda un link de pago antes del vencimiento.
 - **Si un pago no entra:** con cobro automático la tienda se apaga sola después de los días de gracia (3 por defecto) y se prende sola cuando paga. Con cobro manual, apagala con el interruptor.
+- **17/11:** Rodrigo bajó el Premium a **$59.900/mes** en la web. Falta: actualizar el monto del plan en Mercado Pago (`mpago.la/2mkcebx` sigue cobrando $69.900) o crear uno nuevo y cambiar el link en `lib/planes.ts`.
+- **18/11:** Básico a **$47.900/mes** (pedido de Rodrigo). Colores del inicio y de /sitios-web en el verde de Nevux (sin violeta). Botón de la portada: "Analizá mi tienda" (abre WhatsApp con el pedido de análisis gratis). Falta: actualizar el plan Básico en Mercado Pago (`mpago.la/2u5gT97` cobra $39.900).
+- **18/11:** Sitios web en dos planes (`PLANES_WEB` en `app/components/inicio/comun.tsx`): **Básico $47.900** (una página con servicios, galería, opiniones, ubicación, botón a WhatsApp; hasta 2 cambios por mes) y **Premium $55.000** (todo lo del Básico + video, ficha por persona, pedidos o turnos armados por WhatsApp, promos, efectos, Google y Maps, cambios sin límite). En /sitios-web van en una tarjeta que se da vuelta. Se cobran por WhatsApp (sin link de Mercado Pago).
+- **18/11 (noche):** precios nuevos. Tiendanube: Básico **$37.500**, Premium **$48.900** (`lib/planes.ts`). Sitios web: Básico **$38.900**, Premium **$47.900** (`PLANES_WEB`). Las dos tarjetas del inicio y la de /sitios-web se dan vuelta (componente `app/components/inicio/PlanesFlip.tsx`, el alto se ajusta al lado visible). Falta: actualizar los montos en Mercado Pago (Básico `mpago.la/2u5gT97`, Premium `mpago.la/2mkcebx`).
+- **19/11:** Tiendanube: Básico **$39.900** y Premium **$50.990** (`lib/planes.ts`). El Básico vuelve a coincidir con Mercado Pago (`mpago.la/2u5gT97`, $39.900); el Premium de Mercado Pago (`mpago.la/2mkcebx`) sigue en $69.900.
+- **20/11:** Tiendanube Premium vuelve a **$69.900** (`lib/planes.ts`): ahora coincide con su link de Mercado Pago (`mpago.la/2mkcebx`).
+- **20/11:** Tiendanube Básico sube a **$49.900** (`lib/planes.ts`). Ojo: su link de Mercado Pago (`mpago.la/2u5gT97`) sigue en $39.900 hasta que Rodrigo lo cambie.

@@ -1,0 +1,413 @@
+{
+ "color": "#f57c00",
+ "marca": {
+  "oscuro": "#0b0b0b",
+  "noche": "#141414"
+ },
+ "anuncios": [
+  "💵 18% OFF abonando con transferencia",
+  "💳 3 cuotas sin interés",
+  "✈️ Despachamos en 24 hs · Envío gratis desde $140.000"
+ ],
+ "mediosDePago": [
+  "Tarjetas de crédito",
+  "Débito",
+  "Transferencia",
+  "Mercado Pago"
+ ],
+ "estiloFicha": "destino",
+ "envioGratisDesde": 140000,
+ "whatsapp": "5493472525274",
+ "premium": {
+  "tema": "destino"
+ },
+ "fichaDestino": {
+  "sello": "Voltrox Suplementos · *primeras marcas*",
+  "confianza": [
+   {
+    "icono": "envio",
+    "titulo": "Despacho en 24 hs",
+    "texto": "Correo Argentino o Andreani"
+   },
+   {
+    "icono": "chat",
+    "titulo": "Te asesoramos",
+    "texto": "Por WhatsApp, de 8 a 20 hs"
+   },
+   {
+    "icono": "cuotas",
+    "titulo": "3 cuotas sin interés",
+    "texto": "Con todas las tarjetas"
+   }
+  ],
+  "faq": [
+   {
+    "p": "¿Cuánto tarda en llegar mi pedido?",
+    "r": "Despachamos dentro de las 24 hs hábiles de acreditado el pago. El tiempo estimado de entrega es de 3 a 7 días hábiles según tu ubicación."
+   },
+   {
+    "p": "¿Cuánto cuesta el envío?",
+    "r": "Se calcula al momento de la compra según tu zona y los productos. Es gratis en compras que superen los $140.000. Trabajamos con Correo Argentino y Andreani."
+   },
+   {
+    "p": "¿Cuáles son los medios de pago?",
+    "r": "Todas las tarjetas en 3 cuotas sin interés, o transferencia bancaria con 18% de descuento directo."
+   },
+   {
+    "p": "¿Aceptan cambios?",
+    "r": "Dentro de los 2 días de recibido, solo si hubo un error en el envío. El producto tiene que estar sellado y sin abrir."
+   }
+  ],
+  "estilo": "hogar",
+  "chip": "Primeras marcas · 100% originales y sellados",
+  "envioTexto": "A todo el país · despacho en 24 hs",
+  "extras": true
+ },
+ "packs": [],
+ "tarjetas": {
+  "estilo": "destacado"
+ },
+ "carrito": {
+  "estilo": "hogar",
+  "acento": "#f57c00",
+  "marcador": "VX"
+ },
+ "ventas": {
+  "estilo": "destino",
+  "marca": "Voltrox"
+ },
+ "home": {
+  "destino": {
+   "acento": "#f57c00",
+   "modo": "editorial",
+   "cinta": [
+    "*Somos el plus* que necesitás",
+    "*18% OFF* con transferencia",
+    "*3 cuotas* sin interés",
+    "Despacho en *24 hs*",
+    "Envío *gratis* desde $140.000",
+    "*100% originales* y sellados"
+   ],
+   "portada": {
+    "videos": [
+     "https://nevux.ar/clientes/voltrox/videos/portada.mp4"
+    ],
+    "etiqueta": "Voltrox · Noetinger, Córdoba",
+    "titulo": "Somos el *plus* que necesitás.",
+    "texto": "Suplementos 100% originales, asesoramiento real y envíos a toda la Argentina.",
+    "boton": "Ver productos",
+    "url": "/productos/",
+    "lleno": true,
+    "boton2": "Combos",
+    "url2": "/combos/",
+    "productosUrl": "/productos/"
+   },
+   "beneficios": [
+    {
+     "icono": "envio",
+     "titulo": "Despacho en 24 hs",
+     "texto": "Gratis desde $140.000"
+    },
+    {
+     "icono": "cuotas",
+     "titulo": "3 cuotas sin interés",
+     "texto": "Con todas las tarjetas"
+    },
+    {
+     "icono": "transferencia",
+     "titulo": "18% OFF",
+     "texto": "Abonando con transferencia"
+    },
+    {
+     "icono": "chat",
+     "titulo": "Te asesoramos",
+     "texto": "Por WhatsApp, sin costo"
+    }
+   ],
+   "destacados": [
+    {
+     "etiqueta": "Lo más pedido",
+     "titulo": "Lo que más eligen *los que entrenan*",
+     "url": "/productos/",
+     "cantidad": 4,
+     "oscuro": true
+    },
+    {
+     "etiqueta": "Ahorrá más",
+     "titulo": "Combos para tu *objetivo*",
+     "url": "/combos/",
+     "carrusel": true,
+     "cantidad": 8
+    },
+    {
+     "etiqueta": "Esenciales",
+     "titulo": "No pueden faltar en tu *rutina*",
+     "url": "/creatinas/",
+     "carrusel": true,
+     "cantidad": 8
+    }
+   ],
+   "faqTitulo": "Antes de comprar",
+   "faq": [
+    {
+     "p": "¿Cuánto tarda en llegar mi pedido?",
+     "r": "Despachamos dentro de las 24 hs hábiles de acreditado el pago. El tiempo estimado de entrega es de 3 a 7 días hábiles según tu ubicación."
+    },
+    {
+     "p": "¿Cuánto cuesta el envío?",
+     "r": "Se calcula al momento de la compra según tu zona y los productos. Es gratis en compras que superen los $140.000. Trabajamos con Correo Argentino y Andreani."
+    },
+    {
+     "p": "¿Cuáles son los medios de pago?",
+     "r": "Todas las tarjetas en 3 cuotas sin interés, o transferencia bancaria con 18% de descuento directo."
+    },
+    {
+     "p": "¿Los suplementos son originales?",
+     "r": "Sí, trabajamos exclusivamente con primeras marcas, 100% originales y sellados."
+    },
+    {
+     "p": "¿Me pueden asesorar?",
+     "r": "Sí, es parte de lo que nos diferencia. Escribinos por WhatsApp o Instagram y te orientamos sin costo."
+    },
+    {
+     "p": "¿Aceptan cambios?",
+     "r": "Dentro de los 2 días de recibido, solo si hubo un error en el envío. El producto tiene que estar sellado y sin abrir."
+    }
+   ],
+   "banner": {
+    "etiqueta": "[ Te asesoramos ]",
+    "titulo": "¿No sabés qué elegir? Escribinos.",
+    "foto": "https://nevux.ar/clientes/voltrox/videos/elegir-proteina.jpg",
+    "boton": "WhatsApp",
+    "url": "https://wa.me/5493472525274"
+   },
+   "tira": {
+    "items": [
+     {
+      "nombre": "Proteínas",
+      "url": "/proteinas/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/004/596/618/products/whey-protein-star-nutrition-2lbs-ac29ef1099b056b64117674579658226-1024-1024.webp"
+     },
+     {
+      "nombre": "Creatinas",
+      "url": "/creatinas/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/004/596/618/products/creatina-gold-nutrition-300-grs-804be907abb420e6f717584758297261-1024-1024.webp"
+     },
+     {
+      "nombre": "Magnesio",
+      "url": "/magnesio-y-omega-3/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/004/596/618/products/citrato-de-magnesio-star-nutrition-frutos-rojos-1-7b2253d80d8a69f08317647196566242-1024-1024.webp"
+     },
+     {
+      "nombre": "Combos",
+      "url": "/combos/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/004/596/618/products/combo-star-nutrition-829c2e77bace9fed6c17789711502809-1024-1024.webp"
+     },
+     {
+      "nombre": "Combo ENA",
+      "url": "/combos/",
+      "foto": "https://acdn-us.mitiendanube.com/stores/004/596/618/products/combo-ena-sports-20b189d5dd85a7b17717584753008299-1024-1024.webp"
+     }
+    ]
+   },
+   "alternar": false,
+   "sello": {
+    "puntaje": "5,0",
+    "texto": "15 opiniones verificadas",
+    "dato": "+4.900",
+    "datoTexto": "Nos siguen"
+   },
+   "historia": {
+    "etiqueta": "Desde Noetinger, Córdoba",
+    "titulo": "Cada pedido lo *preparamos nosotros*.",
+    "texto": "Elegimos cada producto, lo armamos a mano y lo despachamos en 24 hs a toda la Argentina, por Correo Argentino o Andreani.",
+    "puntos": [
+     "Primeras marcas, 100% originales y sellados",
+     "Cada pedido sale con su scoop y stickers Voltrox",
+     "Te asesoramos por WhatsApp de 8 a 20 hs, sin costo"
+    ],
+    "video": "https://nevux.ar/clientes/voltrox/videos/pedidos.mp4",
+    "poster": "https://nevux.ar/clientes/voltrox/videos/pedidos.jpg"
+   },
+   "comunidad": {
+    "estilo": "movimiento",
+    "titulo": "en movimiento",
+    "boton": "Ver en Instagram",
+    "url": "https://www.instagram.com/voltroxsuplementos/",
+    "fotos": [
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/estancado.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/estancado.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     },
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/isolada.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/isolada.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     },
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/magnesio.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/magnesio.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     },
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/destruido.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/destruido.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     },
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/elegir-proteina.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/elegir-proteina.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     },
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/precio-proteina.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/precio-proteina.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     },
+     {
+      "foto": "https://nevux.ar/clientes/voltrox/videos/creatina.jpg",
+      "video": "https://nevux.ar/clientes/voltrox/videos/creatina.mp4",
+      "url": "https://www.instagram.com/voltroxsuplementos/"
+     }
+    ]
+   },
+   "testimonios": {
+    "etiqueta": "Clientes reales",
+    "titulo": "Pedidos que llegan a *todo el país*",
+    "texto": "Los mensajes que nos mandan cuando les llega su pedido.",
+    "fotos": [
+     "https://nevux.ar/clientes/voltrox/testimonios/t01.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t02.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t03.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t04.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t05.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t06.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t07.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t08.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t09.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t10.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t11.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t12.jpg",
+     "https://nevux.ar/clientes/voltrox/testimonios/t13.jpg"
+    ],
+    "url": "https://www.instagram.com/voltroxsuplementos/",
+    "boton": "Ver más en Instagram"
+   },
+   "numeros": {
+    "titulo": "Voltrox *en números*",
+    "items": [
+     {
+      "valor": 4900,
+      "prefijo": "+",
+      "texto": "Seguidores en Instagram"
+     },
+     {
+      "valor": 24,
+      "texto": "Horas para despachar"
+     },
+     {
+      "valor": 72,
+      "texto": "Productos en la tienda"
+     },
+     {
+      "valor": 15,
+      "texto": "Reseñas de 5 estrellas"
+     }
+    ]
+   },
+   "pilares": {
+    "etiqueta": "Por qué Voltrox",
+    "titulo": "Somos el *plus* que necesitás.",
+    "marca": "VOLTROX",
+    "items": [
+     {
+      "titulo": "100% originales",
+      "texto": "Primeras marcas, sellados y respaldados."
+     },
+     {
+      "titulo": "Asesoramiento real",
+      "texto": "Te orientamos sin costo para que compres lo que necesitás."
+     },
+     {
+      "titulo": "Despacho en 24 hs",
+      "texto": "A toda la Argentina, con seguimiento."
+     },
+     {
+      "titulo": "Detalles Voltrox",
+      "texto": "Tu pedido llega con su scoop y stickers."
+     }
+    ]
+   },
+   "resenas": {
+    "etiqueta": "Reseñas de la tienda",
+    "titulo": "Lo que dicen *nuestros clientes*",
+    "puntaje": 5.0,
+    "cantidad": "15",
+    "items": [
+     {
+      "nombre": "Karina C.",
+      "producto": "Combo One Fit",
+      "estrellas": 5,
+      "texto": "Excelente producto. Muy buena coordinación de envío. Y lo más lindo, los stickers."
+     },
+     {
+      "nombre": "Nicolás",
+      "producto": "Creatina Star Nutrition",
+      "estrellas": 5,
+      "texto": "Muy bueno, excelente amigo y muy conforme con la atención. Pronto estaré pidiendo nuevamente."
+     },
+     {
+      "nombre": "Alejandro P.",
+      "producto": "Creatina Star Nutrition 1 kg",
+      "estrellas": 5,
+      "texto": "Recomendable y excelente precio. Cuando se acabe pediré de nuevo."
+     },
+     {
+      "nombre": "Johana D.",
+      "producto": "Citrato de magnesio",
+      "estrellas": 5,
+      "texto": "La compra fue muy sencilla y práctica, y el producto es muy bueno."
+     },
+     {
+      "nombre": "Raquel",
+      "producto": "Combo Gold",
+      "estrellas": 5,
+      "texto": "Me llegó en perfecto estado. Los recomendaré."
+     },
+     {
+      "nombre": "Rocío A.",
+      "producto": "Whey Star Nutrition",
+      "estrellas": 5,
+      "texto": "Muy recomendable, excelentes precios."
+     }
+    ]
+   }
+  }
+ },
+ "ocultar": [
+  "[data-store=\"home-slider\"]",
+  "[data-store=\"home-banner-categories\"]",
+  "[data-store=\"home-products-featured\"]",
+  "[data-store=\"home-products-sale\"]",
+  "[data-store=\"home-brands\"]",
+  "[data-store=\"home-products-new\"]",
+  "[data-store=\"home-banner-services\"]",
+  "[data-store=\"home-instagram-feed\"]",
+  "[data-store=\"home-welcome-message\"]",
+  "[data-store=\"home-newsletter\"]",
+  "[data-store=\"banner-services\"]",
+  "[data-store=\"home-banner-promotional\"]"
+ ],
+ "transferencia": 18,
+ "efecto3d": true,
+ "cabecera": {
+  "nombre": "Voltrox Suplementos",
+  "logo3d": true
+ },
+ "credito": {
+  "texto": "Tienda diseñada por",
+  "marca": "@nevux.app",
+  "url": "https://www.instagram.com/nevux.app/"
+ }
+}

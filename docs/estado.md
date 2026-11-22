@@ -10,6 +10,7 @@
 - **Panel de Tiendanube:** no puedo entrar. Rodrigo hace los clics (pegar la línea, subir banners, colores, importar productos) con mi guía paso a paso y, si hace falta, me manda capturas.
 - **Reels con narración (pedido de Rodrigo, vale para todas las sesiones):** todos los Reels llevan la voz de **Tomás** (`es-AR-TomasNeural`, elegida el 01/11; Rodrigo no quiere pagar por clonar su voz) y **música de fondo suave** que baja sola cuando habla. Todo está en `scripts/instagram/audio.py`: voz con `edge-tts` (`pip install edge-tts numpy`; en el contenedor se parchea `ssl.create_default_context` para cargar `/root/.ccr/ca-bundle.crt`) y música generada por el propio script (acordes propios, sin derechos de autor). Reels de @nevux.app: `python3 scripts/instagram/narrar.py <nombre>` (si la voz necesita más tiempo, arma la animación más lenta en la medida justa). Reels de Hogar Digital: `python3 scripts/instagram/hd/reels.py`.
 - **Diseños para clientes (pedido de Rodrigo, 01/11):** Rodrigo manda videos de tiendas de a uno. Cada uno se estudia cuadro por cuadro, se le pasa el desglose y, con su ok, se replica igual con código propio en el motor. Se guardan **también los efectos** (`docs/efectos.md`, medidos con exactitud), porque son los que generan el "wow". Cada diseño queda guardado en `docs/disenos.md`: **cuando se edite una tienda, preguntarle al cliente qué diseño quiere** mostrándole ese catálogo.
+- **Mensajes a clientes (pedido de Rodrigo, 20/11):** cada vez que se nombre Nevux, aclarar que es su marca (por ejemplo: "Soy Rodrigo y Nevux es mi marca").
 - **Cliente nuevo:** mostrarle **https://nevux.ar/disenos** (diseños en celulares 3D + planes Básico y Premium) y que elija. Ver `docs/disenos.md`.
 - **Límites que ya se hablaron:**
   - Nada de datos inventados: ni reseñas, ni números de ventas, ni descuentos que no existan.
@@ -83,7 +84,7 @@
 - **Catálogo para clientes:** `nevux.ar/disenos` (celulares 3D + notebook + planes). Demos en `public/demo/disenos/` (`python3 scripts/demo/disenos.py`).
 - **Landing**, en este orden: portada → "Así puede quedar tu tienda" (celulares 3D) → Plan Premium (notebook con la home Destino) → el problema → la cuenta → caso real de Hogar Digital con la home Destino en 6 partes (`public/casos/hogar-digital/`, "vista previa sobre su tienda real") → cómo lo hace → precio con los 2 planes (compactos y centrados) → preguntas. Se sacaron el celular de la portada, el antes y después deslizable y la demo "Urbana".
 - **nevux.ar/links:** tarjetas "Caso real: Hogar Digital", "Así puede quedar tu tienda", "Plan Premium" y precio de los dos planes.
-- **Planes** (`lib/planes.ts`): el Premium describe la home Destino. Básico $39.900, Premium $69.900.
+- **Planes** (`lib/planes.ts`): el Premium describe la home Destino. Básico $47.900, Premium $59.900.
 - **Para Marcelo:** 3 imágenes de su tienda con el Premium (`.capturas/marcelo/`, no están en el repo) y mensaje con Básico vs. Premium.
 - **Decisiones de Rodrigo:** la home va incluida en el Básico; **Valmont se queda con el estilo Wess**; a los clientes Premium nuevos se les deja la home **tal cual Destino**; los **avisos de compra** (`ventas`, nombres de ejemplo) **se quedan prendidos** (ya se le avisó del riesgo; no volver a planteárselo).
 
@@ -98,7 +99,7 @@
 >
 > **01/11 (noche) · INSTAGRAM DE HOGAR DIGITAL A MANO:** Rodrigo programa los posts en Business Suite. Las tareas automáticas de Hogar Digital están apagadas; ver `docs/instagram-hogar-digital.md`. La sesión `session_01PDD9EtCY9JFJzsoyimb9Yn`, donde corren las tareas de @nevux.app, **se traba esperando permiso para Windsor** y tiene el contexto casi lleno: el 01/11 se publicaron desde otra sesión el carrusel "La cuenta que nadie hace" y la historia de las 20:17, y sus pedidos pendientes **no hay que aprobarlos** porque duplicarían. Conviene mover esas tareas a una sesión nueva.
 >
-> **01/11 (noche) · TIENDA DE MARCELO APAGADA (`activo: false`)** a pedido de Rodrigo, hasta que pague el Premium el **10/11**. Link de pago: `nevux.ar/suscribirme?c=hogar-digital` ($69.900/mes, `mpago.la/2mkcebx`). Cuando pague: `activo: true` y `cobro: { tipo: 'mercadopago', email: '<su email>', gracia: 3 }`. La configuración Premium queda guardada tal cual.
+> **01/11 (noche) · TIENDA DE MARCELO APAGADA (`activo: false`)** a pedido de Rodrigo, hasta que pague el Premium el **10/11**. Link de pago: `nevux.ar/suscribirme?c=hogar-digital` ($59.900/mes, `mpago.la/2mkcebx`). Cuando pague: `activo: true` y `cobro: { tipo: 'mercadopago', email: '<su email>', gracia: 3 }`. La configuración Premium queda guardada tal cual.
 >
 > **01/11 (noche) · PUBLICADO: Hogar Digital con el Premium tal cual Destino, en azul** (pedido de Rodrigo: "mandale hasta que quede completo al 100% como Destino"). Home y ficha de producto con las medidas reales de Destino (`docs/referencias/destino.md`). Detalle y lo que falta en `docs/hogar-digital-premium.md`.
 > **Lo que sigue:** Rodrigo lo revisa y le avisa a Marcelo. **Si Marcelo da el ok → apagarla (`activo: false` en `lib/clientes.ts`, hogar-digital) hasta el 10/11, que cobra y paga.** Cuando pague el Premium (`nevux.ar/suscribirme?c=hogar-digital`) → `activo: true` y `cobro: { tipo: 'mercadopago', email: '<su email>', gracia: 3 }` (no `planMp`: lo usa Valmont). Local de Campana publicado (falta el horario). Reseñas en espera de verificación (ver `docs/hogar-digital-premium.md`). Faltan de Marcelo: reseñas verificables con producto y foto, si tiene local con atención al público, envío gratis desde algún monto y videos verticales limpios para la portada.
@@ -139,7 +140,7 @@
 
 **Hecho en la sesión del 30/10 al 01/11:**
 - Valmont & Co.: tienda terminada (home y ficha estilo Wess, plantilla Recife, videos de los 5 relojes). Miguel dio el ok; está apagada hasta que se suscriba al Premium y se prende sola al cobrar (`cobro.planMp`). Ver `docs/valmont.md`.
-- Planes de Mercado Pago: Básico $39.900/mes `mpago.la/2u5gT97` y Premium $69.900/mes `mpago.la/2mkcebx` (`lib/planes.ts`). Links para clientes: `nevux.ar/suscribirme?c=<id>`.
+- Planes de Mercado Pago: Básico $47.900/mes `mpago.la/2u5gT97` y Premium $59.900/mes `mpago.la/2mkcebx` (`lib/planes.ts`). Links para clientes: `nevux.ar/suscribirme?c=<id>`.
 - Instagram de Hogar Digital: conectado a Windsor, diagnóstico y semana 1 programada. Servicio de contenido: $85.000/mes. Ver `docs/instagram-hogar-digital.md`.
 - Regla: todos los Reels con narración en voz argentina (ver "Cómo trabajamos").
 
@@ -163,10 +164,10 @@
   - Vista previa de marca al compartir: `public/compartir.jpg`.
 - **Página de links:** `nevux.ar/links`, para la bio de Instagram. Miniaturas en `public/links/`. Tiene las tarjetas "Así puede quedar tu tienda" → `nevux.ar/disenos` y "Plan Premium" → `nevux.ar/#premium`.
 - **Suscripción:**
-  - Planes: Básico $39.900/mes (`mpago.la/2u5gT97`; el viejo `1LqFYin` era pago único y ya está borrado) y **Premium $69.900/mes** (`mpago.la/2mkcebx`, creado el 31/10). Ver `lib/planes.ts` y `docs/clientes.md`.
+  - Planes: Básico $47.900/mes (`mpago.la/2u5gT97`; el viejo `1LqFYin` era pago único y ya está borrado) y **Premium $59.900/mes** (`mpago.la/2mkcebx`, creado el 31/10). Ver `lib/planes.ts` y `docs/clientes.md`.
   - Página de pago: `nevux.ar/suscribirme?c=<cliente>`.
   - Página de gracias: `nevux.ar/gracias`.
-  - Mercado Pago: plan Básico `mpago.la/2u5gT97` ($39.900/mes) y plan Premium `mpago.la/2mkcebx` ($69.900/mes).
+  - Mercado Pago: plan Básico `mpago.la/2u5gT97` ($47.900/mes) y plan Premium `mpago.la/2mkcebx` ($59.900/mes).
 - **Home Premium · Destino (01/11):** referencia oficial del Premium (`home.destino`). Pedido de Rodrigo: a los clientes Premium nuevos se les deja la home tal cual Destino, con sus productos. **Valmont se queda con el estilo Wess** (decisión de Rodrigo). Ver `docs/disenos.md`.
 - **Diseños nuevos (01/11):** Ficha Pro clara y oscura (`estiloFicha: 'pro'`), Home Premium (`home.portadaVideo`, `home.rotador`, `tarjetas.alternar`) y la página `nevux.ar/disenos`. Ver `docs/disenos.md` y `docs/efectos.md`.
 - **Motor (`public/nevux.js`)**, con todas las piezas que se configuran por cliente en `lib/clientes.ts`:
@@ -174,6 +175,13 @@
   - **Home:** portada estilo Wess (`home.portada`), portada de lujo (`home.hero`), beneficios (con íconos de línea si `icono` es `cuotas`, `descuento`, `envio`, `garantia`, `original`, `regalo` o `factura`), categorías, foto con puntos (`home.puntos`), vitrinas (`home.vitrinas`; con `estilo: 'wess'` cuelgan de una barra y avanzan solas), grilla estilo Wess con categorías que giran (`home.grilla`, una o varias), foto con puntos y líneas estilo Wess (`home.puntos` con `estilo: 'wess'`), medidor de reloj en pasos (`home.medidor`), "Colgado por poco tiempo" (`home.colgado`), por qué elegirnos, números, reseñas, preguntas frecuentes, locales y cierre.
   - **Toda la tienda:** pie estilo Wess (`pie`, con `premium.tema: 'wess'`), secciones de la plantilla ocultas (`ocultar`), barra de anuncios que rota (`anuncios`), modo evento con fechas (`evento`: Cyber, Hot Sale, etc.; se prende y se apaga solo), tarjetas de producto (`tarjetas.estilo`: `'destacado'` o `'wess'`) y plan Premium (`premium`: tipografías, entrada animada y `tema: 'wess'`).
 - **Cobro automático:** `lib/cobros.ts` (Mercado Pago) y el panel en `nevux.ar/panel?clave=<PANEL_CLAVE>`.
+
+## Estructura de nevux.ar (18/11/2026)
+
+- **`/` (inicio):** presenta los dos servicios con su precio y un botón a cada página, casos reales (Hogar Digital, Power Gym y el estilo de Valmont en la tienda demo), "No te cobro la creación", cómo trabajo, preguntas y cierre con WhatsApp. Código: `app/components/inicio/Inicio.tsx`.
+- **`/tiendanube`:** la landing de siempre (planes Básico $47.900 y Premium $59.900). Código: `app/components/landing/`.
+- **`/sitios-web`:** sitios web a medida a **$55.000/mes**, sin costo de creación y con mantenimiento: para quién es, qué incluye, pedido por WhatsApp, caso Power Gym, precio vs. "lo común" ($500.000 a $800.000 + mantenimiento), preguntas. Código: `app/components/inicio/SitiosWeb.tsx`. Video del caso: `public/casos/power-gym/landing.mp4`.
+- Piezas comunes (cabecera, pie, celular, links de WhatsApp por servicio): `app/components/inicio/comun.tsx`. Los links viejos a `/#premium`, `/#cuenta`, etc. ahora van a `/tiendanube#...`.
 
 ## Clientes
 
@@ -194,14 +202,6 @@
 
 **Terminada el 31/10: Rodrigo dijo que no se toca más.** Falta solo el ok del cliente (Miguel), apagarla hasta que pague y pasarla a cobro automático. Ver `docs/valmont.md`.
 
-### KING'SSON · kingssonleather.mitiendanube.com · plantilla Uyuni · plan Premium (estilo Destino, negro y dorado) · propuesta (14/11)
-
-- Config `kingsson` en `lib/clientes.ts`: cabecera con logo (redibujado de su foto de perfil, `public/clientes/kingsson/`), portada editorial, cinta, beneficios, colección, "en movimiento" con sus videos (servidos desde `kingsson-landing.vercel.app/videos/`), números reales del producto, preguntas, banner, ficha Destino-hogar, carrito hogar y avisos de compra. Oculta los bloques viejos de su home (ids `#ns-section-...` de Uyuni).
-- Probada inyectando el motor en su tienda real (home y ficha, celular y compu). Uyuni anda con la rama Ipanema de la cabecera (`header.js-header`).
-- Ojo: la cabecera usa `logoClaro` (no `logoBlanco`) para el logo sobre la portada.
-- **Efecto 3D (`efecto3d: true`, nuevo en el motor, 14/11):** las fotos de las tarjetas y la foto principal de la ficha se inclinan siguiendo el mouse o el dedo, con brillo; en celular las tarjetas flotan suave. Sirve para cualquier cliente.
-- **[FALTA]:** dirección o punto de retiro (sin eso no se muestra ubicación ni "local"), reseñas reales, que peguen la línea `nevux.ar/c/kingsson.js` y paguen en `nevux.ar/pagar/kingsson`. Descripciones de producto aparte: repo `kingsson-landing`, carpeta `tiendanube/`.
-
 ## Instagram
 
 - **@nevux.app:** Windsor conectado. La semana 1 está programada del 30/10 al 6/11:
@@ -215,7 +215,7 @@
 
 ## Decisiones de Rodrigo (01/11/2026)
 
-- La home **va incluida** en los $39.900 del plan Básico (ya figura en `lib/planes.ts`).
+- La home **va incluida** en los $47.900 del plan Básico (ya figura en `lib/planes.ts`).
 - **Avisos de compra en vivo** (`ventas`, nombres y ciudades de ejemplo sobre productos reales): Rodrigo decidió **dejarlos prendidos** (01/11) porque generan urgencia y confianza. Ya se le avisó del riesgo legal (publicidad engañosa); no volver a planteárselo. Alternativa con datos reales si cambia de idea: pedidos reales de Tiendanube o stock real.
 - **3 días de gracia** antes de apagar por falta de pago (`lib/cobros.ts`, valor por defecto, y `gracia: 3` en cada cliente).
 - Banner del Cyber de Hogar Digital: el jueves 5/11 Rodrigo vuelve al banner anterior (ya lo tiene anotado).
