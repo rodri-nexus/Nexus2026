@@ -54,7 +54,13 @@ export const CLIENTES: Record<string, Cliente> = {
       "estiloFicha": "destino",
       "envio": {
         "corte": 18,
-        "dias": [1, 2, 3, 4, 5],
+        "dias": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
         "min": 5,
         "max": 6,
         "zona": ""
@@ -180,8 +186,8 @@ export const CLIENTES: Record<string, Cliente> = {
           },
           "destacados": [
             {
-              "etiqueta": "Para tu casa",
-              "titulo": "Destacados",
+              "etiqueta": "Lo más elegido",
+              "titulo": "Los *más vendidos*",
               "url": "/humidificadores-19h94/",
               "cantidad": 4
             },
@@ -190,14 +196,46 @@ export const CLIENTES: Record<string, Cliente> = {
               "titulo": "Audio y *auriculares*",
               "url": "/audio-auriculares/",
               "carrusel": true,
-              "cantidad": 6
+              "cantidad": 8
             },
             {
-              "etiqueta": "Esto es para vos",
-              "titulo": "Más para *tu casa*",
+              "etiqueta": "Todo el catálogo",
+              "titulo": "Encontrá *lo que buscás*",
               "url": "/productos/",
-              "carrusel": true,
-              "cantidad": 8
+              "cantidad": 60,
+              "paso": 12,
+              "textoMas": "Ver más productos",
+              "filtroTodos": "Todos",
+              "filtros": [
+                {
+                  "nombre": "Humidificadores",
+                  "url": "/humidificadores-19h94/"
+                },
+                {
+                  "nombre": "Audio",
+                  "url": "/audio-auriculares/"
+                },
+                {
+                  "nombre": "Smartwatches",
+                  "url": "/smartwatches-1jb09/"
+                },
+                {
+                  "nombre": "Tecnología",
+                  "url": "/tecnologia-y-accesorios-k82dt/"
+                },
+                {
+                  "nombre": "Hogar",
+                  "url": "/hogar-17ycd/"
+                },
+                {
+                  "nombre": "Fitness",
+                  "url": "/fitness-y-bienestar-1v0hm/"
+                },
+                {
+                  "nombre": "Belleza",
+                  "url": "/belleza/"
+                }
+              ]
             }
           ],
           "faqTitulo": "Antes de comprar",
@@ -234,12 +272,34 @@ export const CLIENTES: Record<string, Cliente> = {
             "cuenta": "Así trabajamos día a día",
             "url": "https://instagram.com/hogardigitaltiendaonline",
             "fotos": [
-              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/aro-de-luz.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/aro-de-luz.mp4", "url": "https://www.instagram.com/reel/Dc5-mW-xr5o/" },
-              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-compatibilidad.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-compatibilidad.mp4", "url": "https://www.instagram.com/reel/Dc3gtpxxr5z/" },
-              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/parlante-rgb.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/parlante-rgb.mp4", "url": "https://www.instagram.com/reel/DcRbx7esRZI/" },
-              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-smartwatch.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-smartwatch.mp4", "url": "https://www.instagram.com/reel/Dcd-1K5xvjq/" },
-              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/empaquetando.jpg" },
-              { "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-consejos.jpg", "video": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-consejos.mp4", "url": "https://www.instagram.com/reel/DcbUqMARi4y/" }
+              {
+                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/aro-de-luz.jpg",
+                "video": "https://nevux.ar/clientes/hogar-digital/comunidad/aro-de-luz.mp4",
+                "url": "https://www.instagram.com/reel/Dc5-mW-xr5o/"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-compatibilidad.jpg",
+                "video": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-compatibilidad.mp4",
+                "url": "https://www.instagram.com/reel/Dc3gtpxxr5z/"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/parlante-rgb.jpg",
+                "video": "https://nevux.ar/clientes/hogar-digital/comunidad/parlante-rgb.mp4",
+                "url": "https://www.instagram.com/reel/DcRbx7esRZI/"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-smartwatch.jpg",
+                "video": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-smartwatch.mp4",
+                "url": "https://www.instagram.com/reel/Dcd-1K5xvjq/"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/empaquetando.jpg"
+              },
+              {
+                "foto": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-consejos.jpg",
+                "video": "https://nevux.ar/clientes/hogar-digital/comunidad/marcelo-consejos.mp4",
+                "url": "https://www.instagram.com/reel/DcbUqMARi4y/"
+              }
             ]
           },
           "locales": {
