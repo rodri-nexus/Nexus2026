@@ -53,6 +53,34 @@ Bluetooth, pantalla de 1,39" y resistente al agua.
 
 ${H}`,
   },
+  {
+    carpeta: "12-combo-nuevo-precio",
+    nombre: "Combo Navideño, nuevo precio",
+    placas: [
+      { ...prod("combo", "COMBO NAVIDEÑO · NUEVO PRECIO", "Todo para armar tu Navidad, en un solo pedido. Deslizá y mirá qué trae 👉") },
+      { tipo: "producto", n: "1 · EL ÁRBOL", nombre: "Árbol blanco de 90 cm", img: "p/combo-arbol.jpg", texto: "Para decorar cualquier espacio de tu casa." },
+      { tipo: "producto", n: "2 · LA PUNTA", nombre: "Estrella para el árbol", img: "p/combo-estrella-2.jpg", texto: "Para que tu árbol se destaque." },
+      { tipo: "producto", n: "3 · LAS LUCES", nombre: "Luces LED con control remoto", img: "p/combo-luces.jpg", texto: "Con distintos efectos para ambientar tus reuniones." },
+      { tipo: "producto", n: "4 · PARA LA MESA", nombre: "Arbolito de mesa", img: "p/combo-arbolito.jpg", texto: "El detalle especial para tu mesa navideña." },
+      { tipo: "portada", eb: "Combo Navideño", titulo: `Ahora <span class="az">${plata(P.combo.precio)}</span>`, sub: `Antes ${plata(P.combo.lista)}. Pagando con transferencia, <b>${plata(P.combo.precio * 0.9)}</b>. Envíos a todo el país.`, boton: "Link en el perfil" },
+    ],
+    caption: `🎄 Combo Navideño, nuevo precio: ${plata(P.combo.precio)}
+
+Todo para armar tu Navidad, en un solo pedido:
+🌲 Árbol de Navidad blanco de 90 cm
+⭐ Punta de árbol con estrella
+💡 Luces LED con control remoto, con distintos efectos
+🎁 Arbolito de mesa, para el detalle especial
+
+💲 ${plata(P.combo.precio)} (antes ${plata(P.combo.lista)})
+💸 Pagando con transferencia: ${plata(P.combo.precio * 0.9)}
+📦 Envíos a todo el país
+
+¿Lo armás antes del 8 de diciembre? Comentá 🎄 y te paso el link.
+🛒 hogardigital.com.ar (link en el perfil)
+
+#hogardigital #navidad #decoracionnavideña #arbolitodenavidad #hogar #deco #compraonline #envios #argentina`,
+  },
 ];
 
 const historias = [
@@ -66,6 +94,11 @@ const historias = [
     { letra: "A", nombre: "Auriculares", img: P.auriculares.img }, { letra: "B", nombre: "Anteojos", img: P.anteojos.img }], resp: "Respondé A o B en la encuesta 👇" },
   { archivo: "1124-2", tipo: "dato", eb: "Anteojos Hyundai HY-C8", grande: "9 h", az: true, titulo: "de música", sub: `Bluetooth 5.4, hasta 10 m de alcance y llamadas desde las patillas. <b>${plata(P.anteojos.precio)}</b>.` },
   nuevo("1124-3", "Nuevo reel", 'Anteojos que <span class="az">también suenan</span>', "Música y llamadas desde las patillas 🕶️"),
+
+  // Mié 25/11 · Carrusel: Combo Navideño, nuevo precio
+  { archivo: "1125-1", tipo: "portada", eb: "Pregunta rápida", titulo: '¿Cuándo <span class="az">armás el árbol</span>?', sub: "Contestame con la encuesta 👇", resp: "Ya está armado · El 8 de diciembre 🎄" },
+  { archivo: "1125-2", tipo: "dato", eb: "Combo Navideño · nuevo precio", grande: plata(P.combo.precio), az: true, titulo: "todo el combo", sub: `Árbol, estrella, luces y arbolito de mesa. Con transferencia, <b>${plata(P.combo.precio * 0.9)}</b>.` },
+  nuevo("1125-3", "Nuevo post", 'Combo Navideño, <span class="az">nuevo precio</span>', "Miralo en el perfil 🎄"),
 ];
 
 module.exports = { carruseles, historias };
