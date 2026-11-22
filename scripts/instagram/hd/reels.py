@@ -92,6 +92,15 @@ REELS = {
         dict(tipo="precio", p="volcan", img="p/volcan-oscuro.jpg", nombre="Humidificador Volcán", tag="10% OFF CON TRANSFERENCIA", voz="Sale setenta mil novecientos, y pagando con transferencia tenés diez por ciento off."),
         dict(tipo="cierre", voz="Pedilo en hogar digital punto com punto ar. Superando cincuenta mil pesos, el envío es gratis."),
     ],
+    # Semana 4 (23 al 27/11)
+    "anteojos": [
+        dict(tipo="logo", voz="¿Unos anteojos que también son auriculares?"),
+        dict(tipo="foto", p="anteojos", et="ANTEOJOS HYUNDAI HY-C8", tit="MÚSICA Y LLAMADAS", voz="Son los anteojos inteligentes Hyundai: escuchás música y atendés llamadas desde las patillas."),
+        dict(tipo="foto", p="anteojos", img="p/anteojos-2.jpg", et="BLUETOOTH 5.4", tit="HASTA 10 METROS", voz="Se conectan por Bluetooth al celular, con un alcance de hasta diez metros."),
+        dict(tipo="foto", p="anteojos", img="p/anteojos-3.jpg", et="PARA EL DÍA A DÍA", tit="UNAS 9 HORAS", voz="Y tenés unas nueve horas de reproducción, para caminar, viajar o pasear."),
+        dict(tipo="precio", p="anteojos", img="p/anteojos-2.jpg", nombre="Anteojos inteligentes Hyundai", tag="10% OFF CON TRANSFERENCIA", voz="Salen diecinueve mil cien, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Pedilos en hogar digital punto com punto ar. Enviamos a todo el país."),
+    ],
     "parlantes": [
         dict(tipo="logo", voz="Llega el finde y falta la música."),
         dict(tipo="foto", p="parlante-rgb", et="PARA EL LIVING", tit="PARLANTE RGB", precio=True, voz="El parlante RGB, con luces de colores, a sesenta mil pesos."),

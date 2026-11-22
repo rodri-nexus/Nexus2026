@@ -60,6 +60,12 @@ const historias = [
   { archivo: "1123-1", tipo: "portada", eb: "Pregunta rápida", titulo: '¿Viste lo nuevo <span class="az">de la tienda</span>?', sub: "Contestame con la encuesta 👇 Hoy te mostramos 6 productos nuevos.", resp: "Sí · Todavía no ✨" },
   { ...prod("reloj-oryx", "NUEVO EN LA TIENDA", "Números 3D con luz LED: hora, fecha y temperatura."), archivo: "1123-2" },
   nuevo("1123-3", "Nuevo post", 'Novedades en <span class="az">Hogar Digital</span>', "6 productos nuevos. Miralos en el perfil ✨"),
+
+  // Mar 24/11 · Reel: anteojos inteligentes Hyundai
+  { archivo: "1124-1", tipo: "opciones", eb: "Elegí uno", titulo: '¿Música con <span class="az">auriculares o anteojos</span>?', opciones: [
+    { letra: "A", nombre: "Auriculares", img: P.auriculares.img }, { letra: "B", nombre: "Anteojos", img: P.anteojos.img }], resp: "Respondé A o B en la encuesta 👇" },
+  { archivo: "1124-2", tipo: "dato", eb: "Anteojos Hyundai HY-C8", grande: "9 h", az: true, titulo: "de música", sub: `Bluetooth 5.4, hasta 10 m de alcance y llamadas desde las patillas. <b>${plata(P.anteojos.precio)}</b>.` },
+  nuevo("1124-3", "Nuevo reel", 'Anteojos que <span class="az">también suenan</span>', "Música y llamadas desde las patillas 🕶️"),
 ];
 
 module.exports = { carruseles, historias };
