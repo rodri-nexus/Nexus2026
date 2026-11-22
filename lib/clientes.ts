@@ -429,8 +429,9 @@ export const CLIENTES: Record<string, Cliente> = {
   },
   "perfumez": {
     nombre: "Perfumez (Lorenzo)",
-    activo: false, // apagada hasta que pague el Premium (principios de diciembre)
-    cobro: { tipo: "manual" },
+    activo: true,
+    // Plan propio: se prende sola cuando Lorenzo pague en nevux.ar/pagar/perfumez (principios de diciembre)
+    cobro: { tipo: "mercadopago", planPropio: true, gracia: 3 },
     dominios: ["perfumes405.mitiendanube.com"],
     plan: "premium",
     config: {
@@ -900,8 +901,9 @@ export const CLIENTES: Record<string, Cliente> = {
   },
   "valmont": {
     nombre: "Valmont Relojes (Wess)",
-    activo: true, // Miguel pagó el Premium en noviembre (cobro manual hasta conectar su suscripción)
-    cobro: { tipo: "manual" },
+    activo: true,
+    // Miguel se suscribió con el link general del Premium (mpago.la/2mkcebx): se lee la suscripción de ese plan
+    cobro: { tipo: "mercadopago", planMp: "86ce0bba2cc849f3b04e9208748581af", gracia: 3 },
     dominios: ["valmontrelojes.mitiendanube.com", "valmontrelojes.com.ar"],
     plan: "premium",
     config: {
