@@ -3776,6 +3776,12 @@
     var NOC = (NEVUX.marca && NEVUX.marca.noche) || '#0d1b2a';
     if (!CG) return;
     CG = CG === true ? {} : CG;
+    // Sugeridos: si todavía no hay productos guardados, se traen del catálogo una sola vez
+    if (CG.sugeridos) { try { if (!(JSON.parse(sessionStorage.getItem('nvx-prods') || '[]') || []).length) fetch('/productos/').then(function (r) { return r.text(); }).then(function (h) {
+      var d = new DOMParser().parseFromString(h, 'text/html'), vistos = {};
+      var l = [].slice.call(d.querySelectorAll('.js-item-product, .js-product-container')).map(productoDeTarjeta).filter(function (x) { if (!x || !x.nombre || vistos[x.url]) return false; vistos[x.url] = 1; return true; });
+      if (l.length) sessionStorage.setItem('nvx-prods', JSON.stringify(l.slice(0, 40)));
+    }).catch(function () {}); } catch (e) {} }
     var monto = CG.envioGratis || NEVUX.envioGratisDesde || 0, A = CG.acento || (NEVUX.home && NEVUX.home.destino && NEVUX.home.destino.acento) || '#e3262f';
     var RS = (CG.resenas || (NEVUX.home && NEVUX.home.destino && NEVUX.home.destino.resenas && NEVUX.home.destino.resenas.items) || NEVUX.resenas || []).filter(function (r) { return r && r.texto; });
     var M = '#modal-cart.nvx-cart-hogar ', HSG = "'Space Grotesk','Helvetica Neue',Arial,sans-serif", HDG = "'Dela Gothic One','Archivo Black',Impact,sans-serif";
@@ -3885,7 +3891,7 @@
         box = modal.querySelector('.nvx-cg');
       }
       // Sugeridos: "Sumá y llegá al envío gratis" con productos reales de la tienda (carrito.sugeridos)
-      if (CG.sugeridos && monto && !box.querySelector('.nvx-cg-sg')) {
+      if (CG.sugeridos && !box.querySelector('.nvx-cg-sg')) {
         var SP = []; try { SP = JSON.parse(sessionStorage.getItem('nvx-prods') || '[]') || []; } catch (e) {}
         var EXc = NEVUX.excluirProductos ? new RegExp(NEVUX.excluirProductos, 'i') : null;
         var enCarro = [].map.call(lista.querySelectorAll('.cart-item-name'), function (x) { return x.textContent.trim().toLowerCase(); });
