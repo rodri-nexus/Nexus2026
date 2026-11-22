@@ -900,9 +900,9 @@ export const CLIENTES: Record<string, Cliente> = {
   },
   "valmont": {
     nombre: "Valmont Relojes (Wess)",
-    activo: false,
+    activo: true, // Miguel pagó el Premium en noviembre (cobro manual hasta conectar su suscripción)
     cobro: { tipo: "manual" },
-    dominios: ["valmontrelojes.com.ar", "valmont.com.ar"],
+    dominios: ["valmontrelojes.mitiendanube.com", "valmontrelojes.com.ar"],
     plan: "premium",
     config: {
       "color": "#d4af37",
