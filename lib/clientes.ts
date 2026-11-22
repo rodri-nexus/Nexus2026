@@ -423,7 +423,9 @@ export const CLIENTES: Record<string, Cliente> = {
         "estilo": "wess"
       },
       "packs": [],
-      "ventas": true,
+      "ventas": {
+      "estilo": "chico"
+    },
       "efecto3d": true,
       "carrito": {
         "estilo": "hogar",
