@@ -376,7 +376,8 @@ export const CLIENTES: Record<string, Cliente> = {
     config: {
       "color": "#d4a84f",
       "marca": {
-        "oscuro": "#0a0907"
+        "oscuro": "#0a0907",
+      "noche": "#0a0907"
       },
       "premium": {
         "titulos": "Oswald",
