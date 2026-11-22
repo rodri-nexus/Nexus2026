@@ -1,0 +1,461 @@
+{
+ "color": "#d4a84f",
+ "marca": {
+  "oscuro": "#0a0907"
+ },
+ "premium": {
+  "titulos": "Oswald",
+  "texto": "Inter",
+  "animar": true,
+  "tema": "wess"
+ },
+ "whatsapp": "5493492324502",
+ "cabecera": {
+  "imagen": "https://nevux.ar/clientes/perfumez/logo-z-chico.png",
+  "nombre": "PERFUMEZ",
+  "tamano": 58,
+  "vuelta": 7
+ },
+ "pie": {
+  "logo": "https://nevux.ar/clientes/perfumez/logo-z-chico.png",
+  "titulo": "Perfumez",
+  "texto": "Perfumes árabes de 100 ml",
+  "instagram": "https://www.instagram.com/perfumez_2026/",
+  "newsletter": "Registrate y enterate primero de los nuevos ingresos."
+ },
+ "credito": {
+  "texto": "Tienda diseñada por",
+  "marca": "@nevux.app",
+  "url": "https://www.instagram.com/nevux.app/"
+ },
+ "estiloFicha": "wess",
+ "envio": {
+  "corte": 14,
+  "dias": [
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "min": 3,
+  "max": 6,
+  "zona": "a todo el país"
+ },
+ "precios": true,
+ "tarjetas": {
+  "estilo": "wess"
+ },
+ "packs": [],
+ "ventas": true,
+ "efecto3d": true,
+ "carrito": {
+  "estilo": "hogar",
+  "acento": "#d4a84f",
+  "marcador": "Z",
+  "sugeridos": true,
+  "sugeridosTitulo": "Sumá otra fragancia"
+ },
+ "anuncios": [
+  "✨ Perfumes árabes de 100 ml · Armaf, Afnan y Lattafa",
+  "🚚 Envíos a todo el país por Correo Argentino",
+  "💬 Te asesoramos por WhatsApp"
+ ],
+ "cinta": [
+  "Perfumes árabes",
+  "Frascos de 100 ml",
+  "Envíos a todo el país",
+  "Armaf · Afnan · Lattafa",
+  "Te asesoramos"
+ ],
+ "ocultar": [
+  "[data-store=\"home-products-featured\"]",
+  "[data-store=\"home-banner-news\"]",
+  "[data-store=\"home-product-main\"]",
+  "[data-store=\"home-banner-categories\"]",
+  "[data-store=\"home-products-sale\"]",
+  "[data-store=\"home-banner-promotional\"]",
+  "[data-store=\"home-products-new\"]",
+  "[data-store=\"banner-services\"]",
+  "[data-store=\"home-categories-featured\"]",
+  "[data-store=\"home-testimonials\"]",
+  "[data-store=\"home-newsletter\"]"
+ ],
+ "incluye": {
+  "titulo": "Qué incluye tu perfume",
+  "items": [
+   {
+    "icono": "🧴",
+    "titulo": "Frasco de 100 ml",
+    "texto": "Eau de parfum."
+   },
+   {
+    "icono": "📦",
+    "titulo": "En su caja",
+    "texto": "Como sale de la marca."
+   },
+   {
+    "icono": "🚚",
+    "titulo": "Envío protegido",
+    "texto": "Por Correo Argentino."
+   },
+   {
+    "icono": "💬",
+    "titulo": "Asesoramiento",
+    "texto": "Antes y después de comprar."
+   }
+  ]
+ },
+ "regalo": {
+  "titulo": "¿Es para regalar?",
+  "texto": "Avisanos por WhatsApp y te ayudamos a elegir la fragancia ideal."
+ },
+ "comparativa": {
+  "titulo": "Perfumez vs. comprar en cualquier lado",
+  "marca": "Perfumez",
+  "otro": "Otros",
+  "filas": [
+   "Marcas árabes con línea propia",
+   "Frasco y caja de la marca",
+   "Fragancias de larga duración",
+   "Asesoramiento por WhatsApp",
+   "Envío protegido a todo el país"
+  ]
+ },
+ "faq": [
+  {
+   "p": "¿Qué marcas tienen?",
+   "r": "Armaf, Afnan y Lattafa, tres de las marcas árabes más conocidas. Todos los frascos son de 100 ml."
+  },
+  {
+   "p": "¿Cuánto dura en la piel?",
+   "r": "Los perfumes árabes se destacan por su intensidad y su duración. Depende de cada fragancia y de tu piel: escribinos y te recomendamos."
+  },
+  {
+   "p": "¿Hacen envíos?",
+   "r": "Sí, a todo el país por Correo Argentino. El costo se calcula al finalizar la compra con tu código postal."
+  },
+  {
+   "p": "¿Puedo probarlo antes?",
+   "r": "Si nos vemos en persona, tenemos decants para que pruebes cada fragancia antes de llevarte el frasco."
+  }
+ ],
+ "ficha": {
+  "pill": "Perfume árabe",
+  "regaloLinea": "Llega en su caja, listo para estrenar o para regalar.",
+  "calidad": "Selección Perfumez",
+  "whatsappTexto": "¿No sabés si es para vos?",
+  "confianza": [
+   {
+    "icono": "original",
+    "titulo": "Marca árabe",
+    "texto": "Armaf, Afnan y Lattafa"
+   },
+   {
+    "icono": "envio",
+    "titulo": "Envío protegido",
+    "texto": "Por Correo Argentino a todo el país"
+   },
+   {
+    "icono": "garantia",
+    "titulo": "Compra segura",
+    "texto": "Te acompañamos antes y después"
+   }
+  ],
+  "detallesEtiqueta": "Perfumez",
+  "detallesTitulo": "Miralo de cerca",
+  "detalles": [
+   {
+    "etiqueta": "Frasco",
+    "titulo": "Tal cual llega",
+    "texto": "Fotos del frasco original"
+   },
+   {
+    "etiqueta": "Notas",
+    "titulo": "Salida, corazón y fondo",
+    "texto": "Su pirámide olfativa"
+   },
+   {
+    "etiqueta": "Ficha",
+    "titulo": "Para quién y cuándo",
+    "texto": "Estilo y ocasión ideal"
+   },
+   {
+    "etiqueta": "Presentación",
+    "titulo": "100 ml",
+    "texto": "Eau de parfum"
+   }
+  ],
+  "historia": {
+   "etiqueta": "Perfumez · Perfumes árabes",
+   "titulo": "La fragancia que",
+   "destacado": "no pasa desapercibida",
+   "texto": "Perfumes intensos, de los que dejan estela y duran en la piel. Te lo mandamos listo para estrenar.",
+   "puntos": [
+    "Frasco de 100 ml, en su caja",
+    "Te asesoramos por WhatsApp",
+    "Envío protegido a todo el país",
+    "Listo para regalar"
+   ],
+   "boton": "Lo quiero"
+  },
+  "cerca": {
+   "etiqueta": "Cómo es",
+   "titulo": "Una fragancia en tres tiempos",
+   "items": [
+    {
+     "titulo": "Salida",
+     "texto": "Lo primero que sentís al aplicarlo."
+    },
+    {
+     "titulo": "Corazón",
+     "texto": "Aparece a los minutos y define su carácter."
+    },
+    {
+     "titulo": "Fondo",
+     "texto": "Lo que queda en tu piel durante horas."
+    },
+    {
+     "titulo": "Estela",
+     "texto": "Lo que perciben los demás cuando pasás."
+    }
+   ]
+  },
+  "regalo": {
+   "etiqueta": "Para regalar",
+   "titulo": "Viene listo para regalar",
+   "card": "En su caja",
+   "texto": "Llega en la caja original de la marca. Si es para vos, lo estrenás; si es para alguien más, no tenés que envolver nada."
+  },
+  "tranquilo": {
+   "etiqueta": "Comprá tranquilo",
+   "titulo": "Perfumez",
+   "items": [
+    {
+     "titulo": "Marcas árabes",
+     "texto": "Armaf, Afnan y Lattafa."
+    },
+    {
+     "titulo": "Envío protegido",
+     "texto": "Por Correo Argentino."
+    },
+    {
+     "titulo": "Atención personal",
+     "texto": "Te asesoramos por WhatsApp."
+    },
+    {
+     "titulo": "Listo para regalar",
+     "texto": "En su caja original."
+    },
+    {
+     "titulo": "Te ayudamos a elegir",
+     "texto": "Según lo que te gusta."
+    },
+    {
+     "titulo": "Pago seguro",
+     "texto": "Con los medios de la tienda."
+    }
+   ]
+  },
+  "faqTitulo": "Lo que nos preguntan",
+  "cta": {
+   "etiqueta": "Perfumez",
+   "titulo": "Elegí el tuyo",
+   "boton": "Comprar ahora"
+  },
+  "similaresTitulo": "También te puede gustar",
+  "similaresPill": "Perfume árabe",
+  "similaresCantidad": 8
+ },
+ "home": {
+  "portada": {
+   "marca": "Perfumez",
+   "franja": "Perfumes árabes · Envíos a todo el país",
+   "reloj": false,
+   "logo": "https://nevux.ar/clientes/perfumez/logo-z-chico.png",
+   "etiqueta": "Armaf · Afnan · Lattafa",
+   "titulo": "Perfumes",
+   "titulo2": "árabes",
+   "texto": "Fragancias intensas de 100 ml, de las que se notan. Elegí la tuya y te la mandamos a todo el país.",
+   "boton": "Ver perfumes",
+   "url": "#nvx-grilla",
+   "foto": "https://nevux.ar/clientes/perfumez/portada-frascos.webp",
+   "reemplazarBanner": true
+  },
+  "beneficios": [
+   {
+    "icono": "original",
+    "titulo": "Marcas árabes",
+    "texto": "Armaf, Afnan y Lattafa, con su frasco y su caja."
+   },
+   {
+    "icono": "envio",
+    "titulo": "Envío a todo el país",
+    "texto": "Por Correo Argentino, con seguimiento."
+   },
+   {
+    "icono": "cuotas",
+    "titulo": "Pagá como quieras",
+    "texto": "Con los medios de pago de la tienda."
+   },
+   {
+    "icono": "regalo",
+    "titulo": "Listos para regalar",
+    "texto": "En su caja original."
+   }
+  ],
+  "vitrinas": [
+   {
+    "estilo": "wess",
+    "logo": "https://nevux.ar/clientes/perfumez/logo-z-chico.png",
+    "etiqueta": "Selección Perfumez",
+    "titulo": "Más vendidos",
+    "pill": "Perfume árabe",
+    "url": "/productos/",
+    "boton": "Ver todos los perfumes"
+   }
+  ],
+  "grilla": [
+   {
+    "titulo": "Últimos ingresos",
+    "url": "/productos/",
+    "cantidad": 8,
+    "pill": "100 ml",
+    "quedan": 2,
+    "boton": "Ver todos los perfumes"
+   }
+  ],
+  "puntos": {
+   "estilo": "wess",
+   "titulo": "Un perfume en tres tiempos.",
+   "url": "/productos/lattafa-khamrah-qahwa-100ml/",
+   "boton": "Ver el Khamrah Qahwa",
+   "foto": "https://nevux.ar/clientes/perfumez/p-khamrah-qahwa.jpg",
+   "items": [
+    {
+     "titulo": "Salida",
+     "texto": "Canela, cardamomo y jengibre.",
+     "x": 42,
+     "y": 30
+    },
+    {
+     "titulo": "Corazón",
+     "texto": "Praliné, frutas confitadas y flores blancas.",
+     "x": 58,
+     "y": 50
+    },
+    {
+     "titulo": "Fondo",
+     "texto": "Café, vainilla, haba tonka y almizcle.",
+     "x": 45,
+     "y": 72
+    },
+    {
+     "titulo": "Frasco",
+     "texto": "Vidrio tallado de 100 ml.",
+     "x": 66,
+     "y": 28
+    }
+   ]
+  },
+  "colgado": {
+   "etiqueta": "Perfumez · Stock limitado",
+   "titulo": "Quedan",
+   "titulo2": "pocas unidades.",
+   "url": "/productos/",
+   "boton": "Ver perfumes"
+  },
+  "porQue": {
+   "etiqueta": "Confianza premium",
+   "titulo": "Fragancias árabes, entregadas en todo el país.",
+   "items": [
+    {
+     "destacado": "Marcas",
+     "titulo": "Árabes reales",
+     "texto": "Armaf, Afnan y Lattafa, con su caja.",
+     "pie": "Selección Perfumez"
+    },
+    {
+     "destacado": "100 ml",
+     "titulo": "Eau de parfum",
+     "texto": "Fragancias intensas y duraderas.",
+     "pie": "Larga duración"
+    },
+    {
+     "destacado": "Envío",
+     "titulo": "A todo el país",
+     "texto": "Por Correo Argentino, con seguimiento.",
+     "pie": "Envío protegido"
+    },
+    {
+     "destacado": "Asesoramiento",
+     "titulo": "Por WhatsApp",
+     "texto": "Te ayudamos a elegir según lo que te gusta.",
+     "pie": "Atención personal"
+    }
+   ]
+  },
+  "faqTitulo": "Resolvé tus dudas",
+  "faqLink": {
+   "texto": "Quiero asesoramiento por WhatsApp",
+   "url": "https://wa.me/5493492324502?text=Hola!%20Quiero%20que%20me%20asesores%20para%20elegir%20un%20perfume"
+  },
+  "faq": [
+   {
+    "p": "¿Qué marcas tienen?",
+    "r": "Armaf, Afnan y Lattafa, tres de las marcas árabes más conocidas. Todos los frascos son de 100 ml."
+   },
+   {
+    "p": "¿Qué diferencia hay entre perfumes árabes y de diseñador?",
+    "r": "Los árabes se destacan por su intensidad, su duración y su relación precio-calidad. Los de diseñador son las marcas internacionales más conocidas."
+   },
+   {
+    "p": "¿Qué perfume me recomiendan para recibir cumplidos?",
+    "r": "Escribinos y te recomendamos fragancias con buena proyección y duración, según si es para salir, trabajar o todos los días."
+   },
+   {
+    "p": "¿Mi perfume llega seguro?",
+    "r": "Sí. Preparamos cada fragancia para que viaje protegida y llegue en perfectas condiciones."
+   },
+   {
+    "p": "¿Cuánto tarda en llegar?",
+    "r": "Depende de tu ciudad. Una vez despachado, te pasamos el seguimiento de Correo Argentino."
+   },
+   {
+    "p": "¿Puedo probarlos antes?",
+    "r": "Sí. Si nos vemos en persona, tenemos decants de cada fragancia para que la pruebes."
+   }
+  ],
+  "cierre": {
+   "etiqueta": "Perfumez",
+   "titulo": "Encontrá tu fragancia",
+   "texto": "Perfumes árabes de 100 ml con envío a todo el país.",
+   "boton": "Ver todos los perfumes",
+   "url": "/productos/"
+  },
+  "categorias": [
+   {
+    "nombre": "Hombre",
+    "url": "/perfumes-arabes-hombre/",
+    "foto": "https://nevux.ar/clientes/perfumez/cat-hombre.jpg",
+    "texto": "Intensos y elegantes"
+   },
+   {
+    "nombre": "Mujer",
+    "url": "/perfumes-arabes-mujer/",
+    "foto": "https://nevux.ar/clientes/perfumez/cat-mujer.jpg",
+    "texto": "Dulces y sofisticados"
+   },
+   {
+    "nombre": "Unisex",
+    "url": "/productos/lattafa-badee-al-oud-sublime-100ml/",
+    "foto": "https://nevux.ar/clientes/perfumez/cat-unisex.jpg",
+    "texto": "Para compartir"
+   }
+  ],
+  "categoriasEtiqueta": "Elegí por estilo",
+  "categoriasTitulo": "Encontrá tu próxima fragancia",
+  "categoriasEstilo": "tarjetas",
+  "categoriasArriba": true
+ }
+}

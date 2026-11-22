@@ -2068,8 +2068,17 @@
       '.nvx-lg .m .f{background:linear-gradient(160deg,#f6e9c6 10%,' + C + ' 45%,#8a7238 75%,#e9d9a8);-webkit-background-clip:text;background-clip:text;color:transparent!important}' +
       '.nvx-lg .n{font:600 9.5px/1 Cinzel,Georgia,serif;letter-spacing:.42em;margin-right:-.42em;color:' + C + '}' +
       '@media (prefers-reduced-motion: reduce){.nvx-lg .r{animation:none}}');
-    var html = '<a class="nvx-lg" href="/" aria-label="' + hEsc(K.nombre || 'Inicio') + '"><span class="r"><span class="m">' + capas +
-      '<span class="f">' + hEsc(K.inicial || 'V') + '</span></span>' + (K.nombre ? '<span class="n">' + hEsc(K.nombre) + '</span>' : '') + '</span></a>';
+    // Logo en imagen (cabecera.imagen): la imagen gira en 3D con capas atrás que le dan grosor, en lugar de la letra
+    var mLogo;
+    if (K.imagen) {
+      var ci = '';
+      for (var ki = 6; ki >= 1; ki--) ci += '<img class="z" src="' + hEsc(K.imagen) + '" alt="" aria-hidden="true" style="transform:translateZ(' + (-ki * 0.8).toFixed(1) + 'px)">';
+      hCss('nvx-hd-img-css', '.nvx-lg .m.i{width:' + (K.tamano || 54) + 'px;height:' + (K.tamano || 54) + 'px}.nvx-lg .m.i img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}' +
+        '.nvx-lg .m.i .z{filter:brightness(.35)}.nvx-lg .r.i{animation-duration:' + (K.vuelta || 6) + 's}');
+      mLogo = '<span class="m i">' + ci + '<img src="' + hEsc(K.imagen) + '" alt=""></span>';
+    } else mLogo = '<span class="m">' + capas + '<span class="f">' + hEsc(K.inicial || 'V') + '</span></span>';
+    var html = '<a class="nvx-lg" href="/" aria-label="' + hEsc(K.nombre || 'Inicio') + '"><span class="r' + (K.imagen ? ' i' : '') + '">' + mLogo +
+      (K.nombre ? '<span class="n">' + hEsc(K.nombre) + '</span>' : '') + '</span></a>';
     var cont = hd.querySelector('#no-logo, #logo, .js-logo-container');
     if (cont) cont.insertAdjacentHTML('afterbegin', html);
   }
@@ -2162,11 +2171,23 @@
     };
     var html = '';
     if (H.categorias && H.categorias.length) {
-      html += sec('', H.categoriasEtiqueta || 'Categorías', H.categoriasTitulo || 'Elegí lo tuyo', '',
+      // Estilo "tarjetas": fotos grandes verticales con nombre y bajada encima (como Studio 54)
+      if (H.categoriasEstilo === 'tarjetas') hCss('nvx-cat-t-css',
+        '.nvh-cats-t{display:grid;grid-template-columns:repeat(' + Math.min(H.categorias.length, 3) + ',1fr);gap:10px}' +
+        '.nvh-cats-t a{position:relative;display:block;aspect-ratio:3/4;border-radius:18px;overflow:hidden;background:#111;text-decoration:none!important}' +
+        '.nvh-cats-t img{width:100%;height:100%;object-fit:cover;transition:transform .7s}.nvh-cats-t a:hover img{transform:scale(1.06)}' +
+        '.nvh-cats-t a:after{content:"";position:absolute;inset:auto 0 0;height:55%;background:linear-gradient(180deg,transparent,rgba(0,0,0,.85))}' +
+        '.nvh-cats-t span{position:absolute;left:12px;right:12px;bottom:12px;z-index:1;color:#fff}.nvh-cats-t b{display:block;font:400 clamp(18px,4.8vw,30px)/1 Anton,Oswald,sans-serif;text-transform:uppercase}' +
+        '.nvh-cats-t em{display:block;margin-top:5px;font:700 clamp(8px,2.2vw,11px)/1.25 Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;font-style:normal;color:' + (NEVUX.color || '#d4a84f') + '}' +
+        '.nvh-cats-t i{display:inline-block;margin-top:8px;font:800 11px/1 Inter,sans-serif;color:#fff;font-style:normal;letter-spacing:.1em}');
+      html += sec(H.categoriasEstilo === 'tarjetas' ? 'nvh-cat-s' : '', H.categoriasEtiqueta || 'Categorías', H.categoriasTitulo || 'Elegí lo tuyo', '',
+        (H.categoriasEstilo === 'tarjetas' ? '<div class="nvh-cats-t">' + H.categorias.map(function (c) {
+          return '<a href="' + hEsc(c.url) + '">' + (c.foto ? '<img src="' + hEsc(c.foto) + '" alt="" loading="lazy">' : '') + '<span><b>' + hEsc(c.nombre) + '</b>' + (c.texto ? '<em>' + hEsc(c.texto) + '</em>' : '') + '<i>Ver →</i></span></a>';
+        }).join('') + '</div>' :
         '<div class="nvh-row">' + H.categorias.map(function (c) {
           return '<a class="nvh-cat" href="' + hEsc(c.url) + '">' + (c.foto ? '<img src="' + hEsc(c.foto) + '" alt="" loading="lazy">' : '') +
             '<span>' + hEsc(c.nombre) + (c.texto ? '<em>' + hEsc(c.texto) + '</em>' : '') + '</span></a>';
-        }).join('') + '</div>');
+        }).join('') + '</div>'));
     }
     // Foto con puntos que explican cada detalle del producto
     var PT = H.puntos;
@@ -2247,6 +2268,13 @@
     }
 
     var footer = document.querySelector('footer.js-footer') || document.querySelector('body > footer, footer');
+    if (html && H.categoriasArriba && html.indexOf('nvh-cat-s') > 0) {
+      // "Elegí por estilo" justo después de la portada (antes de la vitrina), como en Studio 54
+      var ic = html.indexOf('<section class="nvh-sec nvh-cat-s'), fc = html.indexOf('</section>', ic) + 10;
+      var catSec = html.slice(ic, fc); html = html.slice(0, ic) + html.slice(fc);
+      var vi = html.indexOf('<section class="nvh-sec nvh-dark nvh-vit');
+      html = vi >= 0 ? html.slice(0, vi) + catSec + html.slice(vi) : catSec + html;
+    }
     if (html) {
       var wrap = '<div class="nvh">' + html + '</div>';
       if (footer) {
@@ -2302,14 +2330,22 @@
       var dial = '<svg class="nvp-dial" viewBox="0 0 560 560" aria-hidden="true"><circle cx="280" cy="280" r="276" fill="none" stroke="#fff" stroke-width="3"/>' + ticks +
         '<line x1="280" y1="280" x2="200" y2="160" stroke="#fff" stroke-width="12" stroke-linecap="round"/><line x1="280" y1="280" x2="420" y2="200" stroke="#fff" stroke-width="7" stroke-linecap="round"/>' +
         '<g class="sg"><line x1="280" y1="320" x2="280" y2="40" stroke="' + CC + '" stroke-width="3"/></g><circle cx="280" cy="280" r="10" fill="' + CC + '"/></svg>';
+      // Sin reloj (perfumes, ropa, etc.): sin la esfera de fondo y la franja muestra un texto fijo en lugar de la hora
+      if (PO.reloj === false) dial = '';
+      // Foto o video de producto a la derecha (en celular, debajo del texto)
+      var poMedia = PO.video ? '<video class="nvp-media" src="' + hEsc(PO.video) + '"' + (PO.poster ? ' poster="' + hEsc(PO.poster) + '"' : '') + ' autoplay muted loop playsinline></video>' :
+        PO.foto ? '<img class="nvp-media" src="' + hEsc(PO.foto) + '" alt="">' : '';
+      if (poMedia) hCss('nvx-portada-m-css', '.nvp-media{position:relative;z-index:2;display:block;width:min(560px,100%);margin:0 auto -20px;filter:drop-shadow(0 30px 40px rgba(0,0,0,.6))}' +
+        '.nvp-in.m{padding-bottom:20px}@media(min-width:900px){.nvp-in.m{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;max-width:1240px}.nvp-in.m h1{font-size:clamp(90px,10vw,170px)}.nvp-media{margin:0;width:100%;max-width:620px}}' +
+        '.nvp-diag.f{opacity:.55}');
       var frTexto = PO.franja || 'Hora oficial';
       var poHtml = '<section class="nvp"><div class="nvp-fr"><span class="m">' + (PO.marca ? hEsc(PO.marca).replace(/^(\S+)/, '<em>$1</em>') : '') + '</span><span class="dot"></span>' +
-        '<span class="t"></span><span class="n"></span></div>' + dial + '<div class="nvp-diag"></div><div class="nvp-in">' +
+        '<span class="t"></span><span class="n"></span></div>' + dial + '<div class="nvp-diag' + (poMedia ? ' f' : '') + '"></div><div class="nvp-in' + (poMedia ? ' m' : '') + '">' + (poMedia ? '<div>' : '') +
         (PO.logo ? '<img class="nvp-logo" src="' + hEsc(PO.logo) + '" alt="">' : '') +
         (PO.etiqueta ? '<span class="nvp-pill">' + hEsc(PO.etiqueta) + '</span>' : '') +
         '<h1><span class="a">' + hEsc(PO.titulo || '') + '</span>' + (PO.titulo2 ? '<span class="b">' + hEsc(PO.titulo2) + '</span>' : '') + '</h1>' +
         (PO.texto ? '<p>' + hEsc(PO.texto) + '</p>' : '') +
-        (PO.boton ? '<a class="nvp-btn" href="' + hEsc(PO.url || '#') + '">' + hEsc(PO.boton) + ' <i>↓</i></a>' : '') + '</div></section>';
+        (PO.boton ? '<a class="nvp-btn" href="' + hEsc(PO.url || '#') + '">' + hEsc(PO.boton) + ' <i>↓</i></a>' : '') + (poMedia ? '</div>' + poMedia : '') + '</div></section>';
       var hdr = document.querySelector('header.js-head-main, .js-head-main, header');
       var slp = document.querySelector('[data-store="home-slider"]');
       if (hdr && hdr.parentNode) hdr.insertAdjacentHTML('afterend', poHtml);
@@ -2326,6 +2362,8 @@
           var ms = new Date(meta) - Date.now(), sg = Math.max(0, Math.floor(ms / 1000));
           tT.textContent = EVENTO === 'durante' ? 'Termina' : 'Empieza';
           tN.innerHTML = cajaP(Math.floor(sg / 86400), 'D') + cajaP(Math.floor(sg % 86400 / 3600), 'H') + cajaP(Math.floor(sg % 3600 / 60), 'M') + cajaP(sg % 60, 'S');
+        } else if (PO.reloj === false) {
+          tT.textContent = frTexto; tN.innerHTML = '';
         } else {
           var ar = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
           tT.textContent = frTexto;
@@ -2380,7 +2418,8 @@
         portadaEl.insertAdjacentHTML('afterend', ben);
         // Las vitrinas estilo Wess van pegadas a los beneficios, como en la portada de Wess
         var benEl = portadaEl.nextElementSibling;
-        [].slice.call(document.querySelectorAll('.nvh-vw-s, .nvh-gw-s, .nvh-pw-s, .nvh-md-s')).reverse().forEach(function (s) {
+        // Con categoriasArriba, "Elegí por estilo" va primero, pegada a los beneficios (como en Studio 54)
+        [].slice.call(document.querySelectorAll('.nvh-vw-s, .nvh-gw-s, .nvh-pw-s, .nvh-md-s' + (H.categoriasArriba ? ', .nvh-cat-s' : ''))).reverse().forEach(function (s) {
           benEl.insertAdjacentHTML('afterend', '<div class="nvh"></div>');
           benEl.nextElementSibling.appendChild(s);
         });
