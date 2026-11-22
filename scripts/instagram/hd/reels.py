@@ -103,7 +103,7 @@ REELS = {
     ],
     "antifaz": [
         dict(tipo="logo", voz="¿Te gusta dormirte con música?"),
-        dict(tipo="foto", p="antifaz", img="p/antifaz-2.jpg", et="ANTIFAZ BLUETOOTH", tit="AURICULARES ADENTRO", voz="Es un antifaz acolchado, con auriculares Bluetooth integrados."),
+        dict(tipo="foto", p="antifaz", img="p/antifaz-2.jpg", et="ANTIFAZ BLUETOOTH", tit="CON AURICULARES", voz="Es un antifaz acolchado, con auriculares Bluetooth integrados."),
         dict(tipo="foto", p="antifaz", img="p/antifaz-3.jpg", et="PARA DESCANSAR", tit="OJOS CUBIERTOS", voz="Te cubre los ojos mientras escuchás tu música, un podcast o tu lista para dormir."),
         dict(tipo="foto", p="antifaz", et="PARA VIAJAR", tit="UNAS 8 HORAS", voz="Tiene unas ocho horas de reproducción, y también sirve para viajar."),
         dict(tipo="precio", p="antifaz", img="p/antifaz-2.jpg", nombre="Antifaz Bluetooth para dormir", tag="10% OFF CON TRANSFERENCIA", voz="Sale diecinueve mil cien, y pagando con transferencia tenés diez por ciento off."),
