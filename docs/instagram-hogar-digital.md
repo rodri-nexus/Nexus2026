@@ -84,6 +84,20 @@ Marcelo (15/11): no hace dropshipping y no quiere quedarse con mercadería; los 
 - **Productos nuevos (parlante Mixor Impacto, smartwatch ZL73J, smartwatch LAXASFIT H7):** se armaron fotos con fondo de estudio oscuro (`public/clientes/hogar-digital/fotos-nuevas/`, script `scripts/instagram/hd/fondo.py`). Faltan fotos con fondo liso de los colores rojo, azul y negro del parlante.
 - 13/11: Marcelo tuvo una venta orgánica (#114, $20.720) después del rediseño. Para usarla en el Instagram de Nevux, pedirle permiso.
 
+## Semana 4 (23 al 27 de noviembre), pasada a Rodrigo día por día el 22/11
+
+Catálogo revisado en vivo el 22/11 (36 productos, precio, stock y fotos de cada ficha; `scripts/instagram/hd/semana-4.js`). Cambios en la tienda: **ya no hay envío gratis desde $50.000** (`envioGratisDesde: 0`), el **Combo Navideño bajó a $44.000** (lista $51.600) y ya no trae los adornos, y llegaron productos nuevos (códigos MODS-, Oryx, Hyundai: parecen de Unidrop). No se usan productos con 2 o 3 unidades de stock. Sin promo de Black Friday cargada: el viernes va un carrusel de regalos.
+
+| Día | 19:48 | Pieza | Historias (10:12 · 14:42 · 21:12) |
+|---|---|---|---|
+| Lun 23/11 | Carrusel (8) `11-novedades` | 6 productos nuevos | ¿Viste lo nuevo? · Reloj Oryx 3D · Nuevo post |
+| Mar 24/11 | Reel `anteojos` (29 s) | Anteojos inteligentes Hyundai HY-C8 ($19.100) | ¿Auriculares o anteojos? · 9 h de música · Nuevo reel |
+| Mié 25/11 | Carrusel (6) `12-combo-nuevo-precio` | Combo Navideño a $44.000 | ¿Cuándo armás el árbol? · $44.000 · Nuevo post |
+| Jue 26/11 | Reel `antifaz` (28 s) | Antifaz Bluetooth para dormir ($19.100) | ¿Música o silencio? · 8 h de música · Nuevo reel |
+| Vie 27/11 | Carrusel (6) `13-regalos-20000` | 4 regalos de menos de $20.000 | ¿Regalo del amigo invisible? · Morral $14.900 · Nuevo post |
+
+- **Para Marcelo:** los anteojos Hyundai muestran un precio de lista de $144.372 (no se usa); el código del combo no nombra la estrella (confirmar si sigue incluida).
+
 ## Pendiente
 
 - Si vence Windsor (~29/11): publicación manual, después de la de @nevux.app (ver `docs/instagram.md`).

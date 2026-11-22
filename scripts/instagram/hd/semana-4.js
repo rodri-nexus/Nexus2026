@@ -81,6 +81,39 @@ Todo para armar tu Navidad, en un solo pedido:
 
 #hogardigital #navidad #decoracionnavideña #arbolitodenavidad #hogar #deco #compraonline #envios #argentina`,
   },
+  {
+    carpeta: "13-regalos-20000",
+    nombre: "4 regalos de menos de $20.000",
+    placas: [
+      { tipo: "portada", eb: "Guardalo para después", titulo: '4 regalos de <span class="az">menos de $20.000</span>', sub: "Para Navidad, el amigo invisible o para darte un gusto. <b>Con envío a todo el país.</b>", desliza: "Deslizá →" },
+      prod("morral", "REGALO 1 · PARA EL QUE VA A TODOS LADOS", "Compacto, con cierre doble y hebilla. Negro, marrón o camuflado."),
+      prod("antifaz", "REGALO 2 · PARA EL QUE DUERME CON MÚSICA", "Auriculares Bluetooth integrados, unas 8 horas de reproducción."),
+      prod("anteojos", "REGALO 3 · PARA EL QUE VIVE CON AURICULARES", "Música y llamadas desde las patillas. Bluetooth 5.4."),
+      prod("reloj-oryx", "REGALO 4 · PARA LA MESA DE LUZ", "Números 3D con luz LED: hora, fecha, temperatura y 3 alarmas."),
+      { tipo: "portada", eb: "¿Cuál regalarías?", titulo: 'Pedilo hoy, <span class="az">llega a su casa</span>', sub: "Pagando con transferencia tenés <b>10% OFF</b>. Despachamos de lunes a viernes.", boton: "Link en el perfil" },
+    ],
+    caption: `🎁 4 regalos de menos de $20.000 (guardalo para Navidad o el amigo invisible)
+
+1️⃣ Bolso morral MODS-772 · ${plata(P.morral.precio)}
+Compacto, con cierre doble y hebilla. Negro, marrón o camuflado.
+
+2️⃣ Antifaz Bluetooth para dormir · ${plata(P.antifaz.precio)}
+Auriculares integrados, unas 8 horas de reproducción.
+
+3️⃣ Anteojos inteligentes Hyundai HY-C8 · ${plata(P.anteojos.precio)}
+Música y llamadas desde las patillas.
+
+4️⃣ Reloj digital Oryx 3D con luz LED · ${plata(P["reloj-oryx"].precio)}
+Hora, fecha, temperatura y 3 alarmas.
+
+💸 Pagando con transferencia, 10% OFF
+📦 Envíos a todo el país · Despachamos de lunes a viernes
+
+¿Cuál regalarías y a quién? Etiquetalo en los comentarios 👇
+🛒 hogardigital.com.ar (link en el perfil)
+
+${H}`,
+  },
 ];
 
 const historias = [
@@ -105,6 +138,11 @@ const historias = [
     { letra: "A", nombre: "Música", img: "p/antifaz-2.jpg" }, { letra: "B", nombre: "Silencio", img: "p/antifaz-3.jpg" }], resp: "Respondé A o B en la encuesta 👇" },
   { archivo: "1126-2", tipo: "dato", eb: "Antifaz Bluetooth", grande: "8 h", az: true, titulo: "de música", sub: `Auriculares integrados y micrófono para llamadas. En negro o gris. <b>${plata(P.antifaz.precio)}</b>.` },
   nuevo("1126-3", "Nuevo reel", 'Dormí con <span class="az">tu música</span>', "Antifaz Bluetooth. Miralo en el perfil 😴"),
+
+  // Vie 27/11 · Carrusel: 4 regalos de menos de $20.000
+  { archivo: "1127-1", tipo: "portada", eb: "Pregunta rápida", titulo: '¿Ya tenés el regalo del <span class="az">amigo invisible</span>?', sub: "Contestame con la encuesta 👇 Hoy subimos 4 ideas de menos de $20.000.", resp: "Sí · Ni idea 🎁" },
+  { ...prod("morral", "EL MÁS ECONÓMICO DE LA LISTA", "Compacto y seguro. En negro, marrón o camuflado."), archivo: "1127-2" },
+  nuevo("1127-3", "Nuevo post", '4 regalos de <span class="az">menos de $20.000</span>', "Guardalo para Navidad 🎁"),
 ];
 
 module.exports = { carruseles, historias };
