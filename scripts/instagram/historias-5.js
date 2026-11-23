@@ -46,5 +46,19 @@ module.exports = {
       pie: "Primera impresión",
     },
     nuevo("1125-3", "Nuevo post", 'Dos rubros, <span class="verde">dos estilos</span>', "Hogar Digital y Perfumez. 🎨"),
+
+    // Jue 26/11 · reel: la ficha de un perfume de Perfumez
+    {
+      archivo: "1126-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Tu ficha cuenta <span class="verde">cómo es tu producto</span> o solo lo muestra?',
+      sub: "Respondé con la encuesta. Hoy te muestro una ficha que lo cuenta todo.", responde: "LO CUENTA · LO MUESTRA",
+    },
+    {
+      archivo: "1126-2", tipo: "punto", num: "TIP PARA TU FICHA",
+      titulo: 'Contá lo que <span class="verde">no se ve en la foto</span>',
+      texto: "Cómo huele, cómo se siente, cuánto dura, cómo llega.<br><br>Lo que la foto no muestra <b>es lo que más dudas genera</b>.",
+      pie: "Ficha completa",
+    },
+    nuevo("1126-3", "Nuevo reel", 'La ficha de <span class="verde">un perfume</span>', "Perfumez, de punta a punta. 🖤"),
   ],
 };

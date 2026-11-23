@@ -1,5 +1,5 @@
 # Reel "Una compra real en Hogar Digital": grabación de la tienda en vivo + voz de Tomás + música suave + rótulos de Nevux.
-# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home|corte|computadora|preguntas|perfumez] (RELOJ=... para fijar el reloj del navegador)   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
+# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home|corte|computadora|preguntas|perfumez|perfumez-ficha] (RELOJ=... para fijar el reloj del navegador)   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
 # Sale en public/ig/reels/compra.mp4 (+ .jpg). La portada va integrada como primer cuadro.
 import json, os, subprocess, sys, tempfile, shutil
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -80,6 +80,16 @@ REELS["perfumez"] = [  # correr con CLIENTE=perfumez CFG=<config de lib/clientes
     dict(accion="bajar", texto="tres tiempos", margen=190, vivo=True, et="4 · CÓMO HUELE", tit="Salida, corazón y fondo", voz="Y como un perfume no se puede oler por internet, la tienda te cuenta cómo huele: salida, corazón y fondo."),
     dict(accion="bajar", texto="RESOLVÉ TUS DUDAS", margen=100, vivo=True, et="5 · LAS DUDAS", tit="Respondidas antes", voz="Al final, las dudas de siempre, ya respondidas."),
     dict(accion="cierre", voz="Otro rubro, la misma idea. ¿Querés tu tienda así? Comentá ficha."),
+]
+PZF = "https://perfumes405.mitiendanube.com/productos/lattafa-khamrah-qahwa-100ml/"
+REELS["perfumez-ficha"] = [  # CLIENTE=perfumez CFG=... RELOJ=<jueves 11 h>
+    dict(accion="abrir", url=PZF, et="PERFUMEZ · LA FICHA", tit="Un perfume, de punta a punta", voz="Esta es la ficha de un perfume en Perfumez. Mirá todo lo que cuenta."),
+    dict(accion="bajar", texto="Despachamos", margen=330, vivo=True, et="1 · PRECIO Y ENVÍO", tit="Cuánto paga y cuándo llega", voz="El precio, cuánto ahorra, cuándo despacha y entre qué días le llega."),
+    dict(accion="bajar", texto="MIRALO DE CERCA", margen=100, vivo=True, et="2 · DE CERCA", tit="El frasco original", voz="Fotos del frasco original, de cerca."),
+    dict(accion="bajar", texto="UNA FRAGANCIA EN TRES", margen=100, vivo=True, et="3 · CÓMO HUELE", tit="Salida, corazón y fondo", voz="Cómo huele: las notas de salida, de corazón y de fondo."),
+    dict(accion="bajar", texto="VIENE LISTO PARA REGALAR", margen=100, vivo=True, et="4 · PARA REGALAR", tit="En su caja original", voz="Que llega en su caja, listo para regalar."),
+    dict(accion="bajar", texto="LO QUE NOS PREGUNTAN", margen=100, vivo=True, et="5 · LAS DUDAS", tit="Respondidas en la ficha", voz="Y las preguntas de siempre, ya respondidas."),
+    dict(accion="cierre", voz="Cuando no se puede oler, hay que contarlo bien. ¿Querés tu ficha así? Comentá ficha."),
 ]
 NOMBRE = sys.argv[1] if len(sys.argv) > 1 else "compra"
 ESCENAS = REELS[NOMBRE]
