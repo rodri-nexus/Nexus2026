@@ -32,5 +32,19 @@ module.exports = {
       pie: "Descripción sensorial",
     },
     nuevo("1124-3", "Nuevo reel", 'La tienda de <span class="verde">Perfumez</span>', "Así va a quedar, sección por sección. 🖤"),
+
+    // Mié 25/11 · post: dos rubros, dos estilos
+    {
+      archivo: "1125-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Tu tienda tiene <span class="verde">un estilo propio</span>?',
+      sub: "Respondé con la encuesta. Hoy te muestro dos tiendas, dos estilos.", responde: "SÍ · NO SÉ 🎨",
+    },
+    {
+      archivo: "1125-2", tipo: "punto", num: "PSICOLOGÍA DE VENTA",
+      titulo: 'El estilo <span class="verde">también vende</span>',
+      texto: "Antes de leer un precio, quien entra ya decidió si tu tienda le parece confiable.<br><br>Colores, fotos y tipografía <b>dicen quién sos</b> en un segundo.",
+      pie: "Primera impresión",
+    },
+    nuevo("1125-3", "Nuevo post", 'Dos rubros, <span class="verde">dos estilos</span>', "Hogar Digital y Perfumez. 🎨"),
   ],
 };
