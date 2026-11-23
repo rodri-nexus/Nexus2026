@@ -18,5 +18,19 @@ module.exports = {
       pie: "Vender lo que no se toca",
     },
     nuevo("1123-3", "Nuevo post", 'Cliente nuevo: <span class="verde">Perfumez</span>', "Perfumes árabes, en negro y dorado. 🖤"),
+
+    // Mar 24/11 · reel: la home de Perfumez
+    {
+      archivo: "1124-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Comprarías un perfume <span class="verde">sin olerlo</span>?',
+      sub: "Respondé con la encuesta. Hoy te muestro cómo lo resuelve una tienda.", responde: "SÍ · NI LOCO 🖤",
+    },
+    {
+      archivo: "1124-2", tipo: "punto", num: "PSICOLOGÍA DE VENTA",
+      titulo: 'Las palabras <span class="verde">también huelen</span>',
+      texto: "“Canela, cardamomo y vainilla” se imagina. “Fragancia intensa” no dice nada.<br><br>Cuanto más concreta la descripción, <b>menos duda quien compra</b>.",
+      pie: "Descripción sensorial",
+    },
+    nuevo("1124-3", "Nuevo reel", 'La tienda de <span class="verde">Perfumez</span>', "Así va a quedar, sección por sección. 🖤"),
   ],
 };

@@ -1,5 +1,5 @@
 # Reel "Una compra real en Hogar Digital": grabación de la tienda en vivo + voz de Tomás + música suave + rótulos de Nevux.
-# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home|corte|computadora|preguntas] (RELOJ=... para fijar el reloj del navegador)   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
+# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home|corte|computadora|preguntas|perfumez] (RELOJ=... para fijar el reloj del navegador)   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
 # Sale en public/ig/reels/compra.mp4 (+ .jpg). La portada va integrada como primer cuadro.
 import json, os, subprocess, sys, tempfile, shutil
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -70,6 +70,16 @@ REELS["preguntas"] = [
     dict(accion="pregunta", texto="devolverlo", margen=160, et="PREGUNTA 3", tit="¿Y si me arrepiento?", voz="¿Y si me arrepiento? También."),
     dict(accion="vivo", et="SIN ESCRIBIR", tit="La respuesta ya está ahí", voz="Así, quien compra no tiene que escribir y esperar: la respuesta ya está ahí."),
     dict(accion="cierre", voz="Cada duda resuelta en la ficha es una venta que no se frena. Comentá ficha."),
+]
+PZ = "https://perfumes405.mitiendanube.com/"
+REELS["perfumez"] = [  # correr con CLIENTE=perfumez CFG=<config de lib/clientes.ts en JSON> (la tienda todavía está apagada)
+    dict(accion="abrir", url=PZ, et="CLIENTE NUEVO", tit="Perfumez, así va a quedar", voz="Este es Perfumez, nuestro cliente nuevo: perfumes árabes. Así va a quedar su tienda."),
+    dict(accion="bajar", texto="MARCAS ÁRABES", margen=150, vivo=True, et="1 · CONFIANZA", tit="Marcas reales y envío", voz="Arriba, lo que da confianza: marcas árabes reales, envío a todo el país y listos para regalar."),
+    dict(accion="bajar", texto="ENCONTRÁ TU PRÓXIMA", margen=120, vivo=True, et="2 · POR ESTILO", tit="Hombre, mujer o unisex", voz="Después, elegís por estilo: hombre, mujer o unisex."),
+    dict(accion="bajar", texto="MÁS VENDIDOS", margen=60, vivo=True, et="3 · MÁS VENDIDOS", tit="En vitrina", voz="Los más vendidos, en una vitrina."),
+    dict(accion="bajar", texto="tres tiempos", margen=190, vivo=True, et="4 · CÓMO HUELE", tit="Salida, corazón y fondo", voz="Y como un perfume no se puede oler por internet, la tienda te cuenta cómo huele: salida, corazón y fondo."),
+    dict(accion="bajar", texto="RESOLVÉ TUS DUDAS", margen=100, vivo=True, et="5 · LAS DUDAS", tit="Respondidas antes", voz="Al final, las dudas de siempre, ya respondidas."),
+    dict(accion="cierre", voz="Otro rubro, la misma idea. ¿Querés tu tienda así? Comentá ficha."),
 ]
 NOMBRE = sys.argv[1] if len(sys.argv) > 1 else "compra"
 ESCENAS = REELS[NOMBRE]

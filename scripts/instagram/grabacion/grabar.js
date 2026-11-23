@@ -21,6 +21,14 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
   // RELOJ=2026-11-17T15:00:00-03:00 fija el reloj del navegador en ese momento (y corre desde ahí), para que el despacho
   // muestre lo que ve un cliente el día del post
   if (process.env.RELOJ) await ctx.clock.install({ time: new Date(process.env.RELOJ) });
+  // CLIENTE=perfumez CFG=cfg.json: para tiendas todavía apagadas, carga la configuración de lib/clientes.ts solo en este
+  // navegador (la línea de la tienda y el motor se sirven desde acá). Los textos del post tienen que decir "así va a quedar".
+  if (process.env.CLIENTE && process.env.CFG) {
+    const cfg = fs.readFileSync(process.env.CFG, "utf8");
+    const motor = fs.readFileSync(path.join(__dirname, "..", "..", "..", "public", "nevux.js"), "utf8");
+    await ctx.route(`**/nevux.ar/c/${process.env.CLIENTE}.js*`, (r) => r.fulfill({ contentType: "application/javascript", body: "window.NEVUX_CFG=" + cfg + ';var s=document.createElement("script");s.src="https://nevux.ar/nevux.js";document.head.appendChild(s);' }));
+    await ctx.route("**/nevux.ar/nevux.js*", (r) => r.fulfill({ contentType: "application/javascript", body: motor }));
+  }
   const p = await ctx.newPage();
   fs.mkdirSync(salida, { recursive: true });
   let n = 0;
