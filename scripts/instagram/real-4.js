@@ -48,4 +48,51 @@ Otro rubro, la misma idea: que quien entra sepa qué compra, cuánto paga y cuá
 
 ${HASHTAGS} #perfumesarabes`,
   },
+  {
+    carpeta: "18-black-friday-margen",
+    nombre: "Black Friday sin regalar margen",
+    placas: [
+      { tipo: "portada", eyebrow: "Black Friday · 27/11", titulo: 'Black Friday <span class="verde">sin regalar margen</span>', sub: "3 ideas para vender más sin bajar todo el catálogo. Con ejemplos reales de Hogar Digital." },
+      {
+        tipo: "punto", num: "1 · DESCUENTO POR TRANSFERENCIA",
+        titulo: 'Un ahorro <span class="verde">que también te conviene</span>',
+        texto: "Un % OFF pagando con transferencia: quien compra ahorra, y vos <b>te ahorrás la comisión del medio de pago</b>.",
+      },
+      f("EJEMPLO REAL · HOGAR DIGITAL", "10% con transferencia, a la vista", "capturas/hd-vivo/combo/bf-2.jpg"),
+      {
+        tipo: "punto", num: "2 · LLEVÁ MÁS, PAGÁ MENOS",
+        titulo: 'Descuento <span class="verde">a cambio de más compra</span>',
+        texto: "15% llevando 2, 25% llevando 3.<br><br>El descuento aparece <b>solo si el pedido crece</b>.",
+      },
+      {
+        tipo: "punto", num: "3 · COMBOS DE TEMPORADA",
+        titulo: 'Un precio para <span class="verde">varios productos</span>',
+        texto: "Armá un combo con lo que ya tenés en stock y dale un precio especial.<br><br>Movés mercadería <b>sin bajar cada producto por separado</b>.",
+      },
+      f("EJEMPLO REAL · HOGAR DIGITAL", "Su Combo Navideño, armado con su stock", "capturas/hd-vivo/combo/bf-1.jpg"),
+      {
+        tipo: "cta", ultima: true, eyebrow: "Sin apps · Sin cambiar de plantilla",
+        titulo: 'Que tu tienda <span class="verde">lo muestre así</span>',
+        texto: 'Cargás la promo en Tiendanube y Nevux la muestra en cada ficha. Comentá <span class="palabra">FICHA</span> y te digo cómo quedaría en la tuya.',
+      },
+    ],
+    caption: `🖤 Black Friday sin regalar margen: 3 ideas para vender más sin bajar todo el catálogo 👇
+
+1️⃣ Descuento por transferencia
+Quien compra ahorra, y vos te ahorrás la comisión del medio de pago.
+Ejemplo real: Hogar Digital (@hogardigitaltiendaonline) muestra el 10% con transferencia en cada ficha, con cuánto ahorra.
+
+2️⃣ Llevá más, pagá menos
+15% llevando 2, 25% llevando 3. El descuento aparece solo si el pedido crece.
+
+3️⃣ Combos de temporada
+Armá un combo con lo que ya tenés en stock y dale un precio especial. Movés mercadería sin bajar cada producto por separado.
+Ejemplo real: el Combo Navideño de Hogar Digital.
+
+Ojo: cada promo tiene que estar cargada en Tiendanube, así el carrito cobra lo mismo que muestra la ficha.
+
+👉 ¿Querés que tu tienda lo muestre así? Comentá FICHA y te digo cómo quedaría en la tuya.
+
+${HASHTAGS} #blackfriday`,
+  },
 ];

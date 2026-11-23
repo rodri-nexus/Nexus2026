@@ -60,5 +60,19 @@ module.exports = {
       pie: "Ficha completa",
     },
     nuevo("1126-3", "Nuevo reel", 'La ficha de <span class="verde">un perfume</span>', "Perfumez, de punta a punta. 🖤"),
+
+    // Vie 27/11 · post: Black Friday sin regalar margen
+    {
+      archivo: "1127-1", tipo: "portada", eyebrow: "Black Friday",
+      titulo: '¿Hoy bajás precios <span class="verde">o armás promos</span>?',
+      sub: "Respondé con la encuesta. Hoy te dejo 3 ideas para no regalar margen.", responde: "BAJO PRECIOS · PROMOS 🖤",
+    },
+    {
+      archivo: "1127-2", tipo: "punto", num: "PSICOLOGÍA DE VENTA",
+      titulo: 'Un descuento con condición <span class="verde">se siente ganado</span>',
+      texto: "“25% llevando 3” no se siente como un precio bajo: se siente como <b>una oportunidad</b>.<br><br>Y tu precio de lista sigue intacto.",
+      pie: "Black Friday",
+    },
+    nuevo("1127-3", "Nuevo post", 'Black Friday <span class="verde">sin regalar margen</span>', "3 ideas con ejemplos reales. 🖤"),
   ],
 };
