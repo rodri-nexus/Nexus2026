@@ -114,12 +114,12 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
       } else { console.log("no encontré", s.texto); await quieto(5); }
       await enVivo(k - 5);
     } else if (s.accion === "boton") {
-      // toca un botón por su texto exacto (filtros, "Ver más"...): elige el que está más cerca del centro de la pantalla
+      // toca un botón por su texto exacto, o que empiece así si es largo ("Ver más productos (24)"): elige el que está más cerca del centro de la pantalla
       const ok = await p.evaluate(([t, m]) => {
         const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); let x; const c = [];
         while ((x = w.nextNode())) {
           const e = x.parentElement; const r = e.getBoundingClientRect();
-          if (x.textContent.trim().toLowerCase() === t.toLowerCase() && r.height > 0 && r.width > 0 && getComputedStyle(e).visibility !== "hidden") c.push([Math.abs(r.top + r.height / 2 - innerHeight / 2), e]);
+          if ((x.textContent.trim().toLowerCase() === t.toLowerCase() || (t.length > 8 && x.textContent.trim().toLowerCase().startsWith(t.toLowerCase()))) && r.height > 0 && r.width > 0 && getComputedStyle(e).visibility !== "hidden") c.push([Math.abs(r.top + r.height / 2 - innerHeight / 2), e]);
         }
         if (!c.length) return false;
         c.sort((a, b) => a[0] - b[0]); const e = c[0][1];
