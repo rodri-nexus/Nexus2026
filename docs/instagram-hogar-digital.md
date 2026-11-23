@@ -53,6 +53,51 @@ La **semana 1 la programó Rodrigo a mano en Meta Business Suite**: se le pasó 
 | Jue 5/11 | Carrusel (6) | Así es comprar en Hogar Digital | ¿Qué te frena? · 30 días de garantía · Nuevo post |
 | Vie 6/11 | Reel con voz (23 s) | Música para el finde (3 parlantes) | ¿Juntada o relax? · Parlante RGB $60.000 · Nuevo reel |
 
+## Semana 2 (9 al 13 de noviembre), pasada a Rodrigo día por día el 08/11
+
+Precios revisados en la tienda el 08/11 (`productos.json`). Promos reales que se ven en cada ficha: **10 % con transferencia** y **15 % llevando 2 / 25 % llevando 3**, "no acumulable con algunas promociones". **No usar** "cuotas sin interés" (el checkout cobra interés desde 2 cuotas) ni el monto del envío gratis hasta confirmarlo. Reels con CRF 14 y la portada integrada como primer cuadro (`reels.py`); carruseles e historias en JPG al 97 % (`generar.js semana-2`).
+
+| Día | 19:48 | Pieza | Historias (10:12 · 14:42 · 21:12) |
+|---|---|---|---|
+| Lun 9/11 | Reel `smartwatch` (28 s) | Smartwatch KD99 Ultra ($27.900) | ¿Cuántas veces sacás el celular? · 10 % con transferencia · Nuevo reel |
+| Mar 10/11 | Carrusel (6) `06-pagar-menos` | 2 formas de pagar menos | ¿Cómo pagás? · Auriculares con transferencia · Nuevo post |
+| Mié 11/11 | Reel `bienestar` (33 s) | Masajeador ($46.990) y kit de gimnasio ($24.900) | ¿Relajarme o moverme? · Kit de gimnasio · Nuevo reel |
+| Jue 12/11 | Carrusel (6) `08-conoce-hogar-digital` | Local, Marcelo y pedidos (cuadros de sus Reels) | ¿Sabías del local? · +35 años · Nuevo post |
+| Vie 13/11 | Reel `luz` (26 s) | Luz de emergencia 60 LED ($54.990) | ¿Te quedaste sin luz? · 60 LED · Nuevo reel |
+
+- Las fotos de la **balanza Oryx** en su tienda muestran "NEVUX" en la pantalla: se avisó a Rodrigo para que las cambien; no se usan.
+- Sin métricas de la semana 1 (Windsor no estaba disponible en el chat del 08/11).
+
+## Semana 3 (16 al 20 de noviembre), pasada a Rodrigo día por día el 15/11
+
+Marcelo (15/11): no hace dropshipping y no quiere quedarse con mercadería; los productos con batería (parlantes, auriculares) se arruinan en stock. **Mostrar solo lo que tiene en stock y priorizar productos sin batería.** Evalúa sumar productos de Unidrop.
+
+| Día | 19:48 | Pieza | Historias (10:12 · 14:42 · 21:12) |
+|---|---|---|---|
+| Lun 16/11 | Reel `auriculares` (27 s) | Auriculares Air Max con pantalla ($45.900) | ¿Auriculares o parlante? · Envío gratis desde $50.000 · Nuevo reel |
+| Mar 17/11 | Carrusel (7) `09-combo-navideno` | Combo Navideño ($66.700, armado por Marcelo) | ¿Ya armaste el árbol? · El combo · Nuevo post |
+| Mié 18/11 | Reel `combo` (30 s) | Combo Navideño (el trípode con aro ya no está en la tienda) | ¿Árbol o arbolito? · 5 cosas en un combo · Nuevo reel |
+| Jue 19/11 | Carrusel (8) `10-como-comprar` | Así comprás en Hogar Digital, paso a paso (capturas en vivo, reloj del navegador en jueves 15 h) | ¿Ya compraste online? · Corte 18 h · Nuevo post |
+| Vie 20/11 | Reel `volcan` (28 s) | Humidificador Volcán ($70.900) | ¿Encendido o apagado? · $63.810 con transferencia · Nuevo reel |
+
+- **Combo Navideño:** la ficha no muestra envío gratis ni descuento por cantidad: no se prometen. Precio de lista: en la app $79.912 y en la web $89.900 (avisarle a Marcelo cuando vuelva).
+- **Productos nuevos (parlante Mixor Impacto, smartwatch ZL73J, smartwatch LAXASFIT H7):** se armaron fotos con fondo de estudio oscuro (`public/clientes/hogar-digital/fotos-nuevas/`, script `scripts/instagram/hd/fondo.py`). Faltan fotos con fondo liso de los colores rojo, azul y negro del parlante.
+- 13/11: Marcelo tuvo una venta orgánica (#114, $20.720) después del rediseño. Para usarla en el Instagram de Nevux, pedirle permiso.
+
+## Semana 4 (23 al 27 de noviembre), pasada a Rodrigo día por día el 22/11
+
+Catálogo revisado en vivo el 22/11 (36 productos, precio, stock y fotos de cada ficha; `scripts/instagram/hd/semana-4.js`). Cambios en la tienda: **ya no hay envío gratis desde $50.000** (`envioGratisDesde: 0`), el **Combo Navideño bajó a $44.000** (lista $51.600) y ya no trae los adornos, y llegaron productos nuevos (códigos MODS-, Oryx, Hyundai: parecen de Unidrop). No se usan productos con 2 o 3 unidades de stock. Sin promo de Black Friday cargada: el viernes va un carrusel de regalos.
+
+| Día | 19:48 | Pieza | Historias (10:12 · 14:42 · 21:12) |
+|---|---|---|---|
+| Lun 23/11 | Carrusel (8) `11-novedades` | 6 productos nuevos | ¿Viste lo nuevo? · Reloj Oryx 3D · Nuevo post |
+| Mar 24/11 | Reel `anteojos` (29 s) | Anteojos inteligentes Hyundai HY-C8 ($19.100) | ¿Auriculares o anteojos? · 9 h de música · Nuevo reel |
+| Mié 25/11 | Carrusel (6) `12-combo-nuevo-precio` | Combo Navideño a $44.000 | ¿Cuándo armás el árbol? · $44.000 · Nuevo post |
+| Jue 26/11 | Reel `antifaz` (28 s) | Antifaz Bluetooth para dormir ($19.100) | ¿Música o silencio? · 8 h de música · Nuevo reel |
+| Vie 27/11 | Carrusel (6) `13-regalos-20000` | 4 regalos de menos de $20.000 | ¿Regalo del amigo invisible? · Morral $14.900 · Nuevo post |
+
+- **Para Marcelo:** los anteojos Hyundai muestran un precio de lista de $144.372 (no se usa); el código del combo no nombra la estrella (confirmar si sigue incluida).
+
 ## Pendiente
 
 - Si vence Windsor (~29/11): publicación manual, después de la de @nevux.app (ver `docs/instagram.md`).

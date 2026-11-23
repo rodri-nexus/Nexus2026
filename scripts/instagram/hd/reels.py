@@ -40,6 +40,75 @@ REELS = {
         dict(tipo="foto", p="g", et="03 · MODELO G", tit="PARLANTE Y LUCES", voz="Y el modelo G, con parlante y luces de colores."),
         dict(tipo="cierre", voz="Elegí el tuyo en hogar digital punto com punto ar. Llevando dos o tres, pagás menos."),
     ],
+    # Semana 2 (9 al 13/11)
+    "smartwatch": [
+        dict(tipo="logo", voz="¿Seguís sacando el celular para ver cada notificación?"),
+        dict(tipo="foto", p="smartwatch", et="SMARTWATCH KD99 ULTRA", tit="TODO EN LA MUÑECA", voz="Con el smartwatch KD99 Ultra, las notificaciones te llegan a la muñeca."),
+        dict(tipo="foto", p="smartwatch", img="p/smartwatch-24.jpg", et="LLAMADAS POR BLUETOOTH", tit="SIN SACAR EL CELU", voz="Gestionás las llamadas por Bluetooth y seguís tu actividad del día."),
+        dict(tipo="foto", p="smartwatch", img="p/smartwatch-26.jpg", et="DISEÑO TIPO ULTRA", tit="PARA TODOS LOS DÍAS", voz="Pantalla táctil y diseño tipo Ultra, para el trabajo o para entrenar."),
+        dict(tipo="precio", p="smartwatch", nombre="Smartwatch KD99 Ultra", tag="10% OFF CON TRANSFERENCIA", voz="Sale veintisiete mil novecientos, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Pedilo en hogar digital punto com punto ar. Enviamos a todo el país."),
+    ],
+    "bienestar": [
+        dict(tipo="logo", voz="Dos formas de cuidarte sin salir de casa."),
+        dict(tipo="foto", p="masajeador", img="p/masajeador-3.jpg", et="MASAJEADOR DE CABEZA", tit="8 BRAZOS", voz="El masajeador de cabeza eléctrico de ocho brazos, para regalarte una pausa al final del día."),
+        dict(tipo="foto", p="masajeador", img="p/masajeador-2.jpg", et="TU MOMENTO", tit="PARA DESCONECTAR", precio=True, voz="Lo usás mientras descansás o mirás una serie. Sale cuarenta y seis mil novecientos noventa."),
+        dict(tipo="foto", p="kit", et="KIT DE GIMNASIO", tit="ENTRENÁ EN CASA", precio=True, voz="Y el kit de gimnasio, para entrenar en casa sin depender de horarios, a veinticuatro mil novecientos."),
+        dict(tipo="foto", p="kit", img="p/kit-2.jpg", et="BANDAS Y AGARRES", tit="DISTINTAS ZONAS", voz="Trabajás distintas zonas del cuerpo según el ejercicio que hagas."),
+        dict(tipo="cierre", voz="Pedilos en hogar digital punto com punto ar. Pagando con transferencia, tenés diez por ciento off."),
+    ],
+    "luz": [
+        dict(tipo="logo", voz="¿Qué hacés cuando se corta la luz?"),
+        dict(tipo="foto", p="luz", et="LUZ DE EMERGENCIA", tit="60 LUCES LED", voz="Con la luz de emergencia de sesenta LED, no te quedás a oscuras."),
+        dict(tipo="foto", p="luz", img="p/luz-2.jpg", et="PARA TU CASA", tit="CUALQUIER CUARTO", voz="Es ideal para el hogar, las habitaciones y cualquier imprevisto."),
+        dict(tipo="foto", p="luz", img="p/luz-3.jpg", et="SIEMPRE A MANO", tit="LISTA PARA EL CORTE", voz="Tenela preparada para cuando la necesitás."),
+        dict(tipo="precio", p="luz", nombre="Luz de emergencia 60 LED", tag="10% OFF CON TRANSFERENCIA", voz="Sale cincuenta y cuatro mil novecientos noventa, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Anticipate a los cortes. Pedila en hogar digital punto com punto ar."),
+    ],
+    # Semana 3 (16 al 20/11)
+    "auriculares": [
+        dict(tipo="logo", voz="¿Tus auriculares tienen pantalla? Estos sí."),
+        dict(tipo="foto", p="auriculares", et="AURICULARES AIR MAX", tit="CON PANTALLA", voz="Los auriculares Air Max, con una pantalla integrada en el estuche."),
+        dict(tipo="foto", p="auriculares", img="p/auriculares-2.jpg", et="PARA TODOS LOS DÍAS", tit="MÚSICA Y LLAMADAS", voz="Para escuchar música, mirar videos y atender llamadas."),
+        dict(tipo="foto", p="auriculares", img="p/auriculares-3.jpg", et="FÁCILES DE LLEVAR", tit="DE VIAJE O EN CASA", voz="Cómodos y fáciles de llevar, de viaje o en casa."),
+        dict(tipo="precio", p="auriculares", nombre="Auriculares Air Max con pantalla", tag="10% OFF CON TRANSFERENCIA", voz="Salen cuarenta y cinco mil novecientos, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Pedilos en hogar digital punto com punto ar. Enviamos a todo el país."),
+    ],
+    "combo": [
+        dict(tipo="logo", voz="¿Ya pensaste cómo vas a decorar esta Navidad?"),
+        dict(tipo="foto", p="combo", img="p/combo-arbol.jpg", et="COMBO NAVIDEÑO", tit="ÁRBOL DE 90 CM", voz="Llegó el combo navideño de Hogar Digital. Trae un árbol blanco de noventa centímetros,"),
+        dict(tipo="foto", p="combo", img="p/combo-estrella-2.jpg", et="PARA LA PUNTA", tit="LA ESTRELLA", voz="la estrella para la punta,"),
+        dict(tipo="foto", p="combo", img="p/combo-adornos.jpg", et="PARA COLGAR", tit="12 ADORNOS", voz="doce adornos para colgar,"),
+        dict(tipo="foto", p="combo", img="p/combo-luces.jpg", et="LUCES LED · CONTROL REMOTO", tit="CON EFECTOS", voz="luces LED con control remoto,"),
+        dict(tipo="foto", p="combo", img="p/combo-arbolito.jpg", et="PARA LA MESA", tit="ARBOLITO DE MESA", voz="y un arbolito de mesa."),
+        dict(tipo="precio", p="combo", img="p/combo-estrella.jpg", nombre="Combo Navideño", tag="10% OFF CON TRANSFERENCIA", voz="Todo por sesenta y seis mil setecientos, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Pedilo en hogar digital punto com punto ar. Enviamos a todo el país."),
+    ],
+    "volcan": [
+        dict(tipo="logo", voz="¿El ambiente de tu casa se siente seco?"),
+        dict(tipo="foto", p="volcan", img="p/volcan-oscuro.jpg", et="HUMIDIFICADOR VOLCÁN", tit="EFECTO ERUPCIÓN", voz="El humidificador Volcán aporta humedad al ambiente, y simula una erupción volcánica."),
+        dict(tipo="foto", p="volcan", img="p/volcan-luz.jpg", et="PARA TU ESPACIO", tit="CUARTO O LIVING", voz="Queda ideal en el dormitorio, el living o la oficina."),
+        dict(tipo="foto", p="volcan", img="p/volcan-arriba.jpg", et="CON CONTROL REMOTO", tit="SIN LEVANTARTE", voz="Y con el control remoto, lo manejás sin levantarte."),
+        dict(tipo="precio", p="volcan", img="p/volcan-oscuro.jpg", nombre="Humidificador Volcán", tag="10% OFF CON TRANSFERENCIA", voz="Sale setenta mil novecientos, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Pedilo en hogar digital punto com punto ar. Superando cincuenta mil pesos, el envío es gratis."),
+    ],
+    # Semana 4 (23 al 27/11)
+    "anteojos": [
+        dict(tipo="logo", voz="¿Unos anteojos que también son auriculares?"),
+        dict(tipo="foto", p="anteojos", et="ANTEOJOS HYUNDAI HY-C8", tit="MÚSICA Y LLAMADAS", voz="Son los anteojos inteligentes Hyundai: escuchás música y atendés llamadas desde las patillas."),
+        dict(tipo="foto", p="anteojos", img="p/anteojos-2.jpg", et="BLUETOOTH 5.4", tit="HASTA 10 METROS", voz="Se conectan por Bluetooth al celular, con un alcance de hasta diez metros."),
+        dict(tipo="foto", p="anteojos", img="p/anteojos-3.jpg", et="PARA EL DÍA A DÍA", tit="UNAS 9 HORAS", voz="Y tenés unas nueve horas de reproducción, para caminar, viajar o pasear."),
+        dict(tipo="precio", p="anteojos", img="p/anteojos-2.jpg", nombre="Anteojos inteligentes Hyundai", tag="10% OFF CON TRANSFERENCIA", voz="Salen diecinueve mil cien, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Pedilos en hogar digital punto com punto ar. Enviamos a todo el país."),
+    ],
+    "antifaz": [
+        dict(tipo="logo", voz="¿Te gusta dormirte con música?"),
+        dict(tipo="foto", p="antifaz", img="p/antifaz-2.jpg", et="ANTIFAZ BLUETOOTH", tit="CON AURICULARES", voz="Es un antifaz acolchado, con auriculares Bluetooth integrados."),
+        dict(tipo="foto", p="antifaz", img="p/antifaz-3.jpg", et="PARA DESCANSAR", tit="OJOS CUBIERTOS", voz="Te cubre los ojos mientras escuchás tu música, un podcast o tu lista para dormir."),
+        dict(tipo="foto", p="antifaz", et="PARA VIAJAR", tit="UNAS 8 HORAS", voz="Tiene unas ocho horas de reproducción, y también sirve para viajar."),
+        dict(tipo="precio", p="antifaz", img="p/antifaz-2.jpg", nombre="Antifaz Bluetooth para dormir", tag="10% OFF CON TRANSFERENCIA", voz="Sale diecinueve mil cien, y pagando con transferencia tenés diez por ciento off."),
+        dict(tipo="cierre", voz="Pedilo en hogar digital punto com punto ar. Viene en negro o en gris."),
+    ],
     "parlantes": [
         dict(tipo="logo", voz="Llega el finde y falta la música."),
         dict(tipo="foto", p="parlante-rgb", et="PARA EL LIVING", tit="PARLANTE RGB", precio=True, voz="El parlante RGB, con luces de colores, a sesenta mil pesos."),
@@ -78,8 +147,8 @@ def texto(d, xy, s, fnt, fill, anchor="la", esp=0):
     y += asc if anchor[1] == "t" else (asc - desc) / 2 if anchor[1] == "m" else 0
     for c in s: d.text((x, y), c, font=fnt, fill=fill, anchor="ls"); x += d.textlength(c, font=fnt) + esp
 
-def foto_llena(k, t, zoom):
-    im = Image.open(os.path.join(PUB, P[k]["img"])).convert("RGB")
+def foto_llena(k, t, zoom, img=None):
+    im = Image.open(os.path.join(PUB, img or P[k]["img"])).convert("RGB")
     # Fondo: la misma foto desenfocada; adelante, la foto entera con un acercamiento lento
     bg = im.resize((int(H * im.width / im.height), H)) if im.width / im.height < W / H else im.resize((W, int(W * im.height / im.width)))
     bg = bg.resize((max(W, bg.width), max(H, bg.height)))
@@ -113,14 +182,16 @@ def cuadro(esc, t, d_esc):
         texto(d, (W / 2, 1270), "ENVÍOS A TODO EL PAÍS", F("inter800.ttf", 36), (255, 255, 255), "mm", esp=3)
         return im
     if esc["tipo"] == "precio":
-        im = foto_llena(k, x, False); d = ImageDraw.Draw(im)
+        im = foto_llena(k, x, False, esc.get("img")); d = ImageDraw.Draw(im)
         d.rectangle((0, 1290, W, 1700), fill=(8, 10, 14))
         texto(d, (W / 2, 1360), esc.get("nombre", P[k]["nombre"]).upper(), F("mont900.ttf", 34), (180, 190, 200), "mm", esp=3)
         texto(d, (W / 2, 1480), plata(P[k]["precio"]), F("mont900.ttf", 150), (255, 255, 255), "mm")
-        d.rounded_rectangle((W / 2 - 300, 1570, W / 2 + 300, 1660), radius=45, fill=AZUL)
-        texto(d, (W / 2, 1615), "LLEVANDO 2: 15% OFF", F("inter800.ttf", 38), (255, 255, 255), "mm", esp=2)
+        tag = esc.get("tag", "LLEVANDO 2: 15% OFF"); ft = F("inter800.ttf", 38)
+        ancho = max(300, (d.textlength(tag, font=ft) + 2 * (len(tag) - 1)) / 2 + 50)
+        d.rounded_rectangle((W / 2 - ancho, 1570, W / 2 + ancho, 1660), radius=45, fill=AZUL)
+        texto(d, (W / 2, 1615), tag, ft, (255, 255, 255), "mm", esp=2)
         return im
-    im = foto_llena(k, x, esc.get("zoom")); d = ImageDraw.Draw(im)
+    im = foto_llena(k, x, esc.get("zoom"), esc.get("img")); d = ImageDraw.Draw(im)
     a = ease(t / 0.35)
     off = int((1 - a) * -60)
     d.rectangle((60 + off, 1280, 60 + off + 12, 1470), fill=AZUL)
@@ -152,17 +223,19 @@ def armar(nombre):
     n = 0
     for e, dd in zip(escenas, durs):
         for j in range(int(round(dd * FPS))):
-            cuadro(e, j / FPS, dd).save(os.path.join(fr, f"{n:05d}.jpg"), quality=90); n += 1
+            cuadro(e, j / FPS, dd).save(os.path.join(fr, f"{n:05d}.jpg"), quality=97, subsampling=0); n += 1
+    # Portada integrada: los 2 primeros cuadros son la primera foto de producto, así Business Suite la toma como miniatura
+    port = next(i for i, e in enumerate(escenas) if e["tipo"] in ("foto", "precio"))
+    ini = int(sum(durs[:port]) * FPS) + 20
+    portada = Image.open(os.path.join(fr, f"{ini:05d}.jpg")).copy()
+    for j in range(2): portada.save(os.path.join(fr, f"{j:05d}.jpg"), quality=97, subsampling=0)
     os.makedirs(os.path.join(PUB, "reels"), exist_ok=True)
     out = os.path.join(PUB, "reels", f"{nombre}.mp4")
     sinmusica = os.path.join(tmp, "video.mp4")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(fr, "%05d.jpg"), "-i", voz,
-        "-c:v", "libx264", "-preset", "slow", "-crf", "21", "-pix_fmt", "yuv420p", "-profile:v", "high", "-c:a", "copy", "-shortest", "-movflags", "+faststart", sinmusica], check=True)
+        "-c:v", "libx264", "-preset", "slow", "-crf", "14", "-pix_fmt", "yuv420p", "-profile:v", "high", "-c:a", "copy", "-shortest", "-movflags", "+faststart", sinmusica], check=True)
     mezclar(sinmusica, voz, out)
-    # Portada: la primera foto de producto
-    port = next(i for i, e in enumerate(escenas) if e["tipo"] in ("foto", "precio"))
-    ini = int(sum(durs[:port]) * FPS) + 20
-    Image.open(os.path.join(fr, f"{ini:05d}.jpg")).save(os.path.join(PUB, "reels", f"{nombre}.jpg"), quality=90)
+    portada.save(os.path.join(PUB, "reels", f"{nombre}.jpg"), quality=97, subsampling=0)
     print(nombre, f"{sum(durs):.1f} s", f"{os.path.getsize(out) / 1e6:.1f} MB")
 
 for nombre in (sys.argv[1:] or list(REELS)):

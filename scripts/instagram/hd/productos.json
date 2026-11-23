@@ -92,9 +92,72 @@
  },
  "pilates": {
   "nombre": "Set de Pilates Completo 11 Piezas",
-  "precio": 66990,
+  "precio": 73900,
   "lista": 89990,
   "url": "https://hogardigital.com.ar/productos/set-de-pilates-completo-11-piezas/",
   "img": "p/pilates.jpg"
+ },
+ "kit": {
+  "nombre": "Kit de Gimnasio en Casa",
+  "precio": 24900,
+  "lista": 54900,
+  "url": "https://hogardigital.com.ar/productos/kit-de-gimnasio/",
+  "img": "p/kit.jpg"
+ },
+ "luz": {
+  "nombre": "Luz de Emergencia 60 Luces LED",
+  "precio": 54990,
+  "lista": 74990,
+  "url": "https://hogardigital.com.ar/productos/luz-de-emergencia-60-luces-led/",
+  "img": "p/luz.jpg"
+ },
+ "combo": {
+  "nombre": "Combo Navideño",
+  "precio": 44000,
+  "lista": 51600,
+  "url": "https://hogardigital.com.ar/productos/combo-navideno-1be5s/",
+  "img": "p/combo-estrella.jpg"
+ },
+ "antifaz": {
+  "nombre": "Antifaz Bluetooth para Dormir",
+  "precio": 19100,
+  "lista": 21249.69,
+  "url": "https://hogardigital.com.ar/productos/antifaz-bluetooth-auriculares-dormir/",
+  "img": "p/antifaz.jpg"
+ },
+ "anteojos": {
+  "nombre": "Anteojos Inteligentes Hyundai HY-C8",
+  "precio": 19100,
+  "lista": null,
+  "url": "https://hogardigital.com.ar/productos/anteojos-inteligentes-hyundai-hy-c8-black-sol/",
+  "img": "p/anteojos.jpg"
+ },
+ "morral": {
+  "nombre": "Bolso Morral MODS-772",
+  "precio": 14900,
+  "lista": 18445.35,
+  "url": "https://hogardigital.com.ar/productos/bolso-morral-cuadrado-mods-772/",
+  "img": "p/morral.jpg"
+ },
+ "reloj-oryx": {
+  "nombre": "Reloj Digital Oryx 3D con Luz LED",
+  "precio": 19500,
+  "lista": 23790.69,
+  "url": "https://hogardigital.com.ar/productos/reloj-digital-oryx-el1416-numeros-3d-con-luz-led-blanca/",
+  "img": "p/reloj-oryx.jpg"
+ },
+ "luz-120": {
+  "nombre": "Luz de Emergencia 120 LED",
+  "precio": 53900,
+  "lista": 83900,
+  "url": "https://hogardigital.com.ar/productos/luz-de-emergencia-120-led/",
+  "img": "p/luz-120.jpg"
+ },
+ "zl73j": {
+  "nombre": "Smartwatch ZL73J Negro",
+  "precio": 58500,
+  "lista": 64721.8,
+  "url": "https://hogardigital.com.ar/productos/smartwatch-zl73j-negro-mejor-que-zl02-1dyi2/",
+  "img": "p/zl73j.jpg"
  }
 }

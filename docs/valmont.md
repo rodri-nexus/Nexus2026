@@ -1,4 +1,7 @@
-# Valmont & Co. — relojería (plan Premium, estilo Wess)
+# Valmont & Co.
+
+> **23/11 (pedido de Rodrigo):** se sacaron de su configuración todos los textos que no son verdad mientras el catálogo tenga Rolex, Patek y Omega a $49.900 (réplicas): "Relojes auténticos", "100% originales", "garantía oficial del fabricante", la etiqueta "Relojes desde 1985", la sección "Valmont en números" (+38 años, +5000 clientes, +200 modelos, 2 locales: inventados) y la comunidad con videos de esas marcas. La portada y el banner usan solo la foto del G-Shock. **Falta (Miguel):** bajar esos productos y cargar relojes originales; recién ahí se pueden volver a decir "originales" y la garantía real que tenga. Sin verificar todavía: envío gratis, 2 a 5 días hábiles y 30 días para cambios.
+ — relojería (plan Premium, estilo Wess)
 
 **Actualizado:** 31/10/2026. **Tienda terminada: Rodrigo pidió no tocar nada más.** Pendiente: ok del cliente → apagar (`activo: false`) hasta que pague → al pagar, prender con cobro automático por su email.
 

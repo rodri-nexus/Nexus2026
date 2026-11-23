@@ -36,6 +36,10 @@
   .lista div { display: flex; gap: 16px; font-size: 30px; line-height: 1.32; font-weight: 600; color: #e4e4e7; }
   .lista svg { flex: none; width: 38px; height: 38px; margin-top: 1px; }
   .split .tel { position: absolute; right: 70px; top: 175px; width: 440px; height: 952px; z-index: 2; transform: rotate(2deg); }
+  /* ancho: celulares con la proporción de las capturas 390x693 (sin recortar los costados) */
+  body.ancho .dos .tel { width: 430px; height: 770px; }
+  body.ancho .dos { gap: 34px; }
+  body.ancho .split .tel { width: 470px; height: 840px; top: 240px; }
   .cta { position: absolute; left: 80px; right: 80px; top: 190px; bottom: 170px; display: flex; flex-direction: column; justify-content: center; z-index: 2; }
   .cta h1 { font-size: 104px; line-height: 1.0; font-weight: 800; letter-spacing: -.045em; }
   .cta p { margin-top: 36px; font-size: 40px; line-height: 1.4; color: #d4d4d8; font-weight: 500; }
@@ -51,6 +55,7 @@
 const P = window.PLACA || {};
 const LOGO = `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="13.5" y1="11.5" x2="28.5" y2="30.5" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#fff" stop-opacity=".9"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><circle cx="20" cy="20" r="20" fill="#000"/><rect x="13.5" y="11.5" width="3.5" height="17" fill="#fff"/><rect x="23" y="11.5" width="3.5" height="9" fill="#fff"/><polygon points="13.5,11.5 17,11.5 28.5,30.5 25,30.5" fill="url(#g)"/></svg>`;
 const OK = `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="rgba(52,211,153,.16)"/><path d="m7 12.5 3.2 3.2L17 9" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+if (P.ancho) document.body.classList.add("ancho");
 const tel = (src, rot) => `<div class="tel"><div class="in"><img src="casos/${src}.jpg"></div>${rot ? `<span class="rot">${rot}</span>` : ""}</div>`;
 let h = `<div class="top"><div class="marca">${LOGO}Nevux<small>@nevux.app</small></div><span class="pag">${P.pag || ""}</span></div>`;
 if (P.tipo === "dos") h += `<div class="cab">${P.eyebrow ? `<div class="eyebrow">${P.eyebrow}</div>` : ""}<h1>${P.titulo}</h1>${P.sub ? `<p>${P.sub}</p>` : ""}</div><div class="dos">${P.fotos.map(([f, r]) => tel(f, r)).join("")}</div>`;

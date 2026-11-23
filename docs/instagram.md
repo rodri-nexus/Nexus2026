@@ -62,6 +62,58 @@ Fichas de producto que venden · Sin apps
 - **Calidad máxima:** carruseles e historias se capturan en PNG y se exportan a JPG al 97 % con color completo (`generar.js`). Los Reels salen de cuadros PNG, con H.264 CRF 14 `tune animation` y audio AAC a 192 kbps (`generar-reels.js` y `audio.py`).
 - **Portada integrada en los Reels:** el primer cuadro del video es la portada (`PRE_PORTADA`, 2 cuadros por defecto), así Business Suite la toma sola como miniatura. `narrar.py` corre la voz lo mismo.
 
+## Desde el 02/11: contenido con tiendas reales (pedido de Rodrigo)
+
+Nada de fichas simuladas ni productos inventados: las piezas muestran **cómo quedó la tienda de un cliente, tal cual la tiene**. Capturas en celular (390 px, x3) con Playwright sobre la tienda real y su configuración de `lib/clientes.ts` (si la tienda está apagada, la configuración se carga solo en el navegador de prueba). **Los avisos de compra del Premium se dejan en las capturas** (Rodrigo: "eso va con lo premium"). Se saca solo un evento que ya terminó (por ejemplo, la Semana Cyber después del 4/11). Valmont no se usa mientras tenga réplicas cargadas.
+- Primer carrusel: `07-hogar-digital-real` (martes 3/11), hecho con `scripts/instagram/real-1.js` y las capturas de `scripts/instagram/capturas/hd/`. Reemplaza a `04-que-hace-nevux`.
+- **Desde el 09/11 Nevux está prendido en la tienda de Marcelo** (`activo: true`, cobro `planPropio`): las capturas se sacan de su tienda en vivo, sin cargar nada en el navegador (`real-2.js`, capturas en `scripts/instagram/capturas/hd-vivo/`). Semana del 9 al 15/11: historias en `historias-3.js`.
+- A rehacer igual: miércoles 4/11 (`02-antes-despues`), jueves 5/11 (Reel `packs`) y sábado 7/11 (Reel `envio`). Los carruseles del viernes y el domingo son solo texto y quedan.
+
+## Semana del 9 al 15/11 (pasada a Rodrigo día por día; todo con Hogar Digital en vivo)
+
+| Día | 19:30 | Pieza | Archivos |
+|---|---|---|---|
+| Lun 9/11 | Carrusel (7) | La ficha de Hogar Digital, parte por parte | `08-ficha-hogar-digital` |
+| Mar 10/11 | Reel (43 s) | Una compra real, de la home al carrito | `reels/compra.mp4` |
+| Mié 11/11 | Carrusel (6) | El carrito también vende | `09-carrito-hogar-digital` |
+| Jue 12/11 | Reel (30 s) | "En movimiento": sus Reels en su tienda | `reels/movimiento.mp4` |
+| Vie 13/11 | Carrusel (6) | 3 cosas que tu ficha tiene que mostrar | `10-tres-cosas-ficha` |
+| Sáb 14/11 | Reel (31 s) | La home de Hogar Digital en 30 segundos | `reels/home.mp4` |
+| Dom 15/11 | Carrusel (8) | Básico o Premium | `11-basico-o-premium` |
+
+Historias en `historias-3.js` (`MMDD-1..3`). Los Reels grabados en la tienda salen de `scripts/instagram/grabacion/compra.py [compra|movimiento|home]`: Playwright en celular (390×693 a 1080×1920), voz de Tomás, música propia, rótulos de Nevux y portada integrada. Las pausas con `vivo: true` se graban en tiempo real (screencast de Chrome) para que los videos y carruseles se vean andando.
+- **Para avisarle a Marcelo:** en el carrito, con pedidos de menos de $50.000 el producto dice "Envío gratis" y la barra "Te faltan $X" (cartel de envío gratis cargado en cada producto de Tiendanube).
+
+## Semana del 16 al 22/11 (pasada a Rodrigo día por día; Hogar Digital en vivo)
+
+| Día | 19:30 | Pieza | Archivos |
+|---|---|---|---|
+| Lun 16/11 | Carrusel (7) | Cargó un producto nuevo y la ficha salió completa (Combo Navideño) | `12-producto-nuevo` |
+| Mar 17/11 | Reel (31 s) | La cuenta regresiva del despacho, en vivo | `reels/corte.mp4` |
+| Mié 18/11 | Carrusel (8) | Combos: cómo armarlos para vender más (llamado: "Comentá COMBO") | `13-combos` |
+| Jue 19/11 | Reel (29 s) | Hogar Digital en computadora | `reels/computadora.mp4` |
+| Vie 20/11 | Carrusel (7) | 5 cosas para revisar antes del Black Friday (27/11) | `14-black-friday` |
+| Sáb 21/11 | Reel (32 s) | Las preguntas frecuentes de la ficha, en vivo | `reels/preguntas.mp4` |
+| Dom 22/11 | Carrusel (9) | Lo que más me preguntan de Nevux (respuestas de la landing) | `15-preguntas-nevux` |
+
+Historias en `historias-4.js`; carruseles en `real-3.js`. El grabador (`grabacion/compra.py`) suma `RELOJ=<fecha>` (reloj del navegador en el día del post), `ESCRITORIO=1` (notebook) y la acción `pregunta` (abre una pregunta frecuente).
+
+## Semana del 23 al 29/11 (pasada a Rodrigo día por día): Hogar Digital en vivo + Perfumez, cliente nuevo
+
+**Perfumez (Lorenzo, `perfumes405.mitiendanube.com`, perfumes árabes Armaf/Afnan/Lattafa):** todavía apagada (se prende sola cuando paga el Premium, principios de diciembre). Sus capturas y Reels se hacen con su configuración de `lib/clientes.ts` cargada solo en el navegador (`CLIENTE=perfumez CFG=<json>` en el grabador) y los textos dicen **"así va a quedar"**. Confirmar con Lorenzo que está de acuerdo con aparecer. **Valmont** está prendida desde que Miguel pagó, pero no se muestra: su catálogo sigue con réplicas.
+
+| Día | 19:30 | Pieza | Archivos |
+|---|---|---|---|
+| Lun 23/11 | Carrusel (8) | Cliente nuevo: Perfumez | `16-cliente-perfumez` (`real-4.js`) |
+| Mar 24/11 | Reel (39 s) | La home de Perfumez | `reels/perfumez.mp4` |
+| Mié 25/11 | Carrusel (6) | Dos rubros, dos estilos (Hogar Digital y Perfumez) | `17-dos-estilos` (`generar-casos.js dos-estilos`) |
+| Jue 26/11 | Reel (32 s) | La ficha de un perfume de Perfumez | `reels/perfumez-ficha.mp4` |
+| Vie 27/11 | Carrusel (7) | Black Friday sin regalar margen (ejemplos de Hogar Digital) | `18-black-friday-margen` |
+| Sáb 28/11 | Reel (30 s) | Todo el catálogo de Hogar Digital en la home, con filtros | `reels/catalogo.mp4` |
+| Dom 29/11 | Carrusel (7) | Noviembre en Nevux | `19-noviembre` |
+
+Historias en `historias-5.js`. El grabador suma la acción `boton` (toca un filtro o "Ver más") y `generar-casos.js` acepta otro módulo (`ancho: true` para capturas 390×693).
+
 ## Frecuencia y horarios (todo programado, hora de Argentina)
 
 | Hora | Qué | Archivo |

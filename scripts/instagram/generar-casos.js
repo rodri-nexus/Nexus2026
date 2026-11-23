@@ -1,10 +1,11 @@
 // Carrusel con capturas reales de las tiendas Premium (scripts/instagram/casos/*.jpg) dentro de celulares.
-// Uso: node scripts/instagram/generar-casos.js  → public/ig/07-premium/1..N.jpg (JPG 97 % 4:4:4) + caption.txt
+// Uso: node scripts/instagram/generar-casos.js [modulo]  → public/ig/07-premium/1..N.jpg (JPG 97 % 4:4:4) + caption.txt
 const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const { chromium } = require("playwright");
-const post = require("./premium-casos.js");
+// node generar-casos.js [modulo]  (por defecto premium-casos)
+const post = require(`./${process.argv[2] || "premium-casos"}.js`);
 
 (async () => {
   const dir = path.join(__dirname, "..", "..", "public", "ig", post.carpeta);

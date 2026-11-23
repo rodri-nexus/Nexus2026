@@ -66,7 +66,7 @@ module.exports = {
       texto: "El primer precio que ve tu cliente se vuelve la referencia de todo lo demás. Se llama <b>anclaje</b>.<br><br>Por eso en un pack conviene mostrar primero el precio de 1 unidad, y después cuánto ahorra llevando 2.",
       pie: "Anclaje",
     },
-    nuevo("1103-3", "Nuevo post", '¿Qué hace Nevux en <span class="verde">tu tienda</span>?', "Te lo explico fácil, pieza por pieza. 🧩"),
+    nuevo("1103-3", "Nuevo post", 'Así quedó la tienda de <span class="verde">Hogar Digital</span>', "Caso real, captura por captura. 📲"),
 
     // Mié 4/11 · post: antes y después
     {

@@ -1,0 +1,178 @@
+// Semana del 16 al 22/11 de @nevux.app: la tienda de Hogar Digital en vivo (capturas sin cargar nada en el navegador).
+// Para que el despacho muestre lo que ve un cliente el día del post, el reloj del navegador se fija en ese día a las 15 h.
+// Uso: node scripts/instagram/generar.js real-3
+const HASHTAGS = "#tiendanube #emprendedoresargentinos #tiendaonline #ecommerceargentina #ventasonline #emprender";
+const V = "capturas/hd-vivo/";
+const f = (etiqueta, titulo, img) => ({ tipo: "foto", clase: "despues", etiqueta, titulo, img: V + img });
+
+module.exports = [
+  {
+    carpeta: "12-producto-nuevo",
+    nombre: "Cargó un producto nuevo y la ficha salió completa",
+    placas: [
+      f("CASO REAL · EN VIVO", 'Marcelo cargó un producto nuevo. <span class="verde">La ficha salió completa.</span>', "combo/1.jpg"),
+      {
+        tipo: "punto", num: "LO QUE HIZO MARCELO",
+        titulo: 'Cargó su combo en Tiendanube, <span class="verde">como siempre</span>',
+        texto: "Fotos, precio, precio promocional y descripción. Nada más.<br><br>Nosotros <b>no tuvimos que tocar nada</b>.",
+      },
+      f("1 · EL PRECIO", "Precio con transferencia, ahorro y cuotas, solos", "combo/2.jpg"),
+      f("2 · CUÁNDO SALE", "Hora de corte, envío y su local", "combo/3.jpg"),
+      f("3 · LAS DUDAS", "Preguntas frecuentes y botón de compra fijo", "combo/5.jpg"),
+      {
+        tipo: "punto", num: "POR QUÉ IMPORTA",
+        titulo: 'Cada producto nuevo <span class="verde">vende desde el día uno</span>',
+        texto: "Nevux toma los datos de cada producto de tu Tiendanube (precio, promo, transferencia, cuotas) y arma la ficha solo.<br><br>Cargás un producto y <b>ya sale completo</b>.",
+      },
+      {
+        tipo: "cta", ultima: true, eyebrow: "Sin apps · Sin cambiar de plantilla",
+        titulo: '¿Querés que <span class="verde">tus fichas</span> salgan así?',
+        texto: 'Comentá <span class="palabra">FICHA</span> y te muestro cómo quedaría la tuya.',
+      },
+    ],
+    caption: `Marcelo, de Hogar Digital (@hogardigitaltiendaonline), cargó un producto nuevo: un Combo Navideño 🎄
+
+Lo cargó en Tiendanube como siempre: fotos, precio, precio promocional y descripción. Nada más.
+
+Y la ficha salió completa, sola:
+💲 El precio con transferencia, cuánto ahorra y las cuotas.
+🛒 Su promo por cantidad.
+📦 La hora de corte con cuenta regresiva, el envío y su local.
+❓ Las preguntas frecuentes y el botón de compra que siempre se ve.
+
+Nosotros no tuvimos que tocar nada. Nevux toma los datos de cada producto de tu Tiendanube y arma la ficha. Así, cada producto nuevo vende desde el día uno.
+
+✅ Sin apps
+✅ Sin cambiar de plantilla
+
+👉 ¿Querés que tus fichas salgan así? Comentá FICHA y te muestro cómo quedaría la tuya.
+
+${HASHTAGS}`,
+  },
+  {
+    carpeta: "13-combos",
+    nombre: "Combos: cómo armarlos para vender más",
+    placas: [
+      { tipo: "portada", eyebrow: "Guardalo para después", titulo: 'Combos: cómo armarlos <span class="verde">para vender más</span>', sub: "Con un ejemplo real: el Combo Navideño de Hogar Digital." },
+      f("EJEMPLO REAL · EN VIVO", "El combo que armó Marcelo para Navidad", "combo/1.jpg"),
+      {
+        tipo: "punto", num: "1 · UNA OCASIÓN CLARA",
+        titulo: 'Un combo para <span class="verde">un momento</span>',
+        texto: "“Armá tu Navidad” vende más que “5 productos juntos”.<br><br>La persona compra <b>una solución</b>, no una lista.",
+      },
+      {
+        tipo: "punto", num: "2 · QUE SE COMPLETEN",
+        titulo: 'Productos que <span class="verde">se necesitan juntos</span>',
+        texto: "Árbol, estrella, adornos y luces: si compra uno, necesita los otros.<br><br>El combo <b>resuelve todo de una</b>.",
+      },
+      f("3 · EL AHORRO A LA VISTA", "Precio, % OFF y precio con transferencia", "combo/2.jpg"),
+      {
+        tipo: "punto", num: "4 · CON FECHA",
+        titulo: 'Con fecha, <span class="verde">se decide antes</span>',
+        texto: "Navidad, Día de la Madre, vuelta a clases: cada combo de temporada tiene su momento.<br><br>Publicalo con tiempo y <b>avisá hasta cuándo llega</b>.",
+      },
+      {
+        tipo: "punto", num: "5 · CON LO QUE TENÉS",
+        titulo: 'Armalo con <span class="verde">tu stock</span>',
+        texto: "Un combo es una buena forma de mover lo que ya tenés, <b>sin comprar más mercadería</b>.",
+      },
+      {
+        tipo: "cta", ultima: true, eyebrow: "Análisis gratis",
+        titulo: '¿Qué combo podrías <span class="verde">armar vos</span>?',
+        texto: 'Comentá <span class="palabra">COMBO</span> y te ayudo a pensarlo con los productos de tu tienda.',
+      },
+    ],
+    caption: `🎁 Combos: cómo armarlos para vender más (guardalo para después)
+
+Con un ejemplo real: el Combo Navideño que armó Marcelo en Hogar Digital (@hogardigitaltiendaonline) 👇
+
+1️⃣ Una ocasión clara: "Armá tu Navidad" vende más que "5 productos juntos". La persona compra una solución, no una lista.
+2️⃣ Que se completen: árbol, estrella, adornos y luces. Si compra uno, necesita los otros.
+3️⃣ El ahorro a la vista: precio del combo, % OFF y precio con transferencia, en la ficha.
+4️⃣ Con fecha: cada combo de temporada tiene su momento. Publicalo con tiempo y avisá hasta cuándo llega.
+5️⃣ Con lo que tenés: un combo mueve tu stock sin comprar más mercadería.
+
+👉 ¿Qué combo podrías armar vos? Comentá COMBO y te ayudo a pensarlo con los productos de tu tienda.
+
+${HASHTAGS}`,
+  },
+  {
+    carpeta: "14-black-friday",
+    nombre: "5 cosas para revisar antes del Black Friday",
+    placas: [
+      { tipo: "portada", eyebrow: "Black Friday · 27/11", titulo: '5 cosas para revisar <span class="verde">antes del Black Friday</span>', sub: "Con ejemplos reales de la tienda de Hogar Digital. Guardalo para esta semana." },
+      f("1 · EL DESCUENTO, CLARO", "Precio de lista, % OFF y precio final", "combo/2.jpg"),
+      f("2 · CUÁNDO LE LLEGA", "Hora de corte y envío, a la vista", "combo/3.jpg"),
+      {
+        tipo: "punto", num: "3 · PROMOS CARGADAS DE VERDAD",
+        titulo: 'Que el carrito <span class="verde">cobre lo que promete</span>',
+        texto: "Si la ficha dice 20% OFF, la promo tiene que estar cargada en Tiendanube.<br><br>Si no, el checkout cobra otro precio y <b>la venta se cae en el último paso</b>.",
+      },
+      f("4 · LAS DUDAS, RESPONDIDAS", "Preguntas frecuentes en la ficha", "combo/5.jpg"),
+      f("5 · WHATSAPP A MANO", "Para la duda de último momento", "ficha-5.jpg"),
+      {
+        tipo: "cta", ultima: true, eyebrow: "Análisis gratis",
+        titulo: '¿Reviso <span class="verde">tu tienda</span> antes del 27?',
+        texto: 'Comentá <span class="palabra">FICHA</span> y te digo qué le falta antes del Black Friday.',
+      },
+    ],
+    caption: `🖤 5 cosas para revisar en tu tienda antes del Black Friday (27/11). Guardalo para esta semana 👇
+
+Con ejemplos reales de la tienda de Hogar Digital (@hogardigitaltiendaonline):
+
+1️⃣ El descuento, claro: precio de lista, % OFF y precio final. Que se entienda en un segundo.
+2️⃣ Cuándo le llega: hora de corte y envío a la vista. En Black Friday todos quieren saber si llega a tiempo.
+3️⃣ Promos cargadas de verdad: si la ficha dice 20% OFF, la promo tiene que estar cargada en Tiendanube. Si no, el checkout cobra otro precio y la venta se cae en el último paso.
+4️⃣ Las dudas, respondidas: envío, garantía, cambios y medios de pago, en la ficha.
+5️⃣ WhatsApp a mano: para la duda de último momento.
+
+👉 ¿Querés que revise tu tienda antes del 27? Comentá FICHA y te digo qué le falta.
+
+${HASHTAGS} #blackfriday`,
+  },
+  {
+    carpeta: "15-preguntas-nevux",
+    nombre: "Lo que más me preguntan de Nevux",
+    placas: [
+      { tipo: "portada", eyebrow: "Guardalo para después", titulo: 'Lo que más me preguntan <span class="verde">de Nevux</span>', sub: "Contraseña, plantilla, velocidad, garantía y precio. Sin vueltas." },
+      { tipo: "punto", num: "PREGUNTA 1", titulo: "¿Necesitan mi contraseña?", texto: "No. Solo necesitamos el link de tu tienda para ver cómo está. La línea la pegás vos desde tu panel, con nuestra guía." },
+      { tipo: "punto", num: "PREGUNTA 2", titulo: "¿Tengo que cambiar de plantilla o saber programar?", texto: "No. Nevux se suma a la plantilla que ya tenés. Te damos una sola línea, ya configurada para tu tienda, y la pegás en el editor de diseño." },
+      { tipo: "punto", num: "PREGUNTA 3", titulo: "¿Hace más lenta mi tienda?", texto: "La línea se carga en paralelo, así que no frena la carga de tu página. Es un solo archivo, sin apps." },
+      { tipo: "punto", num: "PREGUNTA 4", titulo: "¿Rompe algo? ¿Cómo lo saco?", texto: "No toca tu plantilla ni tus productos. Si borrás la línea, tu tienda vuelve a estar como antes." },
+      { tipo: "punto", num: "PREGUNTA 5", titulo: "¿Cuánto más voy a vender?", texto: "No te prometemos un número: depende de tu producto, tu precio y tu tráfico. Podés hacer la cuenta con tus números en la calculadora de nevux.ar." },
+      { tipo: "punto", num: "PREGUNTA 6", titulo: "¿Y si en mi tienda no funciona?", texto: "Lo probamos sobre una ficha real de tu tienda antes de activarlo, y tenés 7 días de garantía: si no te convence, te devolvemos el 100%." },
+      { tipo: "punto", num: "PREGUNTA 7", titulo: "¿Cómo se paga?", texto: "Suscripción mensual por Mercado Pago, con tarjeta o con tu cuenta. Básico $39.900 y Premium $69.900 por mes. Cancelás cuando quieras." },
+      {
+        tipo: "cta", ultima: true, eyebrow: "Análisis gratis",
+        titulo: '¿Te quedó <span class="verde">otra duda</span>?',
+        texto: 'Escribila en los comentarios o mandame <span class="palabra">FICHA</span> por mensaje y la vemos con tu tienda.',
+      },
+    ],
+    caption: `Lo que más me preguntan de Nevux, sin vueltas 👇 (guardalo para después)
+
+❓ ¿Necesitan mi contraseña?
+No. Solo necesitamos el link de tu tienda para ver cómo está. La línea la pegás vos desde tu panel, con nuestra guía.
+
+❓ ¿Tengo que cambiar de plantilla o saber programar?
+No. Nevux se suma a la plantilla que ya tenés. Te damos una sola línea, ya configurada para tu tienda, y la pegás en el editor de diseño.
+
+❓ ¿Hace más lenta mi tienda?
+La línea se carga en paralelo, así que no frena la carga de tu página. Es un solo archivo, sin apps.
+
+❓ ¿Rompe algo? ¿Cómo lo saco?
+No toca tu plantilla ni tus productos. Si borrás la línea, tu tienda vuelve a estar como antes.
+
+❓ ¿Cuánto más voy a vender?
+No te prometemos un número: depende de tu producto, tu precio y tu tráfico. Podés hacer la cuenta con tus números en la calculadora de nevux.ar.
+
+❓ ¿Y si en mi tienda no funciona?
+Lo probamos sobre una ficha real de tu tienda antes de activarlo, y tenés 7 días de garantía: si no te convence, te devolvemos el 100%.
+
+❓ ¿Cómo se paga?
+Suscripción mensual por Mercado Pago, con tarjeta o con tu cuenta. Básico $39.900 y Premium $69.900 por mes. Cancelás cuando quieras.
+
+👉 ¿Te quedó otra duda? Escribila en los comentarios o mandame FICHA por mensaje y la vemos con tu tienda.
+
+${HASHTAGS}`,
+  },
+];

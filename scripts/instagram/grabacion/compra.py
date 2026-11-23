@@ -1,0 +1,215 @@
+# Reel "Una compra real en Hogar Digital": grabación de la tienda en vivo + voz de Tomás + música suave + rótulos de Nevux.
+# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home|corte|computadora|preguntas|perfumez|perfumez-ficha|catalogo] (RELOJ=... para fijar el reloj del navegador)   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
+# Sale en public/ig/reels/compra.mp4 (+ .jpg). La portada va integrada como primer cuadro.
+import json, os, subprocess, sys, tempfile, shutil
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
+AQUI = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(AQUI, ".."))
+from audio import tts, dur, mezclar
+
+RAIZ = os.path.join(AQUI, "..", "..", "..")
+SALIDA = os.path.join(RAIZ, "public", "ig", "reels")
+FUENTES = os.path.join(AQUI, "..", "hd", "fuentes")
+W, H, FPS = 1080, 1920, 30
+VERDE, VERDE2, BG = (52, 211, 153), (110, 231, 183), (7, 8, 10)
+F = lambda n, s: ImageFont.truetype(os.path.join(FUENTES, n), s)
+HOME = "https://hogardigital.com.ar/"
+OVNI = "https://hogardigital.com.ar/productos/humidificador-ovni-267/"
+
+REELS = {}
+REELS["compra"] = [
+    dict(accion="abrir", url=HOME, et="CASO REAL · EN VIVO", tit="Una compra real en Hogar Digital", voz="Así compra un cliente en Hogar Digital. Es su tienda real, en vivo."),
+    dict(accion="bajar", texto="ATENCIÓN POR WHATSAPP", margen=330, et="1 · LA HOME", tit="La confianza, primero", voz="Apenas entra, ve envíos a todo el país, garantía y atención por WhatsApp."),
+    dict(accion="bajar", texto="DESTACADOS", margen=120, et="2 · LOS PRODUCTOS", tit="Precio y descuento a la vista", voz="Baja, y cada producto tiene el precio y el descuento a la vista."),
+    dict(accion="tocar", texto="HUMIDIFICADOR OVNI", url=OVNI, et="3 · LA FICHA", tit="Toca el humidificador OVNI", voz="Toca el humidificador OVNI, y entra a la ficha."),
+    dict(accion="bajar", texto="Pagando con transferencia", margen=330, et="3 · LA FICHA", tit="Cuánto paga y cuánto ahorra", voz="Ve cuánto paga con transferencia, y cuánto ahorra."),
+    dict(accion="bajar", texto="Sale hoy", margen=200, et="3 · LA FICHA", tit="Cuándo sale su pedido", voz="Y cuándo sale su pedido, con la hora de corte."),
+    dict(accion="carrito", et="4 · EL CARRITO", tit="Envío gratis, confirmado", voz="Lo agrega, y el carrito le confirma que tiene envío gratis."),
+    dict(accion="panel", texto="TOTAL", margen=60, et="4 · EL CARRITO", tit="Elige cómo pagar", voz="Elige cómo pagar, y con transferencia ve el descuento antes de pagar."),
+    dict(accion="cierre", voz="Todo con los datos reales de su tienda. ¿Querés la tuya así? Comentá ficha."),
+]
+REELS["movimiento"] = [
+    dict(accion="abrir", url=HOME, et="CASO REAL · EN VIVO", tit="Sus Reels, dentro de su tienda", voz="¿Tenés videos de tus productos en Instagram? Mirá dónde los puso Hogar Digital."),
+    dict(accion="bajar", texto="en movimiento", margen=150, vivo=True, et="EN MOVIMIENTO", tit="Sus videos, en la home", voz="En su home hay una sección con sus propios Reels."),
+    dict(accion="vivo", et="EN MOVIMIENTO", tit="Se reproducen solos", voz="Se reproducen solos, sin sonido, y van pasando como en Instagram."),
+    dict(accion="vivo", et="EN MOVIMIENTO", tit="Productos funcionando", voz="Quien entra a la tienda ve los productos funcionando, y a Marcelo explicándolos."),
+    dict(accion="vivo", et="EN MOVIMIENTO", tit="Cada uno abre su Reel", voz="Y si toca uno, se abre ese Reel en su Instagram."),
+    dict(accion="cierre", voz="¿Tenés videos en Instagram? Pueden estar en tu tienda. Comentá ficha."),
+]
+REELS["home"] = [
+    dict(accion="abrir", url=HOME, et="CASO REAL · EN VIVO", tit="La home de Hogar Digital", voz="Esta es la home de Hogar Digital, en vivo. Mirá todo lo que tiene."),
+    dict(accion="bajar", texto="ATENCIÓN POR WHATSAPP", margen=330, vivo=True, et="1 · BENEFICIOS", tit="Lo primero que se ve", voz="Envíos, garantía y WhatsApp, apenas entrás."),
+    dict(accion="bajar", texto="DESTACADOS", margen=120, vivo=True, et="2 · DESTACADOS", tit="Precio y descuento a la vista", voz="Destacados, con el precio y el descuento."),
+    dict(accion="bajar", texto="en movimiento", margen=150, vivo=True, et="3 · EN MOVIMIENTO", tit="Sus Reels, andando", voz="Sus propios videos, andando."),
+    dict(accion="bajar", texto="ENCONTRÁ LO TUYO", margen=40, vivo=True, et="4 · CATEGORÍAS", tit="Cambian mientras bajás", voz="Categorías que cambian mientras bajás."),
+    dict(accion="bajar", texto="EN NÚMEROS", margen=260, vivo=True, et="5 · NÚMEROS", tit="Sus números reales", voz="Sus números reales."),
+    dict(accion="bajar", texto="CONOCER EL LOCAL", margen=120, vivo=True, et="6 · EL LOCAL", tit="Mapa y horario", voz="Y su local en Campana, con mapa y horario."),
+    dict(accion="cierre", voz="Todo en una sola home. ¿Querés la tuya así? Comentá ficha."),
+]
+REELS["corte"] = [
+    dict(accion="abrir", url=OVNI, et="CASO REAL · EN VIVO", tit="La cuenta regresiva del despacho", voz="Mirá esta cuenta regresiva. Es real, y está en la ficha de Hogar Digital."),
+    dict(accion="bajar", texto="Sale hoy", margen=250, vivo=True, et="EN LA FICHA", tit="Sale hoy, antes de las 18 h", voz="Le dice a quien compra que su pedido sale hoy, si compra antes de las seis de la tarde."),
+    dict(accion="vivo", et="EN LA FICHA", tit="Cuenta en tiempo real", voz="Y cuenta, en tiempo real, cuánto falta para el corte."),
+    dict(accion="carrito", vivo=True, et="EN EL CARRITO", tit="Se lo recuerda otra vez", voz="Cuando lo agrega, el carrito se lo recuerda otra vez."),
+    dict(accion="vivo", et="EN EL CARRITO", tit="Un motivo real para hoy", voz="Así tiene un motivo real para no dejarlo para mañana."),
+    dict(accion="cierre", voz="Es la hora de corte real de su tienda, nada inventado. ¿Querés la tuya así? Comentá ficha."),
+]
+REELS["computadora"] = [  # correr con ESCRITORIO=1
+    dict(accion="abrir", url=HOME, et="CASO REAL · EN COMPUTADORA", tit="Hogar Digital, en computadora", voz="Esta es la tienda de Hogar Digital, en computadora. La misma tienda, adaptada a la pantalla grande."),
+    dict(accion="bajar", texto="ATENCIÓN POR WHATSAPP", margen=420, vivo=True, et="1 · LA HOME", tit="Los beneficios, a la vista", voz="Los beneficios, a la vista apenas entrás."),
+    dict(accion="bajar", texto="DESTACADOS", margen=140, vivo=True, et="2 · DESTACADOS", tit="Precio y descuento", voz="Los destacados, con el precio y el descuento."),
+    dict(accion="bajar", texto="ENCONTRÁ LO TUYO", margen=60, vivo=True, et="3 · CATEGORÍAS", tit="Cambian mientras bajás", voz="Las categorías, que cambian mientras bajás."),
+    dict(accion="bajar", texto="CONOCER EL LOCAL", margen=140, vivo=True, et="4 · EL LOCAL", tit="Con el mapa al costado", voz="Y el local, con el mapa al costado."),
+    dict(accion="cierre", voz="En el celular o en la computadora, la tienda vende igual. ¿Querés la tuya así? Comentá ficha."),
+]
+REELS["preguntas"] = [
+    dict(accion="abrir", url=OVNI, et="CASO REAL · EN VIVO", tit="Las dudas, respondidas en la ficha", voz="¿Cuántas veces por día te preguntan lo mismo por WhatsApp? Mirá cómo lo resuelve Hogar Digital."),
+    dict(accion="bajar", texto="tarda en llegar", margen=220, vivo=True, et="EN LA FICHA", tit="Las preguntas de siempre", voz="En cada ficha tiene las preguntas que más le hacen."),
+    dict(accion="pregunta", texto="tarda en llegar", margen=160, et="PREGUNTA 1", tit="¿Cuánto tarda en llegar?", voz="¿Cuánto tarda en llegar? Respondido."),
+    dict(accion="pregunta", texto="tiene garant", margen=160, et="PREGUNTA 2", tit="¿Tiene garantía?", voz="¿Tiene garantía? Respondido."),
+    dict(accion="pregunta", texto="devolverlo", margen=160, et="PREGUNTA 3", tit="¿Y si me arrepiento?", voz="¿Y si me arrepiento? También."),
+    dict(accion="vivo", et="SIN ESCRIBIR", tit="La respuesta ya está ahí", voz="Así, quien compra no tiene que escribir y esperar: la respuesta ya está ahí."),
+    dict(accion="cierre", voz="Cada duda resuelta en la ficha es una venta que no se frena. Comentá ficha."),
+]
+PZ = "https://perfumes405.mitiendanube.com/"
+REELS["perfumez"] = [  # correr con CLIENTE=perfumez CFG=<config de lib/clientes.ts en JSON> (la tienda todavía está apagada)
+    dict(accion="abrir", url=PZ, et="CLIENTE NUEVO", tit="Perfumez, así va a quedar", voz="Este es Perfumez, nuestro cliente nuevo: perfumes árabes. Así va a quedar su tienda."),
+    dict(accion="bajar", texto="MARCAS ÁRABES", margen=150, vivo=True, et="1 · CONFIANZA", tit="Marcas reales y envío", voz="Arriba, lo que da confianza: marcas árabes reales, envío a todo el país y listos para regalar."),
+    dict(accion="bajar", texto="ENCONTRÁ TU PRÓXIMA", margen=120, vivo=True, et="2 · POR ESTILO", tit="Hombre, mujer o unisex", voz="Después, elegís por estilo: hombre, mujer o unisex."),
+    dict(accion="bajar", texto="MÁS VENDIDOS", margen=60, vivo=True, et="3 · MÁS VENDIDOS", tit="En vitrina", voz="Los más vendidos, en una vitrina."),
+    dict(accion="bajar", texto="tres tiempos", margen=190, vivo=True, et="4 · CÓMO HUELE", tit="Salida, corazón y fondo", voz="Y como un perfume no se puede oler por internet, la tienda te cuenta cómo huele: salida, corazón y fondo."),
+    dict(accion="bajar", texto="RESOLVÉ TUS DUDAS", margen=100, vivo=True, et="5 · LAS DUDAS", tit="Respondidas antes", voz="Al final, las dudas de siempre, ya respondidas."),
+    dict(accion="cierre", voz="Otro rubro, la misma idea. ¿Querés tu tienda así? Comentá ficha."),
+]
+PZF = "https://perfumes405.mitiendanube.com/productos/lattafa-khamrah-qahwa-100ml/"
+REELS["perfumez-ficha"] = [  # CLIENTE=perfumez CFG=... RELOJ=<jueves 11 h>
+    dict(accion="abrir", url=PZF, et="PERFUMEZ · LA FICHA", tit="Un perfume, de punta a punta", voz="Esta es la ficha de un perfume en Perfumez. Mirá todo lo que cuenta."),
+    dict(accion="bajar", texto="Despachamos", margen=330, vivo=True, et="1 · PRECIO Y ENVÍO", tit="Cuánto paga y cuándo llega", voz="El precio, cuánto ahorra, cuándo despacha y entre qué días le llega."),
+    dict(accion="bajar", texto="MIRALO DE CERCA", margen=100, vivo=True, et="2 · DE CERCA", tit="El frasco original", voz="Fotos del frasco original, de cerca."),
+    dict(accion="bajar", texto="UNA FRAGANCIA EN TRES", margen=100, vivo=True, et="3 · CÓMO HUELE", tit="Salida, corazón y fondo", voz="Cómo huele: las notas de salida, de corazón y de fondo."),
+    dict(accion="bajar", texto="VIENE LISTO PARA REGALAR", margen=100, vivo=True, et="4 · PARA REGALAR", tit="En su caja original", voz="Que llega en su caja, listo para regalar."),
+    dict(accion="bajar", texto="LO QUE NOS PREGUNTAN", margen=100, vivo=True, et="5 · LAS DUDAS", tit="Respondidas en la ficha", voz="Y las preguntas de siempre, ya respondidas."),
+    dict(accion="cierre", voz="Cuando no se puede oler, hay que contarlo bien. ¿Querés tu ficha así? Comentá ficha."),
+]
+REELS["catalogo"] = [
+    dict(accion="abrir", url=HOME, et="CASO REAL · EN VIVO", tit="Todo el catálogo, en la home", voz="En la home de Hogar Digital ahora está todo el catálogo, con filtros."),
+    dict(accion="bajar", texto="lo que buscás", margen=140, vivo=True, et="TODO EL CATÁLOGO", tit="Encontrá lo que buscás", voz="Una sección con todos sus productos, en una grilla."),
+    dict(accion="boton", texto="Humidificadores", margen=230, et="FILTRO", tit="Humidificadores", voz="Tocás un filtro, y ves solo los humidificadores."),
+    dict(accion="boton", texto="Smartwatches", margen=230, et="FILTRO", tit="Smartwatches", voz="Otro toque, y ves los smartwatches."),
+    dict(accion="boton", texto="Todos", margen=230, et="TODOS", tit="De vuelta a todo", voz="Con todos, volvés al catálogo completo."),
+    dict(accion="boton", texto="Ver más productos", margen=520, et="VER MÁS", tit="Sin salir de la home", voz="Y con ver más, se cargan más productos, sin salir de la home."),
+    dict(accion="cierre", voz="Así nadie se pierde un producto. ¿Querés tu tienda así? Comentá ficha."),
+]
+NOMBRE = sys.argv[1] if len(sys.argv) > 1 else "compra"
+ESCENAS = REELS[NOMBRE]
+
+def fondo():
+    im = Image.new("RGB", (W, H), BG)
+    g = Image.new("L", (W, H), 0); d = ImageDraw.Draw(g)
+    d.ellipse((W - 500, -500, W + 500, 400), fill=110)
+    g = g.filter(ImageFilter.GaussianBlur(180))
+    im.paste(Image.new("RGB", (W, H), (16, 94, 66)), (0, 0), g)
+    return im
+BASE = fondo()
+
+def marca(d, y=70):
+    d.text((80, y), "Nevux", font=F("inter800.ttf", 40), fill=(255, 255, 255))
+    d.text((80 + d.textlength("Nevux", font=F("inter800.ttf", 40)) + 14, y + 8), "@nevux.app", font=F("inter800.ttf", 30), fill=(161, 161, 170))
+
+def cuadro(png, esc):
+    im = BASE.copy(); d = ImageDraw.Draw(im); marca(d)
+    et, tit = esc["et"], esc["tit"]
+    s = Image.open(png).convert("RGB")
+    if s.width > s.height:
+        # computadora: notebook grande y centrada, con el rótulo abajo en letra grande
+        sw = 1040; sh = int(sw * s.height / s.width)
+        s = s.resize((sw, sh), Image.LANCZOS)
+        x, y = (W - sw) // 2, 520
+        d.rounded_rectangle((x - 16, y - 16, x + sw + 16, y + sh + 16), radius=22, fill=(28, 28, 31))
+        im.paste(s, (x, y))
+        d.rounded_rectangle((x - 30, y + sh + 16, x + sw + 30, y + sh + 44), radius=12, fill=(48, 48, 52))
+        d.rounded_rectangle((W // 2 - 90, y + sh + 16, W // 2 + 90, y + sh + 28), radius=6, fill=(32, 32, 35))
+        fe = F("inter800.ttf", 36); tam = 72
+        while d.textlength(tit, font=F("mont900.ttf", tam)) > W - 160 and tam > 40: tam -= 2
+        ft = F("mont900.ttf", tam)
+        yy = y + sh + 130
+        w = d.textlength(et, font=fe) + 52
+        d.rounded_rectangle((80, yy, 80 + w, yy + 62), radius=16, fill=VERDE)
+        d.text((106, yy + 9), et, font=fe, fill=BG)
+        d.text((80, yy + 92), tit, font=ft, fill=(255, 255, 255))
+        return im
+    fe = F("inter800.ttf", 30); tam = 54
+    while d.textlength(tit, font=F("mont900.ttf", tam)) > W - 160 and tam > 34: tam -= 2
+    ft = F("mont900.ttf", tam)
+    w = d.textlength(et, font=fe) + 44
+    d.rounded_rectangle((80, 150, 80 + w, 202), radius=14, fill=VERDE)
+    d.text((102, 158), et, font=fe, fill=BG)
+    d.text((80, 222), tit, font=ft, fill=(255, 255, 255))
+    # pantalla real del celular, achicada y con bordes redondeados
+    sw = 860; sh = int(sw * s.height / s.width)
+    s = s.resize((sw, sh), Image.LANCZOS)
+    x, y = (W - sw) // 2, 330
+    m = Image.new("L", (sw, sh), 0); ImageDraw.Draw(m).rounded_rectangle((0, 0, sw, sh), radius=48, fill=255)
+    marco = Image.new("L", (sw + 28, sh + 28), 0); ImageDraw.Draw(marco).rounded_rectangle((0, 0, sw + 28, sh + 28), radius=60, fill=255)
+    im.paste((28, 28, 31), (x - 14, y - 14), marco)
+    im.paste(s, (x, y), m)
+    return im
+
+def cierre():
+    im = BASE.copy(); d = ImageDraw.Draw(im); marca(d)
+    d.text((80, 700), "SIN APPS · SIN CAMBIAR DE PLANTILLA", font=F("inter800.ttf", 30), fill=VERDE2)
+    d.text((80, 770), "¿Querés tu", font=F("mont900.ttf", 96), fill=(255, 255, 255))
+    d.text((80, 880), "tienda así?", font=F("mont900.ttf", 96), fill=VERDE2)
+    d.text((80, 1040), "Comentá", font=F("inter800.ttf", 52), fill=(228, 228, 231))
+    x = 80 + d.textlength("Comentá ", font=F("inter800.ttf", 52))
+    d.rounded_rectangle((x, 1032, x + d.textlength("FICHA", font=F("inter800.ttf", 52)) + 36, 1108), radius=16, fill=(255, 255, 255))
+    d.text((x + 18, 1040), "FICHA", font=F("inter800.ttf", 52), fill=BG)
+    d.text((80, 1130), "y te digo qué le falta a la tuya.", font=F("inter800.ttf", 52), fill=(228, 228, 231))
+    d.text((80, 1760), "nevux.ar", font=F("inter800.ttf", 36), fill=(161, 161, 170))
+    return im
+
+def main():
+    tmp = tempfile.mkdtemp()
+    durs = []
+    for i, e in enumerate(ESCENAS):
+        a = os.path.join(tmp, f"v{i}.mp3"); tts(e["voz"], a); durs.append(dur(a) + 0.3)
+    lista = os.path.join(tmp, "l.txt")
+    with open(lista, "w") as f:
+        for i in range(len(ESCENAS)):
+            sil = os.path.join(tmp, f"s{i}.wav")
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", os.path.join(tmp, f"v{i}.mp3"), "-af", "apad=pad_dur=0.3", "-ar", "44100", "-ac", "1", sil], check=True)
+            f.write(f"file '{sil}'\n")
+    voz = os.path.join(tmp, "voz.m4a")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lista, "-c:a", "aac", "-b:a", "192k", voz], check=True)
+    cuadros = [int(round(d * FPS)) for d in durs]
+    plan = [dict({k: v for k, v in e.items() if k not in ("voz",)}, cuadros=c) for e, c in zip(ESCENAS, cuadros) if e["accion"] != "cierre"]
+    pj = os.path.join(tmp, "plan.json"); json.dump(plan, open(pj, "w"))
+    crudo = os.path.join(tmp, "crudo")
+    subprocess.run(["node", os.path.join(AQUI, "grabar.js"), pj, crudo], check=True, env=dict(os.environ, NODE_PATH=subprocess.check_output(["npm", "root", "-g"]).decode().strip()))
+    pngs = sorted(os.listdir(crudo))
+    fr = os.path.join(tmp, "fr"); os.makedirs(fr)
+    n = 0; idx = 0
+    for e, c in zip(ESCENAS, cuadros):
+        if e["accion"] == "cierre":
+            cimg = cierre()
+            for j in range(c): cimg.save(os.path.join(fr, f"{n:05d}.png")); n += 1
+            continue
+        ult = None
+        for j in range(c):
+            src = os.path.join(crudo, pngs[min(idx, len(pngs) - 1)]); idx += 1
+            if src != ult: im = cuadro(src, e); ult = src
+            im.save(os.path.join(fr, f"{n:05d}.png")); n += 1
+    # Portada integrada: los 2 primeros cuadros son la portada (la home con el rótulo), así Business Suite la toma sola
+    portada = Image.open(os.path.join(fr, f"{int(cuadros[0] * 0.6):05d}.png")).copy()
+    for j in range(2): portada.save(os.path.join(fr, f"{j:05d}.png"))
+    os.makedirs(SALIDA, exist_ok=True)
+    sinmusica = os.path.join(tmp, "video.mp4")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(fr, "%05d.png"), "-i", voz,
+        "-c:v", "libx264", "-preset", "slow", "-crf", "14", "-tune", "animation", "-pix_fmt", "yuv420p", "-profile:v", "high", "-c:a", "copy", "-shortest", "-movflags", "+faststart", sinmusica], check=True)
+    out = os.path.join(SALIDA, f"{NOMBRE}.mp4")
+    mezclar(sinmusica, voz, out)
+    portada.convert("RGB").save(os.path.join(SALIDA, f"{NOMBRE}.jpg"), quality=97, subsampling=0)
+    print(NOMBRE, f"{sum(durs):.1f} s", f"{os.path.getsize(out) / 1e6:.1f} MB", n, "cuadros")
+    shutil.rmtree(tmp, ignore_errors=True)
+
+main()
