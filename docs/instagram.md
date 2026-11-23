@@ -98,6 +98,22 @@ Historias en `historias-3.js` (`MMDD-1..3`). Los Reels grabados en la tienda sal
 
 Historias en `historias-4.js`; carruseles en `real-3.js`. El grabador (`grabacion/compra.py`) suma `RELOJ=<fecha>` (reloj del navegador en el día del post), `ESCRITORIO=1` (notebook) y la acción `pregunta` (abre una pregunta frecuente).
 
+## Semana del 23 al 29/11 (pasada a Rodrigo día por día): Hogar Digital en vivo + Perfumez, cliente nuevo
+
+**Perfumez (Lorenzo, `perfumes405.mitiendanube.com`, perfumes árabes Armaf/Afnan/Lattafa):** todavía apagada (se prende sola cuando paga el Premium, principios de diciembre). Sus capturas y Reels se hacen con su configuración de `lib/clientes.ts` cargada solo en el navegador (`CLIENTE=perfumez CFG=<json>` en el grabador) y los textos dicen **"así va a quedar"**. Confirmar con Lorenzo que está de acuerdo con aparecer. **Valmont** está prendida desde que Miguel pagó, pero no se muestra: su catálogo sigue con réplicas.
+
+| Día | 19:30 | Pieza | Archivos |
+|---|---|---|---|
+| Lun 23/11 | Carrusel (8) | Cliente nuevo: Perfumez | `16-cliente-perfumez` (`real-4.js`) |
+| Mar 24/11 | Reel (39 s) | La home de Perfumez | `reels/perfumez.mp4` |
+| Mié 25/11 | Carrusel (6) | Dos rubros, dos estilos (Hogar Digital y Perfumez) | `17-dos-estilos` (`generar-casos.js dos-estilos`) |
+| Jue 26/11 | Reel (32 s) | La ficha de un perfume de Perfumez | `reels/perfumez-ficha.mp4` |
+| Vie 27/11 | Carrusel (7) | Black Friday sin regalar margen (ejemplos de Hogar Digital) | `18-black-friday-margen` |
+| Sáb 28/11 | Reel (30 s) | Todo el catálogo de Hogar Digital en la home, con filtros | `reels/catalogo.mp4` |
+| Dom 29/11 | Carrusel (7) | Noviembre en Nevux | `19-noviembre` |
+
+Historias en `historias-5.js`. El grabador suma la acción `boton` (toca un filtro o "Ver más") y `generar-casos.js` acepta otro módulo (`ancho: true` para capturas 390×693).
+
 ## Frecuencia y horarios (todo programado, hora de Argentina)
 
 | Hora | Qué | Archivo |

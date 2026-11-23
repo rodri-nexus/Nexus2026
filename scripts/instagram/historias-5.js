@@ -88,5 +88,19 @@ module.exports = {
       pie: "Catálogo a la vista",
     },
     nuevo("1128-3", "Nuevo reel", 'Todo el catálogo, <span class="verde">en la home</span>', "Hogar Digital, en vivo. 🛍️"),
+
+    // Dom 29/11 · post: noviembre en Nevux
+    {
+      archivo: "1129-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Qué querés ver <span class="verde">en diciembre</span>?',
+      sub: "Respondé con la encuesta. Armo el contenido con lo que más elijan.", responde: "MÁS CASOS · MÁS TIPS",
+    },
+    {
+      archivo: "1129-2", tipo: "punto", num: "PARA DICIEMBRE",
+      titulo: 'Llegá a Navidad <span class="verde">con tu tienda lista</span>',
+      texto: "Lo armamos sobre una ficha tuya antes de activarlo, con tus productos y tus precios.<br><br>Y tenés <b>7 días de garantía</b>.",
+      pie: "Análisis gratis",
+    },
+    nuevo("1129-3", "Nuevo post", 'Noviembre <span class="verde">en Nevux</span>', "Lo que armamos este mes. 📅"),
   ],
 };

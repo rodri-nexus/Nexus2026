@@ -95,4 +95,46 @@ Ojo: cada promo tiene que estar cargada en Tiendanube, así el carrito cobra lo 
 
 ${HASHTAGS} #blackfriday`,
   },
+  {
+    carpeta: "19-noviembre",
+    nombre: "Noviembre en Nevux",
+    placas: [
+      { tipo: "portada", eyebrow: "Resumen del mes", titulo: 'Noviembre <span class="verde">en Nevux</span>', sub: "Lo que armamos este mes, con tiendas reales. Deslizá →" },
+      f("HOGAR DIGITAL · EN VIVO", "Premium en azul, en vivo desde el 9/11", "capturas/hd-vivo/home-1.jpg"),
+      {
+        tipo: "punto", num: "LO QUE SUMAMOS EN HOGAR DIGITAL",
+        titulo: 'De la home <span class="verde">al carrito</span>',
+        lista: ["Ficha con precio por transferencia, hora de corte y garantías", "Carrito con cuenta regresiva y formas de pago", "Sus propios Reels en la home", "Todo el catálogo en la home, con filtros"],
+      },
+      f("PERFUMEZ · CLIENTE NUEVO", "Premium en negro y dorado", Z + "home-1.jpg"),
+      {
+        tipo: "punto", num: "LO QUE ARMAMOS PARA PERFUMEZ",
+        titulo: 'Para vender <span class="verde">lo que no se puede oler</span>',
+        lista: ["Elegí por estilo: hombre, mujer o unisex", "Cómo huele: salida, corazón y fondo", "Cuándo despacha y entre qué días llega", "Listo para regalar, en su caja"],
+      },
+      {
+        tipo: "punto", num: "LO QUE APRENDIMOS",
+        titulo: 'Cada rubro <span class="verde">cuenta algo distinto</span>',
+        lista: ["Tecnología: cuándo llega y qué garantía tiene", "Perfumes: cómo huele y si viene para regalar", "En todos: precio claro y nada inventado"],
+      },
+      {
+        tipo: "cta", ultima: true, eyebrow: "Para diciembre",
+        titulo: '¿Tu tienda <span class="verde">es la próxima</span>?',
+        texto: 'Si querés llegar a Navidad con tu tienda lista, comentá <span class="palabra">FICHA</span> y empezamos por el análisis gratis.',
+      },
+    ],
+    caption: `📅 Noviembre en Nevux: lo que armamos este mes, con tiendas reales 👇
+
+🏠 Hogar Digital (@hogardigitaltiendaonline) · en vivo desde el 9/11
+Premium en azul. Le sumamos una ficha con precio por transferencia, hora de corte y garantías; un carrito con cuenta regresiva y formas de pago; sus propios Reels en la home y todo el catálogo con filtros.
+
+🖤 Perfumez (@perfumez_2026) · cliente nuevo
+Premium en negro y dorado, para vender lo que no se puede oler: elegí por estilo, cómo huele cada perfume, cuándo llega y listo para regalar. Así va a quedar su tienda (la estamos terminando).
+
+Lo que aprendimos: cada rubro necesita contar algo distinto. Tecnología, cuándo llega y qué garantía tiene. Perfumes, cómo huele y si viene para regalar. En todos: precio claro y nada inventado.
+
+👉 ¿Tu tienda es la próxima? Si querés llegar a Navidad con tu tienda lista, comentá FICHA y empezamos por el análisis gratis.
+
+${HASHTAGS}`,
+  },
 ];
