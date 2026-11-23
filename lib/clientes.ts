@@ -913,7 +913,6 @@ export const CLIENTES: Record<string, Cliente> = {
       },
       "anuncios": [
         "🚚 Envíos gratis a todo el país",
-        "🛡️ 1 año de garantía oficial",
         "💬 Asesoramiento personalizado"
       ],
       "mediosDePago": [
@@ -956,17 +955,13 @@ export const CLIENTES: Record<string, Cliente> = {
           "acento": "#d4af37",
           "cinta": [
             "Envíos *gratis* a todo el país",
-            "*1 año* de garantía oficial",
-            "Asesoramiento *personalizado*",
-            "Relojes *auténticos*"
+            "Asesoramiento *personalizado*"
           ],
           "portada": {
             "fotos": [
-              "https://nevux.ar/clientes/valmont/video-gshock-gst-b400.jpg",
-              "https://nevux.ar/clientes/valmont/video-complications-gold.jpg",
-              "https://nevux.ar/clientes/valmont/detalle-reloj.webp"
+              "https://nevux.ar/clientes/valmont/video-gshock-gst-b400.jpg"
             ],
-            "etiqueta": "Valmont · Relojes desde 1985",
+            "etiqueta": "Valmont · Relojería",
             "titulo": "Elegancia atemporal.",
             "texto": "Descubrí nuestra colección de relojes premium.",
             "boton": "Ver colección",
@@ -982,19 +977,9 @@ export const CLIENTES: Record<string, Cliente> = {
               "texto": "A todo el país"
             },
             {
-              "icono": "garantia",
-              "titulo": "1 año de garantía",
-              "texto": "Garantía oficial"
-            },
-            {
               "icono": "chat",
               "titulo": "Asesoramiento",
               "texto": "Expertos en relojería"
-            },
-            {
-              "icono": "cambios",
-              "titulo": "Productos auténticos",
-              "texto": "100% originales"
             }
           ],
           "tira": {
@@ -1033,16 +1018,8 @@ export const CLIENTES: Record<string, Cliente> = {
           "faqTitulo": "Preguntas frecuentes",
           "faq": [
             {
-              "p": "¿Los relojes son originales?",
-              "r": "Sí, todos nuestros relojes son 100% originales con garantía oficial del fabricante."
-            },
-            {
               "p": "¿Cuánto tarda el envío?",
               "r": "Los envíos son gratis a todo el país y demoran entre 2 y 5 días hábiles."
-            },
-            {
-              "p": "¿Tienen garantía?",
-              "r": "Todos los relojes incluyen 1 año de garantía oficial del fabricante."
             },
             {
               "p": "¿Puedo cambiar el reloj?",
@@ -1052,60 +1029,9 @@ export const CLIENTES: Record<string, Cliente> = {
           "banner": {
             "etiqueta": "[ Valmont ]",
             "titulo": "Encontrá tu estilo.",
-            "foto": "https://nevux.ar/clientes/valmont/detalle-reloj.webp",
+            "foto": "https://nevux.ar/clientes/valmont/video-gshock-gst-b400.jpg",
             "boton": "Ver relojes",
             "url": "/productos/"
-          },
-          "comunidad": {
-            "etiqueta": "Instagram",
-            "cuenta": "@valmont.relojes",
-            "url": "https://www.instagram.com/valmont.relojes/",
-            "fotos": [
-              {
-                "foto": "https://nevux.ar/clientes/valmont/video-gshock-gst-b400.jpg",
-                "video": "https://nevux.ar/clientes/valmont/video-gshock-gst-b400.mp4"
-              },
-              {
-                "foto": "https://nevux.ar/clientes/valmont/video-rolex-submariner.jpg",
-                "video": "https://nevux.ar/clientes/valmont/video-rolex-submariner.mp4"
-              },
-              {
-                "foto": "https://nevux.ar/clientes/valmont/video-omega-speedmaster.jpg",
-                "video": "https://nevux.ar/clientes/valmont/video-omega-speedmaster.mp4"
-              },
-              {
-                "foto": "https://nevux.ar/clientes/valmont/video-complications-gold.jpg",
-                "video": "https://nevux.ar/clientes/valmont/video-complications-gold.mp4"
-              },
-              {
-                "foto": "https://nevux.ar/clientes/valmont/video-rolex-daytona.jpg",
-                "video": "https://nevux.ar/clientes/valmont/video-rolex-daytona.mp4"
-              }
-            ]
-          },
-          "numeros": {
-            "titulo": "Valmont *en números*",
-            "items": [
-              {
-                "valor": 38,
-                "prefijo": "+",
-                "texto": "Años en el mercado"
-              },
-              {
-                "valor": 5000,
-                "prefijo": "+",
-                "texto": "Clientes satisfechos"
-              },
-              {
-                "valor": 200,
-                "prefijo": "+",
-                "texto": "Modelos disponibles"
-              },
-              {
-                "valor": 2,
-                "texto": "Locales en CABA"
-              }
-            ]
           }
         },
         "rotador": {
