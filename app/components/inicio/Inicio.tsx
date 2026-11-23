@@ -1,17 +1,16 @@
 "use client";
 
 // Inicio de nevux.ar: presenta los dos servicios (rediseño de Tiendanube y sitios web), cada uno con su página,
-// sus precios y su estructura. Casos reales: Hogar Digital, Power Gym y el estilo de Valmont (en la tienda demo).
+// sus precios y su estructura. Casos reales: páginas web (Power Gym) y rediseños de tiendas (Hogar Digital, Perfumez).
 // Regla: nada inventado (ni números de ventas, ni reseñas): solo trabajos y datos reales.
 
 import { useState } from "react";
 import { MotionConfig, motion } from "framer-motion";
 import { ArrowRight, Check, Store, Globe, Sparkles, Wrench, Search, MessageCircle, X, Crown, RotateCw } from "lucide-react";
-import NotebookVideo from "@/app/components/landing/NotebookVideo";
 import { Glow, Reveal, Tilt } from "@/app/components/landing/fx";
 import { PLANES, precioTexto } from "@/lib/planes";
 import { trackWhatsApp } from "@/app/components/landing/cta";
-import { BotonWA, Cabecera, Celular, PieGeneral, Titulo, WA_TIENDA, WA_WEB, PLANES_WEB, waLink } from "./comun";
+import { BotonWA, Cabecera, Celular, PieGeneral, Titulo, WA_GENERAL, WA_TIENDA, WA_WEB, PLANES_WEB, waLink } from "./comun";
 import PlanesFlip from "./PlanesFlip";
 
 const HERO = { oculto: {}, visible: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } } };
@@ -34,6 +33,43 @@ const DUDAS = [
   { q: "¿Trabajás con gente de cualquier lugar?", r: "Sí. Trabajo con marcas y tiendas de distintas provincias: todo se hace online." },
 ];
 
+
+// Casos reales. Para sumar uno nuevo: grabar el recorrido en celular (public/casos/<id>/recorrido.mp4 y .jpg) y agregarlo acá.
+type Caso = { id: string; etiqueta: string; nombre: string; texto: string; url?: string; video: string; poster: string };
+const CASOS_WEB: Caso[] = [
+  { id: "power-gym", etiqueta: "Sitio web · Plan Premium", nombre: "Power Gym · Diamante", texto: "Ficha de cada profe, videos, horarios, planes y reservas por WhatsApp.", url: "https://powergym-diamante.vercel.app", video: "/casos/power-gym/recorrido.mp4", poster: "/casos/power-gym/recorrido.jpg" },
+];
+const CASOS_TIENDAS: Caso[] = [
+  { id: "hogar-digital", etiqueta: "Tiendanube · Plan Premium", nombre: "Hogar Digital", texto: "Inicio con video, catálogo completo con filtros, ficha de producto y carrito.", url: "https://hogardigital.com.ar", video: "/casos/hogar-digital/recorrido.mp4", poster: "/casos/hogar-digital/recorrido.jpg" },
+  { id: "perfumez", etiqueta: "Tiendanube · Plan Premium", nombre: "Perfumez · Perfumes árabes", texto: "Estilo negro y dorado con logo en 3D, ficha con notas olfativas y carrito con sugeridos.", video: "/casos/perfumez/recorrido.mp4", poster: "/casos/perfumez/recorrido.jpg" },
+];
+
+function CasoCel({ caso, delay }: { caso: Caso; delay: number }) {
+  return (
+    <Reveal delay={delay}>
+      <Celular src={caso.video} poster={caso.poster} titulo={`Recorrido de ${caso.nombre}`} />
+      <div className="mt-5 text-center">
+        <span className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-300">{caso.etiqueta}</span>
+        <p className="mt-1 text-lg font-bold">{caso.nombre}</p>
+        <p className="mx-auto max-w-[300px] text-sm text-neutral-400">{caso.texto}</p>
+        {caso.url && <a href={caso.url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm font-bold text-emerald-300 hover:text-emerald-200">Visitar →</a>}
+      </div>
+    </Reveal>
+  );
+}
+
+function Proximo({ texto, detalle, origen }: { texto: string; detalle: string; origen: string }) {
+  return (
+    <Reveal delay={0.16}>
+      <div className="mx-auto flex h-full min-h-[420px] w-full max-w-[280px] flex-col items-center justify-center rounded-[2.4rem] border border-dashed border-emerald-300/30 bg-emerald-300/[0.03] p-8 text-center">
+        <span className="grid h-14 w-14 place-items-center rounded-2xl bg-emerald-400/15 text-2xl text-emerald-300">+</span>
+        <p className="mt-5 text-lg font-extrabold">{texto}</p>
+        <p className="mt-2 text-sm text-neutral-400">{detalle}</p>
+        <div className="mt-6"><BotonWA href={WA_GENERAL} origen={origen}>Quiero la mía</BotonWA></div>
+      </div>
+    </Reveal>
+  );
+}
 
 export default function Inicio() {
   return (
@@ -114,38 +150,40 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 3. Casos reales */}
+        {/* 3. Casos reales: páginas web y rediseños de tiendas, cada uno recorrido completo en celular */}
         <section id="casos" className="scroll-mt-20 border-y border-white/5 bg-white/[0.015] py-16 md:py-24">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Titulo eyebrow="Trabajos reales" bajada="Tiendas y páginas funcionando hoy, con sus datos reales.">Así quedan <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">mis trabajos.</span></Titulo>
-            <div className="grid items-center gap-10 md:grid-cols-[1.5fr_1fr]">
-              <Reveal>
-                <NotebookVideo src="/casos/premium/hogar-digital.mp4" poster="/casos/premium/hogar-digital.jpg" url="hogardigital.com.ar" titulo="Tienda Hogar Digital con el plan Premium" />
-                <div className="mt-5 text-center">
-                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-300">Tiendanube · Plan Premium</span>
-                  <p className="mt-1 text-lg font-bold">Hogar Digital</p>
-                  <p className="text-sm text-neutral-400">Inicio con video, ficha de producto y carrito renovados.</p>
-                </div>
-              </Reveal>
-              <Reveal delay={0.1}>
-                <Celular src="/casos/power-gym/landing.mp4" poster="/casos/power-gym/landing.jpg" titulo="Sitio web de Power Gym" />
-                <div className="mt-5 text-center">
-                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-300">Sitio web a medida</span>
-                  <p className="mt-1 text-lg font-bold">Power Gym · Diamante</p>
-                  <p className="text-sm text-neutral-400">Ficha de cada profe, videos, horarios y reservas por WhatsApp.</p>
-                </div>
-              </Reveal>
-            </div>
-            <Reveal delay={0.1} className="mt-14">
-              <div className="grid items-center gap-8 rounded-[28px] border border-amber-300/20 bg-gradient-to-br from-amber-300/[0.07] to-transparent p-6 sm:p-8 md:grid-cols-[1fr_1.2fr]">
+            <Titulo eyebrow="Trabajos reales" bajada="Recorridos completos, en celular, de páginas y tiendas funcionando hoy.">Así quedan <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">mis trabajos.</span></Titulo>
+
+            {/* Páginas web */}
+            <div id="casos-web" className="scroll-mt-24">
+              <div className="mb-8 flex items-end justify-between gap-4 border-b border-white/10 pb-4">
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-amber-300">Tiendanube · Estilo a medida</span>
-                  <p className="mt-2 text-2xl font-extrabold tracking-[-0.02em]">Valmont & Co. · Relojería</p>
-                  <p className="mt-2 text-[15px] leading-relaxed text-neutral-400">Un estilo negro y dorado creado para Valmont, con portada animada, vitrina y ficha de lujo. Acá lo ves en la tienda de demostración, con relojes de ejemplo.</p>
+                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-300">Sitios web a medida</span>
+                  <h3 className="mt-1 text-2xl font-extrabold tracking-[-0.02em] sm:text-3xl">Páginas web</h3>
                 </div>
-                <NotebookVideo src="/casos/premium/demo.mp4" poster="/casos/premium/demo.jpg" url="tienda-demo" titulo="Estilo creado para Valmont, en la tienda demo" />
+                <a href="/sitios-web" className="shrink-0 text-sm font-bold text-emerald-300 hover:text-emerald-200">Ver el servicio →</a>
               </div>
-            </Reveal>
+              <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+                {CASOS_WEB.map((c, i) => <CasoCel key={c.id} caso={c} delay={i * 0.08} />)}
+                <Proximo texto="Tu página puede ser la próxima" detalle="Con tu marca, tus fotos y tus videos. Te armo una muestra sin cargo." origen="casos-web-proximo" />
+              </div>
+            </div>
+
+            {/* Rediseños de tiendas */}
+            <div id="casos-tiendas" className="mt-20 scroll-mt-24">
+              <div className="mb-8 flex items-end justify-between gap-4 border-b border-white/10 pb-4">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-300">Tiendanube</span>
+                  <h3 className="mt-1 text-2xl font-extrabold tracking-[-0.02em] sm:text-3xl">Rediseños de tiendas</h3>
+                </div>
+                <a href="/tiendanube" className="shrink-0 text-sm font-bold text-emerald-300 hover:text-emerald-200">Ver el servicio →</a>
+              </div>
+              <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+                {CASOS_TIENDAS.map((c, i) => <CasoCel key={c.id} caso={c} delay={i * 0.08} />)}
+                <Proximo texto="Tu tienda puede ser la próxima" detalle="Pasame el link de tu Tiendanube y te muestro cómo quedaría." origen="casos-tiendas-proximo" />
+              </div>
+            </div>
           </div>
         </section>
 
