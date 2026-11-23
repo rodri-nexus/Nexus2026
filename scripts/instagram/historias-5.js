@@ -74,5 +74,19 @@ module.exports = {
       pie: "Black Friday",
     },
     nuevo("1127-3", "Nuevo post", 'Black Friday <span class="verde">sin regalar margen</span>', "3 ideas con ejemplos reales. 🖤"),
+
+    // Sáb 28/11 · reel: todo el catálogo de Hogar Digital en la home, con filtros
+    {
+      archivo: "1128-1", tipo: "portada", eyebrow: "Pregunta rápida",
+      titulo: '¿Cuántos productos <span class="verde">tiene tu tienda</span>?',
+      sub: "Respondé con la encuesta. Hoy te muestro cómo mostrarlos todos sin que nadie se pierda.", responde: "MENOS DE 20 · MÁS DE 20",
+    },
+    {
+      archivo: "1128-2", tipo: "punto", num: "DATO PARA TU TIENDA",
+      titulo: 'Lo que no se ve, <span class="verde">no se vende</span>',
+      texto: "Si para encontrar un producto hay que entrar a tres menús, muchos no llegan.<br><br>Con filtros en la home, <b>cada producto está a un toque</b>.",
+      pie: "Catálogo a la vista",
+    },
+    nuevo("1128-3", "Nuevo reel", 'Todo el catálogo, <span class="verde">en la home</span>', "Hogar Digital, en vivo. 🛍️"),
   ],
 };

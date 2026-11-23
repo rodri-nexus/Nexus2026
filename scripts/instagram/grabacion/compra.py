@@ -1,5 +1,5 @@
 # Reel "Una compra real en Hogar Digital": grabación de la tienda en vivo + voz de Tomás + música suave + rótulos de Nevux.
-# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home|corte|computadora|preguntas|perfumez|perfumez-ficha] (RELOJ=... para fijar el reloj del navegador)   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
+# Uso: python3 scripts/instagram/grabacion/compra.py [compra|movimiento|home|corte|computadora|preguntas|perfumez|perfumez-ficha|catalogo] (RELOJ=... para fijar el reloj del navegador)   (necesita Playwright, edge-tts, numpy, Pillow y ffmpeg)
 # Sale en public/ig/reels/compra.mp4 (+ .jpg). La portada va integrada como primer cuadro.
 import json, os, subprocess, sys, tempfile, shutil
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -90,6 +90,15 @@ REELS["perfumez-ficha"] = [  # CLIENTE=perfumez CFG=... RELOJ=<jueves 11 h>
     dict(accion="bajar", texto="VIENE LISTO PARA REGALAR", margen=100, vivo=True, et="4 · PARA REGALAR", tit="En su caja original", voz="Que llega en su caja, listo para regalar."),
     dict(accion="bajar", texto="LO QUE NOS PREGUNTAN", margen=100, vivo=True, et="5 · LAS DUDAS", tit="Respondidas en la ficha", voz="Y las preguntas de siempre, ya respondidas."),
     dict(accion="cierre", voz="Cuando no se puede oler, hay que contarlo bien. ¿Querés tu ficha así? Comentá ficha."),
+]
+REELS["catalogo"] = [
+    dict(accion="abrir", url=HOME, et="CASO REAL · EN VIVO", tit="Todo el catálogo, en la home", voz="En la home de Hogar Digital ahora está todo el catálogo, con filtros."),
+    dict(accion="bajar", texto="lo que buscás", margen=140, vivo=True, et="TODO EL CATÁLOGO", tit="Encontrá lo que buscás", voz="Una sección con todos sus productos, en una grilla."),
+    dict(accion="boton", texto="Humidificadores", margen=230, et="FILTRO", tit="Humidificadores", voz="Tocás un filtro, y ves solo los humidificadores."),
+    dict(accion="boton", texto="Smartwatches", margen=230, et="FILTRO", tit="Smartwatches", voz="Otro toque, y ves los smartwatches."),
+    dict(accion="boton", texto="Todos", margen=230, et="TODOS", tit="De vuelta a todo", voz="Con todos, volvés al catálogo completo."),
+    dict(accion="boton", texto="Ver más productos", margen=520, et="VER MÁS", tit="Sin salir de la home", voz="Y con ver más, se cargan más productos, sin salir de la home."),
+    dict(accion="cierre", voz="Así nadie se pierde un producto. ¿Querés tu tienda así? Comentá ficha."),
 ]
 NOMBRE = sys.argv[1] if len(sys.argv) > 1 else "compra"
 ESCENAS = REELS[NOMBRE]

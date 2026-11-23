@@ -113,6 +113,28 @@ const TOQUE = `(([x, y]) => { const d = document.createElement('div'); d.classNa
         await p.evaluate(() => { const e = document.querySelector('[data-nx-preg="1"]'); e.removeAttribute("data-nx-preg"); (e.closest("button,summary,[role=button],a,[onclick]") || e).click(); });
       } else { console.log("no encontré", s.texto); await quieto(5); }
       await enVivo(k - 5);
+    } else if (s.accion === "boton") {
+      // toca un botón por su texto exacto (filtros, "Ver más"...): elige el que está más cerca del centro de la pantalla
+      const ok = await p.evaluate(([t, m]) => {
+        const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); let x; const c = [];
+        while ((x = w.nextNode())) {
+          const e = x.parentElement; const r = e.getBoundingClientRect();
+          if (x.textContent.trim().toLowerCase() === t.toLowerCase() && r.height > 0 && r.width > 0 && getComputedStyle(e).visibility !== "hidden") c.push([Math.abs(r.top + r.height / 2 - innerHeight / 2), e]);
+        }
+        if (!c.length) return false;
+        c.sort((a, b) => a[0] - b[0]); const e = c[0][1];
+        e.setAttribute("data-nx-boton", "1");
+        window.scrollTo(0, e.getBoundingClientRect().top + scrollY - m);
+        return true;
+      }, [s.texto, s.margen || 300]);
+      await p.waitForTimeout(400);
+      if (ok) {
+        const r = await p.evaluate(() => { const q = document.querySelector('[data-nx-boton="1"]').getBoundingClientRect(); return [q.left + q.width / 2, q.top + q.height / 2]; });
+        await p.evaluate(eval(TOQUE), r);
+        await quieto(5);
+        await p.evaluate(() => { const e = document.querySelector('[data-nx-boton="1"]'); e.removeAttribute("data-nx-boton"); (e.closest("button,a,[role=button],[onclick],label") || e).click(); });
+      } else { console.log("no encontré", s.texto); await quieto(5); }
+      await enVivo(k - 5);
     } else if (s.accion === "vivo") {
       await enVivo(k);
     } else if (s.accion === "tocar") {
