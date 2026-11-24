@@ -498,7 +498,7 @@
       }
       if (d.cuotasSin > 1) h += '<span class="fl">⌄</span><div class="cq"><i>' + PRO_IC.tarjeta + '</i><div>' + d.cuotasSin + ' cuotas<br>sin interés<span>con débito / medios disponibles</span></div><strong>' + money(precio / d.cuotasSin) + '<small>por cuota</small></strong></div>';
       pb.insertAdjacentHTML('afterend', '<div class="nvx-esc">' + h + '</div><div class="nvx-3p">' +
-        [[PRO_IC.remera, (P.paso1 || 'Elegí color y talle')], [PRO_IC.carrito, 'Agregá al carrito'], [PRO_IC.camion, 'Recibí en tu casa']].map(function (x, i) {
+        [[PRO_IC[P.paso1Icono] || PRO_IC.remera, (P.paso1 || 'Elegí color y talle')], [PRO_IC.carrito, 'Agregá al carrito'], [PRO_IC.camion, 'Recibí en tu casa']].map(function (x, i) {
           return '<div><em>' + (i + 1) + '</em><i>' + x[0] + '</i>' + esc(x[1]) + '</div>';
         }).join('') + '</div>');
       pb.style.display = 'none';
@@ -598,7 +598,7 @@
     if (fotos[0] && (d.transf > 0 || d.cuotasSin > 1)) {
       html += '<section class="rev"><div class="ft"><img src="' + esc(fotos[0]) + '" alt="" loading="lazy"><div>' +
         (d.transf > 0 ? d.transf + '% OFF pagando por transferencia' : d.cuotasSin + ' cuotas sin interés') +
-        '<small>' + (d.transf > 0 && d.cuotasSin > 1 ? 'O con tarjeta, en ' + d.cuotasSin + ' cuotas sin interés.' : 'Precio final ' + money(d.precio)) + '</small></div></div></section>';
+        '<small>' + (d.transf > 0 && d.cuotasSin > 1 ? 'O con tarjeta, en ' + d.cuotasSin + ' cuotas sin interés.' : d.transf > 0 ? 'Te queda en ' + money(d.precio * (1 - d.transf / 100)) : 'Precio final ' + money(d.precio)) + '</small></div></div></section>';
     }
     // 3) Confianza en 2×2
     var CF = P.confianza || [
