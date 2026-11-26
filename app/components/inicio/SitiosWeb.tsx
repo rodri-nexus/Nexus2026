@@ -196,7 +196,7 @@ export default function SitiosWeb() {
                   <li key={t} className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />{t}</li>
                 ))}
               </ul>
-              <a href="https://powergym-diamante.vercel.app" target="_blank" rel="noopener noreferrer" className="nvx-press mt-8 inline-flex items-center gap-2 rounded-2xl border border-emerald-300/40 bg-emerald-400/[0.08] px-6 py-3.5 font-bold text-emerald-200 hover:bg-emerald-400/[0.15]">
+              <a href="https://powergym.net.ar" target="_blank" rel="noopener noreferrer" className="nvx-press mt-8 inline-flex items-center gap-2 rounded-2xl border border-emerald-300/40 bg-emerald-400/[0.08] px-6 py-3.5 font-bold text-emerald-200 hover:bg-emerald-400/[0.15]">
                 Ver la página <ArrowRight className="h-4 w-4" />
               </a>
             </Reveal>
