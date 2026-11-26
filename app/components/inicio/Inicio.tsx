@@ -37,7 +37,7 @@ const DUDAS = [
 // Casos reales. Para sumar uno nuevo: grabar el recorrido en celular (public/casos/<id>/recorrido.mp4 y .jpg) y agregarlo acá.
 type Caso = { id: string; etiqueta: string; nombre: string; texto: string; url?: string; video: string; poster: string };
 const CASOS_WEB: Caso[] = [
-  { id: "power-gym", etiqueta: "Sitio web · Plan Premium", nombre: "Power Gym · Diamante", texto: "Ficha de cada profe, videos, horarios, planes y reservas por WhatsApp.", url: "https://powergym-diamante.vercel.app", video: "/casos/power-gym/recorrido.mp4", poster: "/casos/power-gym/recorrido.jpg" },
+  { id: "power-gym", etiqueta: "Sitio web · Plan Premium", nombre: "Power Gym · Diamante", texto: "Ficha de cada profe, videos, horarios, planes y reservas por WhatsApp.", url: "https://powergym.net.ar", video: "/casos/power-gym/recorrido.mp4", poster: "/casos/power-gym/recorrido.jpg" },
 ];
 const CASOS_TIENDAS: Caso[] = [
   { id: "hogar-digital", etiqueta: "Tiendanube · Plan Premium", nombre: "Hogar Digital", texto: "Inicio con video, catálogo completo con filtros, ficha de producto y carrito.", url: "https://hogardigital.com.ar", video: "/casos/hogar-digital/recorrido.mp4", poster: "/casos/hogar-digital/recorrido.jpg" },
